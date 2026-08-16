@@ -1,0 +1,17 @@
+transport_id,destination_id,name,type,lat,lon
+TR001,IST,Istanbul Airport,airport,41.2753,28.7519
+TR002,IST,Sirkeci Train Station,train_station,41.013,28.977
+TR003,PAR,Charles de Gaulle Airport,airport,49.0097,2.5479
+TR004,PAR,Gare du Nord,train_station,48.8809,2.3553
+TR005,ROM,Fiumicino Airport,airport,41.8003,12.2389
+TR006,ROM,Roma Termini,train_station,41.901,12.5017
+TR007,BCN,Barcelona El Prat Airport,airport,41.2974,2.0833
+TR008,BCN,Barcelona Sants,train_station,41.3792,2.14
+TR009,AMS,Schiphol Airport,airport,52.3105,4.7683
+TR010,AMS,Amsterdam Centraal,train_station,52.3791,4.9003
+TR011,PRG,Vaclav Havel Airport,airport,50.1008,14.26
+TR012,PRG,Praha hlavni nadrazi,train_station,50.083,14.4353
+TR013,VIE,Vienna Intl Airport,airport,48.1103,16.5697
+TR014,VIE,Wien Hauptbahnhof,train_station,48.1853,16.3775
+TR015,LIS,Humberto Delgado Airport,airport,38.7813,-9.1359
+TR016,LIS,Lisboa Oriente,train_station,38.7679,-9.0987

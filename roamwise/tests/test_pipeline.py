@@ -1,0 +1,95 @@
+"""End-to-end smoke tests covering every module in the pipeline. Run with:
+    cd roamwise && ../venv/bin/pytest tests/ -v
+"""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from knowledge_graph.build_graph import GraphIndex
+from models.forecasting import forecast_city, best_months_to_visit
+from models.segmentation import TravelerSegmenter, POIZoner
+from retrieval.fusion import FusionRetriever
+from optimization.routing import optimize_day_route
+from agents.orchestrator import RoamWiseOrchestrator
+from evaluation.comparative_analysis import run_comparative_analysis, summarize
+
+
+def test_knowledge_graph_builds_and_traverses():
+    idx = GraphIndex()
+    stats = idx.stats()
+    assert stats["by_type"]["City"] == 8
+    assert stats["by_type"]["POI"] == 80
+    hop = idx.multi_hop_transport_to_poi("IST", "landmark")
+    assert len(hop) > 0
+    assert all("nearest_hub_km" in r for r in hop)
+
+
+def test_forecasting_produces_crowding_labels():
+    fc = forecast_city("PAR")
+    assert len(fc) == 12
+    assert set(fc.crowding_level.astype(str)) <= {"low", "medium", "high"}
+    months = best_months_to_visit("PAR", top_k=3)
+    assert len(months) == 3
+
+
+def test_traveler_segmentation_classifies():
+    seg = TravelerSegmenter()
+    result = seg.classify({"budget": 0.1, "culture": 0.2, "nature": 0.9, "nightlife": 0.1, "relax": 0.3, "adventure": 0.9})
+    assert result["archetype"] == "Nature & Adventure"
+
+
+def test_poi_zoning_covers_all_pois():
+    idx = GraphIndex()
+    pois = idx.city_pois("AMS")
+    zones = POIZoner().zone(pois, n_zones=3)
+    total = sum(len(v) for v in zones.values())
+    assert total == len(pois)
+
+
+def test_fusion_retrieval_all_configs_run():
+    fr = FusionRetriever()
+    for config in ["fusion", "hybrid", "standard"]:
+        results = fr.retrieve("museums near a transport hub", config=config, destination_id="ROM", top_k=5)
+        if config == "standard":
+            assert results == []
+        else:
+            assert len(results) > 0
+            assert all(r["destination_id"] == "ROM" for r in results)
+
+
+def test_fusion_beats_hybrid_on_archetype_grounding():
+    fr = FusionRetriever()
+    fusion_results = fr.retrieve("things to do", config="fusion", destination_id="ROM", archetype="Nightlife Seeker", top_k=8)
+    fusion_categories = {r.get("text", "") for r in fusion_results}
+    assert any("nightlife" in t.lower() or "trastevere" in t.lower() for t in fusion_categories)
+
+
+def test_routing_respects_time_budget():
+    idx = GraphIndex()
+    pois = idx.city_pois("VIE")
+    result = optimize_day_route(pois, daily_minutes_budget=300)
+    assert result["total_minutes"] <= 300 + 1e-6
+
+
+def test_orchestrator_end_to_end():
+    orch = RoamWiseOrchestrator()
+    prefs = {"budget": 0.7, "culture": 0.3, "nature": 0.2, "nightlife": 0.9, "relax": 0.2, "adventure": 0.3}
+    result = orch.plan_trip(prefs, n_days=2)
+    assert result["archetype"] == "Nightlife Seeker"
+    assert result["destination_id"] in orch.destinations.destination_id.values
+    assert len(result["routing"]["itinerary"]) == 2
+    assert result["final_plan"]
+
+
+def test_comparative_analysis_shows_fusion_advantage():
+    df = run_comparative_analysis(top_k=8)
+    summary = summarize(df)
+    assert summary.loc["fusion", "mean_archetype_precision"] >= summary.loc["standard", "mean_archetype_precision"]
+    assert summary.loc["fusion", "mean_grounded_entity_rate"] == 1.0
+    assert summary.loc["standard", "mean_grounded_entity_rate"] == 0.0
+
+
+if __name__ == "__main__":
+    import pytest
+    raise SystemExit(pytest.main([__file__, "-v"]))

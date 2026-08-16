@@ -1,0 +1,81 @@
+poi_id,destination_id,name,category,lat,lon,avg_visit_minutes,price_level,popularity_score,description
+POI0001,IST,Hagia Sophia,landmark,41.004278,28.972164,90,0,4.9,"A former Byzantine cathedral and Ottoman mosque, Hagia Sophia is a UNESCO World Heritage icon blending Christian and Islamic art under a vast dome."
+POI0002,IST,Topkapi Palace,museum,41.008562,28.993339,45,2,4.7,"The opulent former residence of Ottoman sultans, with treasury rooms, harem quarters and sweeping Bosphorus views."
+POI0003,IST,Grand Bazaar,shopping,40.988134,28.924805,45,1,4.4,"One of the world's oldest covered markets, a maze of over 4,000 shops selling carpets, ceramics, spices and jewelry."
+POI0004,IST,Blue Mosque,religion,41.002781,28.973812,45,0,4.7,An active mosque famed for its cascading domes and hand-painted blue Iznik tiles.
+POI0005,IST,Bosphorus Strait Cruise,nature,41.013631,29.01445,45,2,4.6,"A scenic boat trip along the strait separating Europe and Asia, passing waterfront palaces and fortresses."
+POI0006,IST,Karakoy Waterfront,food,40.973701,28.959884,180,1,4.3,"A trendy district of fish restaurants, cafes and galleries along the Golden Horn."
+POI0007,IST,Istiklal Street,nightlife,40.993871,28.972891,150,1,4.2,"A pedestrian avenue packed with bars, live music venues and a historic tram running its length."
+POI0008,IST,Basilica Cistern,landmark,41.000426,29.03595,60,0,4.6,"An underground Byzantine reservoir with hundreds of columns, softly lit and eerily beautiful."
+POI0009,IST,Suleymaniye Mosque,religion,41.001698,28.9529,60,0,4.6,"A grand Ottoman imperial mosque designed by architect Mimar Sinan, with panoramic city views."
+POI0010,IST,Princes' Islands,nature,41.01671,29.029322,45,2,4.5,"Car-free islands in the Sea of Marmara reachable by ferry, known for pine forests and horse-drawn carriages."
+POI0011,PAR,Eiffel Tower,landmark,48.864409,2.360022,90,2,4.7,"The iron lattice tower that has defined the Paris skyline since 1889, with observation decks over the city."
+POI0012,PAR,Louvre Museum,museum,48.823749,2.314106,180,2,4.8,"The world's largest art museum, home to the Mona Lisa and the Venus de Milo inside a former royal palace."
+POI0013,PAR,Montmartre & Sacre-Coeur,culture,48.846326,2.35627,120,1,4.6,"A hilltop artists' quarter with cobbled streets, cabarets and the white-domed Sacre-Coeur basilica."
+POI0014,PAR,Champs-Elysees,shopping,48.872608,2.365338,180,3,4.3,A grand boulevard of flagship boutiques and cafes running from the Arc de Triomphe.
+POI0015,PAR,Musee d'Orsay,museum,48.824411,2.307106,150,1,4.7,An Impressionist and Post-Impressionist collection housed in a former Belle Epoque railway station.
+POI0016,PAR,Le Marais,nightlife,48.859484,2.363753,180,2,4.4,"A historic district of narrow lanes, art galleries, cocktail bars and falafel stands."
+POI0017,PAR,Notre-Dame Cathedral,religion,48.859095,2.379328,45,0,4.6,"The Gothic cathedral on the Ile de la Cite, under restoration after the 2019 fire but open to visit."
+POI0018,PAR,Seine River Cruise,nature,48.883632,2.29945,120,2,4.5,An evening boat ride past illuminated monuments along the river that splits the city.
+POI0019,PAR,Luxembourg Gardens,nature,48.850724,2.40249,90,0,4.6,"Formal French gardens with fountains, statues and a palace, popular with picnicking Parisians."
+POI0020,PAR,Palace of Versailles,landmark,48.867548,2.379414,180,2,4.7,"The lavish former royal residence outside Paris, famed for its Hall of Mirrors and manicured gardens."
+POI0021,ROM,Colosseum,landmark,41.89778,12.559389,180,2,4.8,"The largest ancient amphitheater ever built, once host to gladiatorial contests, now Rome's defining ruin."
+POI0022,ROM,Roman Forum,history,41.933052,12.515966,150,1,4.6,The sprawling ruins of the political and commercial heart of ancient Rome.
+POI0023,ROM,Vatican Museums & Sistine Chapel,museum,41.901185,12.479945,120,2,4.7,A vast papal art collection culminating in Michelangelo's frescoed Sistine Chapel ceiling.
+POI0024,ROM,St. Peter's Basilica,religion,41.896969,12.558577,180,0,4.8,"The largest church in the world, centerpiece of Vatican City, topped by Michelangelo's dome."
+POI0025,ROM,Trevi Fountain,landmark,41.86926,12.47955,45,0,4.7,A Baroque fountain where tradition holds that a coin tossed over the shoulder ensures a return to Rome.
+POI0026,ROM,Trastevere,nightlife,41.903646,12.504984,90,1,4.5,"A cobblestoned neighborhood of trattorias, wine bars and ivy-draped facades across the Tiber."
+POI0027,ROM,Pantheon,landmark,41.896311,12.502637,150,0,4.7,A remarkably preserved Roman temple with the world's largest unreinforced concrete dome.
+POI0028,ROM,Piazza Navona,culture,41.916464,12.478354,180,0,4.5,"A Baroque square built over an ancient stadium, ringed by cafes and sculpted fountains."
+POI0029,ROM,Borghese Gallery & Gardens,museum,41.85799,12.496691,180,1,4.6,An intimate villa museum of Bernini sculpture set in a large landscaped park.
+POI0030,ROM,Campo de' Fiori Market,food,41.886443,12.502212,60,1,4.2,A lively morning produce market that turns into an aperitivo hub by evening.
+POI0031,BCN,Sagrada Familia,landmark,41.386479,2.129627,180,2,4.8,"Gaudi's still-unfinished basilica, a riot of organic spires and stained glass, under construction since 1882."
+POI0032,BCN,Park Guell,nature,41.348261,2.137931,120,1,4.6,A whimsical Gaudi-designed park of mosaic terraces and gingerbread-style pavilions overlooking the city.
+POI0033,BCN,La Rambla,shopping,41.355126,2.219291,60,1,4.0,A tree-lined pedestrian boulevard running from Placa Catalunya to the old harbor.
+POI0034,BCN,Gothic Quarter,culture,41.378325,2.167875,45,0,4.6,"A labyrinth of medieval lanes, Roman remains and Gothic cathedrals in the old city center."
+POI0035,BCN,Barceloneta Beach,beach,41.395034,2.156472,60,0,4.3,"The city's main urban beach, backed by seafood restaurants and beach bars."
+POI0036,BCN,Casa Batllo,landmark,41.393671,2.137726,45,2,4.6,"A Gaudi-renovated townhouse with a skeletal, dragon-scaled facade on Passeig de Gracia."
+POI0037,BCN,El Born nightlife district,nightlife,41.363566,2.19669,120,1,4.4,"Narrow streets of cocktail bars, tapas spots and design boutiques near the Picasso Museum."
+POI0038,BCN,Picasso Museum,museum,41.339514,2.156792,45,1,4.5,"An extensive collection tracing Picasso's early development, housed in five medieval palaces."
+POI0039,BCN,Camp Nou,culture,41.383093,2.156343,150,2,4.4,"FC Barcelona's home stadium, one of the largest in Europe, with a club museum and tours."
+POI0040,BCN,Montjuic Hill,nature,41.387618,2.115836,90,1,4.5,"A hilltop park with a castle, gardens and city views, reachable by cable car."
+POI0041,AMS,Anne Frank House,museum,52.386374,4.930045,120,1,4.7,"The canal house where Anne Frank hid during WWII, now a moving museum on her diary and the Holocaust."
+POI0042,AMS,Rijksmuseum,museum,52.405086,4.905352,180,2,4.8,"The national museum of art and history, home to Rembrandt's The Night Watch."
+POI0043,AMS,Van Gogh Museum,museum,52.365287,4.949022,60,2,4.7,The world's largest collection of Van Gogh paintings and letters.
+POI0044,AMS,Canal Ring Cruise,nature,52.357823,4.903327,180,1,4.6,A boat tour along the UNESCO-listed 17th-century canal belt lined with gabled houses.
+POI0045,AMS,Jordaan District,culture,52.357484,4.956837,150,0,4.5,"A former working-class quarter now full of galleries, boutiques and cozy brown cafes."
+POI0046,AMS,Vondelpark,nature,52.374487,4.93802,60,0,4.6,"The city's largest park, popular for picnics, cycling and open-air concerts in summer."
+POI0047,AMS,Red Light District,nightlife,52.328781,4.888041,150,0,4.0,"A historic canal-side nightlife area known for its bars, coffee shops and neon-lit streets."
+POI0048,AMS,Albert Cuyp Market,food,52.395453,4.878457,120,0,4.3,"The Netherlands' busiest street market, stalls of stroopwafels, cheese and fresh fish."
+POI0049,AMS,NEMO Science Museum,culture,52.414059,4.913458,90,1,4.3,"A green-hulled harbor-front building of interactive science exhibits, family-friendly."
+POI0050,AMS,Heineken Experience,culture,52.368649,4.929984,150,2,4.2,An interactive tour of the former Heineken brewery with tastings.
+POI0051,PRG,Prague Castle,landmark,50.083867,14.433286,120,1,4.7,"The largest ancient castle complex in the world, seat of Czech rulers for over a thousand years."
+POI0052,PRG,Charles Bridge,landmark,50.095253,14.367912,150,0,4.6,"A Gothic stone bridge lined with baroque statues, crossing the Vltava at dawn is a local ritual."
+POI0053,PRG,Old Town Square,culture,50.076571,14.42109,120,0,4.6,A medieval square dominated by the Astronomical Clock and Tyn Church's twin spires.
+POI0054,PRG,Astronomical Clock,landmark,50.087244,14.431451,150,0,4.3,A 15th-century clock that puts on an hourly parade of mechanical apostle figures.
+POI0055,PRG,Jewish Quarter (Josefov),history,50.092223,14.410888,60,1,4.5,A preserved ghetto of historic synagogues and the Old Jewish Cemetery.
+POI0056,PRG,Petrin Hill,nature,50.110662,14.41156,180,0,4.5,A green hill with a mini Eiffel-style lookout tower and rose gardens above the city.
+POI0057,PRG,Wenceslas Square,shopping,50.081249,14.466062,180,1,4.1,"The commercial heart of the New Town, site of many pivotal moments in Czech history."
+POI0058,PRG,Vltava Beer Gardens,nightlife,50.060958,14.406663,150,0,4.4,Riverside beer gardens serving Czech pilsners with views of Prague Castle.
+POI0059,PRG,Lennon Wall,culture,50.060089,14.445355,45,0,4.0,An ever-changing wall of graffiti and lyrics that became a symbol of youthful dissent.
+POI0060,PRG,Municipal House,culture,50.058956,14.47952,60,1,4.4,"An Art Nouveau concert hall and cafe, one of Prague's most ornate buildings."
+POI0061,VIE,Schonbrunn Palace,landmark,48.203677,16.369586,180,2,4.7,"The Habsburgs' 1,441-room summer palace, with formal gardens and a zoo, Austria's most-visited sight."
+POI0062,VIE,St. Stephen's Cathedral,religion,48.197802,16.356953,45,0,4.7,"A Gothic cathedral with a glazed tile roof, the spiritual heart of Vienna since the 12th century."
+POI0063,VIE,Belvedere Palace,museum,48.213405,16.364315,60,1,4.7,A Baroque palace complex holding Klimt's The Kiss and Austria's finest art collection.
+POI0064,VIE,Vienna State Opera,culture,48.203423,16.413437,150,3,4.7,"One of the world's leading opera houses, offering standing-room tickets for a few euros."
+POI0065,VIE,Naschmarkt,food,48.239939,16.426015,150,1,4.4,"Vienna's largest market, stalls of Middle Eastern, Balkan and Austrian food side by side."
+POI0066,VIE,Hofburg Palace,landmark,48.194057,16.362783,120,1,4.6,"The former imperial palace, now housing the Spanish Riding School and Sisi Museum."
+POI0067,VIE,Prater Park,nature,48.212996,16.354754,45,0,4.3,A public park famed for its giant Ferris wheel and old-fashioned amusement rides.
+POI0068,VIE,MuseumsQuartier,culture,48.196865,16.347374,120,1,4.5,A cultural complex of modern art museums around courtyards full of design furniture.
+POI0069,VIE,Danube Canal Nightlife,nightlife,48.1712,16.385471,180,0,4.2,"A stretch of bars, graffiti art and summer pop-up beaches along the canal."
+POI0070,VIE,Kunsthistorisches Museum,museum,48.188773,16.331788,45,1,4.7,"An encyclopedic art museum with an unrivaled Bruegel collection, housed in a palatial building."
+POI0071,LIS,Belem Tower,landmark,38.705708,-9.124378,45,0,4.5,A fortified 16th-century tower marking the departure point of Portugal's Age of Discoveries voyages.
+POI0072,LIS,Jeronimos Monastery,landmark,38.722414,-9.121921,120,1,4.7,An ornate Manueline-style monastery built to commemorate Vasco da Gama's voyage to India.
+POI0073,LIS,Alfama District,culture,38.730739,-9.126195,120,0,4.6,"Lisbon's oldest quarter, a hillside tangle of alleys, fado bars and tiled facades."
+POI0074,LIS,Tram 28,culture,38.722357,-9.079639,120,0,4.2,"A vintage yellow tram that rattles through the steepest, most scenic parts of the old city."
+POI0075,LIS,LX Factory,nightlife,38.737816,-9.191414,45,1,4.4,"A converted industrial complex of bars, bookshops and street art under the 25 de Abril bridge."
+POI0076,LIS,Sao Jorge Castle,landmark,38.769765,-9.119284,45,0,4.5,A Moorish hilltop castle with sweeping views over the terracotta rooftops of Lisbon.
+POI0077,LIS,Time Out Market,food,38.768103,-9.150883,60,1,4.4,A curated food hall bringing together stalls from the city's best chefs and restaurants.
+POI0078,LIS,Praca do Comercio,culture,38.735779,-9.10953,60,0,4.5,A grand riverside square that once served as the ceremonial entrance to the city.
+POI0079,LIS,Sintra Day Trip,nature,38.752387,-9.183236,60,1,4.7,"A fairy-tale hill town of pastel palaces and misty forests, a short train ride from Lisbon."
+POI0080,LIS,Cais do Sodre Nightlife,nightlife,38.686552,-9.095713,90,0,4.3,The go-to district for late-night bars centered on the neon-lit Pink Street.
