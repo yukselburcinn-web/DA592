@@ -47,9 +47,12 @@ class RoamWiseOrchestrator:
         self.destinations["tags"] = self.destinations.tags.apply(json.loads)
 
     def plan_trip(self, preferences: dict, destination_id: str = None, n_days: int = 3,
-                  travel_month: str = None, top_k_pois: int = 12) -> dict:
+                  travel_month: str = None, top_k_pois: int = 12, max_price_level: int = 3,
+                  daily_minutes_budget: int = 480) -> dict:
         """preferences: {budget, culture, nature, nightlife, relax, adventure} in [0,1].
-        destination_id: pin a city, or leave None to let the orchestrator pick one."""
+        destination_id: pin a city, or leave None to let the orchestrator pick one.
+        max_price_level: drop POIs pricier than this (1=budget, 3=splurge) before routing.
+        daily_minutes_budget: sightseeing time available per day, fed to the 2-opt router."""
         state: dict = {"preferences": preferences, "n_days": n_days}
 
         # --- Node 1: traveler segmentation ---
@@ -76,8 +79,13 @@ class RoamWiseOrchestrator:
         if not candidate_pois:  # standard-prompting config: no retrieval, fall back to raw city POIs
             candidate_pois = self.graph.city_pois(destination_id)[:top_k_pois]
 
+        price_filtered = [p for p in candidate_pois if p.get("price_level", 0) <= max_price_level]
+        if price_filtered:  # keep the unfiltered set if the budget filter would empty it out
+            candidate_pois = price_filtered
+        state["max_price_level"] = max_price_level
+
         # --- Node 4: Router Agent builds the optimized day-by-day route ---
-        routing = self.router.run(destination_id, candidate_pois, n_days=n_days)
+        routing = self.router.run(destination_id, candidate_pois, n_days=n_days, daily_minutes_budget=daily_minutes_budget)
         state["routing"] = routing
 
         # --- Node 5: final synthesis ---

@@ -5,6 +5,8 @@ graph-grounded, optimized itinerary").
 
 Run with: streamlit run app.py
 """
+import math
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -13,7 +15,15 @@ import streamlit as st
 from agents.orchestrator import RoamWiseOrchestrator
 from models.forecasting import forecast_city
 
-st.set_page_config(page_title="RoamWise", page_icon="\U0001f9ed", layout="wide")
+st.set_page_config(page_title="RoamWise", page_icon="\U0001f9ed", layout="wide", initial_sidebar_state="expanded")
+
+
+def _fit_zoom(lats: list[float], lons: list[float]) -> float:
+    """Rough degree-span-to-mapbox-zoom heuristic so the map frames whatever
+    the itinerary actually covers instead of a fixed zoom that's too tight
+    for spread-out days and too loose for a single-block day."""
+    span = max(max(lats) - min(lats), max(lons) - min(lons), 0.002)
+    return min(15.0, max(11.0, 13.5 - math.log2(span * 100)))
 
 
 @st.cache_resource
@@ -44,6 +54,13 @@ with st.sidebar:
         [None] + [f"2026-{m:02d}" for m in range(9, 13)] + [f"2027-{m:02d}" for m in range(1, 9)],
         format_func=lambda x: "Flexible / let RoamWise recommend" if x is None else x,
     )
+    max_price_level = st.select_slider(
+        "Max price level per stop", options=[1, 2, 3], value=3,
+        format_func=lambda p: {1: "$ Budget only", 2: "$$ Budget + mid-range", 3: "$$$ No limit"}[p],
+        help="Drops POIs pricier than this before routing (falls back to the unfiltered list if nothing survives).",
+    )
+    daily_hours = st.slider("Daily sightseeing time (hours)", 3, 12, 8,
+                             help="How many hours per day to spend walking/visiting -- feeds the router's time budget.")
 
     st.header("Retrieval architecture")
     config = st.radio(
@@ -65,7 +82,8 @@ preferences = {"budget": budget, "culture": culture, "nature": nature,
 if run:
     orch = get_orchestrator(config)
     with st.spinner("Agents at work: segmenting traveler, forecasting demand, retrieving grounded context, routing..."):
-        result = orch.plan_trip(preferences, destination_id=destination_id, n_days=n_days, travel_month=travel_month)
+        result = orch.plan_trip(preferences, destination_id=destination_id, n_days=n_days, travel_month=travel_month,
+                                 max_price_level=max_price_level, daily_minutes_budget=daily_hours * 60)
 
     city_name = orch.destinations.set_index("destination_id").loc[result["destination_id"], "city"]
     st.success(f"Plan ready: **{city_name}** for a **{result['archetype']}**")
@@ -101,11 +119,12 @@ if run:
                 all_lats = [p["lat"] for day in result["routing"]["itinerary"] for p in day["route"]]
                 all_lons = [p["lon"] for day in result["routing"]["itinerary"] for p in day["route"]]
                 fig.update_layout(
-                    mapbox=dict(style="open-street-map", zoom=12,
+                    mapbox=dict(style="open-street-map", zoom=_fit_zoom(all_lats, all_lons),
                                 center=dict(lat=sum(all_lats) / len(all_lats), lon=sum(all_lons) / len(all_lons))),
                     margin=dict(l=0, r=0, t=0, b=0), height=450, showlegend=True,
                 )
                 st.plotly_chart(fig, use_container_width=True)
+                st.caption("Map tiles load from OpenStreetMap over the network -- give it a moment on first load.")
 
         st.markdown("##### Agent narrative")
         st.info(result["final_plan"])
