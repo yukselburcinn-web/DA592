@@ -16,11 +16,17 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-          cache-dependency-path: roamwise/requirements.txt
+          cache-dependency-path: |
+            roamwise/requirements.txt
+            roamwise/requirements-langgraph.txt
 
       - name: Install dependencies
         run: |
           pip install -r roamwise/requirements.txt
+          # Optional extra (not part of requirements.txt / not installed by
+          # local devs by default) -- installed here so CI actually runs the
+          # LangGraph-orchestrator test instead of skipping it.
+          pip install -r roamwise/requirements-langgraph.txt
           pip install pytest
 
       - name: Run test suite
