@@ -20,6 +20,15 @@ streamlit run app.py
 
 Open the URL Streamlit prints (default `http://localhost:8501`). Set your preferences in the sidebar, optionally pin a destination, choose a Fusion RAG configuration, and click **Plan my trip**.
 
+### Run with Docker
+
+```bash
+docker build -t roamwise .
+docker run -p 8501:8501 roamwise
+```
+
+Open `http://localhost:8501`. The image ships the committed synthetic dataset and pre-built knowledge graph, so no data-generation step is needed first.
+
 ### Run the test suite
 
 ```bash

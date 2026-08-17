@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.git/
+.DS_Store
+*.pdf
+roamwise/evaluation/*.csv
