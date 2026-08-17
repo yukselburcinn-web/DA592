@@ -58,6 +58,19 @@ export ANTHROPIC_API_KEY=sk-...
 
 No code changes needed — `get_default_llm_client()` detects the key automatically. This also unlocks a real generative-hallucination probe in `evaluation/comparative_analysis.py::run_llm_hallucination_probe`.
 
+### Optional: LangGraph orchestrator
+
+`agents/orchestrator.py` (the default) is a hand-rolled state machine. `agents/orchestrator_langgraph.py` is an alternative implementation of the exact same flow on `langgraph.graph.StateGraph`, with an identical `plan_trip()` interface. See [`REPORT.md` §3.4.1](REPORT.md#341-custom-orchestrator-vs-langgraph--a-direct-comparison) for a direct comparison. To use it:
+
+```bash
+pip install -r roamwise/requirements-langgraph.txt
+```
+
+```python
+from agents.orchestrator_langgraph import RoamWiseLangGraphOrchestrator
+orch = RoamWiseLangGraphOrchestrator()
+```
+
 ## Project layout
 
 ```

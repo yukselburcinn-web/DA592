@@ -1,0 +1,12 @@
+# Optional extra for agents/orchestrator_langgraph.py (issue #9 -- the
+# LangGraph-based alternative to the custom orchestrator in orchestrator.py).
+#
+# Not installed by default / not part of requirements.txt: it pulls in
+# langchain-core + pydantic, which the rest of the project deliberately
+# avoids (see orchestrator.py's module docstring and REPORT.md's comparison
+# section). Install only if you want to run orchestrator_langgraph.py or its
+# pytest.importorskip-guarded test.
+#
+#   pip install -r requirements-langgraph.txt
+
+langgraph==1.2.11

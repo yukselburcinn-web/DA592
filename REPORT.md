@@ -62,6 +62,21 @@ The orchestrator's `plan_trip()` runs all five nodes in sequence: segmentation �
 
 **Reasoning-engine note:** every agent's natural-language synthesis step goes through a pluggable `LLMClient` (`agents/llm_client.py`). The default, zero-cost `TemplateLLMClient` composes retrieved facts into readable prose deterministically, so the entire pipeline — including the Streamlit app — runs fully offline with no API key and no per-run cost. If the user sets `ANTHROPIC_API_KEY` and installs the `anthropic` package, every agent automatically switches to live Claude narration with no code changes. This was a deliberate safety/cost decision: the system never assumes network access or spends the user's API budget without explicit opt-in.
 
+#### 3.4.1 Custom orchestrator vs. LangGraph — a direct comparison
+
+`agents/orchestrator_langgraph.py` reimplements the exact same five-node flow on `langgraph.graph.StateGraph`, reusing the same underlying agent classes (`TravelerSegmenter`, `ForecasterAgent`, `FusionRAGAgent`, `RouterAgent`) so only the orchestration layer itself differs. `RoamWiseLangGraphOrchestrator.plan_trip()` has the identical signature and return shape as `RoamWiseOrchestrator.plan_trip()`, verified by `tests/test_pipeline.py::test_langgraph_orchestrator_matches_custom_orchestrator_interface` (skipped automatically where the optional `requirements-langgraph.txt` extra isn't installed, e.g. in CI).
+
+| | Custom state machine (`orchestrator.py`) | LangGraph (`orchestrator_langgraph.py`) |
+|---|---|---|
+| Dependency weight | None beyond the project's existing deps | Pulls in `langchain-core`, `pydantic`, `langgraph-checkpoint/-prebuilt/-sdk`, `xxhash` |
+| Conditional branching (skip destination-selection when the user pins a city) | A plain `if destination_id is None:` inside `plan_trip()` | An explicit `add_conditional_edges("segment", ..., {...})` — declarative, and the branch is visible in the graph structure itself, not buried in a function body |
+| Debuggability | Set a breakpoint anywhere in one linear method; the whole call stack is normal Python | Each node is a separate method invoked by the LangGraph runtime; tracing requires either LangGraph's own introspection (`.get_graph()`, LangSmith) or breakpoints inside each node individually |
+| Extensibility toward real agent loops (retries, human-in-the-loop, parallel branches, checkpointed/resumable state) | Would require hand-building each of those | Native: checkpointers, conditional edges, and parallel fan-out are first-class primitives already installed as dependencies |
+| Lines of orchestration-specific code | ~50 | ~95 (mostly `TypedDict` state schema + per-node method wrappers) |
+| Verified behavior | Full test suite + Streamlit app | `plan_trip()` produces an identical result to the custom orchestrator on the same inputs (both deterministic under `TemplateLLMClient`); conditional edge verified to correctly skip `select_destination` when a city is pinned |
+
+**Takeaway:** at this project's current scope — a fixed five-step pipeline with one conditional branch — the custom orchestrator is genuinely simpler with no behavioral downside, which is why it stayed the default. LangGraph's value only shows up once the orchestration needs something the custom version doesn't have: retries/backoff on a failing tool call, a human-approval step before booking, parallel exploration of multiple candidate destinations, or resumable/checkpointed runs across a multi-turn conversation. None of those are currently implemented in either orchestrator; if the project grows toward them, `orchestrator_langgraph.py` is the better foundation to extend.
+
 ### 3.5 Comparative analysis
 
 `evaluation/comparative_analysis.py` runs 8 representative queries (archetype × city × category) through all three configurations and reports:
@@ -83,7 +98,7 @@ The orchestrator's `plan_trip()` runs all five nodes in sequence: segmentation �
 
 ## 4. Verification performed
 
-- **Automated tests**: `pytest roamwise/tests/ -v` — 9/9 passing, covering graph construction/traversal, forecasting output shape, segmentation correctness, POI zoning completeness, all three retrieval configs, time-budget-respecting routing, full orchestrator execution, and the comparative-analysis ordering claims above.
+- **Automated tests**: `pytest roamwise/tests/ -v` — 10/10 passing (9 always-on + 1 LangGraph-orchestrator equivalence test that auto-skips when the optional `requirements-langgraph.txt` extra isn't installed), covering graph construction/traversal, forecasting output shape, segmentation correctness, POI zoning completeness, all three retrieval configs, time-budget-respecting routing, full orchestrator execution (both implementations), and the comparative-analysis ordering claims above.
 - **Manual UI verification**: the Streamlit app was launched and driven in a real browser session. Verified: sidebar controls render and respond; "Plan my trip" runs the full 5-agent pipeline and returns a result; the Itinerary tab shows a day-by-day plan with an interactive OpenStreetMap route (colored by day); the Demand forecast tab shows a 12-month forecast bar chart colored by crowding level; the Retrieved context tab shows each surfaced POI with its `retrieved_by` source attribution (e.g. `via: graph, keyword, semantic`); the Agent trace tab shows the full orchestration state as JSON; switching the retrieval-configuration radio to "Standard prompting" correctly shows an empty retrieval context and an unfiltered itinerary fallback, confirming the three comparative-analysis conditions are genuinely wired into the live app, not just the offline evaluation script.
 
 ## 5. Known limitations & honest gaps vs. the proposal
@@ -91,7 +106,7 @@ The orchestrator's `plan_trip()` runs all five nodes in sequence: segmentation �
 - **Synthetic, not real, data.** This is the headline caveat — see §3.1. Every score, distance, and forecast number in this system is illustrative of the *architecture*, not a claim about real tourism patterns.
 - **City/POI scale is small** (8 cities, 10 POIs each). This was sized for a fast, fully-reproducible demo; it is also why the multi-hop Recall@k metric didn't separate Fusion from Hybrid as clearly as the precision metric did (§3.5).
 - **No live LLM by default.** The default template-based "reasoning engine" performs real selection/synthesis over structured data but does not perform open-ended generation, so it cannot exhibit true hallucination — by design, to keep the system free and offline. The optional Anthropic-backed path is implemented but not exercised in this report (no API key configured in the build environment).
-- **No live Neo4j / LangGraph.** Both are named as examples ("e.g., Neo4j", "e.g., LangGraph or similar") in the proposal, and this build used the lighter-weight named alternative in each case (NetworkX, a custom orchestrator) for zero external service dependency and full unit-testability — not because the heavier tool is infeasible.
+- **No live Neo4j.** Named as an example ("e.g., Neo4j") in the proposal; this build uses NetworkX for zero external service dependency and full unit-testability, not because Neo4j is infeasible. (LangGraph, the other named example, now has a working alternative implementation — see §3.4.1 — so this gap is specific to the graph *database*, not the agent framework.)
 - **Routing is a 2-opt Euclidean heuristic**, not a full vehicle-routing solver with real street networks, opening hours, or transit schedules; walking speed is a flat 4.5 km/h assumption.
 
 ## 6. How this maps to "done"

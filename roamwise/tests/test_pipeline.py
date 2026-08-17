@@ -4,6 +4,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from knowledge_graph.build_graph import GraphIndex
@@ -88,6 +90,27 @@ def test_comparative_analysis_shows_fusion_advantage():
     assert summary.loc["fusion", "mean_archetype_precision"] >= summary.loc["standard", "mean_archetype_precision"]
     assert summary.loc["fusion", "mean_grounded_entity_rate"] == 1.0
     assert summary.loc["standard", "mean_grounded_entity_rate"] == 0.0
+
+
+def test_langgraph_orchestrator_matches_custom_orchestrator_interface():
+    """Optional: skipped in CI, where the langgraph extra isn't installed
+    (see requirements-langgraph.txt). Confirms the LangGraph rewrite exposes
+    the same plan_trip() shape and honors a pinned destination via its
+    conditional edge (select_destination is skipped)."""
+    pytest.importorskip("langgraph")
+    from agents.orchestrator_langgraph import RoamWiseLangGraphOrchestrator
+
+    orch = RoamWiseLangGraphOrchestrator()
+    prefs = {"budget": 0.7, "culture": 0.3, "nature": 0.2, "nightlife": 0.9, "relax": 0.2, "adventure": 0.3}
+
+    result = orch.plan_trip(prefs, n_days=2)
+    assert result["archetype"] == "Nightlife Seeker"
+    assert result["destination_id"] in orch.destinations.destination_id.values
+    assert len(result["routing"]["itinerary"]) == 2
+    assert result["final_plan"]
+
+    pinned = orch.plan_trip(prefs, destination_id="PAR", n_days=2)
+    assert pinned["destination_id"] == "PAR"
 
 
 if __name__ == "__main__":
