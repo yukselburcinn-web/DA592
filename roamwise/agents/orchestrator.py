@@ -48,11 +48,14 @@ class RoamWiseOrchestrator:
 
     def plan_trip(self, preferences: dict, destination_id: str = None, n_days: int = 3,
                   travel_month: str = None, top_k_pois: int = 12, max_price_level: int = 3,
-                  daily_minutes_budget: int = 480) -> dict:
+                  daily_minutes_budget: int = 480, use_real_routing: bool = False) -> dict:
         """preferences: {budget, culture, nature, nightlife, relax, adventure} in [0,1].
         destination_id: pin a city, or leave None to let the orchestrator pick one.
         max_price_level: drop POIs pricier than this (1=budget, 3=splurge) before routing.
-        daily_minutes_budget: sightseeing time available per day, fed to the 2-opt router."""
+        daily_minutes_budget: sightseeing time available per day, fed to the 2-opt router.
+        use_real_routing: use real OSRM street-network distances/times instead of the
+        haversine + flat-walking-speed estimate (network-dependent, falls back
+        automatically if OSRM is unreachable)."""
         state: dict = {"preferences": preferences, "n_days": n_days}
 
         # --- Node 1: traveler segmentation ---
@@ -85,7 +88,8 @@ class RoamWiseOrchestrator:
         state["max_price_level"] = max_price_level
 
         # --- Node 4: Router Agent builds the optimized day-by-day route ---
-        routing = self.router.run(destination_id, candidate_pois, n_days=n_days, daily_minutes_budget=daily_minutes_budget)
+        routing = self.router.run(destination_id, candidate_pois, n_days=n_days,
+                                   daily_minutes_budget=daily_minutes_budget, use_real_routing=use_real_routing)
         state["routing"] = routing
 
         # --- Node 5: final synthesis ---

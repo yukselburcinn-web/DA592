@@ -61,6 +61,11 @@ with st.sidebar:
     )
     daily_hours = st.slider("Daily sightseeing time (hours)", 3, 12, 8,
                              help="How many hours per day to spend walking/visiting -- feeds the router's time budget.")
+    use_real_routing = st.checkbox(
+        "Use real street routing (OSRM)", value=False,
+        help="Fetches real walking distances/times from a public OSRM server instead of "
+             "straight-line + flat 4.5km/h. Needs internet; falls back automatically if unreachable.",
+    )
 
     st.header("Retrieval architecture")
     config = st.radio(
@@ -83,7 +88,8 @@ if run:
     orch = get_orchestrator(config)
     with st.spinner("Agents at work: segmenting traveler, forecasting demand, retrieving grounded context, routing..."):
         result = orch.plan_trip(preferences, destination_id=destination_id, n_days=n_days, travel_month=travel_month,
-                                 max_price_level=max_price_level, daily_minutes_budget=daily_hours * 60)
+                                 max_price_level=max_price_level, daily_minutes_budget=daily_hours * 60,
+                                 use_real_routing=use_real_routing)
 
     city_name = orch.destinations.set_index("destination_id").loc[result["destination_id"], "city"]
     st.success(f"Plan ready: **{city_name}** for a **{result['archetype']}**")
@@ -92,6 +98,13 @@ if run:
 
     with tab1:
         st.subheader(f"{n_days}-day route in {city_name}")
+        if use_real_routing:
+            any_real = any(d.get("used_real_routing") for d in result["routing"]["itinerary"])
+            if any_real:
+                st.caption("Distances/times below use real OSRM street routing.")
+            else:
+                st.caption("Real routing was requested but OSRM was unreachable -- showing the "
+                           "straight-line + flat-walking-speed estimate instead.")
         col1, col2 = st.columns([1, 1])
         with col1:
             for day in result["routing"]["itinerary"]:

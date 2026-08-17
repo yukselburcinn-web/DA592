@@ -74,6 +74,54 @@ def test_routing_respects_time_budget():
     assert result["total_minutes"] <= 300 + 1e-6
 
 
+def test_routing_skips_poi_closed_for_the_rest_of_the_day():
+    poi = {"name": "Late Museum", "lat": 41.0, "lon": 29.0, "avg_visit_minutes": 60,
+           "open_hour": 9, "close_hour": 18}
+    result = optimize_day_route([poi], day_start_hour=23.0, daily_minutes_budget=1440)
+    assert result["route"] == []
+
+
+def test_routing_waits_for_poi_to_open():
+    poi = {"name": "Afternoon Gallery", "lat": 41.0, "lon": 29.0, "avg_visit_minutes": 60,
+           "open_hour": 14, "close_hour": 20}
+    result = optimize_day_route([poi], day_start_hour=9.0, daily_minutes_budget=1440)
+    assert [p["name"] for p in result["route"]] == ["Afternoon Gallery"]
+    # 9:00 -> waits until 14:00 -> 60min visit -> finishes 15:00 = 360 elapsed minutes,
+    # not just the 60-minute visit duration, proving the wait is accounted for.
+    assert result["total_minutes"] == 360
+
+
+def test_routing_falls_back_when_osrm_unreachable(monkeypatch):
+    import optimization.routing as routing_module
+    monkeypatch.setattr(routing_module, "fetch_distance_duration_matrix", lambda points: None)
+
+    idx = GraphIndex()
+    pois = idx.city_pois("VIE")[:4]
+    result = optimize_day_route(pois, use_real_routing=True)
+    assert result["used_real_routing"] is False
+    assert len(result["route"]) > 0  # still produced a usable route via the haversine fallback
+
+
+def test_routing_uses_injected_real_routing_matrix(monkeypatch):
+    import optimization.routing as routing_module
+
+    def fake_matrix(points):
+        n = len(points)
+        # every pairwise "real" distance/duration is a fixed, distinguishable
+        # value the haversine fallback could never produce, so we can tell
+        # the matrix path (not haversine) actually supplied the numbers.
+        return [[7.0] * n for _ in range(n)], [[42.0] * n for _ in range(n)]
+
+    monkeypatch.setattr(routing_module, "fetch_distance_duration_matrix", fake_matrix)
+
+    idx = GraphIndex()
+    pois = idx.city_pois("VIE")[:2]
+    result = optimize_day_route(pois, use_real_routing=True, daily_minutes_budget=1440,
+                                 respect_opening_hours=False)
+    assert result["used_real_routing"] is True
+    assert result["distance_km"] == 7.0  # single leg from the fake matrix, not a haversine value
+
+
 def test_orchestrator_end_to_end():
     orch = RoamWiseOrchestrator()
     prefs = {"budget": 0.7, "culture": 0.3, "nature": 0.2, "nightlife": 0.9, "relax": 0.2, "adventure": 0.3}

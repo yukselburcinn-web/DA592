@@ -68,6 +68,7 @@ def build_graph() -> nx.MultiDiGraph:
             lat=p.lat, lon=p.lon, avg_visit_minutes=int(p.avg_visit_minutes),
             price_level=int(p.price_level), popularity_score=float(p.popularity_score),
             description=p.description, destination_id=p.destination_id,
+            open_hour=int(p.open_hour), close_hour=int(p.close_hour),
         )
         g.add_edge(p.destination_id, p.poi_id, relation="HAS_POI")
 

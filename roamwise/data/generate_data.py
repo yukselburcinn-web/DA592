@@ -146,6 +146,16 @@ POI_TEMPLATES = {
     ],
 }
 
+# Opening hours by category (24h clock; close_hour < open_hour means the
+# venue closes after midnight). Used by optimization/routing.py to make the
+# router wait for opening or skip a stop that's closed for the rest of the
+# day, instead of treating every POI as open around the clock.
+OPENING_HOURS_BY_CATEGORY = {
+    "museum": (9, 18), "landmark": (8, 20), "religion": (7, 19),
+    "history": (8, 19), "culture": (9, 20), "shopping": (10, 20),
+    "food": (10, 23), "nightlife": (18, 2), "nature": (0, 24), "beach": (0, 24),
+}
+
 poi_rows = []
 poi_id = 1
 for dest_id, pois in POI_TEMPLATES.items():
@@ -155,6 +165,7 @@ for dest_id, pois in POI_TEMPLATES.items():
         radius = random.uniform(0.005, 0.05)  # ~0.5-5km scatter
         lat = dest_row.lat + radius * math.cos(angle)
         lon = dest_row.lon + radius * math.sin(angle) / math.cos(math.radians(dest_row.lat))
+        open_hour, close_hour = OPENING_HOURS_BY_CATEGORY.get(category, (9, 18))
         poi_rows.append({
             "poi_id": f"POI{poi_id:04d}",
             "destination_id": dest_id,
@@ -166,6 +177,8 @@ for dest_id, pois in POI_TEMPLATES.items():
             "price_level": price_level,
             "popularity_score": rating,
             "description": desc,
+            "open_hour": open_hour,
+            "close_hour": close_hour,
         })
         poi_id += 1
 

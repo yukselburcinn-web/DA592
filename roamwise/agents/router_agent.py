@@ -15,7 +15,8 @@ class RouterAgent:
         self.llm = llm or get_default_llm_client()
 
     def run(self, destination_id: str, candidate_pois: list[dict], n_days: int,
-            daily_minutes_budget: int = 480) -> dict:
+            daily_minutes_budget: int = 480, day_start_hour: float = 9.0,
+            respect_opening_hours: bool = True, use_real_routing: bool = False) -> dict:
         n_days = max(1, min(n_days, len(candidate_pois))) if candidate_pois else 1
         # Days start from the city's own center (proxy for a centrally booked
         # hotel), not the airport -- the airport hub only matters for the
@@ -25,7 +26,11 @@ class RouterAgent:
         start_hub = {"lat": city_node["lat"], "lon": city_node["lon"], "name": city_node["name"]}
 
         zones = self.zoner.zone(candidate_pois, n_zones=n_days)
-        itinerary = build_multi_day_itinerary(zones, start_hub=start_hub, daily_minutes_budget=daily_minutes_budget)
+        itinerary = build_multi_day_itinerary(
+            zones, start_hub=start_hub, daily_minutes_budget=daily_minutes_budget,
+            day_start_hour=day_start_hour, respect_opening_hours=respect_opening_hours,
+            use_real_routing=use_real_routing,
+        )
         narrative = self._narrate(destination_id, itinerary)
         return {"destination_id": destination_id, "itinerary": itinerary, "narrative": narrative}
 
@@ -33,7 +38,8 @@ class RouterAgent:
         lines = []
         for day in itinerary:
             stops = " -> ".join(p["name"] for p in day["route"]) or "(no stops fit the time budget)"
-            lines.append(f"Day {day['day']}: {stops}  [{day['distance_km']}km, ~{day['total_minutes']}min]")
+            routing_note = "real street routing" if day.get("used_real_routing") else "straight-line estimate"
+            lines.append(f"Day {day['day']}: {stops}  [{day['distance_km']}km, ~{day['total_minutes']}min, {routing_note}]")
         prompt = "Optimized itinerary for " + destination_id + ":\n" + "\n".join(lines)
         return self.llm.complete(system="Present the itinerary clearly, day by day.", prompt=prompt)
 

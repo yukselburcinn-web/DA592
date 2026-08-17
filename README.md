@@ -20,7 +20,7 @@ python knowledge_graph/build_graph.py   # builds and caches the knowledge graph
 streamlit run app.py
 ```
 
-Open the URL Streamlit prints (default `http://localhost:8501`). Set your preferences in the sidebar, optionally pin a destination, choose a Fusion RAG configuration, and click **Plan my trip**.
+Open the URL Streamlit prints (default `http://localhost:8501`). Set your preferences in the sidebar, optionally pin a destination, choose a Fusion RAG configuration, and click **Plan my trip**. The router respects each POI's opening hours by default, and can optionally fetch real OSRM street-network walking distances/times ("Use real street routing" checkbox) instead of the straight-line estimate -- see [`REPORT.md` §5](REPORT.md#5-known-limitations--honest-gaps-vs-the-proposal) for why that's opt-in rather than the default.
 
 ### Run with Docker
 

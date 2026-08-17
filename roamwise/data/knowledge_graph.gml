@@ -126,6 +126,8 @@ graph [
     popularity_score 4.9
     description "A former Byzantine cathedral and Ottoman mosque, Hagia Sophia is a UNESCO World Heritage icon blending Christian and Islamic art under a vast dome."
     destination_id "IST"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 9
@@ -140,6 +142,8 @@ graph [
     popularity_score 4.7
     description "The opulent former residence of Ottoman sultans, with treasury rooms, harem quarters and sweeping Bosphorus views."
     destination_id "IST"
+    open_hour 9
+    close_hour 18
   ]
   node [
     id 10
@@ -154,6 +158,8 @@ graph [
     popularity_score 4.4
     description "One of the world's oldest covered markets, a maze of over 4,000 shops selling carpets, ceramics, spices and jewelry."
     destination_id "IST"
+    open_hour 10
+    close_hour 20
   ]
   node [
     id 11
@@ -168,6 +174,8 @@ graph [
     popularity_score 4.7
     description "An active mosque famed for its cascading domes and hand-painted blue Iznik tiles."
     destination_id "IST"
+    open_hour 7
+    close_hour 19
   ]
   node [
     id 12
@@ -182,6 +190,8 @@ graph [
     popularity_score 4.6
     description "A scenic boat trip along the strait separating Europe and Asia, passing waterfront palaces and fortresses."
     destination_id "IST"
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 13
@@ -196,6 +206,8 @@ graph [
     popularity_score 4.3
     description "A trendy district of fish restaurants, cafes and galleries along the Golden Horn."
     destination_id "IST"
+    open_hour 10
+    close_hour 23
   ]
   node [
     id 14
@@ -210,6 +222,8 @@ graph [
     popularity_score 4.2
     description "A pedestrian avenue packed with bars, live music venues and a historic tram running its length."
     destination_id "IST"
+    open_hour 18
+    close_hour 2
   ]
   node [
     id 15
@@ -224,6 +238,8 @@ graph [
     popularity_score 4.6
     description "An underground Byzantine reservoir with hundreds of columns, softly lit and eerily beautiful."
     destination_id "IST"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 16
@@ -238,6 +254,8 @@ graph [
     popularity_score 4.6
     description "A grand Ottoman imperial mosque designed by architect Mimar Sinan, with panoramic city views."
     destination_id "IST"
+    open_hour 7
+    close_hour 19
   ]
   node [
     id 17
@@ -252,6 +270,8 @@ graph [
     popularity_score 4.5
     description "Car-free islands in the Sea of Marmara reachable by ferry, known for pine forests and horse-drawn carriages."
     destination_id "IST"
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 18
@@ -266,6 +286,8 @@ graph [
     popularity_score 4.7
     description "The iron lattice tower that has defined the Paris skyline since 1889, with observation decks over the city."
     destination_id "PAR"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 19
@@ -280,6 +302,8 @@ graph [
     popularity_score 4.8
     description "The world's largest art museum, home to the Mona Lisa and the Venus de Milo inside a former royal palace."
     destination_id "PAR"
+    open_hour 9
+    close_hour 18
   ]
   node [
     id 20
@@ -294,6 +318,8 @@ graph [
     popularity_score 4.6
     description "A hilltop artists' quarter with cobbled streets, cabarets and the white-domed Sacre-Coeur basilica."
     destination_id "PAR"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 21
@@ -308,6 +334,8 @@ graph [
     popularity_score 4.3
     description "A grand boulevard of flagship boutiques and cafes running from the Arc de Triomphe."
     destination_id "PAR"
+    open_hour 10
+    close_hour 20
   ]
   node [
     id 22
@@ -322,6 +350,8 @@ graph [
     popularity_score 4.7
     description "An Impressionist and Post-Impressionist collection housed in a former Belle Epoque railway station."
     destination_id "PAR"
+    open_hour 9
+    close_hour 18
   ]
   node [
     id 23
@@ -336,6 +366,8 @@ graph [
     popularity_score 4.4
     description "A historic district of narrow lanes, art galleries, cocktail bars and falafel stands."
     destination_id "PAR"
+    open_hour 18
+    close_hour 2
   ]
   node [
     id 24
@@ -350,6 +382,8 @@ graph [
     popularity_score 4.6
     description "The Gothic cathedral on the Ile de la Cite, under restoration after the 2019 fire but open to visit."
     destination_id "PAR"
+    open_hour 7
+    close_hour 19
   ]
   node [
     id 25
@@ -364,6 +398,8 @@ graph [
     popularity_score 4.5
     description "An evening boat ride past illuminated monuments along the river that splits the city."
     destination_id "PAR"
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 26
@@ -378,6 +414,8 @@ graph [
     popularity_score 4.6
     description "Formal French gardens with fountains, statues and a palace, popular with picnicking Parisians."
     destination_id "PAR"
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 27
@@ -392,6 +430,8 @@ graph [
     popularity_score 4.7
     description "The lavish former royal residence outside Paris, famed for its Hall of Mirrors and manicured gardens."
     destination_id "PAR"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 28
@@ -406,6 +446,8 @@ graph [
     popularity_score 4.8
     description "The largest ancient amphitheater ever built, once host to gladiatorial contests, now Rome's defining ruin."
     destination_id "ROM"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 29
@@ -420,6 +462,8 @@ graph [
     popularity_score 4.6
     description "The sprawling ruins of the political and commercial heart of ancient Rome."
     destination_id "ROM"
+    open_hour 8
+    close_hour 19
   ]
   node [
     id 30
@@ -434,6 +478,8 @@ graph [
     popularity_score 4.7
     description "A vast papal art collection culminating in Michelangelo's frescoed Sistine Chapel ceiling."
     destination_id "ROM"
+    open_hour 9
+    close_hour 18
   ]
   node [
     id 31
@@ -448,6 +494,8 @@ graph [
     popularity_score 4.8
     description "The largest church in the world, centerpiece of Vatican City, topped by Michelangelo's dome."
     destination_id "ROM"
+    open_hour 7
+    close_hour 19
   ]
   node [
     id 32
@@ -462,6 +510,8 @@ graph [
     popularity_score 4.7
     description "A Baroque fountain where tradition holds that a coin tossed over the shoulder ensures a return to Rome."
     destination_id "ROM"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 33
@@ -476,6 +526,8 @@ graph [
     popularity_score 4.5
     description "A cobblestoned neighborhood of trattorias, wine bars and ivy-draped facades across the Tiber."
     destination_id "ROM"
+    open_hour 18
+    close_hour 2
   ]
   node [
     id 34
@@ -490,6 +542,8 @@ graph [
     popularity_score 4.7
     description "A remarkably preserved Roman temple with the world's largest unreinforced concrete dome."
     destination_id "ROM"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 35
@@ -504,6 +558,8 @@ graph [
     popularity_score 4.5
     description "A Baroque square built over an ancient stadium, ringed by cafes and sculpted fountains."
     destination_id "ROM"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 36
@@ -518,6 +574,8 @@ graph [
     popularity_score 4.6
     description "An intimate villa museum of Bernini sculpture set in a large landscaped park."
     destination_id "ROM"
+    open_hour 9
+    close_hour 18
   ]
   node [
     id 37
@@ -532,6 +590,8 @@ graph [
     popularity_score 4.2
     description "A lively morning produce market that turns into an aperitivo hub by evening."
     destination_id "ROM"
+    open_hour 10
+    close_hour 23
   ]
   node [
     id 38
@@ -546,6 +606,8 @@ graph [
     popularity_score 4.8
     description "Gaudi's still-unfinished basilica, a riot of organic spires and stained glass, under construction since 1882."
     destination_id "BCN"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 39
@@ -560,6 +622,8 @@ graph [
     popularity_score 4.6
     description "A whimsical Gaudi-designed park of mosaic terraces and gingerbread-style pavilions overlooking the city."
     destination_id "BCN"
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 40
@@ -574,6 +638,8 @@ graph [
     popularity_score 4.0
     description "A tree-lined pedestrian boulevard running from Placa Catalunya to the old harbor."
     destination_id "BCN"
+    open_hour 10
+    close_hour 20
   ]
   node [
     id 41
@@ -588,6 +654,8 @@ graph [
     popularity_score 4.6
     description "A labyrinth of medieval lanes, Roman remains and Gothic cathedrals in the old city center."
     destination_id "BCN"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 42
@@ -602,6 +670,8 @@ graph [
     popularity_score 4.3
     description "The city's main urban beach, backed by seafood restaurants and beach bars."
     destination_id "BCN"
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 43
@@ -616,6 +686,8 @@ graph [
     popularity_score 4.6
     description "A Gaudi-renovated townhouse with a skeletal, dragon-scaled facade on Passeig de Gracia."
     destination_id "BCN"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 44
@@ -630,6 +702,8 @@ graph [
     popularity_score 4.4
     description "Narrow streets of cocktail bars, tapas spots and design boutiques near the Picasso Museum."
     destination_id "BCN"
+    open_hour 18
+    close_hour 2
   ]
   node [
     id 45
@@ -644,6 +718,8 @@ graph [
     popularity_score 4.5
     description "An extensive collection tracing Picasso's early development, housed in five medieval palaces."
     destination_id "BCN"
+    open_hour 9
+    close_hour 18
   ]
   node [
     id 46
@@ -658,6 +734,8 @@ graph [
     popularity_score 4.4
     description "FC Barcelona's home stadium, one of the largest in Europe, with a club museum and tours."
     destination_id "BCN"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 47
@@ -672,6 +750,8 @@ graph [
     popularity_score 4.5
     description "A hilltop park with a castle, gardens and city views, reachable by cable car."
     destination_id "BCN"
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 48
@@ -686,6 +766,8 @@ graph [
     popularity_score 4.7
     description "The canal house where Anne Frank hid during WWII, now a moving museum on her diary and the Holocaust."
     destination_id "AMS"
+    open_hour 9
+    close_hour 18
   ]
   node [
     id 49
@@ -700,6 +782,8 @@ graph [
     popularity_score 4.8
     description "The national museum of art and history, home to Rembrandt's The Night Watch."
     destination_id "AMS"
+    open_hour 9
+    close_hour 18
   ]
   node [
     id 50
@@ -714,6 +798,8 @@ graph [
     popularity_score 4.7
     description "The world's largest collection of Van Gogh paintings and letters."
     destination_id "AMS"
+    open_hour 9
+    close_hour 18
   ]
   node [
     id 51
@@ -728,6 +814,8 @@ graph [
     popularity_score 4.6
     description "A boat tour along the UNESCO-listed 17th-century canal belt lined with gabled houses."
     destination_id "AMS"
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 52
@@ -742,6 +830,8 @@ graph [
     popularity_score 4.5
     description "A former working-class quarter now full of galleries, boutiques and cozy brown cafes."
     destination_id "AMS"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 53
@@ -756,6 +846,8 @@ graph [
     popularity_score 4.6
     description "The city's largest park, popular for picnics, cycling and open-air concerts in summer."
     destination_id "AMS"
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 54
@@ -770,6 +862,8 @@ graph [
     popularity_score 4.0
     description "A historic canal-side nightlife area known for its bars, coffee shops and neon-lit streets."
     destination_id "AMS"
+    open_hour 18
+    close_hour 2
   ]
   node [
     id 55
@@ -784,6 +878,8 @@ graph [
     popularity_score 4.3
     description "The Netherlands' busiest street market, stalls of stroopwafels, cheese and fresh fish."
     destination_id "AMS"
+    open_hour 10
+    close_hour 23
   ]
   node [
     id 56
@@ -798,6 +894,8 @@ graph [
     popularity_score 4.3
     description "A green-hulled harbor-front building of interactive science exhibits, family-friendly."
     destination_id "AMS"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 57
@@ -812,6 +910,8 @@ graph [
     popularity_score 4.2
     description "An interactive tour of the former Heineken brewery with tastings."
     destination_id "AMS"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 58
@@ -826,6 +926,8 @@ graph [
     popularity_score 4.7
     description "The largest ancient castle complex in the world, seat of Czech rulers for over a thousand years."
     destination_id "PRG"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 59
@@ -840,6 +942,8 @@ graph [
     popularity_score 4.6
     description "A Gothic stone bridge lined with baroque statues, crossing the Vltava at dawn is a local ritual."
     destination_id "PRG"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 60
@@ -854,6 +958,8 @@ graph [
     popularity_score 4.6
     description "A medieval square dominated by the Astronomical Clock and Tyn Church's twin spires."
     destination_id "PRG"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 61
@@ -868,6 +974,8 @@ graph [
     popularity_score 4.3
     description "A 15th-century clock that puts on an hourly parade of mechanical apostle figures."
     destination_id "PRG"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 62
@@ -882,6 +990,8 @@ graph [
     popularity_score 4.5
     description "A preserved ghetto of historic synagogues and the Old Jewish Cemetery."
     destination_id "PRG"
+    open_hour 8
+    close_hour 19
   ]
   node [
     id 63
@@ -896,6 +1006,8 @@ graph [
     popularity_score 4.5
     description "A green hill with a mini Eiffel-style lookout tower and rose gardens above the city."
     destination_id "PRG"
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 64
@@ -910,6 +1022,8 @@ graph [
     popularity_score 4.1
     description "The commercial heart of the New Town, site of many pivotal moments in Czech history."
     destination_id "PRG"
+    open_hour 10
+    close_hour 20
   ]
   node [
     id 65
@@ -924,6 +1038,8 @@ graph [
     popularity_score 4.4
     description "Riverside beer gardens serving Czech pilsners with views of Prague Castle."
     destination_id "PRG"
+    open_hour 18
+    close_hour 2
   ]
   node [
     id 66
@@ -938,6 +1054,8 @@ graph [
     popularity_score 4.0
     description "An ever-changing wall of graffiti and lyrics that became a symbol of youthful dissent."
     destination_id "PRG"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 67
@@ -952,6 +1070,8 @@ graph [
     popularity_score 4.4
     description "An Art Nouveau concert hall and cafe, one of Prague's most ornate buildings."
     destination_id "PRG"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 68
@@ -966,6 +1086,8 @@ graph [
     popularity_score 4.7
     description "The Habsburgs' 1,441-room summer palace, with formal gardens and a zoo, Austria's most-visited sight."
     destination_id "VIE"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 69
@@ -980,6 +1102,8 @@ graph [
     popularity_score 4.7
     description "A Gothic cathedral with a glazed tile roof, the spiritual heart of Vienna since the 12th century."
     destination_id "VIE"
+    open_hour 7
+    close_hour 19
   ]
   node [
     id 70
@@ -994,6 +1118,8 @@ graph [
     popularity_score 4.7
     description "A Baroque palace complex holding Klimt's The Kiss and Austria's finest art collection."
     destination_id "VIE"
+    open_hour 9
+    close_hour 18
   ]
   node [
     id 71
@@ -1008,6 +1134,8 @@ graph [
     popularity_score 4.7
     description "One of the world's leading opera houses, offering standing-room tickets for a few euros."
     destination_id "VIE"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 72
@@ -1022,6 +1150,8 @@ graph [
     popularity_score 4.4
     description "Vienna's largest market, stalls of Middle Eastern, Balkan and Austrian food side by side."
     destination_id "VIE"
+    open_hour 10
+    close_hour 23
   ]
   node [
     id 73
@@ -1036,6 +1166,8 @@ graph [
     popularity_score 4.6
     description "The former imperial palace, now housing the Spanish Riding School and Sisi Museum."
     destination_id "VIE"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 74
@@ -1050,6 +1182,8 @@ graph [
     popularity_score 4.3
     description "A public park famed for its giant Ferris wheel and old-fashioned amusement rides."
     destination_id "VIE"
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 75
@@ -1064,6 +1198,8 @@ graph [
     popularity_score 4.5
     description "A cultural complex of modern art museums around courtyards full of design furniture."
     destination_id "VIE"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 76
@@ -1078,6 +1214,8 @@ graph [
     popularity_score 4.2
     description "A stretch of bars, graffiti art and summer pop-up beaches along the canal."
     destination_id "VIE"
+    open_hour 18
+    close_hour 2
   ]
   node [
     id 77
@@ -1092,6 +1230,8 @@ graph [
     popularity_score 4.7
     description "An encyclopedic art museum with an unrivaled Bruegel collection, housed in a palatial building."
     destination_id "VIE"
+    open_hour 9
+    close_hour 18
   ]
   node [
     id 78
@@ -1106,6 +1246,8 @@ graph [
     popularity_score 4.5
     description "A fortified 16th-century tower marking the departure point of Portugal's Age of Discoveries voyages."
     destination_id "LIS"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 79
@@ -1120,6 +1262,8 @@ graph [
     popularity_score 4.7
     description "An ornate Manueline-style monastery built to commemorate Vasco da Gama's voyage to India."
     destination_id "LIS"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 80
@@ -1134,6 +1278,8 @@ graph [
     popularity_score 4.6
     description "Lisbon's oldest quarter, a hillside tangle of alleys, fado bars and tiled facades."
     destination_id "LIS"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 81
@@ -1148,6 +1294,8 @@ graph [
     popularity_score 4.2
     description "A vintage yellow tram that rattles through the steepest, most scenic parts of the old city."
     destination_id "LIS"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 82
@@ -1162,6 +1310,8 @@ graph [
     popularity_score 4.4
     description "A converted industrial complex of bars, bookshops and street art under the 25 de Abril bridge."
     destination_id "LIS"
+    open_hour 18
+    close_hour 2
   ]
   node [
     id 83
@@ -1176,6 +1326,8 @@ graph [
     popularity_score 4.5
     description "A Moorish hilltop castle with sweeping views over the terracotta rooftops of Lisbon."
     destination_id "LIS"
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 84
@@ -1190,6 +1342,8 @@ graph [
     popularity_score 4.4
     description "A curated food hall bringing together stalls from the city's best chefs and restaurants."
     destination_id "LIS"
+    open_hour 10
+    close_hour 23
   ]
   node [
     id 85
@@ -1204,6 +1358,8 @@ graph [
     popularity_score 4.5
     description "A grand riverside square that once served as the ceremonial entrance to the city."
     destination_id "LIS"
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 86
@@ -1218,6 +1374,8 @@ graph [
     popularity_score 4.7
     description "A fairy-tale hill town of pastel palaces and misty forests, a short train ride from Lisbon."
     destination_id "LIS"
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 87
@@ -1232,6 +1390,8 @@ graph [
     popularity_score 4.3
     description "The go-to district for late-night bars centered on the neon-lit Pink Street."
     destination_id "LIS"
+    open_hour 18
+    close_hour 2
   ]
   node [
     id 88

@@ -58,6 +58,7 @@ class PlanState(TypedDict, total=False):
     top_k_pois: int
     max_price_level: int
     daily_minutes_budget: int
+    use_real_routing: bool
     destination_id: Optional[str]
     archetype: str
     segmentation: dict
@@ -106,12 +107,13 @@ class RoamWiseLangGraphOrchestrator:
 
     def plan_trip(self, preferences: dict, destination_id: str = None, n_days: int = 3,
                   travel_month: str = None, top_k_pois: int = 12, max_price_level: int = 3,
-                  daily_minutes_budget: int = 480) -> dict:
+                  daily_minutes_budget: int = 480, use_real_routing: bool = False) -> dict:
         """Same signature/return shape as RoamWiseOrchestrator.plan_trip()."""
         init_state: PlanState = {
             "preferences": preferences, "n_days": n_days, "travel_month": travel_month,
             "top_k_pois": top_k_pois, "max_price_level": max_price_level,
-            "daily_minutes_budget": daily_minutes_budget, "destination_id": destination_id,
+            "daily_minutes_budget": daily_minutes_budget, "use_real_routing": use_real_routing,
+            "destination_id": destination_id,
         }
         return self._compiled.invoke(init_state)
 
@@ -156,6 +158,7 @@ class RoamWiseLangGraphOrchestrator:
         routing = self.router.run(
             state["destination_id"], candidate_pois, n_days=state["n_days"],
             daily_minutes_budget=state.get("daily_minutes_budget", 480),
+            use_real_routing=state.get("use_real_routing", False),
         )
         return {"routing": routing}
 
