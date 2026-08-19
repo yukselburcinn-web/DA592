@@ -24,16 +24,19 @@ All claims below are backed by code in this repository and a passing automated t
 
 ### 3.1 Data sourcing
 
-The proposal names Kaggle, TripAdvisor, OpenStreetMap, and Wikidata. This sandbox has no credentialed access to those sources (no API keys, no scraping target with usage rights available at build time), so `roamwise/data/generate_data.py` procedurally generates a **structurally equivalent** synthetic dataset:
+The proposal names Kaggle, TripAdvisor, OpenStreetMap, and Wikidata. `roamwise/data/generate_data.py` procedurally generates the pieces that stay curated rather than pulled from an API (hand-picked real-world facts or illustrative training data, not something an API replaces):
 
 - 8 cities (Istanbul, Paris, Rome, Barcelona, Amsterdam, Prague, Vienna, Lisbon), each with a budget tier and interest tags
-- 80 POIs (10/city) across 10 categories (museum, landmark, nature, nightlife, food, religion, culture, shopping, history, beach), each with real-style descriptions, price level, popularity, and visit duration
-- 16 transport hubs (airport + train station per city), placed at their **real-world coordinates** (e.g. Fiumicino at 41.80°N/12.24°E) so hub-to-city-center distances behave realistically even though POI placement within each city is synthetic
-- ~6 years (2019–2026) of monthly tourism-demand time series per city, constructed with trend growth, annual seasonality, and an explicit 2020–2022 COVID-era demand shock — deliberately shaped like real arrivals data (UNWTO-style dip and recovery) rather than pure noise, so the forecasting model has a genuine pattern to learn
+- 16 transport hubs (airport + train station per city), placed at their **real-world coordinates** (e.g. Fiumicino at 41.80°N/12.24°E)
 - 8 hand-written descriptive city guides (~150–250 words each) forming the semantic/keyword text corpus
 - A 420-row synthetic user-preference survey across 7 named traveler archetypes, used to fit the segmentation model
 
-**This is the single largest deviation from the proposal** and is flagged prominently rather than hidden: every number this system reports (visitor counts, distances, crowding levels) is generated from this synthetic dataset, not real tourism data. The architecture, however, is data-source-agnostic — swapping in real OpenStreetMap/Wikidata POIs and real UNWTO/aviation demand series requires no changes outside `data/generate_data.py` and the CSV schemas it produces.
+POIs and tourism-demand data are now **real**, fetched live from public APIs rather than generated:
+
+- **`data/fetch_real_pois.py`**: 80 POIs (10/city) across the same 10 categories, pulled from **OpenStreetMap** (Overpass API) around each city center and enriched with **Wikidata** (SPARQL) for descriptions and a sitelink-count popularity signal — the two sources the proposal names for this exact purpose.
+- **`data/fetch_real_demand.py`**: the monthly tourism-demand series (2019–2026, real COVID-era dip and recovery) is Eurostat's `tour_occ_nim` — real nights-spent-by-non-residents data, at each destination's **country** level (there is no free, unauthenticated, monthly, per-city arrivals API covering all 8 cities). This is the one honest remaining gap: the *numbers* are 100% real, but they're a country-level proxy standing in for a city-level series — documented in the README's Data note and in §5 below.
+
+`generate_data.py` still produces a synthetic fallback for `poi.csv`/`demand_timeseries.csv` if run without the two fetch scripts, so the pipeline stays fully reproducible offline; the committed dataset in this repo, however, is the real one.
 
 ### 3.2 Predictive & segmentation models ("The Tools")
 
@@ -83,16 +86,16 @@ The orchestrator's `plan_trip()` runs all five nodes in sequence: segmentation �
 
 | Config | Mean Recall@k (multi-hop gold) | Mean archetype-category precision | Mean grounded-entity rate | Mean km/stop (itinerary coherence) |
 |---|---|---|---|---|
-| **Fusion RAG** (Semantic+Graph+Keyword) | 1.000 | **0.678** | 1.000 | 1.90 |
-| **Hybrid RAG** (Semantic+Keyword) | 1.000 | 0.536 | 1.000 | 2.00 |
-| **Standard prompting** (no retrieval) | 0.000 | 0.531 | 0.000 | 1.65 |
+| **Fusion RAG** (Semantic+Graph+Keyword) | **1.000** | **0.661** | 1.000 | 2.08 |
+| **Hybrid RAG** (Semantic+Keyword) | 0.833 | 0.571 | 1.000 | 2.00 |
+| **Standard prompting** (no retrieval) | 0.000 | 0.453 | 0.000 | 1.56 |
 
-(Full per-query results: `evaluation/comparative_analysis_results.csv`; aggregated: `evaluation/comparative_analysis_summary.csv`. Reproduce with `python evaluation/comparative_analysis.py`.)
+(Numbers above are from the real OSM/Wikidata POI dataset, see §3.1. Full per-query results: `evaluation/comparative_analysis_results.csv`; aggregated: `evaluation/comparative_analysis_summary.csv`. Reproduce with `python evaluation/comparative_analysis.py`.)
 
 **Reading these results honestly:**
 
-- **Archetype-category precision is the clearest, most robust signal** (Fusion 0.678 vs. Hybrid 0.536 vs. Standard 0.531): only Graph-RAG has direct `ArchetypeProfile -[PREFERS]-> POI` edges, so only the fusion configuration systematically surfaces POIs matching the *traveler's segment*, not just the query text. Hybrid and Standard land within noise of each other, because neither has any structural signal for "this traveler is a Nightlife Seeker" — TF-IDF/BM25 only see the literal query words.
-- **Recall@k on multi-hop transport-proximity queries did not separate Fusion from Hybrid** at the tested `top_k=8`: with only 10 POIs per city, semantic and keyword search also recover most of the transport-proximate POIs once the query text names the category and hints at proximity. This is reported as-is rather than adjusted to produce a more flattering number — it is a genuine finding about this prototype's scale (a larger POI catalog per city, or queries decoupled from literal keyword overlap, would be expected to widen this gap; see §5).
+- **Archetype-category precision is the clearest, most robust signal** (Fusion 0.661 vs. Hybrid 0.571 vs. Standard 0.453): only Graph-RAG has direct `ArchetypeProfile -[PREFERS]-> POI` edges, so only the fusion configuration systematically surfaces POIs matching the *traveler's segment*, not just the query text. Hybrid and Standard land closer to each other, because neither has any structural signal for "this traveler is a Nightlife Seeker" — TF-IDF/BM25 only see the literal query words.
+- **Recall@k on multi-hop transport-proximity queries now separates Fusion (1.000) from Hybrid (0.833)** — with the earlier synthetic POI set this gap didn't show up at `top_k=8`; with the real OSM-derived POIs (different name/description text than the synthetic set) the graph traversal's structural signal (direct `Transport -[NEAR]-> POI` edges) recovers gold multi-hop POIs that semantic/keyword search alone miss. This is closer to the widening effect §5 (small-scale caveat) predicted a larger/more realistic catalog would produce.
 - **Grounded-entity rate is 1.0 for any retrieval-based config and 0.0 for standard prompting by construction** — every document either retrieval layer returns is a real node in the knowledge graph, so this is a structural hallucination-risk proxy, not a measurement of a generative model actually hallucinating (the default `TemplateLLMClient` cannot invent text). If a live Claude key is set, `run_llm_hallucination_probe()` in the same file runs a genuine generative check instead (named-entity match rate against the KB with zero retrieved context).
 - **Itinerary coherence (km/stop)** is close across all three configs at this city scale (1.65–2.00 km/stop) because the underlying POI coordinates are the same synthetic scatter regardless of which POIs get selected; the meaningful difference is *which* POIs get selected (captured by the precision metric above), not how tightly the router can walk between whichever set it's given.
 
@@ -103,8 +106,8 @@ The orchestrator's `plan_trip()` runs all five nodes in sequence: segmentation �
 
 ## 5. Known limitations & honest gaps vs. the proposal
 
-- **Synthetic, not real, data.** This is the headline caveat — see §3.1. Every score, distance, and forecast number in this system is illustrative of the *architecture*, not a claim about real tourism patterns.
-- **City/POI scale is small** (8 cities, 10 POIs each). This was sized for a fast, fully-reproducible demo; it is also why the multi-hop Recall@k metric didn't separate Fusion from Hybrid as clearly as the precision metric did (§3.5).
+- **Demand data is a country-level proxy, not city-level.** POIs (§3.1) are now real OpenStreetMap/Wikidata data, and the demand series is real Eurostat data — but Eurostat only publishes monthly tourism-nights at country granularity, so every city's forecast uses its country's series as a stand-in. A real city-level series exists (Eurostat Urban Audit `urb_ctour`) but only annually, which can't drive the monthly-seasonality Holt-Winters model without a redesign (see `BACKLOG.md` issue #3). Distances/routing are unaffected by this — only the crowding-forecast numbers are a proxy.
+- **City/POI scale is small** (8 cities, 10 POIs each). This was sized for a fast, fully-reproducible demo (see `BACKLOG.md` issue #2 for growing it).
 - **No live LLM by default.** The default template-based "reasoning engine" performs real selection/synthesis over structured data but does not perform open-ended generation, so it cannot exhibit true hallucination — by design, to keep the system free and offline. The optional Anthropic-backed path is implemented but not exercised in this report (no API key configured in the build environment).
 - **No live Neo4j.** Named as an example ("e.g., Neo4j") in the proposal; this build uses NetworkX for zero external service dependency and full unit-testability, not because Neo4j is infeasible. (LangGraph, the other named example, now has a working alternative implementation — see §3.4.1 — so this gap is specific to the graph *database*, not the agent framework.)
 - **Routing is a 2-opt heuristic, not a full time-window vehicle-routing solver.** Real OSRM street distances/times and POI opening-hours are both now implemented (`optimization/routing.py`, `optimization/osrm_client.py`) — but the 2-opt *ordering* itself still optimizes on pure geography and ignores opening hours; hours are enforced as a second pass (wait-or-skip) over the already-geographically-optimized order, not as a constraint the solver reorders around. A stop that would only make sense to visit last (because it opens late) but that 2-opt places second may get skipped even though a different, still-short route could have included it. Real routing (`use_real_routing=True`) is opt-in rather than default because it depends on a public, unauthenticated OSRM demo server (routing.openstreetmap.de) that has no uptime guarantee and rate-limits bursts of requests — RoamWise fetches one distance/duration matrix per trip (not per day) to stay well under that limit and falls back to the haversine estimate automatically if the request fails, but a default-on network dependency for a course-project prototype still felt like the wrong default. There is also no transit-schedule modeling (walking only).
@@ -115,7 +118,7 @@ Every proposal deliverable has working, tested code behind it in this repository
 
 ## 7. Suggested next steps (if continued beyond this prototype)
 
-1. Replace `data/generate_data.py`'s synthetic generation with real OpenStreetMap Overpass queries + Wikidata SPARQL for POIs, and a real aviation/UNWTO arrivals dataset for demand.
+1. ~~Replace `data/generate_data.py`'s synthetic generation with real OpenStreetMap Overpass queries + Wikidata SPARQL for POIs, and a real aviation/UNWTO arrivals dataset for demand.~~ **Done** — see `data/fetch_real_pois.py` and `data/fetch_real_demand.py`. Remaining gap: demand is real but country-level, not city-level (§5).
 2. Swap `SemanticIndex` to `sentence-transformers` + FAISS once model-download bandwidth/time is acceptable for the deployment target.
 3. Re-run the comparative analysis at a larger POI-per-city scale (50–100+) to test whether Fusion's multi-hop advantage over Hybrid widens, as hypothesized in §3.5.
 4. Wire `run_llm_hallucination_probe()` into CI with a provisioned `ANTHROPIC_API_KEY` to get a real generative-hallucination number alongside the structural grounding metrics.
