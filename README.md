@@ -111,7 +111,7 @@ TravelerSegmenter (KMeans)  ──►  archetype (e.g. "Culture Enthusiast")
 ForecasterAgent  ──►  Holt-Winters demand model  ──►  crowding-aware destination pick / timing
       │
       ▼
-FusionRAGAgent  ──►  Semantic (TF-IDF+LSA) + Graph (NetworkX traversal) + Keyword (BM25)
+FusionRAGAgent  ──►  Semantic (sentence-transformers + FAISS) + Graph (NetworkX traversal) + Keyword (BM25)
       │              fused via Reciprocal Rank Fusion
       ▼
 RouterAgent  ──►  POIZoner (KMeans day-zones) + 2-opt route solver
