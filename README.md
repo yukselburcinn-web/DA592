@@ -75,13 +75,22 @@ from agents.orchestrator_langgraph import RoamWiseLangGraphOrchestrator
 orch = RoamWiseLangGraphOrchestrator()
 ```
 
+### Optional: Prophet forecasting comparison
+
+`models/forecasting.py` (the default) uses Holt-Winters. `models/forecasting_prophet.py` is a Prophet-based alternative with the same `forecast_city()` output shape, added to empirically test the Holt-Winters-by-default rationale rather than just assert it. See [`REPORT.md` §3.2](REPORT.md#32-predictive--segmentation-models-the-tools) for the MAE/RMSE backtest results. To reproduce it:
+
+```bash
+pip install -r roamwise/requirements-prophet.txt
+python roamwise/evaluation/forecasting_comparison.py
+```
+
 ## Project layout
 
 ```
 roamwise/
   data/                  dataset + fetchers (destinations, POIs, transport, demand, city guides -- see Data note)
   knowledge_graph/       NetworkX-based Graph-RAG substrate (build_graph.py)
-  models/                forecasting.py (Holt-Winters demand model), segmentation.py (KMeans)
+  models/                forecasting.py (Holt-Winters demand model), forecasting_prophet.py (optional), segmentation.py (KMeans)
   retrieval/             semantic_search.py, keyword_search.py, graph_search.py, fusion.py (RRF)
   optimization/          routing.py (nearest-neighbor + 2-opt daily route solver)
   agents/                ForecasterAgent, FusionRAGAgent, RouterAgent, orchestrator.py

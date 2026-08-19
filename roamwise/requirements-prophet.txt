@@ -1,0 +1,12 @@
+# Optional extra for models/forecasting_prophet.py (issue #3 -- a Prophet-based
+# alternative to forecasting.py's default Holt-Winters model, for comparison).
+#
+# Not installed by default / not part of requirements.txt: it pulls in
+# cmdstanpy, which compiles and runs a Stan model per fit (seconds per city,
+# vs. Holt-Winters' milliseconds) -- see forecasting.py's module docstring
+# for why Holt-Winters is the default. Install only if you want to run
+# forecasting_prophet.py or evaluation/forecasting_comparison.py.
+#
+#   pip install -r requirements-prophet.txt
+
+prophet==1.4.0
