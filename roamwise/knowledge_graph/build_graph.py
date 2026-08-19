@@ -1,21 +1,5 @@
 """
 Knowledge graph construction (Graph-RAG substrate).
-
-We use NetworkX rather than a live Neo4j server: it needs no external service,
-is trivially inspectable/testable, and supports every traversal this project
-needs (multi-hop neighbor queries, shortest path, filtered subgraphs). The
-schema mirrors what a Neo4j property graph would hold, so swapping the
-backend later means re-implementing GraphIndex.query_* against the Neo4j
-Python driver -- the rest of the pipeline (agents, fusion, evaluation) is
-backend-agnostic because it only talks to GraphIndex.
-
-Node types: City, POI, Transport, ArchetypeProfile
-Edge types:
-  City -[HAS_POI]-> POI
-  City -[HAS_TRANSPORT]-> Transport
-  POI  -[NEAR]-> POI               (spatial proximity within a city)
-  POI  -[SAME_CATEGORY]-> POI
-  ArchetypeProfile -[PREFERS]-> POI category (via CATEGORY_AFFINITY weight)
 """
 import json
 import math
@@ -23,11 +7,11 @@ from pathlib import Path
 
 import networkx as nx
 import pandas as pd
+from neo4j import GraphDatabase
 
 HERE = Path(__file__).parent
 DATA_DIR = HERE.parent / "data"
 
-# category affinity per traveler archetype -- feeds the ArchetypeProfile PREFERS edges
 CATEGORY_AFFINITY = {
     "Culture Enthusiast": {"museum": 1.0, "landmark": 0.9, "history": 0.9, "religion": 0.6, "culture": 0.8},
     "Beach & Relax": {"beach": 1.0, "nature": 0.8, "food": 0.5, "culture": 0.3},
@@ -38,7 +22,6 @@ CATEGORY_AFFINITY = {
     "Family Traveler": {"nature": 0.8, "culture": 0.6, "museum": 0.6, "landmark": 0.6, "food": 0.5},
 }
 
-
 def haversine_km(lat1, lon1, lat2, lon2):
     r = 6371.0
     p1, p2 = math.radians(lat1), math.radians(lat2)
@@ -46,7 +29,6 @@ def haversine_km(lat1, lon1, lat2, lon2):
     dl = math.radians(lon2 - lon1)
     a = math.sin(dphi / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
     return 2 * r * math.asin(math.sqrt(a))
-
 
 def build_graph() -> nx.MultiDiGraph:
     destinations = pd.read_csv(DATA_DIR / "destinations.csv")
@@ -79,7 +61,6 @@ def build_graph() -> nx.MultiDiGraph:
         )
         g.add_edge(t.destination_id, t.transport_id, relation="HAS_TRANSPORT")
 
-    # POI <-> POI edges: spatial proximity (NEAR, <=2km) and category affinity
     pois_by_dest = pois.groupby("destination_id")
     for dest_id, group in pois_by_dest:
         recs = group.to_dict("records")
@@ -93,7 +74,6 @@ def build_graph() -> nx.MultiDiGraph:
                     g.add_edge(a["poi_id"], b["poi_id"], relation="SAME_CATEGORY")
                     g.add_edge(b["poi_id"], a["poi_id"], relation="SAME_CATEGORY")
 
-    # Archetype profile nodes with PREFERS edges into category-representative POIs
     for archetype, affinities in CATEGORY_AFFINITY.items():
         node_id = f"ARCH::{archetype}"
         g.add_node(node_id, type="ArchetypeProfile", name=archetype, affinities=affinities)
@@ -106,12 +86,29 @@ def build_graph() -> nx.MultiDiGraph:
 
 
 class GraphIndex:
-    """Query surface over the knowledge graph used by the Fusion RAG / agent layer."""
+    """Query surface over the knowledge graph supporting NetworkX and Neo4j backends."""
 
-    def __init__(self, graph: nx.MultiDiGraph = None):
-        self.g = graph if graph is not None else build_graph()
+    def __init__(self, graph: nx.MultiDiGraph = None, backend="networkx", neo4j_uri="bolt://localhost:7687", neo4j_auth=("neo4j", "password")):
+        self.backend = backend
+        if self.backend == "neo4j":
+            self.driver = GraphDatabase.driver(neo4j_uri, auth=neo4j_auth)
+        else:
+            self.g = graph if graph is not None else build_graph()
+
+    def close(self):
+        if self.backend == "neo4j":
+            self.driver.close()
 
     def city_pois(self, destination_id: str, category: str = None):
+        if self.backend == "neo4j":
+            query = "MATCH (c:City {id: $dest_id})-[:HAS_POI]->(p:POI) "
+            if category:
+                query += "WHERE p.category = $category "
+            query += "RETURN p"
+            with self.driver.session() as session:
+                result = session.run(query, dest_id=destination_id, category=category)
+                return [{"poi_id": record["p"].element_id, **record["p"]} for record in result]
+        
         out = []
         for _, poi_id, data in self.g.out_edges(destination_id, data=True):
             if data.get("relation") == "HAS_POI":
@@ -121,6 +118,12 @@ class GraphIndex:
         return out
 
     def city_transport(self, destination_id: str):
+        if self.backend == "neo4j":
+            query = "MATCH (c:City {id: $dest_id})-[:HAS_TRANSPORT]->(t:Transport) RETURN t"
+            with self.driver.session() as session:
+                result = session.run(query, dest_id=destination_id)
+                return [{"transport_id": record["t"].element_id, **record["t"]} for record in result]
+
         out = []
         for _, tid, data in self.g.out_edges(destination_id, data=True):
             if data.get("relation") == "HAS_TRANSPORT":
@@ -128,6 +131,12 @@ class GraphIndex:
         return out
 
     def nearby_pois(self, poi_id: str, max_km: float = 2.0):
+        if self.backend == "neo4j":
+            query = "MATCH (p1:POI {id: $poi_id})-[r:NEAR]->(p2:POI) WHERE r.distance_km <= $max_km RETURN p2, r.distance_km AS dist ORDER BY dist"
+            with self.driver.session() as session:
+                result = session.run(query, poi_id=poi_id, max_km=max_km)
+                return [{"poi_id": record["p2"].element_id, "distance_km": record["dist"], **record["p2"]} for record in result]
+
         out = []
         for _, other_id, data in self.g.out_edges(poi_id, data=True):
             if data.get("relation") == "NEAR" and data.get("distance_km", 999) <= max_km:
@@ -135,6 +144,15 @@ class GraphIndex:
         return sorted(out, key=lambda x: x["distance_km"])
 
     def archetype_preferred_pois(self, archetype: str, destination_id: str = None, top_k: int = 20):
+        if self.backend == "neo4j":
+            query = "MATCH (a:ArchetypeProfile {name: $arch})-[r:PREFERS]->(p:POI) "
+            if destination_id:
+                query += "WHERE p.destination_id = $dest_id "
+            query += "RETURN p, r.weight AS weight ORDER BY weight DESC, p.popularity_score DESC LIMIT $top_k"
+            with self.driver.session() as session:
+                result = session.run(query, arch=archetype, dest_id=destination_id, top_k=top_k)
+                return [{"poi_id": record["p"].element_id, "weight": record["weight"], **record["p"]} for record in result]
+
         node_id = f"ARCH::{archetype}"
         if node_id not in self.g:
             return []
@@ -150,9 +168,19 @@ class GraphIndex:
         return out[:top_k]
 
     def multi_hop_transport_to_poi(self, destination_id: str, category: str, max_km: float = 3.0):
-        """Multi-hop traversal: City -> Transport, City -> POI(category), ranked by
-        proximity to the nearest transport hub. This is the kind of chained
-        relational query flat document retrieval cannot answer directly."""
+        if self.backend == "neo4j":
+            hubs = self.city_transport(destination_id)
+            pois = self.city_pois(destination_id, category=category)
+            results = []
+            for poi in pois:
+                best = min(
+                    (haversine_km(poi["lat"], poi["lon"], h["lat"], h["lon"]) for h in hubs),
+                    default=999,
+                )
+                if best <= max_km:
+                    results.append({**poi, "nearest_hub_km": round(best, 2)})
+            return sorted(results, key=lambda x: x["nearest_hub_km"])
+
         hubs = self.city_transport(destination_id)
         pois = self.city_pois(destination_id, category=category)
         results = []
@@ -166,19 +194,23 @@ class GraphIndex:
         return sorted(results, key=lambda x: x["nearest_hub_km"])
 
     def stats(self):
+        if self.backend == "neo4j":
+            query = "MATCH (n) RETURN labels(n)[0] AS type, count(n) AS count"
+            with self.driver.session() as session:
+                result = session.run(query)
+                by_type = {record["type"]: record["count"] for record in result}
+                return {"nodes": sum(by_type.values()), "edges": 0, "by_type": by_type} # Edge count requires separate query
+
         types = {}
         for _, data in self.g.nodes(data=True):
             types[data.get("type", "?")] = types.get(data.get("type", "?"), 0) + 1
         return {"nodes": self.g.number_of_nodes(), "edges": self.g.number_of_edges(), "by_type": types}
 
-
 def save_graph(g: nx.MultiDiGraph, path: Path):
     nx.write_gml(g, path, stringizer=str)
 
-
 def load_graph(path: Path) -> nx.MultiDiGraph:
     return nx.read_gml(path, destringizer=None)
-
 
 if __name__ == "__main__":
     g = build_graph()
