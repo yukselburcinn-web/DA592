@@ -1,0 +1,3 @@
+model,mae,rmse
+holt_winters,746115.0,877606.2
+prophet,997181.0,1078920.8

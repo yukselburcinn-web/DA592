@@ -40,7 +40,20 @@ POIs and tourism-demand data are now **real**, fetched live from public APIs rat
 
 ### 3.2 Predictive & segmentation models ("The Tools")
 
-- **Demand forecasting** (`models/forecasting.py`): the proposal suggests Prophet or LSTM. This implementation uses **Holt-Winters triple exponential smoothing** (`statsmodels.tsa.holtwinters.ExponentialSmoothing`, additive trend+seasonality, damped trend) instead. Rationale: it needs no compiled Stan backend (Prophet's dependency) or GPU/training-data volume (LSTM), trains in milliseconds on 90 monthly points per city, and is fully sufficient for a 12-month-ahead forecast at this data volume. Forecast output is converted into a `low`/`medium`/`high` crowding label (z-score against each city's own post-pandemic history) — this is what the rest of the system actually consumes, not raw visitor counts.
+- **Demand forecasting** (`models/forecasting.py`): the proposal suggests Prophet or LSTM. This implementation uses **Holt-Winters triple exponential smoothing** (`statsmodels.tsa.holtwinters.ExponentialSmoothing`, additive trend+seasonality, damped trend) instead. Rationale: it needs no compiled Stan backend (Prophet's dependency) or GPU/training-data volume (LSTM), trains in milliseconds on 90 monthly points per city, and is fully sufficient for a 12-month-ahead forecast at this data volume. Forecast output is converted into a `low`/`medium`/`high` crowding label (z-score against each city's own post-pandemic history) — this is what the rest of the system actually consumes, not raw visitor counts. `models/forecasting_prophet.py` is an optional Prophet-based alternative with the same output shape, added to empirically test that rationale rather than just assert it — see the backtest below.
+
+#### Holt-Winters vs. Prophet backtest (issue #3)
+
+`evaluation/forecasting_comparison.py` holds out the last 6 months of each city's real Eurostat demand series, fits both models on everything before that, and scores each forecast against the real held-out values:
+
+| Model | Mean MAE | Mean RMSE |
+|---|---|---|
+| **Holt-Winters** (default) | **746,115** | **877,606** |
+| Prophet | 997,181 | 1,078,921 |
+
+(Full per-city results: `evaluation/forecasting_comparison_results.csv`; aggregated: `evaluation/forecasting_comparison_summary.csv`. Reproduce with `pip install -r requirements-prophet.txt && python evaluation/forecasting_comparison.py`.)
+
+**Reading this honestly:** Holt-Winters wins on the mean, but the per-city picture is mixed, not a clean sweep — Prophet actually has lower MAE on 5 of 8 cities (Amsterdam, Barcelona, Istanbul, Lisbon, Prague). The mean is dominated by Rome, where Prophet's MAE (3.69M) is more than double Holt-Winters' (1.76M) — Prophet's default piecewise-linear trend detector appears to have picked up a spurious trend-changepoint in Rome's holdout window that Holt-Winters' damped-trend smoothing avoided. At ~40 monthly points per city (post-2022-07 cutoff), neither model has much data to work with, and a single volatile city can swing the aggregate more than the "better model on average" framing suggests. This is a genuine result from real data, not tuned for a specific outcome, and it empirically supports (rather than just asserts) the original engineering trade-off: Holt-Winters is the safer default at this data volume, but the gap is narrower and less one-sided than the original rationale implied.
 - **Traveler segmentation** (`models/segmentation.py::TravelerSegmenter`): KMeans (k=7) over 6 preference dimensions (budget, culture, nature, nightlife, relax, adventure), fit on the synthetic survey, with each cluster mapped to its majority-vote archetype name for interpretability.
 - **POI geographic zoning** (`models/segmentation.py::POIZoner`): a second, independent KMeans clusters a city's candidate POIs by lat/lon into `n_days` walkable zones, one per itinerary day.
 
