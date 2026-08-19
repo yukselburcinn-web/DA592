@@ -117,174 +117,174 @@ graph [
     id 8
     label "POI0001"
     type "POI"
-    name "Hagia Sophia"
-    category "landmark"
-    lat 41.004278
-    lon 28.972164
-    avg_visit_minutes 90
+    name "Barbaros Hayrettin T&#252;rbesi"
+    category "history"
+    lat 41.041923
+    lon 29.006836
+    avg_visit_minutes 60
     price_level 0
-    popularity_score 4.9
-    description "A former Byzantine cathedral and Ottoman mosque, Hagia Sophia is a UNESCO World Heritage icon blending Christian and Islamic art under a vast dome."
+    popularity_score 4.2
+    description "Barbaros Hayrettin T&#252;rbesi is a t&#252;rbe in Turkey, in Istanbul."
     destination_id "IST"
     open_hour 8
-    close_hour 20
+    close_hour 19
   ]
   node [
     id 9
     label "POI0002"
     type "POI"
-    name "Topkapi Palace"
-    category "museum"
-    lat 41.008562
-    lon 28.993339
-    avg_visit_minutes 45
-    price_level 2
-    popularity_score 4.7
-    description "The opulent former residence of Ottoman sultans, with treasury rooms, harem quarters and sweeping Bosphorus views."
+    name "Y&#305;lanl&#305; S&#252;tun"
+    category "landmark"
+    lat 41.005665
+    lon 28.97511
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.4
+    description "Y&#305;lanl&#305; S&#252;tun is a victory column in Istanbul, Turkey, from Delphi."
     destination_id "IST"
-    open_hour 9
-    close_hour 18
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 10
     label "POI0003"
     type "POI"
-    name "Grand Bazaar"
-    category "shopping"
-    lat 40.988134
-    lon 28.924805
-    avg_visit_minutes 45
-    price_level 1
-    popularity_score 4.4
-    description "One of the world's oldest covered markets, a maze of over 4,000 shops selling carpets, ceramics, spices and jewelry."
+    name "Koca Sinan Pa&#351;a K&#252;lliyesi"
+    category "religion"
+    lat 41.008873
+    lon 28.9691
+    avg_visit_minutes 30
+    price_level 0
+    popularity_score 4.1
+    description "Koca Sinan Pa&#351;a K&#252;lliyesi is a madrasa in Fatih District, in Istanbul."
     destination_id "IST"
-    open_hour 10
-    close_hour 20
+    open_hour 7
+    close_hour 19
   ]
   node [
     id 11
     label "POI0004"
     type "POI"
-    name "Blue Mosque"
-    category "religion"
-    lat 41.002781
-    lon 28.973812
-    avg_visit_minutes 45
-    price_level 0
-    popularity_score 4.7
-    description "An active mosque famed for its cascading domes and hand-painted blue Iznik tiles."
+    name "&#199;inili K&#246;&#351;k"
+    category "museum"
+    lat 41.012022
+    lon 28.981238
+    avg_visit_minutes 120
+    price_level 1
+    popularity_score 4.3
+    description "&#199;inili K&#246;&#351;k is a museum building in Fatih, Istanbul."
     destination_id "IST"
-    open_hour 7
+    open_hour 9
     close_hour 19
   ]
   node [
     id 12
     label "POI0005"
     type "POI"
-    name "Bosphorus Strait Cruise"
-    category "nature"
-    lat 41.013631
-    lon 29.01445
-    avg_visit_minutes 45
-    price_level 2
-    popularity_score 4.6
-    description "A scenic boat trip along the strait separating Europe and Asia, passing waterfront palaces and fortresses."
+    name "Kapal&#305; &#199;ar&#351;&#305;"
+    category "food"
+    lat 41.010967
+    lon 28.968253
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.5
+    description "Kapal&#305; &#199;ar&#351;&#305; is a bazaar in Istanbul, Turkey."
     destination_id "IST"
-    open_hour 0
-    close_hour 24
+    open_hour 9
+    close_hour 19
   ]
   node [
     id 13
     label "POI0006"
     type "POI"
-    name "Karakoy Waterfront"
-    category "food"
-    lat 40.973701
-    lon 28.959884
-    avg_visit_minutes 180
-    price_level 1
+    name "Y&#305;ld&#305;z Park&#305;"
+    category "nature"
+    lat 41.048307
+    lon 29.016889
+    avg_visit_minutes 90
+    price_level 0
     popularity_score 4.3
-    description "A trendy district of fish restaurants, cafes and galleries along the Golden Horn."
+    description "Y&#305;ld&#305;z Park&#305; is a city park in &#304;stanbul, Turkey."
     destination_id "IST"
-    open_hour 10
-    close_hour 23
+    open_hour 8
+    close_hour 22
   ]
   node [
     id 14
     label "POI0007"
     type "POI"
-    name "Istiklal Street"
-    category "nightlife"
-    lat 40.993871
-    lon 28.972891
+    name "Caddebostan Plaj&#305;"
+    category "beach"
+    lat 40.963972
+    lon 29.057689
     avg_visit_minutes 150
-    price_level 1
-    popularity_score 4.2
-    description "A pedestrian avenue packed with bars, live music venues and a historic tram running its length."
+    price_level 0
+    popularity_score 4.0
+    description "A popular beach in Istanbul."
     destination_id "IST"
-    open_hour 18
-    close_hour 2
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 15
     label "POI0008"
     type "POI"
-    name "Basilica Cistern"
-    category "landmark"
-    lat 41.000426
-    lon 29.03595
-    avg_visit_minutes 60
-    price_level 0
-    popularity_score 4.6
-    description "An underground Byzantine reservoir with hundreds of columns, softly lit and eerily beautiful."
+    name "Baba Sahne"
+    category "culture"
+    lat 40.98733
+    lon 29.027924
+    avg_visit_minutes 90
+    price_level 1
+    popularity_score 4.0
+    description "A cultural venue in Istanbul."
     destination_id "IST"
-    open_hour 8
+    open_hour 9
     close_hour 20
   ]
   node [
     id 16
     label "POI0009"
     type "POI"
-    name "Suleymaniye Mosque"
-    category "religion"
-    lat 41.001698
-    lon 28.9529
-    avg_visit_minutes 60
-    price_level 0
-    popularity_score 4.6
-    description "A grand Ottoman imperial mosque designed by architect Mimar Sinan, with panoramic city views."
+    name "Bigudi"
+    category "nightlife"
+    lat 41.036143
+    lon 28.980608
+    avg_visit_minutes 120
+    price_level 1
+    popularity_score 4.0
+    description "Bigudi is a Queer nightclub and bar in Istanbul, Turkey (2016&#8211;now)."
     destination_id "IST"
-    open_hour 7
-    close_hour 19
+    open_hour 18
+    close_hour 2
   ]
   node [
     id 17
     label "POI0010"
     type "POI"
-    name "Princes' Islands"
-    category "nature"
-    lat 41.01671
-    lon 29.029322
-    avg_visit_minutes 45
-    price_level 2
-    popularity_score 4.5
-    description "Car-free islands in the Sea of Marmara reachable by ferry, known for pine forests and horse-drawn carriages."
+    name "Atlas Pasaj&#305;"
+    category "shopping"
+    lat 41.034113
+    lon 28.979214
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.1
+    description "Atlas Pasaj&#305; is a mall in Istanbul, Turkey."
     destination_id "IST"
-    open_hour 0
-    close_hour 24
+    open_hour 10
+    close_hour 20
   ]
   node [
     id 18
     label "POI0011"
     type "POI"
-    name "Eiffel Tower"
+    name "Point z&#233;ro des Routes de France"
     category "landmark"
-    lat 48.864409
-    lon 2.360022
-    avg_visit_minutes 90
-    price_level 2
-    popularity_score 4.7
-    description "The iron lattice tower that has defined the Paris skyline since 1889, with observation decks over the city."
+    lat 48.853401
+    lon 2.348788
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.2
+    description "Point z&#233;ro des Routes de France is a point from which distances from Paris are measured."
     destination_id "PAR"
     open_hour 8
     close_hour 20
@@ -293,142 +293,142 @@ graph [
     id 19
     label "POI0012"
     type "POI"
-    name "Louvre Museum"
-    category "museum"
-    lat 48.823749
-    lon 2.314106
-    avg_visit_minutes 180
-    price_level 2
-    popularity_score 4.8
-    description "The world's largest art museum, home to the Mona Lisa and the Venus de Milo inside a former royal palace."
+    name "M&#233;morial du g&#233;nocide arm&#233;nien d'Issy-les-Moulineaux"
+    category "history"
+    lat 48.819042
+    lon 2.259764
+    avg_visit_minutes 60
+    price_level 0
+    popularity_score 4.1
+    description "M&#233;morial du g&#233;nocide arm&#233;nien d'Issy-les-Moulineaux is a monument located in Hauts-de-Seine, in France, in Paris."
     destination_id "PAR"
-    open_hour 9
-    close_hour 18
+    open_hour 8
+    close_hour 19
   ]
   node [
     id 20
     label "POI0013"
     type "POI"
-    name "Montmartre &#38; Sacre-Coeur"
-    category "culture"
-    lat 48.846326
-    lon 2.35627
+    name "Conciergerie"
+    category "museum"
+    lat 48.855949
+    lon 2.346026
     avg_visit_minutes 120
     price_level 1
-    popularity_score 4.6
-    description "A hilltop artists' quarter with cobbled streets, cabarets and the white-domed Sacre-Coeur basilica."
+    popularity_score 4.5
+    description "Conciergerie is a Medieval building in Paris, France."
     destination_id "PAR"
     open_hour 9
-    close_hour 20
+    close_hour 18
   ]
   node [
     id 21
     label "POI0014"
     type "POI"
-    name "Champs-Elysees"
-    category "shopping"
-    lat 48.872608
-    lon 2.365338
-    avg_visit_minutes 180
-    price_level 3
-    popularity_score 4.3
-    description "A grand boulevard of flagship boutiques and cafes running from the Arc de Triomphe."
+    name "Silvia Monfort"
+    category "culture"
+    lat 48.830812
+    lon 2.300199
+    avg_visit_minutes 90
+    price_level 1
+    popularity_score 4.1
+    description "Silvia Monfort is a theatre company and building in Paris."
     destination_id "PAR"
-    open_hour 10
+    open_hour 9
     close_hour 20
   ]
   node [
     id 22
     label "POI0015"
     type "POI"
-    name "Musee d'Orsay"
-    category "museum"
-    lat 48.824411
-    lon 2.307106
-    avg_visit_minutes 150
-    price_level 1
-    popularity_score 4.7
-    description "An Impressionist and Post-Impressionist collection housed in a former Belle Epoque railway station."
+    name "Jardin des Combattants-de-la-Nueve"
+    category "nature"
+    lat 48.855765
+    lon 2.352164
+    avg_visit_minutes 90
+    price_level 0
+    popularity_score 4.2
+    description "Jardin des Combattants-de-la-Nueve is a garden in 4th arrondissement of Paris, France."
     destination_id "PAR"
-    open_hour 9
-    close_hour 18
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 23
     label "POI0016"
     type "POI"
-    name "Le Marais"
-    category "nightlife"
-    lat 48.859484
-    lon 2.363753
-    avg_visit_minutes 180
-    price_level 2
-    popularity_score 4.4
-    description "A historic district of narrow lanes, art galleries, cocktail bars and falafel stands."
-    destination_id "PAR"
-    open_hour 18
-    close_hour 2
-  ]
-  node [
-    id 24
-    label "POI0017"
-    type "POI"
-    name "Notre-Dame Cathedral"
+    name "Chapelle des Cat&#233;chismes"
     category "religion"
-    lat 48.859095
-    lon 2.379328
-    avg_visit_minutes 45
+    lat 48.858968
+    lon 2.318326
+    avg_visit_minutes 30
     price_level 0
-    popularity_score 4.6
-    description "The Gothic cathedral on the Ile de la Cite, under restoration after the 2019 fire but open to visit."
+    popularity_score 4.2
+    description "Chapelle des Cat&#233;chismes is a chapel located in Paris, in France."
     destination_id "PAR"
     open_hour 7
     close_hour 19
   ]
   node [
+    id 24
+    label "POI0017"
+    type "POI"
+    name "Galerie Vivienne"
+    category "shopping"
+    lat 48.866721
+    lon 2.339676
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.3
+    description "Galerie Vivienne is a gallery in Paris, France."
+    destination_id "PAR"
+    open_hour 8
+    close_hour 20
+  ]
+  node [
     id 25
     label "POI0018"
     type "POI"
-    name "Seine River Cruise"
-    category "nature"
-    lat 48.883632
-    lon 2.29945
+    name "Harry's Bar"
+    category "nightlife"
+    lat 48.869209
+    lon 2.332171
     avg_visit_minutes 120
-    price_level 2
-    popularity_score 4.5
-    description "An evening boat ride past illuminated monuments along the river that splits the city."
+    price_level 1
+    popularity_score 4.2
+    description "Harry's Bar is a well-known bar in Paris, France."
     destination_id "PAR"
-    open_hour 0
-    close_hour 24
+    open_hour 12
+    close_hour 2
   ]
   node [
     id 26
     label "POI0019"
     type "POI"
-    name "Luxembourg Gardens"
-    category "nature"
-    lat 48.850724
-    lon 2.40249
-    avg_visit_minutes 90
-    price_level 0
-    popularity_score 4.6
-    description "Formal French gardens with fountains, statues and a palace, popular with picnicking Parisians."
+    name "March&#233; du Centre"
+    category "food"
+    lat 48.803107
+    lon 2.432937
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.0
+    description "A well-regarded food destination in Paris."
     destination_id "PAR"
-    open_hour 0
-    close_hour 24
+    open_hour 10
+    close_hour 23
   ]
   node [
     id 27
     label "POI0020"
     type "POI"
-    name "Palace of Versailles"
+    name "Folie Titon"
     category "landmark"
-    lat 48.867548
-    lon 2.379414
-    avg_visit_minutes 180
-    price_level 2
-    popularity_score 4.7
-    description "The lavish former royal residence outside Paris, famed for its Hall of Mirrors and manicured gardens."
+    lat 48.850527
+    lon 2.385844
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.1
+    description "Folie Titon is an a former folly that became a wallpaper factory run by Jean-Baptiste R&#233;veillon. located in the former Faubourg Saint-Antoine, in Paris."
     destination_id "PAR"
     open_hour 8
     close_hour 20
@@ -437,174 +437,174 @@ graph [
     id 28
     label "POI0021"
     type "POI"
-    name "Colosseum"
-    category "landmark"
-    lat 41.89778
-    lon 12.559389
-    avg_visit_minutes 180
-    price_level 2
-    popularity_score 4.8
-    description "The largest ancient amphitheater ever built, once host to gladiatorial contests, now Rome's defining ruin."
+    name "Porta Magica"
+    category "history"
+    lat 41.895502
+    lon 12.50374
+    avg_visit_minutes 60
+    price_level 0
+    popularity_score 4.2
+    description "Porta Magica is a building in Rome, Italy."
     destination_id "ROM"
     open_hour 8
-    close_hour 20
+    close_hour 19
   ]
   node [
     id 29
     label "POI0022"
     type "POI"
-    name "Roman Forum"
-    category "history"
-    lat 41.933052
-    lon 12.515966
-    avg_visit_minutes 150
-    price_level 1
-    popularity_score 4.6
-    description "The sprawling ruins of the political and commercial heart of ancient Rome."
-    destination_id "ROM"
-    open_hour 8
-    close_hour 19
-  ]
-  node [
-    id 30
-    label "POI0023"
-    type "POI"
-    name "Vatican Museums &#38; Sistine Chapel"
-    category "museum"
-    lat 41.901185
-    lon 12.479945
-    avg_visit_minutes 120
-    price_level 2
-    popularity_score 4.7
-    description "A vast papal art collection culminating in Michelangelo's frescoed Sistine Chapel ceiling."
-    destination_id "ROM"
-    open_hour 9
-    close_hour 18
-  ]
-  node [
-    id 31
-    label "POI0024"
-    type "POI"
-    name "St. Peter's Basilica"
-    category "religion"
-    lat 41.896969
-    lon 12.558577
-    avg_visit_minutes 180
-    price_level 0
-    popularity_score 4.8
-    description "The largest church in the world, centerpiece of Vatican City, topped by Michelangelo's dome."
-    destination_id "ROM"
-    open_hour 7
-    close_hour 19
-  ]
-  node [
-    id 32
-    label "POI0025"
-    type "POI"
-    name "Trevi Fountain"
+    name "Obelisco Matteiano"
     category "landmark"
-    lat 41.86926
-    lon 12.47955
-    avg_visit_minutes 45
-    price_level 0
-    popularity_score 4.7
-    description "A Baroque fountain where tradition holds that a coin tossed over the shoulder ensures a return to Rome."
+    lat 41.883389
+    lon 12.495335
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.2
+    description "A well-known landmark in Rome."
     destination_id "ROM"
     open_hour 8
     close_hour 20
   ]
   node [
-    id 33
-    label "POI0026"
+    id 30
+    label "POI0023"
     type "POI"
-    name "Trastevere"
+    name "Harry's Bar"
     category "nightlife"
-    lat 41.903646
-    lon 12.504984
-    avg_visit_minutes 90
+    lat 41.909077
+    lon 12.488319
+    avg_visit_minutes 120
     price_level 1
-    popularity_score 4.5
-    description "A cobblestoned neighborhood of trattorias, wine bars and ivy-draped facades across the Tiber."
+    popularity_score 4.2
+    description "Harry's Bar is a bar in Italy, in Rome."
     destination_id "ROM"
     open_hour 18
     close_hour 2
   ]
   node [
+    id 31
+    label "POI0024"
+    type "POI"
+    name "Forte Braschi"
+    category "museum"
+    lat 41.915252
+    lon 12.424695
+    avg_visit_minutes 120
+    price_level 1
+    popularity_score 4.2
+    description "Forte Braschi is a building in Rome, Italy."
+    destination_id "ROM"
+    open_hour 9
+    close_hour 18
+  ]
+  node [
+    id 32
+    label "POI0025"
+    type "POI"
+    name "Chiesa di Sant'Urbano alla Caffarella"
+    category "religion"
+    lat 41.85787
+    lon 12.524318
+    avg_visit_minutes 30
+    price_level 0
+    popularity_score 4.2
+    description "Chiesa di Sant'Urbano alla Caffarella is a church building in Rome, Italy."
+    destination_id "ROM"
+    open_hour 7
+    close_hour 19
+  ]
+  node [
+    id 33
+    label "POI0026"
+    type "POI"
+    name "Foro Boario"
+    category "nature"
+    lat 41.888853
+    lon 12.480894
+    avg_visit_minutes 90
+    price_level 0
+    popularity_score 4.4
+    description "Foro Boario is a cattle market of Ancient Rome."
+    destination_id "ROM"
+    open_hour 0
+    close_hour 24
+  ]
+  node [
     id 34
     label "POI0027"
     type "POI"
-    name "Pantheon"
-    category "landmark"
-    lat 41.896311
-    lon 12.502637
-    avg_visit_minutes 150
-    price_level 0
-    popularity_score 4.7
-    description "A remarkably preserved Roman temple with the world's largest unreinforced concrete dome."
+    name "Teatro Olimpico"
+    category "culture"
+    lat 41.926364
+    lon 12.461877
+    avg_visit_minutes 90
+    price_level 1
+    popularity_score 4.1
+    description "Teatro Olimpico is a theatre in Rome, Italy."
     destination_id "ROM"
-    open_hour 8
+    open_hour 9
     close_hour 20
   ]
   node [
     id 35
     label "POI0028"
     type "POI"
-    name "Piazza Navona"
-    category "culture"
-    lat 41.916464
-    lon 12.478354
-    avg_visit_minutes 180
-    price_level 0
-    popularity_score 4.5
-    description "A Baroque square built over an ancient stadium, ringed by cafes and sculpted fountains."
+    name "Mercato Magna Grecia &#8211; Metronio"
+    category "food"
+    lat 41.882788
+    lon 12.50818
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.0
+    description "Mercato Magna Grecia &#8211; Metronio is a building in Rome, Italy."
     destination_id "ROM"
-    open_hour 9
-    close_hour 20
+    open_hour 6
+    close_hour 14
   ]
   node [
     id 36
     label "POI0029"
     type "POI"
-    name "Borghese Gallery &#38; Gardens"
-    category "museum"
-    lat 41.85799
-    lon 12.496691
-    avg_visit_minutes 180
+    name "La Rinascente"
+    category "shopping"
+    lat 41.911386
+    lon 12.497742
+    avg_visit_minutes 60
     price_level 1
-    popularity_score 4.6
-    description "An intimate villa museum of Bernini sculpture set in a large landscaped park."
+    popularity_score 4.0
+    description "La Rinascente is a building in Rome, Italy."
     destination_id "ROM"
-    open_hour 9
-    close_hour 18
+    open_hour 10
+    close_hour 21
   ]
   node [
     id 37
     label "POI0030"
     type "POI"
-    name "Campo de' Fiori Market"
-    category "food"
-    lat 41.886443
-    lon 12.502212
+    name "Catacombe di Priscilla"
+    category "history"
+    lat 41.929726
+    lon 12.508765
     avg_visit_minutes 60
-    price_level 1
-    popularity_score 4.2
-    description "A lively morning produce market that turns into an aperitivo hub by evening."
+    price_level 0
+    popularity_score 4.3
+    description "Catacombe di Priscilla is a cemetery in Rome, Italy; an archaeological site on the Via Salaria in Rome, Italy, situated in what was a quarry in Roman times. This quarry was used for Christian burials from the late 2nd century through the 4th century.."
     destination_id "ROM"
-    open_hour 10
-    close_hour 23
+    open_hour 8
+    close_hour 19
   ]
   node [
     id 38
     label "POI0031"
     type "POI"
-    name "Sagrada Familia"
+    name "Portal del Bisbe"
     category "landmark"
-    lat 41.386479
-    lon 2.129627
-    avg_visit_minutes 180
-    price_level 2
-    popularity_score 4.8
-    description "Gaudi's still-unfinished basilica, a riot of organic spires and stained glass, under construction since 1882."
+    lat 41.384003
+    lon 2.175434
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.1
+    description "A well-known landmark in Barcelona."
     destination_id "BCN"
     open_hour 8
     close_hour 20
@@ -613,46 +613,46 @@ graph [
     id 39
     label "POI0032"
     type "POI"
-    name "Park Guell"
-    category "nature"
-    lat 41.348261
-    lon 2.137931
-    avg_visit_minutes 120
-    price_level 1
-    popularity_score 4.6
-    description "A whimsical Gaudi-designed park of mosaic terraces and gingerbread-style pavilions overlooking the city."
+    name "Barcelona a Prim"
+    category "history"
+    lat 41.38639
+    lon 2.186795
+    avg_visit_minutes 60
+    price_level 0
+    popularity_score 4.2
+    description "A historic site in Barcelona."
     destination_id "BCN"
-    open_hour 0
-    close_hour 24
+    open_hour 8
+    close_hour 19
   ]
   node [
     id 40
     label "POI0033"
     type "POI"
-    name "La Rambla"
-    category "shopping"
-    lat 41.355126
-    lon 2.219291
-    avg_visit_minutes 60
-    price_level 1
-    popularity_score 4.0
-    description "A tree-lined pedestrian boulevard running from Placa Catalunya to the old harbor."
+    name "Temple d'August"
+    category "museum"
+    lat 41.383375
+    lon 2.177231
+    avg_visit_minutes 120
+    price_level 0
+    popularity_score 4.2
+    description "Temple d'August is a cultural property in Barcelona, Spain."
     destination_id "BCN"
     open_hour 10
-    close_hour 20
+    close_hour 14
   ]
   node [
     id 41
     label "POI0034"
     type "POI"
-    name "Gothic Quarter"
+    name "Blas Infante"
     category "culture"
-    lat 41.378325
-    lon 2.167875
-    avg_visit_minutes 45
-    price_level 0
-    popularity_score 4.6
-    description "A labyrinth of medieval lanes, Roman remains and Gothic cathedrals in the old city center."
+    lat 41.4377
+    lon 2.222921
+    avg_visit_minutes 90
+    price_level 1
+    popularity_score 4.0
+    description "A cultural venue in Barcelona."
     destination_id "BCN"
     open_hour 9
     close_hour 20
@@ -661,14 +661,14 @@ graph [
     id 42
     label "POI0035"
     type "POI"
-    name "Barceloneta Beach"
-    category "beach"
-    lat 41.395034
-    lon 2.156472
-    avg_visit_minutes 60
+    name "Jardins de Ramon Margalef i L&#243;pez"
+    category "nature"
+    lat 41.365749
+    lon 2.153034
+    avg_visit_minutes 90
     price_level 0
-    popularity_score 4.3
-    description "The city's main urban beach, backed by seafood restaurants and beach bars."
+    popularity_score 4.1
+    description "A green space in Barcelona."
     destination_id "BCN"
     open_hour 0
     close_hour 24
@@ -677,254 +677,254 @@ graph [
     id 43
     label "POI0036"
     type "POI"
-    name "Casa Batllo"
-    category "landmark"
-    lat 41.393671
-    lon 2.137726
-    avg_visit_minutes 45
-    price_level 2
-    popularity_score 4.6
-    description "A Gaudi-renovated townhouse with a skeletal, dragon-scaled facade on Passeig de Gracia."
+    name "Sant Medir"
+    category "religion"
+    lat 41.443638
+    lon 2.121358
+    avg_visit_minutes 30
+    price_level 0
+    popularity_score 4.2
+    description "Sant Medir is a church building in Sant Cugat del Vall&#232;s, Spain, in Barcelona."
     destination_id "BCN"
-    open_hour 8
-    close_hour 20
+    open_hour 7
+    close_hour 19
   ]
   node [
     id 44
     label "POI0037"
     type "POI"
-    name "El Born nightlife district"
-    category "nightlife"
-    lat 41.363566
-    lon 2.19669
-    avg_visit_minutes 120
+    name "Mercat de la Llibertat"
+    category "food"
+    lat 41.399863
+    lon 2.153485
+    avg_visit_minutes 60
     price_level 1
-    popularity_score 4.4
-    description "Narrow streets of cocktail bars, tapas spots and design boutiques near the Picasso Museum."
+    popularity_score 4.1
+    description "A well-regarded food destination in Barcelona."
     destination_id "BCN"
-    open_hour 18
-    close_hour 2
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 45
     label "POI0038"
     type "POI"
-    name "Picasso Museum"
-    category "museum"
-    lat 41.339514
-    lon 2.156792
-    avg_visit_minutes 45
+    name "Arenas de Barcelona"
+    category "shopping"
+    lat 41.376304
+    lon 2.149305
+    avg_visit_minutes 60
     price_level 1
-    popularity_score 4.5
-    description "An extensive collection tracing Picasso's early development, housed in five medieval palaces."
+    popularity_score 4.3
+    description "Arenas de Barcelona is a bullring in Barcelona, Spain."
     destination_id "BCN"
-    open_hour 9
-    close_hour 18
+    open_hour 10
+    close_hour 22
   ]
   node [
     id 46
     label "POI0039"
     type "POI"
-    name "Camp Nou"
-    category "culture"
-    lat 41.383093
-    lon 2.156343
+    name "Platja del Somorrostro"
+    category "beach"
+    lat 41.383527
+    lon 2.196406
     avg_visit_minutes 150
-    price_level 2
-    popularity_score 4.4
-    description "FC Barcelona's home stadium, one of the largest in Europe, with a club museum and tours."
+    price_level 0
+    popularity_score 4.1
+    description "Platja del Somorrostro is a beach and memory place in Barcelona, Catalonia."
     destination_id "BCN"
-    open_hour 9
-    close_hour 20
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 47
     label "POI0040"
     type "POI"
-    name "Montjuic Hill"
-    category "nature"
-    lat 41.387618
-    lon 2.115836
-    avg_visit_minutes 90
+    name "Boadas"
+    category "nightlife"
+    lat 41.384664
+    lon 2.170271
+    avg_visit_minutes 120
     price_level 1
-    popularity_score 4.5
-    description "A hilltop park with a castle, gardens and city views, reachable by cable car."
+    popularity_score 4.0
+    description "Boadas is a Cocktail Bar in Barcelona."
     destination_id "BCN"
-    open_hour 0
-    close_hour 24
+    open_hour 18
+    close_hour 2
   ]
   node [
     id 48
     label "POI0041"
     type "POI"
-    name "Anne Frank House"
-    category "museum"
-    lat 52.386374
-    lon 4.930045
-    avg_visit_minutes 120
-    price_level 1
-    popularity_score 4.7
-    description "The canal house where Anne Frank hid during WWII, now a moving museum on her diary and the Holocaust."
+    name "De Dokwerker"
+    category "history"
+    lat 52.367196
+    lon 4.905015
+    avg_visit_minutes 60
+    price_level 0
+    popularity_score 4.1
+    description "De Dokwerker is a war memorial by Mari Andriessen in Amsterdam, the Netherlands."
     destination_id "AMS"
-    open_hour 9
-    close_hour 18
+    open_hour 8
+    close_hour 19
   ]
   node [
     id 49
     label "POI0042"
     type "POI"
-    name "Rijksmuseum"
-    category "museum"
-    lat 52.405086
-    lon 4.905352
-    avg_visit_minutes 180
-    price_level 2
-    popularity_score 4.8
-    description "The national museum of art and history, home to Rembrandt's The Night Watch."
+    name "Rasphuispoort"
+    category "landmark"
+    lat 52.36774
+    lon 4.891052
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.2
+    description "Rasphuispoort is a prison &#236;n the Netherlands, in Amsterdam."
     destination_id "AMS"
-    open_hour 9
-    close_hour 18
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 50
     label "POI0043"
     type "POI"
-    name "Van Gogh Museum"
+    name "Hollandsche Schouwburg"
     category "museum"
-    lat 52.365287
-    lon 4.949022
-    avg_visit_minutes 60
-    price_level 2
-    popularity_score 4.7
-    description "The world's largest collection of Van Gogh paintings and letters."
+    lat 52.366439
+    lon 4.911154
+    avg_visit_minutes 120
+    price_level 0
+    popularity_score 4.2
+    description "Hollandsche Schouwburg is a memorial and former theater building in Amsterdam, the Netherlands."
     destination_id "AMS"
-    open_hour 9
-    close_hour 18
+    open_hour 10
+    close_hour 17
   ]
   node [
     id 51
     label "POI0044"
     type "POI"
-    name "Canal Ring Cruise"
-    category "nature"
-    lat 52.357823
-    lon 4.903327
-    avg_visit_minutes 180
-    price_level 1
-    popularity_score 4.6
-    description "A boat tour along the UNESCO-listed 17th-century canal belt lined with gabled houses."
+    name "Singelkerk"
+    category "religion"
+    lat 52.367547
+    lon 4.888281
+    avg_visit_minutes 30
+    price_level 0
+    popularity_score 4.1
+    description "Singelkerk is a church building in Amsterdam, Netherlands."
     destination_id "AMS"
-    open_hour 0
-    close_hour 24
+    open_hour 7
+    close_hour 19
   ]
   node [
     id 52
     label "POI0045"
     type "POI"
-    name "Jordaan District"
-    category "culture"
-    lat 52.357484
-    lon 4.956837
+    name "Nieuwe Meer Westzijde, Oeverlanden"
+    category "beach"
+    lat 52.333295
+    lon 4.812087
     avg_visit_minutes 150
     price_level 0
-    popularity_score 4.5
-    description "A former working-class quarter now full of galleries, boutiques and cozy brown cafes."
-    destination_id "AMS"
-    open_hour 9
-    close_hour 20
-  ]
-  node [
-    id 53
-    label "POI0046"
-    type "POI"
-    name "Vondelpark"
-    category "nature"
-    lat 52.374487
-    lon 4.93802
-    avg_visit_minutes 60
-    price_level 0
-    popularity_score 4.6
-    description "The city's largest park, popular for picnics, cycling and open-air concerts in summer."
+    popularity_score 4.0
+    description "A popular beach in Amsterdam."
     destination_id "AMS"
     open_hour 0
     close_hour 24
   ]
   node [
-    id 54
-    label "POI0047"
+    id 53
+    label "POI0046"
     type "POI"
-    name "Red Light District"
+    name "In't Aepjen"
     category "nightlife"
-    lat 52.328781
-    lon 4.888041
-    avg_visit_minutes 150
-    price_level 0
-    popularity_score 4.0
-    description "A historic canal-side nightlife area known for its bars, coffee shops and neon-lit streets."
+    lat 52.376312
+    lon 4.900146
+    avg_visit_minutes 120
+    price_level 1
+    popularity_score 4.1
+    description "In't Aepjen is a building in Amsterdam."
     destination_id "AMS"
     open_hour 18
     close_hour 2
   ]
   node [
+    id 54
+    label "POI0047"
+    type "POI"
+    name "Koninklijk Theater Carr&#233;"
+    category "culture"
+    lat 52.362335
+    lon 4.903926
+    avg_visit_minutes 90
+    price_level 1
+    popularity_score 4.2
+    description "Koninklijk Theater Carr&#233; is a theatre in Amsterdam, located near the river Amstel."
+    destination_id "AMS"
+    open_hour 9
+    close_hour 20
+  ]
+  node [
     id 55
     label "POI0048"
     type "POI"
-    name "Albert Cuyp Market"
+    name "Nieuwmarkt"
     category "food"
-    lat 52.395453
-    lon 4.878457
-    avg_visit_minutes 120
-    price_level 0
+    lat 52.372553
+    lon 4.900089
+    avg_visit_minutes 60
+    price_level 1
     popularity_score 4.3
-    description "The Netherlands' busiest street market, stalls of stroopwafels, cheese and fresh fish."
+    description "Nieuwmarkt is a square in Amsterdam, Netherlands."
     destination_id "AMS"
     open_hour 10
-    close_hour 23
+    close_hour 18
   ]
   node [
     id 56
     label "POI0049"
     type "POI"
-    name "NEMO Science Museum"
-    category "culture"
-    lat 52.414059
-    lon 4.913458
+    name "Beeldenbos Noord"
+    category "nature"
+    lat 52.38996
+    lon 4.938581
     avg_visit_minutes 90
-    price_level 1
-    popularity_score 4.3
-    description "A green-hulled harbor-front building of interactive science exhibits, family-friendly."
+    price_level 0
+    popularity_score 4.0
+    description "A green space in Amsterdam."
     destination_id "AMS"
-    open_hour 9
-    close_hour 20
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 57
     label "POI0050"
     type "POI"
-    name "Heineken Experience"
-    category "culture"
-    lat 52.368649
-    lon 4.929984
-    avg_visit_minutes 150
-    price_level 2
+    name "Magna Plaza"
+    category "shopping"
+    lat 52.373656
+    lon 4.890238
+    avg_visit_minutes 60
+    price_level 1
     popularity_score 4.2
-    description "An interactive tour of the former Heineken brewery with tastings."
+    description "Magna Plaza is a shopping center in Amsterdam, Netherlands."
     destination_id "AMS"
-    open_hour 9
-    close_hour 20
+    open_hour 11
+    close_hour 19
   ]
   node [
     id 58
     label "POI0051"
     type "POI"
-    name "Prague Castle"
+    name "U Tlust&#253; Berty"
     category "landmark"
-    lat 50.083867
-    lon 14.433286
-    avg_visit_minutes 120
+    lat 50.093736
+    lon 14.380539
+    avg_visit_minutes 60
     price_level 1
-    popularity_score 4.7
-    description "The largest ancient castle complex in the world, seat of Czech rulers for over a thousand years."
+    popularity_score 4.0
+    description "U Tlust&#253; Berty is a villa in Prague, Czech Republic."
     destination_id "PRG"
     open_hour 8
     close_hour 20
@@ -933,254 +933,254 @@ graph [
     id 59
     label "POI0052"
     type "POI"
-    name "Charles Bridge"
-    category "landmark"
-    lat 50.095253
-    lon 14.367912
-    avg_visit_minutes 150
+    name "Mikol&#225;&#353; Ale&#353;"
+    category "history"
+    lat 50.024153
+    lon 14.44661
+    avg_visit_minutes 60
     price_level 0
-    popularity_score 4.6
-    description "A Gothic stone bridge lined with baroque statues, crossing the Vltava at dawn is a local ritual."
+    popularity_score 4.0
+    description "A historic site in Prague."
     destination_id "PRG"
     open_hour 8
-    close_hour 20
+    close_hour 19
   ]
   node [
     id 60
     label "POI0053"
     type "POI"
-    name "Old Town Square"
-    category "culture"
-    lat 50.076571
-    lon 14.42109
-    avg_visit_minutes 120
+    name "St&#283;t&#237; svat&#233;ho Jana K&#345;titele"
+    category "religion"
+    lat 50.049033
+    lon 14.524392
+    avg_visit_minutes 30
     price_level 0
-    popularity_score 4.6
-    description "A medieval square dominated by the Astronomical Clock and Tyn Church's twin spires."
+    popularity_score 4.1
+    description "St&#283;t&#237; svat&#233;ho Jana K&#345;titele is a church building in Hostiva&#345;, Czech Republic, in Prague."
     destination_id "PRG"
-    open_hour 9
-    close_hour 20
+    open_hour 7
+    close_hour 19
   ]
   node [
     id 61
     label "POI0054"
     type "POI"
-    name "Astronomical Clock"
-    category "landmark"
-    lat 50.087244
-    lon 14.431451
-    avg_visit_minutes 150
-    price_level 0
-    popularity_score 4.3
-    description "A 15th-century clock that puts on an hourly parade of mechanical apostle figures."
+    name "Kotva"
+    category "shopping"
+    lat 50.088937
+    lon 14.427163
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.2
+    description "Kotva is a department store in Prague."
     destination_id "PRG"
-    open_hour 8
+    open_hour 9
     close_hour 20
   ]
   node [
     id 62
     label "POI0055"
     type "POI"
-    name "Jewish Quarter (Josefov)"
-    category "history"
-    lat 50.092223
-    lon 14.410888
-    avg_visit_minutes 60
+    name "svat&#253; &#352;imon a Juda"
+    category "culture"
+    lat 50.092039
+    lon 14.420644
+    avg_visit_minutes 90
     price_level 1
-    popularity_score 4.5
-    description "A preserved ghetto of historic synagogues and the Old Jewish Cemetery."
+    popularity_score 4.1
+    description "svat&#253; &#352;imon a Juda is a church in Prague."
     destination_id "PRG"
-    open_hour 8
-    close_hour 19
+    open_hour 9
+    close_hour 20
   ]
   node [
     id 63
     label "POI0056"
     type "POI"
-    name "Petrin Hill"
+    name "Vald&#353;tejnsk&#225; zahrada"
     category "nature"
-    lat 50.110662
-    lon 14.41156
-    avg_visit_minutes 180
+    lat 50.090175
+    lon 14.407568
+    avg_visit_minutes 90
     price_level 0
-    popularity_score 4.5
-    description "A green hill with a mini Eiffel-style lookout tower and rose gardens above the city."
+    popularity_score 4.1
+    description "Vald&#353;tejnsk&#225; zahrada is a park in Prague 1, Czech Republic."
     destination_id "PRG"
-    open_hour 0
-    close_hour 24
+    open_hour 7
+    close_hour 19
   ]
   node [
     id 64
     label "POI0057"
     type "POI"
-    name "Wenceslas Square"
-    category "shopping"
-    lat 50.081249
-    lon 14.466062
-    avg_visit_minutes 180
-    price_level 1
-    popularity_score 4.1
-    description "The commercial heart of the New Town, site of many pivotal moments in Czech history."
+    name "Nudistick&#225; pl&#225;&#382; Bran&#237;k"
+    category "beach"
+    lat 50.027785
+    lon 14.399437
+    avg_visit_minutes 150
+    price_level 0
+    popularity_score 4.0
+    description "A popular beach in Prague."
     destination_id "PRG"
-    open_hour 10
-    close_hour 20
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 65
     label "POI0058"
     type "POI"
-    name "Vltava Beer Gardens"
+    name "Cross Club"
     category "nightlife"
-    lat 50.060958
-    lon 14.406663
-    avg_visit_minutes 150
-    price_level 0
-    popularity_score 4.4
-    description "Riverside beer gardens serving Czech pilsners with views of Prague Castle."
+    lat 50.108293
+    lon 14.443228
+    avg_visit_minutes 120
+    price_level 1
+    popularity_score 4.1
+    description "Cross Club is a music venue in Prague, Czech Republic."
     destination_id "PRG"
-    open_hour 18
-    close_hour 2
+    open_hour 0
+    close_hour 5
   ]
   node [
     id 66
     label "POI0059"
     type "POI"
-    name "Lennon Wall"
-    category "culture"
-    lat 50.060089
-    lon 14.445355
-    avg_visit_minutes 45
-    price_level 0
+    name "Havelsk&#233; tr&#382;i&#353;t&#283;"
+    category "food"
+    lat 50.084772
+    lon 14.420993
+    avg_visit_minutes 60
+    price_level 1
     popularity_score 4.0
-    description "An ever-changing wall of graffiti and lyrics that became a symbol of youthful dissent."
+    description "Havelsk&#233; tr&#382;i&#353;t&#283; is a market in Prague, Czech Republic."
     destination_id "PRG"
-    open_hour 9
-    close_hour 20
+    open_hour 7
+    close_hour 19
   ]
   node [
     id 67
     label "POI0060"
     type "POI"
-    name "Municipal House"
-    category "culture"
-    lat 50.058956
-    lon 14.47952
-    avg_visit_minutes 60
+    name "Gorlice"
+    category "museum"
+    lat 50.06524
+    lon 14.421215
+    avg_visit_minutes 120
     price_level 1
-    popularity_score 4.4
-    description "An Art Nouveau concert hall and cafe, one of Prague's most ornate buildings."
+    popularity_score 4.1
+    description "A notable museum in Prague."
     destination_id "PRG"
     open_hour 9
-    close_hour 20
+    close_hour 18
   ]
   node [
     id 68
     label "POI0061"
     type "POI"
-    name "Schonbrunn Palace"
-    category "landmark"
-    lat 48.203677
-    lon 16.369586
-    avg_visit_minutes 180
-    price_level 2
-    popularity_score 4.7
-    description "The Habsburgs' 1,441-room summer palace, with formal gardens and a zoo, Austria's most-visited sight."
+    name "Mahnmal Morzinplatz"
+    category "history"
+    lat 48.212989
+    lon 16.374602
+    avg_visit_minutes 60
+    price_level 0
+    popularity_score 4.0
+    description "A historic site in Vienna."
     destination_id "VIE"
     open_hour 8
-    close_hour 20
+    close_hour 19
   ]
   node [
     id 69
     label "POI0062"
     type "POI"
-    name "St. Stephen's Cathedral"
-    category "religion"
-    lat 48.197802
-    lon 16.356953
-    avg_visit_minutes 45
-    price_level 0
-    popularity_score 4.7
-    description "A Gothic cathedral with a glazed tile roof, the spiritual heart of Vienna since the 12th century."
+    name "Obelisk"
+    category "landmark"
+    lat 48.179992
+    lon 16.316076
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.1
+    description "A well-known landmark in Vienna."
     destination_id "VIE"
-    open_hour 7
-    close_hour 19
+    open_hour 8
+    close_hour 20
   ]
   node [
     id 70
     label "POI0063"
     type "POI"
-    name "Belvedere Palace"
-    category "museum"
-    lat 48.213405
-    lon 16.364315
-    avg_visit_minutes 60
-    price_level 1
-    popularity_score 4.7
-    description "A Baroque palace complex holding Klimt's The Kiss and Austria's finest art collection."
+    name "Elisabethinen-Kirche"
+    category "religion"
+    lat 48.205275
+    lon 16.386718
+    avg_visit_minutes 30
+    price_level 0
+    popularity_score 4.1
+    description "Elisabethinen-Kirche is a church, in Vienna."
     destination_id "VIE"
-    open_hour 9
-    close_hour 18
+    open_hour 7
+    close_hour 19
   ]
   node [
     id 71
     label "POI0064"
     type "POI"
-    name "Vienna State Opera"
-    category "culture"
-    lat 48.203423
-    lon 16.413437
-    avg_visit_minutes 150
-    price_level 3
-    popularity_score 4.7
-    description "One of the world's leading opera houses, offering standing-room tickets for a few euros."
+    name "Schubertpark"
+    category "nature"
+    lat 48.226413
+    lon 16.339115
+    avg_visit_minutes 90
+    price_level 0
+    popularity_score 4.1
+    description "Schubertpark is a cemetery in W&#228;hring, Austria, in Vienna."
     destination_id "VIE"
-    open_hour 9
-    close_hour 20
+    open_hour 0
+    close_hour 24
   ]
   node [
     id 72
     label "POI0065"
     type "POI"
-    name "Naschmarkt"
-    category "food"
-    lat 48.239939
-    lon 16.426015
-    avg_visit_minutes 150
+    name "Oberes Belvedere"
+    category "museum"
+    lat 48.191539
+    lon 16.380903
+    avg_visit_minutes 120
     price_level 1
-    popularity_score 4.4
-    description "Vienna's largest market, stalls of Middle Eastern, Balkan and Austrian food side by side."
+    popularity_score 4.0
+    description "Oberes Belvedere is a Palace in Vienna, Austria."
     destination_id "VIE"
     open_hour 10
-    close_hour 23
+    close_hour 18
   ]
   node [
     id 73
     label "POI0066"
     type "POI"
-    name "Hofburg Palace"
-    category "landmark"
-    lat 48.194057
-    lon 16.362783
-    avg_visit_minutes 120
+    name "Burgtheater"
+    category "culture"
+    lat 48.210313
+    lon 16.361481
+    avg_visit_minutes 90
     price_level 1
-    popularity_score 4.6
-    description "The former imperial palace, now housing the Spanish Riding School and Sisi Museum."
+    popularity_score 4.5
+    description "Burgtheater is a state drama theatre in Vienna, Austria."
     destination_id "VIE"
-    open_hour 8
+    open_hour 9
     close_hour 20
   ]
   node [
     id 74
     label "POI0067"
     type "POI"
-    name "Prater Park"
-    category "nature"
-    lat 48.212996
-    lon 16.354754
-    avg_visit_minutes 45
+    name "Oststrand"
+    category "beach"
+    lat 48.227808
+    lon 16.433338
+    avg_visit_minutes 150
     price_level 0
-    popularity_score 4.3
-    description "A public park famed for its giant Ferris wheel and old-fashioned amusement rides."
+    popularity_score 4.0
+    description "A popular beach in Vienna."
     destination_id "VIE"
     open_hour 0
     close_hour 24
@@ -1189,78 +1189,78 @@ graph [
     id 75
     label "POI0068"
     type "POI"
-    name "MuseumsQuartier"
-    category "culture"
-    lat 48.196865
-    lon 16.347374
+    name "Eden Bar"
+    category "nightlife"
+    lat 48.207272
+    lon 16.372786
     avg_visit_minutes 120
     price_level 1
-    popularity_score 4.5
-    description "A cultural complex of modern art museums around courtyards full of design furniture."
-    destination_id "VIE"
-    open_hour 9
-    close_hour 20
-  ]
-  node [
-    id 76
-    label "POI0069"
-    type "POI"
-    name "Danube Canal Nightlife"
-    category "nightlife"
-    lat 48.1712
-    lon 16.385471
-    avg_visit_minutes 180
-    price_level 0
-    popularity_score 4.2
-    description "A stretch of bars, graffiti art and summer pop-up beaches along the canal."
+    popularity_score 4.1
+    description "Eden Bar is a bar in Vienna, Austria."
     destination_id "VIE"
     open_hour 18
     close_hour 2
   ]
   node [
+    id 76
+    label "POI0069"
+    type "POI"
+    name "Meidlinger Markt"
+    category "food"
+    lat 48.180672
+    lon 16.333132
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.0
+    description "A well-regarded food destination in Vienna."
+    destination_id "VIE"
+    open_hour 6
+    close_hour 21
+  ]
+  node [
     id 77
     label "POI0070"
     type "POI"
-    name "Kunsthistorisches Museum"
-    category "museum"
-    lat 48.188773
-    lon 16.331788
-    avg_visit_minutes 45
+    name "Ringstra&#223;en-Galerien"
+    category "shopping"
+    lat 48.202172
+    lon 16.372295
+    avg_visit_minutes 60
     price_level 1
-    popularity_score 4.7
-    description "An encyclopedic art museum with an unrivaled Bruegel collection, housed in a palatial building."
+    popularity_score 4.1
+    description "Ringstra&#223;en-Galerien is a shopping mall in Vienna."
     destination_id "VIE"
-    open_hour 9
-    close_hour 18
+    open_hour 10
+    close_hour 20
   ]
   node [
     id 78
     label "POI0071"
     type "POI"
-    name "Belem Tower"
-    category "landmark"
-    lat 38.705708
-    lon -9.124378
-    avg_visit_minutes 45
+    name "Primeira Travessia A&#233;rea do Atl&#226;ntico Sul"
+    category "history"
+    lat 38.692212
+    lon -9.213938
+    avg_visit_minutes 60
     price_level 0
-    popularity_score 4.5
-    description "A fortified 16th-century tower marking the departure point of Portugal's Age of Discoveries voyages."
+    popularity_score 4.1
+    description "A historic site in Lisbon."
     destination_id "LIS"
     open_hour 8
-    close_hour 20
+    close_hour 19
   ]
   node [
     id 79
     label "POI0072"
     type "POI"
-    name "Jeronimos Monastery"
+    name "Pelourinho de Lisboa"
     category "landmark"
-    lat 38.722414
-    lon -9.121921
-    avg_visit_minutes 120
+    lat 38.708036
+    lon -9.139196
+    avg_visit_minutes 60
     price_level 1
-    popularity_score 4.7
-    description "An ornate Manueline-style monastery built to commemorate Vasco da Gama's voyage to India."
+    popularity_score 4.2
+    description "Pelourinho de Lisboa is a pillory in Lisboa, Portugal, in Lisbon."
     destination_id "LIS"
     open_hour 8
     close_hour 20
@@ -1269,129 +1269,129 @@ graph [
     id 80
     label "POI0073"
     type "POI"
-    name "Alfama District"
-    category "culture"
-    lat 38.730739
-    lon -9.126195
+    name "Reservat&#243;rio da Patriarcal"
+    category "museum"
+    lat 38.716176
+    lon -9.148721
     avg_visit_minutes 120
-    price_level 0
-    popularity_score 4.6
-    description "Lisbon's oldest quarter, a hillside tangle of alleys, fado bars and tiled facades."
+    price_level 1
+    popularity_score 4.1
+    description "A notable museum in Lisbon."
     destination_id "LIS"
     open_hour 9
-    close_hour 20
+    close_hour 18
   ]
   node [
     id 81
     label "POI0074"
     type "POI"
-    name "Tram 28"
-    category "culture"
-    lat 38.722357
-    lon -9.079639
-    avg_visit_minutes 120
+    name "Igreja de S&#227;o Domingos"
+    category "religion"
+    lat 38.714637
+    lon -9.138234
+    avg_visit_minutes 30
     price_level 0
-    popularity_score 4.2
-    description "A vintage yellow tram that rattles through the steepest, most scenic parts of the old city."
+    popularity_score 4.3
+    description "Igreja de S&#227;o Domingos is a church building in Lisbon, Lisbon District, Portugal."
     destination_id "LIS"
-    open_hour 9
-    close_hour 20
+    open_hour 7
+    close_hour 19
   ]
   node [
     id 82
     label "POI0075"
     type "POI"
-    name "LX Factory"
-    category "nightlife"
-    lat 38.737816
-    lon -9.191414
-    avg_visit_minutes 45
-    price_level 1
-    popularity_score 4.4
-    description "A converted industrial complex of bars, bookshops and street art under the 25 de Abril bridge."
-    destination_id "LIS"
-    open_hour 18
-    close_hour 2
-  ]
-  node [
-    id 83
-    label "POI0076"
-    type "POI"
-    name "Sao Jorge Castle"
-    category "landmark"
-    lat 38.769765
-    lon -9.119284
-    avg_visit_minutes 45
-    price_level 0
-    popularity_score 4.5
-    description "A Moorish hilltop castle with sweeping views over the terracotta rooftops of Lisbon."
-    destination_id "LIS"
-    open_hour 8
-    close_hour 20
-  ]
-  node [
-    id 84
-    label "POI0077"
-    type "POI"
-    name "Time Out Market"
-    category "food"
-    lat 38.768103
-    lon -9.150883
-    avg_visit_minutes 60
-    price_level 1
-    popularity_score 4.4
-    description "A curated food hall bringing together stalls from the city's best chefs and restaurants."
-    destination_id "LIS"
-    open_hour 10
-    close_hour 23
-  ]
-  node [
-    id 85
-    label "POI0078"
-    type "POI"
-    name "Praca do Comercio"
+    name "Teatro Nacional Dona Maria II"
     category "culture"
-    lat 38.735779
-    lon -9.10953
-    avg_visit_minutes 60
-    price_level 0
-    popularity_score 4.5
-    description "A grand riverside square that once served as the ceremonial entrance to the city."
+    lat 38.714779
+    lon -9.139771
+    avg_visit_minutes 90
+    price_level 1
+    popularity_score 4.3
+    description "Teatro Nacional Dona Maria II is a dramatic theatre in Lisbon, Portugal."
     destination_id "LIS"
     open_hour 9
     close_hour 20
   ]
   node [
-    id 86
-    label "POI0079"
+    id 83
+    label "POI0076"
     type "POI"
-    name "Sintra Day Trip"
+    name "Quinta do Monte do Carmo"
     category "nature"
-    lat 38.752387
-    lon -9.183236
-    avg_visit_minutes 60
-    price_level 1
-    popularity_score 4.7
-    description "A fairy-tale hill town of pastel palaces and misty forests, a short train ride from Lisbon."
+    lat 38.700659
+    lon -9.188306
+    avg_visit_minutes 90
+    price_level 0
+    popularity_score 4.0
+    description "Quinta do Monte do Carmo is a cultural heritage monument in Lisboa, Portugal, in Lisbon."
     destination_id "LIS"
     open_hour 0
     close_hour 24
   ]
   node [
-    id 87
-    label "POI0080"
+    id 84
+    label "POI0077"
     type "POI"
-    name "Cais do Sodre Nightlife"
-    category "nightlife"
-    lat 38.686552
-    lon -9.095713
-    avg_visit_minutes 90
+    name "Prainha do Porto Brand&#227;o"
+    category "beach"
+    lat 38.677265
+    lon -9.207271
+    avg_visit_minutes 150
     price_level 0
-    popularity_score 4.3
-    description "The go-to district for late-night bars centered on the neon-lit Pink Street."
+    popularity_score 4.0
+    description "A popular beach in Lisbon."
+    destination_id "LIS"
+    open_hour 0
+    close_hour 24
+  ]
+  node [
+    id 85
+    label "POI0078"
+    type "POI"
+    name "Cervejaria Solmar (Fechada)"
+    category "nightlife"
+    lat 38.716897
+    lon -9.141017
+    avg_visit_minutes 120
+    price_level 1
+    popularity_score 4.0
+    description "A lively nightlife spot in Lisbon."
     destination_id "LIS"
     open_hour 18
     close_hour 2
+  ]
+  node [
+    id 86
+    label "POI0079"
+    type "POI"
+    name "Mercado da Ribeira"
+    category "food"
+    lat 38.707061
+    lon -9.145693
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.2
+    description "Mercado da Ribeira is a marketplace, in Lisbon."
+    destination_id "LIS"
+    open_hour 10
+    close_hour 0
+  ]
+  node [
+    id 87
+    label "POI0080"
+    type "POI"
+    name "Centro Comercial Colombo"
+    category "shopping"
+    lat 38.754758
+    lon -9.188668
+    avg_visit_minutes 60
+    price_level 1
+    popularity_score 4.2
+    description "Centro Comercial Colombo is a shopping center in Lisbon, Portugal."
+    destination_id "LIS"
+    open_hour 9
+    close_hour 24
   ]
   node [
     id 88
@@ -2217,3015 +2217,2873 @@ graph [
   ]
   edge [
     source 8
-    target 9
+    target 13
     key 0
     relation "NEAR"
-    distance_km 1.84
-  ]
-  edge [
-    source 8
-    target 11
-    key 0
-    relation "NEAR"
-    distance_km 0.216
-  ]
-  edge [
-    source 8
-    target 14
-    key 0
-    relation "NEAR"
-    distance_km 1.159
-  ]
-  edge [
-    source 8
-    target 15
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 8
-    target 16
-    key 0
-    relation "NEAR"
-    distance_km 1.642
+    distance_km 1.102
   ]
   edge [
     source 9
-    target 8
+    target 10
     key 0
     relation "NEAR"
-    distance_km 1.84
+    distance_km 0.618
   ]
   edge [
     source 9
     target 11
     key 0
     relation "NEAR"
-    distance_km 1.76
+    distance_km 0.874
   ]
   edge [
     source 9
     target 12
     key 0
     relation "NEAR"
-    distance_km 1.859
+    distance_km 0.824
   ]
   edge [
-    source 11
-    target 8
+    source 10
+    target 9
     key 0
     relation "NEAR"
-    distance_km 0.216
+    distance_km 0.618
+  ]
+  edge [
+    source 10
+    target 11
+    key 0
+    relation "NEAR"
+    distance_km 1.077
+  ]
+  edge [
+    source 10
+    target 12
+    key 0
+    relation "NEAR"
+    distance_km 0.243
   ]
   edge [
     source 11
     target 9
     key 0
     relation "NEAR"
-    distance_km 1.76
+    distance_km 0.874
   ]
   edge [
     source 11
-    target 14
+    target 10
     key 0
     relation "NEAR"
-    distance_km 0.994
+    distance_km 1.077
   ]
   edge [
     source 11
-    target 16
+    target 12
     key 0
     relation "NEAR"
-    distance_km 1.759
-  ]
-  edge [
-    source 11
-    target 16
-    key 1
-    relation "SAME_CATEGORY"
+    distance_km 1.096
   ]
   edge [
     source 12
     target 9
     key 0
     relation "NEAR"
-    distance_km 1.859
+    distance_km 0.824
   ]
   edge [
     source 12
-    target 17
+    target 10
     key 0
     relation "NEAR"
-    distance_km 1.294
+    distance_km 0.243
   ]
   edge [
     source 12
-    target 17
-    key 1
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 14
-    target 8
-    key 0
-    relation "NEAR"
-    distance_km 1.159
-  ]
-  edge [
-    source 14
     target 11
     key 0
     relation "NEAR"
-    distance_km 0.994
+    distance_km 1.096
   ]
   edge [
-    source 14
+    source 13
+    target 8
+    key 0
+    relation "NEAR"
+    distance_km 1.102
+  ]
+  edge [
+    source 16
+    target 17
+    key 0
+    relation "NEAR"
+    distance_km 0.254
+  ]
+  edge [
+    source 17
     target 16
     key 0
     relation "NEAR"
-    distance_km 1.89
-  ]
-  edge [
-    source 15
-    target 8
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 15
-    target 17
-    key 0
-    relation "NEAR"
-    distance_km 1.894
-  ]
-  edge [
-    source 16
-    target 8
-    key 0
-    relation "NEAR"
-    distance_km 1.642
-  ]
-  edge [
-    source 16
-    target 11
-    key 0
-    relation "NEAR"
-    distance_km 1.759
-  ]
-  edge [
-    source 16
-    target 11
-    key 1
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 16
-    target 14
-    key 0
-    relation "NEAR"
-    distance_km 1.89
-  ]
-  edge [
-    source 17
-    target 12
-    key 0
-    relation "NEAR"
-    distance_km 1.294
-  ]
-  edge [
-    source 17
-    target 12
-    key 1
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 17
-    target 15
-    key 0
-    relation "NEAR"
-    distance_km 1.894
+    distance_km 0.254
   ]
   edge [
     source 18
-    target 21
+    target 20
     key 0
     relation "NEAR"
-    distance_km 0.991
+    distance_km 0.348
   ]
   edge [
     source 18
-    target 23
+    target 22
     key 0
     relation "NEAR"
-    distance_km 0.612
+    distance_km 0.361
   ]
   edge [
     source 18
     target 24
     key 0
     relation "NEAR"
-    distance_km 1.531
+    distance_km 1.624
   ]
   edge [
     source 18
     target 27
     key 0
-    relation "NEAR"
-    distance_km 1.461
-  ]
-  edge [
-    source 18
-    target 27
-    key 1
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 19
-    target 22
-    key 0
-    relation "NEAR"
-    distance_km 0.518
-  ]
-  edge [
-    source 19
-    target 22
-    key 1
     relation "SAME_CATEGORY"
   ]
   edge [
     source 20
-    target 23
-    key 0
-    relation "NEAR"
-    distance_km 1.562
-  ]
-  edge [
-    source 21
     target 18
     key 0
     relation "NEAR"
-    distance_km 0.991
+    distance_km 0.348
   ]
   edge [
-    source 21
-    target 23
+    source 20
+    target 22
     key 0
     relation "NEAR"
-    distance_km 1.464
+    distance_km 0.45
   ]
   edge [
-    source 21
+    source 20
     target 24
     key 0
     relation "NEAR"
-    distance_km 1.818
+    distance_km 1.285
   ]
   edge [
-    source 21
-    target 27
+    source 20
+    target 25
     key 0
     relation "NEAR"
-    distance_km 1.173
+    distance_km 1.789
   ]
   edge [
     source 22
-    target 19
-    key 0
-    relation "NEAR"
-    distance_km 0.518
-  ]
-  edge [
-    source 22
-    target 19
-    key 1
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 23
     target 18
     key 0
     relation "NEAR"
-    distance_km 0.612
+    distance_km 0.361
   ]
   edge [
-    source 23
+    source 22
     target 20
     key 0
     relation "NEAR"
-    distance_km 1.562
+    distance_km 0.45
   ]
   edge [
-    source 23
-    target 21
+    source 22
+    target 24
     key 0
     relation "NEAR"
-    distance_km 1.464
+    distance_km 1.523
   ]
   edge [
     source 23
     target 24
     key 0
     relation "NEAR"
-    distance_km 1.14
+    distance_km 1.784
   ]
   edge [
     source 23
-    target 27
+    target 25
     key 0
     relation "NEAR"
-    distance_km 1.455
+    distance_km 1.524
   ]
   edge [
     source 24
     target 18
     key 0
     relation "NEAR"
-    distance_km 1.531
+    distance_km 1.624
   ]
   edge [
     source 24
-    target 21
+    target 20
     key 0
     relation "NEAR"
-    distance_km 1.818
+    distance_km 1.285
+  ]
+  edge [
+    source 24
+    target 22
+    key 0
+    relation "NEAR"
+    distance_km 1.523
   ]
   edge [
     source 24
     target 23
     key 0
     relation "NEAR"
-    distance_km 1.14
+    distance_km 1.784
   ]
   edge [
     source 24
-    target 26
+    target 25
     key 0
     relation "NEAR"
-    distance_km 1.933
-  ]
-  edge [
-    source 24
-    target 27
-    key 0
-    relation "NEAR"
-    distance_km 0.94
+    distance_km 0.615
   ]
   edge [
     source 25
-    target 26
+    target 20
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 1.789
   ]
   edge [
-    source 26
+    source 25
+    target 23
+    key 0
+    relation "NEAR"
+    distance_km 1.524
+  ]
+  edge [
+    source 25
     target 24
     key 0
     relation "NEAR"
-    distance_km 1.933
-  ]
-  edge [
-    source 26
-    target 25
-    key 0
-    relation "SAME_CATEGORY"
+    distance_km 0.615
   ]
   edge [
     source 27
     target 18
+    key 0
+    relation "SAME_CATEGORY"
+  ]
+  edge [
+    source 28
+    target 29
+    key 0
+    relation "NEAR"
+    distance_km 1.516
+  ]
+  edge [
+    source 28
+    target 30
+    key 0
+    relation "NEAR"
+    distance_km 1.977
+  ]
+  edge [
+    source 28
+    target 35
     key 0
     relation "NEAR"
     distance_km 1.461
   ]
   edge [
-    source 27
-    target 18
-    key 1
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 27
-    target 21
+    source 28
+    target 36
     key 0
     relation "NEAR"
-    distance_km 1.173
-  ]
-  edge [
-    source 27
-    target 23
-    key 0
-    relation "NEAR"
-    distance_km 1.455
-  ]
-  edge [
-    source 27
-    target 24
-    key 0
-    relation "NEAR"
-    distance_km 0.94
+    distance_km 1.835
   ]
   edge [
     source 28
-    target 31
-    key 0
-    relation "NEAR"
-    distance_km 0.112
-  ]
-  edge [
-    source 28
-    target 32
+    target 37
     key 0
     relation "SAME_CATEGORY"
   ]
   edge [
-    source 28
-    target 34
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 30
-    target 34
+    source 29
+    target 28
     key 0
     relation "NEAR"
-    distance_km 1.955
+    distance_km 1.516
   ]
   edge [
-    source 30
+    source 29
+    target 33
+    key 0
+    relation "NEAR"
+    distance_km 1.341
+  ]
+  edge [
+    source 29
     target 35
     key 0
     relation "NEAR"
-    distance_km 1.704
+    distance_km 1.065
+  ]
+  edge [
+    source 30
+    target 28
+    key 0
+    relation "NEAR"
+    distance_km 1.977
   ]
   edge [
     source 30
     target 36
     key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 31
-    target 28
-    key 0
     relation "NEAR"
-    distance_km 0.112
-  ]
-  edge [
-    source 32
-    target 28
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 32
-    target 34
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 32
-    target 36
-    key 0
-    relation "NEAR"
-    distance_km 1.893
+    distance_km 0.821
   ]
   edge [
     source 33
-    target 34
+    target 29
     key 0
     relation "NEAR"
-    distance_km 0.838
-  ]
-  edge [
-    source 33
-    target 37
-    key 0
-    relation "NEAR"
-    distance_km 1.927
-  ]
-  edge [
-    source 34
-    target 28
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 34
-    target 30
-    key 0
-    relation "NEAR"
-    distance_km 1.955
-  ]
-  edge [
-    source 34
-    target 32
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 34
-    target 33
-    key 0
-    relation "NEAR"
-    distance_km 0.838
-  ]
-  edge [
-    source 34
-    target 37
-    key 0
-    relation "NEAR"
-    distance_km 1.098
+    distance_km 1.341
   ]
   edge [
     source 35
-    target 30
+    target 28
     key 0
     relation "NEAR"
-    distance_km 1.704
+    distance_km 1.461
+  ]
+  edge [
+    source 35
+    target 29
+    key 0
+    relation "NEAR"
+    distance_km 1.065
+  ]
+  edge [
+    source 36
+    target 28
+    key 0
+    relation "NEAR"
+    distance_km 1.835
   ]
   edge [
     source 36
     target 30
     key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 36
-    target 32
-    key 0
     relation "NEAR"
-    distance_km 1.893
+    distance_km 0.821
   ]
   edge [
     source 37
-    target 33
+    target 28
     key 0
-    relation "NEAR"
-    distance_km 1.927
-  ]
-  edge [
-    source 37
-    target 34
-    key 0
-    relation "NEAR"
-    distance_km 1.098
-  ]
-  edge [
-    source 38
-    target 43
-    key 0
-    relation "NEAR"
-    distance_km 1.047
-  ]
-  edge [
-    source 38
-    target 43
-    key 1
     relation "SAME_CATEGORY"
+  ]
+  edge [
+    source 38
+    target 39
+    key 0
+    relation "NEAR"
+    distance_km 0.984
+  ]
+  edge [
+    source 38
+    target 40
+    key 0
+    relation "NEAR"
+    distance_km 0.165
+  ]
+  edge [
+    source 38
+    target 46
+    key 0
+    relation "NEAR"
+    distance_km 1.75
   ]
   edge [
     source 38
     target 47
     key 0
     relation "NEAR"
-    distance_km 1.157
+    distance_km 0.437
   ]
   edge [
     source 39
+    target 38
+    key 0
+    relation "NEAR"
+    distance_km 0.984
+  ]
+  edge [
+    source 39
+    target 40
+    key 0
+    relation "NEAR"
+    distance_km 0.865
+  ]
+  edge [
+    source 39
+    target 46
+    key 0
+    relation "NEAR"
+    distance_km 0.863
+  ]
+  edge [
+    source 39
+    target 47
+    key 0
+    relation "NEAR"
+    distance_km 1.392
+  ]
+  edge [
+    source 40
+    target 38
+    key 0
+    relation "NEAR"
+    distance_km 0.165
+  ]
+  edge [
+    source 40
+    target 39
+    key 0
+    relation "NEAR"
+    distance_km 0.865
+  ]
+  edge [
+    source 40
+    target 46
+    key 0
+    relation "NEAR"
+    distance_km 1.6
+  ]
+  edge [
+    source 40
+    target 47
+    key 0
+    relation "NEAR"
+    distance_km 0.598
+  ]
+  edge [
+    source 42
     target 45
     key 0
     relation "NEAR"
-    distance_km 1.851
-  ]
-  edge [
-    source 39
-    target 47
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 41
-    target 46
-    key 0
-    relation "NEAR"
-    distance_km 1.099
-  ]
-  edge [
-    source 41
-    target 46
-    key 1
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 42
-    target 43
-    key 0
-    relation "NEAR"
-    distance_km 1.571
-  ]
-  edge [
-    source 42
-    target 46
-    key 0
-    relation "NEAR"
-    distance_km 1.328
-  ]
-  edge [
-    source 43
-    target 38
-    key 0
-    relation "NEAR"
-    distance_km 1.047
-  ]
-  edge [
-    source 43
-    target 38
-    key 1
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 43
-    target 42
-    key 0
-    relation "NEAR"
-    distance_km 1.571
-  ]
-  edge [
-    source 43
-    target 46
-    key 0
-    relation "NEAR"
-    distance_km 1.948
-  ]
-  edge [
-    source 43
-    target 47
-    key 0
-    relation "NEAR"
-    distance_km 1.946
+    distance_km 1.214
   ]
   edge [
     source 45
-    target 39
-    key 0
-    relation "NEAR"
-    distance_km 1.851
-  ]
-  edge [
-    source 46
-    target 41
-    key 0
-    relation "NEAR"
-    distance_km 1.099
-  ]
-  edge [
-    source 46
-    target 41
-    key 1
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 46
     target 42
     key 0
     relation "NEAR"
-    distance_km 1.328
+    distance_km 1.214
+  ]
+  edge [
+    source 45
+    target 47
+    key 0
+    relation "NEAR"
+    distance_km 1.981
   ]
   edge [
     source 46
-    target 43
+    target 38
     key 0
     relation "NEAR"
-    distance_km 1.948
+    distance_km 1.75
+  ]
+  edge [
+    source 46
+    target 39
+    key 0
+    relation "NEAR"
+    distance_km 0.863
+  ]
+  edge [
+    source 46
+    target 40
+    key 0
+    relation "NEAR"
+    distance_km 1.6
   ]
   edge [
     source 47
     target 38
     key 0
     relation "NEAR"
-    distance_km 1.157
+    distance_km 0.437
   ]
   edge [
     source 47
     target 39
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 1.392
   ]
   edge [
     source 47
-    target 43
+    target 40
     key 0
     relation "NEAR"
-    distance_km 1.946
+    distance_km 0.598
+  ]
+  edge [
+    source 47
+    target 45
+    key 0
+    relation "NEAR"
+    distance_km 1.981
   ]
   edge [
     source 48
     target 49
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 0.95
   ]
   edge [
     source 48
     target 50
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 0.425
+  ]
+  edge [
+    source 48
+    target 51
+    key 0
+    relation "NEAR"
+    distance_km 1.137
   ]
   edge [
     source 48
     target 53
     key 0
     relation "NEAR"
-    distance_km 1.428
+    distance_km 1.066
+  ]
+  edge [
+    source 48
+    target 54
+    key 0
+    relation "NEAR"
+    distance_km 0.546
+  ]
+  edge [
+    source 48
+    target 55
+    key 0
+    relation "NEAR"
+    distance_km 0.683
   ]
   edge [
     source 48
     target 57
     key 0
     relation "NEAR"
-    distance_km 1.971
+    distance_km 1.234
   ]
   edge [
     source 49
     target 48
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 0.95
   ]
   edge [
     source 49
     target 50
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 1.372
   ]
   edge [
     source 49
-    target 56
+    target 51
     key 0
     relation "NEAR"
-    distance_km 1.139
+    distance_km 0.189
+  ]
+  edge [
+    source 49
+    target 53
+    key 0
+    relation "NEAR"
+    distance_km 1.136
+  ]
+  edge [
+    source 49
+    target 54
+    key 0
+    relation "NEAR"
+    distance_km 1.061
+  ]
+  edge [
+    source 49
+    target 55
+    key 0
+    relation "NEAR"
+    distance_km 0.814
+  ]
+  edge [
+    source 49
+    target 57
+    key 0
+    relation "NEAR"
+    distance_km 0.66
   ]
   edge [
     source 50
     target 48
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 0.425
   ]
   edge [
     source 50
     target 49
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 1.372
   ]
   edge [
     source 50
-    target 52
+    target 51
     key 0
     relation "NEAR"
-    distance_km 1.017
+    distance_km 1.558
   ]
   edge [
     source 50
     target 53
     key 0
     relation "NEAR"
-    distance_km 1.267
+    distance_km 1.328
+  ]
+  edge [
+    source 50
+    target 54
+    key 0
+    relation "NEAR"
+    distance_km 0.67
+  ]
+  edge [
+    source 50
+    target 55
+    key 0
+    relation "NEAR"
+    distance_km 1.013
   ]
   edge [
     source 50
     target 57
     key 0
     relation "NEAR"
-    distance_km 1.346
+    distance_km 1.631
+  ]
+  edge [
+    source 51
+    target 48
+    key 0
+    relation "NEAR"
+    distance_km 1.137
+  ]
+  edge [
+    source 51
+    target 49
+    key 0
+    relation "NEAR"
+    distance_km 0.189
+  ]
+  edge [
+    source 51
+    target 50
+    key 0
+    relation "NEAR"
+    distance_km 1.558
   ]
   edge [
     source 51
     target 53
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 1.264
   ]
   edge [
-    source 52
-    target 50
+    source 51
+    target 54
     key 0
     relation "NEAR"
-    distance_km 1.017
+    distance_km 1.21
   ]
   edge [
-    source 52
-    target 56
+    source 51
+    target 55
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 0.976
   ]
   edge [
-    source 52
+    source 51
     target 57
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 0.692
   ]
   edge [
     source 53
     target 48
     key 0
     relation "NEAR"
-    distance_km 1.428
+    distance_km 1.066
+  ]
+  edge [
+    source 53
+    target 49
+    key 0
+    relation "NEAR"
+    distance_km 1.136
   ]
   edge [
     source 53
     target 50
     key 0
     relation "NEAR"
-    distance_km 1.267
+    distance_km 1.328
   ]
   edge [
     source 53
     target 51
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 1.264
+  ]
+  edge [
+    source 53
+    target 54
+    key 0
+    relation "NEAR"
+    distance_km 1.575
+  ]
+  edge [
+    source 53
+    target 55
+    key 0
+    relation "NEAR"
+    distance_km 0.418
   ]
   edge [
     source 53
     target 57
     key 0
     relation "NEAR"
-    distance_km 0.848
+    distance_km 0.735
   ]
   edge [
-    source 56
+    source 54
+    target 48
+    key 0
+    relation "NEAR"
+    distance_km 0.546
+  ]
+  edge [
+    source 54
     target 49
     key 0
     relation "NEAR"
-    distance_km 1.139
+    distance_km 1.061
   ]
   edge [
-    source 56
-    target 52
+    source 54
+    target 50
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 0.67
   ]
   edge [
-    source 56
+    source 54
+    target 51
+    key 0
+    relation "NEAR"
+    distance_km 1.21
+  ]
+  edge [
+    source 54
+    target 53
+    key 0
+    relation "NEAR"
+    distance_km 1.575
+  ]
+  edge [
+    source 54
+    target 55
+    key 0
+    relation "NEAR"
+    distance_km 1.166
+  ]
+  edge [
+    source 54
     target 57
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 1.565
+  ]
+  edge [
+    source 55
+    target 48
+    key 0
+    relation "NEAR"
+    distance_km 0.683
+  ]
+  edge [
+    source 55
+    target 49
+    key 0
+    relation "NEAR"
+    distance_km 0.814
+  ]
+  edge [
+    source 55
+    target 50
+    key 0
+    relation "NEAR"
+    distance_km 1.013
+  ]
+  edge [
+    source 55
+    target 51
+    key 0
+    relation "NEAR"
+    distance_km 0.976
+  ]
+  edge [
+    source 55
+    target 53
+    key 0
+    relation "NEAR"
+    distance_km 0.418
+  ]
+  edge [
+    source 55
+    target 54
+    key 0
+    relation "NEAR"
+    distance_km 1.166
+  ]
+  edge [
+    source 55
+    target 57
+    key 0
+    relation "NEAR"
+    distance_km 0.68
   ]
   edge [
     source 57
     target 48
     key 0
     relation "NEAR"
-    distance_km 1.971
+    distance_km 1.234
+  ]
+  edge [
+    source 57
+    target 49
+    key 0
+    relation "NEAR"
+    distance_km 0.66
   ]
   edge [
     source 57
     target 50
     key 0
     relation "NEAR"
-    distance_km 1.346
+    distance_km 1.631
   ]
   edge [
     source 57
-    target 52
+    target 51
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 0.692
   ]
   edge [
     source 57
     target 53
     key 0
     relation "NEAR"
-    distance_km 0.848
+    distance_km 0.735
   ]
   edge [
     source 57
-    target 56
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 58
-    target 59
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 58
-    target 60
+    target 54
     key 0
     relation "NEAR"
-    distance_km 1.19
+    distance_km 1.565
   ]
   edge [
-    source 58
-    target 61
+    source 57
+    target 55
     key 0
     relation "NEAR"
-    distance_km 0.398
+    distance_km 0.68
   ]
   edge [
     source 58
-    target 61
-    key 1
-    relation "SAME_CATEGORY"
+    target 63
+    key 0
+    relation "NEAR"
+    distance_km 1.968
   ]
   edge [
-    source 58
+    source 61
     target 62
     key 0
     relation "NEAR"
-    distance_km 1.848
+    distance_km 0.579
   ]
   edge [
-    source 59
-    target 58
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 59
-    target 61
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 60
-    target 58
+    source 61
+    target 63
     key 0
     relation "NEAR"
-    distance_km 1.19
+    distance_km 1.405
   ]
   edge [
-    source 60
-    target 61
-    key 0
-    relation "NEAR"
-    distance_km 1.398
-  ]
-  edge [
-    source 60
-    target 62
-    key 0
-    relation "NEAR"
-    distance_km 1.887
-  ]
-  edge [
-    source 60
+    source 61
     target 66
     key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 60
-    target 67
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 61
-    target 58
-    key 0
     relation "NEAR"
-    distance_km 0.398
-  ]
-  edge [
-    source 61
-    target 58
-    key 1
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 61
-    target 59
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 61
-    target 60
-    key 0
-    relation "NEAR"
-    distance_km 1.398
-  ]
-  edge [
-    source 61
-    target 62
-    key 0
-    relation "NEAR"
-    distance_km 1.568
-  ]
-  edge [
-    source 62
-    target 58
-    key 0
-    relation "NEAR"
-    distance_km 1.848
-  ]
-  edge [
-    source 62
-    target 60
-    key 0
-    relation "NEAR"
-    distance_km 1.887
+    distance_km 0.639
   ]
   edge [
     source 62
     target 61
     key 0
     relation "NEAR"
-    distance_km 1.568
+    distance_km 0.579
+  ]
+  edge [
+    source 62
+    target 63
+    key 0
+    relation "NEAR"
+    distance_km 0.956
+  ]
+  edge [
+    source 62
+    target 66
+    key 0
+    relation "NEAR"
+    distance_km 0.808
+  ]
+  edge [
+    source 63
+    target 58
+    key 0
+    relation "NEAR"
+    distance_km 1.968
+  ]
+  edge [
+    source 63
+    target 61
+    key 0
+    relation "NEAR"
+    distance_km 1.405
+  ]
+  edge [
+    source 63
+    target 62
+    key 0
+    relation "NEAR"
+    distance_km 0.956
+  ]
+  edge [
+    source 63
+    target 66
+    key 0
+    relation "NEAR"
+    distance_km 1.131
   ]
   edge [
     source 66
-    target 60
+    target 61
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 0.639
   ]
   edge [
     source 66
-    target 67
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 67
-    target 60
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 67
-    target 66
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 68
-    target 69
+    target 62
     key 0
     relation "NEAR"
-    distance_km 1.142
+    distance_km 0.808
+  ]
+  edge [
+    source 66
+    target 63
+    key 0
+    relation "NEAR"
+    distance_km 1.131
   ]
   edge [
     source 68
     target 70
     key 0
     relation "NEAR"
-    distance_km 1.15
+    distance_km 1.242
   ]
   edge [
     source 68
     target 73
     key 0
     relation "NEAR"
-    distance_km 1.183
-  ]
-  edge [
-    source 68
-    target 73
-    key 1
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 68
-    target 74
-    key 0
-    relation "NEAR"
-    distance_km 1.511
+    distance_km 1.017
   ]
   edge [
     source 68
     target 75
     key 0
     relation "NEAR"
-    distance_km 1.812
+    distance_km 0.65
+  ]
+  edge [
+    source 68
+    target 77
+    key 0
+    relation "NEAR"
+    distance_km 1.215
   ]
   edge [
     source 69
+    target 76
+    key 0
+    relation "NEAR"
+    distance_km 1.267
+  ]
+  edge [
+    source 70
     target 68
     key 0
     relation "NEAR"
-    distance_km 1.142
+    distance_km 1.242
   ]
   edge [
-    source 69
-    target 70
+    source 70
+    target 72
     key 0
     relation "NEAR"
-    distance_km 1.819
+    distance_km 1.587
   ]
   edge [
-    source 69
+    source 70
     target 73
     key 0
     relation "NEAR"
-    distance_km 0.6
+    distance_km 1.952
   ]
   edge [
-    source 69
-    target 74
-    key 0
-    relation "NEAR"
-    distance_km 1.697
-  ]
-  edge [
-    source 69
+    source 70
     target 75
     key 0
     relation "NEAR"
-    distance_km 0.718
-  ]
-  edge [
-    source 70
-    target 68
-    key 0
-    relation "NEAR"
-    distance_km 1.15
-  ]
-  edge [
-    source 70
-    target 69
-    key 0
-    relation "NEAR"
-    distance_km 1.819
-  ]
-  edge [
-    source 70
-    target 74
-    key 0
-    relation "NEAR"
-    distance_km 0.71
+    distance_km 1.056
   ]
   edge [
     source 70
     target 77
     key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 71
-    target 75
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 73
-    target 68
-    key 0
     relation "NEAR"
-    distance_km 1.183
+    distance_km 1.123
   ]
   edge [
-    source 73
-    target 68
-    key 1
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 73
-    target 69
-    key 0
-    relation "NEAR"
-    distance_km 0.6
-  ]
-  edge [
-    source 73
-    target 75
-    key 0
-    relation "NEAR"
-    distance_km 1.184
-  ]
-  edge [
-    source 74
-    target 68
-    key 0
-    relation "NEAR"
-    distance_km 1.511
-  ]
-  edge [
-    source 74
-    target 69
-    key 0
-    relation "NEAR"
-    distance_km 1.697
-  ]
-  edge [
-    source 74
+    source 72
     target 70
     key 0
     relation "NEAR"
-    distance_km 0.71
+    distance_km 1.587
   ]
   edge [
-    source 74
+    source 72
     target 75
     key 0
     relation "NEAR"
-    distance_km 1.875
+    distance_km 1.85
+  ]
+  edge [
+    source 72
+    target 77
+    key 0
+    relation "NEAR"
+    distance_km 1.343
+  ]
+  edge [
+    source 73
+    target 68
+    key 0
+    relation "NEAR"
+    distance_km 1.017
+  ]
+  edge [
+    source 73
+    target 70
+    key 0
+    relation "NEAR"
+    distance_km 1.952
+  ]
+  edge [
+    source 73
+    target 75
+    key 0
+    relation "NEAR"
+    distance_km 0.903
+  ]
+  edge [
+    source 73
+    target 77
+    key 0
+    relation "NEAR"
+    distance_km 1.209
   ]
   edge [
     source 75
     target 68
     key 0
     relation "NEAR"
-    distance_km 1.812
+    distance_km 0.65
   ]
   edge [
     source 75
-    target 69
+    target 70
     key 0
     relation "NEAR"
-    distance_km 0.718
+    distance_km 1.056
   ]
   edge [
     source 75
-    target 71
+    target 72
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 1.85
   ]
   edge [
     source 75
     target 73
     key 0
     relation "NEAR"
-    distance_km 1.184
-  ]
-  edge [
-    source 75
-    target 74
-    key 0
-    relation "NEAR"
-    distance_km 1.875
+    distance_km 0.903
   ]
   edge [
     source 75
     target 77
     key 0
     relation "NEAR"
-    distance_km 1.464
+    distance_km 0.568
+  ]
+  edge [
+    source 76
+    target 69
+    key 0
+    relation "NEAR"
+    distance_km 1.267
+  ]
+  edge [
+    source 77
+    target 68
+    key 0
+    relation "NEAR"
+    distance_km 1.215
   ]
   edge [
     source 77
     target 70
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 1.123
+  ]
+  edge [
+    source 77
+    target 72
+    key 0
+    relation "NEAR"
+    distance_km 1.343
+  ]
+  edge [
+    source 77
+    target 73
+    key 0
+    relation "NEAR"
+    distance_km 1.209
   ]
   edge [
     source 77
     target 75
     key 0
     relation "NEAR"
-    distance_km 1.464
+    distance_km 0.568
   ]
   edge [
     source 78
-    target 79
+    target 84
     key 0
     relation "NEAR"
-    distance_km 1.87
-  ]
-  edge [
-    source 78
-    target 79
-    key 1
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 78
-    target 83
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 79
-    target 78
-    key 0
-    relation "NEAR"
-    distance_km 1.87
-  ]
-  edge [
-    source 79
-    target 78
-    key 1
-    relation "SAME_CATEGORY"
+    distance_km 1.76
   ]
   edge [
     source 79
     target 80
     key 0
     relation "NEAR"
-    distance_km 0.997
+    distance_km 1.226
   ]
   edge [
     source 79
-    target 83
+    target 81
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 0.739
+  ]
+  edge [
+    source 79
+    target 82
+    key 0
+    relation "NEAR"
+    distance_km 0.751
   ]
   edge [
     source 79
     target 85
     key 0
     relation "NEAR"
-    distance_km 1.834
+    distance_km 0.998
+  ]
+  edge [
+    source 79
+    target 86
+    key 0
+    relation "NEAR"
+    distance_km 0.574
   ]
   edge [
     source 80
     target 79
     key 0
     relation "NEAR"
-    distance_km 0.997
+    distance_km 1.226
   ]
   edge [
     source 80
     target 81
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 0.926
+  ]
+  edge [
+    source 80
+    target 82
+    key 0
+    relation "NEAR"
+    distance_km 0.792
   ]
   edge [
     source 80
     target 85
     key 0
     relation "NEAR"
-    distance_km 1.55
+    distance_km 0.673
   ]
   edge [
     source 80
-    target 85
-    key 1
-    relation "SAME_CATEGORY"
+    target 86
+    key 0
+    relation "NEAR"
+    distance_km 1.047
+  ]
+  edge [
+    source 81
+    target 79
+    key 0
+    relation "NEAR"
+    distance_km 0.739
   ]
   edge [
     source 81
     target 80
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 0.926
+  ]
+  edge [
+    source 81
+    target 82
+    key 0
+    relation "NEAR"
+    distance_km 0.134
   ]
   edge [
     source 81
     target 85
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 0.349
+  ]
+  edge [
+    source 81
+    target 86
+    key 0
+    relation "NEAR"
+    distance_km 1.062
+  ]
+  edge [
+    source 82
+    target 79
+    key 0
+    relation "NEAR"
+    distance_km 0.751
+  ]
+  edge [
+    source 82
+    target 80
+    key 0
+    relation "NEAR"
+    distance_km 0.792
+  ]
+  edge [
+    source 82
+    target 81
+    key 0
+    relation "NEAR"
+    distance_km 0.134
+  ]
+  edge [
+    source 82
+    target 85
+    key 0
+    relation "NEAR"
+    distance_km 0.259
   ]
   edge [
     source 82
     target 86
     key 0
     relation "NEAR"
-    distance_km 1.769
+    distance_km 1.0
   ]
   edge [
-    source 82
-    target 87
-    key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 83
+    source 84
     target 78
     key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 83
-    target 79
-    key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 1.76
   ]
   edge [
     source 85
     target 79
     key 0
     relation "NEAR"
-    distance_km 1.834
+    distance_km 0.998
   ]
   edge [
     source 85
     target 80
     key 0
     relation "NEAR"
-    distance_km 1.55
-  ]
-  edge [
-    source 85
-    target 80
-    key 1
-    relation "SAME_CATEGORY"
+    distance_km 0.673
   ]
   edge [
     source 85
     target 81
     key 0
-    relation "SAME_CATEGORY"
+    relation "NEAR"
+    distance_km 0.349
+  ]
+  edge [
+    source 85
+    target 82
+    key 0
+    relation "NEAR"
+    distance_km 0.259
+  ]
+  edge [
+    source 85
+    target 86
+    key 0
+    relation "NEAR"
+    distance_km 1.167
+  ]
+  edge [
+    source 86
+    target 79
+    key 0
+    relation "NEAR"
+    distance_km 0.574
+  ]
+  edge [
+    source 86
+    target 80
+    key 0
+    relation "NEAR"
+    distance_km 1.047
+  ]
+  edge [
+    source 86
+    target 81
+    key 0
+    relation "NEAR"
+    distance_km 1.062
   ]
   edge [
     source 86
     target 82
     key 0
     relation "NEAR"
-    distance_km 1.769
+    distance_km 1.0
   ]
   edge [
-    source 87
-    target 82
+    source 86
+    target 85
     key 0
-    relation "SAME_CATEGORY"
-  ]
-  edge [
-    source 104
-    target 9
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 104
-    target 19
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 104
-    target 22
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 104
-    target 30
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 104
-    target 36
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 104
-    target 45
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 104
-    target 48
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 104
-    target 49
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 104
-    target 50
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 104
-    target 70
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 104
-    target 77
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 104
-    target 8
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 15
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 18
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 27
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 28
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 32
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 34
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 38
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 43
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 58
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 59
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 61
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 68
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 73
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 78
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 79
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 83
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 29
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 104
-    target 62
-    key 0
-    relation "PREFERS"
-    weight 0.9
+    relation "NEAR"
+    distance_km 1.167
   ]
   edge [
     source 104
     target 11
     key 0
     relation "PREFERS"
-    weight 0.6
+    weight 1.0
   ]
   edge [
     source 104
-    target 16
+    target 20
     key 0
     relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 104
-    target 24
-    key 0
-    relation "PREFERS"
-    weight 0.6
+    weight 1.0
   ]
   edge [
     source 104
     target 31
     key 0
     relation "PREFERS"
-    weight 0.6
+    weight 1.0
+  ]
+  edge [
+    source 104
+    target 40
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 104
+    target 50
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 104
+    target 67
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 104
+    target 72
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 104
+    target 80
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 104
+    target 9
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 104
+    target 18
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 104
+    target 27
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 104
+    target 29
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 104
+    target 38
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 104
+    target 49
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 104
+    target 58
+    key 0
+    relation "PREFERS"
+    weight 0.9
   ]
   edge [
     source 104
     target 69
     key 0
     relation "PREFERS"
-    weight 0.6
+    weight 0.9
   ]
   edge [
     source 104
-    target 20
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 104
-    target 35
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 104
-    target 41
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 104
-    target 46
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 104
-    target 52
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 104
-    target 56
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 104
-    target 57
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 104
-    target 60
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 104
-    target 66
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 104
-    target 67
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 104
-    target 71
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 104
-    target 75
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 104
-    target 80
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 104
-    target 81
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 104
-    target 85
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 105
-    target 42
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 105
-    target 12
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 105
-    target 17
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 105
-    target 25
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 105
-    target 26
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 105
-    target 39
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 105
-    target 47
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 105
-    target 51
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 105
-    target 53
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 105
-    target 63
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 105
-    target 74
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 105
-    target 86
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 105
-    target 13
-    key 0
-    relation "PREFERS"
-    weight 0.5
-  ]
-  edge [
-    source 105
-    target 37
-    key 0
-    relation "PREFERS"
-    weight 0.5
-  ]
-  edge [
-    source 105
-    target 55
-    key 0
-    relation "PREFERS"
-    weight 0.5
-  ]
-  edge [
-    source 105
-    target 72
-    key 0
-    relation "PREFERS"
-    weight 0.5
-  ]
-  edge [
-    source 105
-    target 84
-    key 0
-    relation "PREFERS"
-    weight 0.5
-  ]
-  edge [
-    source 105
-    target 20
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 105
-    target 35
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 105
-    target 41
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 105
-    target 46
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 105
-    target 52
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 105
-    target 56
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 105
-    target 57
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 105
-    target 60
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 105
-    target 66
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 105
-    target 67
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 105
-    target 71
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 105
-    target 75
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 105
-    target 80
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 105
-    target 81
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 105
-    target 85
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 106
-    target 14
+    target 79
     key 0
     relation "PREFERS"
     weight 0.9
   ]
   edge [
-    source 106
-    target 23
+    source 104
+    target 8
     key 0
     relation "PREFERS"
     weight 0.9
   ]
   edge [
-    source 106
-    target 33
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 106
-    target 44
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 106
-    target 54
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 106
-    target 65
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 106
-    target 76
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 106
-    target 82
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 106
-    target 87
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 106
-    target 20
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 35
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 41
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 46
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 52
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 56
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 57
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 60
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 66
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 67
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 71
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 75
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 80
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 81
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 85
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 10
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 106
-    target 21
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 106
-    target 40
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 106
-    target 64
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 106
-    target 13
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 106
-    target 37
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 106
-    target 55
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 106
-    target 72
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 106
-    target 84
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 106
-    target 12
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 17
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 25
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 26
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 39
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 47
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 51
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 53
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 63
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 74
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 106
-    target 86
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 107
-    target 20
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 35
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 41
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 46
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 52
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 56
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 57
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 60
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 66
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 67
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 71
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 75
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 80
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 81
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 85
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 9
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 107
+    source 104
     target 19
     key 0
     relation "PREFERS"
-    weight 0.6
+    weight 0.9
   ]
   edge [
-    source 107
-    target 22
+    source 104
+    target 28
     key 0
     relation "PREFERS"
-    weight 0.6
+    weight 0.9
   ]
   edge [
-    source 107
-    target 30
+    source 104
+    target 37
     key 0
     relation "PREFERS"
-    weight 0.6
+    weight 0.9
   ]
   edge [
-    source 107
-    target 36
+    source 104
+    target 39
     key 0
     relation "PREFERS"
-    weight 0.6
+    weight 0.9
   ]
   edge [
-    source 107
-    target 45
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 107
+    source 104
     target 48
     key 0
     relation "PREFERS"
-    weight 0.6
+    weight 0.9
   ]
   edge [
-    source 107
-    target 49
+    source 104
+    target 59
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 104
+    target 68
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 104
+    target 78
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 104
+    target 10
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
-    source 107
-    target 50
+    source 104
+    target 23
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
-    source 107
+    source 104
+    target 32
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 104
+    target 43
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 104
+    target 51
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 104
+    target 60
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 104
     target 70
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
-    source 107
-    target 77
+    source 104
+    target 81
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
-    source 107
-    target 10
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 107
-    target 21
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 107
-    target 40
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 107
-    target 64
-    key 0
-    relation "PREFERS"
-    weight 0.9
-  ]
-  edge [
-    source 107
-    target 13
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 107
-    target 37
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 107
-    target 55
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 107
-    target 72
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 107
-    target 84
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 107
-    target 8
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
+    source 104
     target 15
     key 0
     relation "PREFERS"
-    weight 0.7
+    weight 0.8
   ]
   edge [
-    source 107
-    target 18
+    source 104
+    target 21
     key 0
     relation "PREFERS"
-    weight 0.7
+    weight 0.8
   ]
   edge [
-    source 107
-    target 27
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 28
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 32
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
+    source 104
     target 34
     key 0
     relation "PREFERS"
-    weight 0.7
+    weight 0.8
   ]
   edge [
-    source 107
-    target 38
+    source 104
+    target 41
     key 0
     relation "PREFERS"
-    weight 0.7
+    weight 0.8
   ]
   edge [
-    source 107
-    target 43
+    source 104
+    target 54
     key 0
     relation "PREFERS"
-    weight 0.7
+    weight 0.8
   ]
   edge [
-    source 107
-    target 58
+    source 104
+    target 62
     key 0
     relation "PREFERS"
-    weight 0.7
+    weight 0.8
   ]
   edge [
-    source 107
-    target 59
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 61
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 68
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
+    source 104
     target 73
     key 0
     relation "PREFERS"
-    weight 0.7
+    weight 0.8
   ]
   edge [
-    source 107
-    target 78
+    source 104
+    target 82
     key 0
     relation "PREFERS"
-    weight 0.7
+    weight 0.8
   ]
   edge [
-    source 107
-    target 79
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 107
-    target 83
-    key 0
-    relation "PREFERS"
-    weight 0.7
-  ]
-  edge [
-    source 108
+    source 105
     target 14
     key 0
     relation "PREFERS"
     weight 1.0
   ]
   edge [
-    source 108
-    target 23
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 108
-    target 33
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 108
-    target 44
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 108
-    target 54
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 108
-    target 65
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 108
-    target 76
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 108
-    target 82
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 108
-    target 87
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 108
-    target 13
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 108
-    target 37
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 108
-    target 55
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 108
-    target 72
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 108
-    target 84
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 108
-    target 20
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 108
-    target 35
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 108
-    target 41
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 108
+    source 105
     target 46
     key 0
     relation "PREFERS"
-    weight 0.3
+    weight 1.0
   ]
   edge [
-    source 108
+    source 105
     target 52
     key 0
     relation "PREFERS"
-    weight 0.3
+    weight 1.0
   ]
   edge [
-    source 108
-    target 56
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 108
-    target 57
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 108
-    target 60
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 108
-    target 66
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 108
-    target 67
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 108
-    target 71
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 108
-    target 75
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 108
-    target 80
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 108
-    target 81
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 108
-    target 85
-    key 0
-    relation "PREFERS"
-    weight 0.3
-  ]
-  edge [
-    source 109
-    target 12
+    source 105
+    target 64
     key 0
     relation "PREFERS"
     weight 1.0
   ]
   edge [
-    source 109
-    target 17
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 109
-    target 25
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 109
-    target 26
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 109
-    target 39
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 109
-    target 47
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 109
-    target 51
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 109
-    target 53
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 109
-    target 63
-    key 0
-    relation "PREFERS"
-    weight 1.0
-  ]
-  edge [
-    source 109
+    source 105
     target 74
     key 0
     relation "PREFERS"
     weight 1.0
   ]
   edge [
-    source 109
-    target 86
+    source 105
+    target 84
     key 0
     relation "PREFERS"
     weight 1.0
   ]
   edge [
-    source 109
+    source 105
+    target 13
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 105
+    target 22
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 105
+    target 33
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 105
     target 42
     key 0
     relation "PREFERS"
-    weight 0.6
+    weight 0.8
   ]
   edge [
-    source 109
-    target 29
+    source 105
+    target 56
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 105
+    target 63
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 105
+    target 71
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 105
+    target 83
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 105
+    target 12
+    key 0
+    relation "PREFERS"
+    weight 0.5
+  ]
+  edge [
+    source 105
+    target 26
+    key 0
+    relation "PREFERS"
+    weight 0.5
+  ]
+  edge [
+    source 105
+    target 35
+    key 0
+    relation "PREFERS"
+    weight 0.5
+  ]
+  edge [
+    source 105
+    target 44
+    key 0
+    relation "PREFERS"
+    weight 0.5
+  ]
+  edge [
+    source 105
+    target 55
+    key 0
+    relation "PREFERS"
+    weight 0.5
+  ]
+  edge [
+    source 105
+    target 66
+    key 0
+    relation "PREFERS"
+    weight 0.5
+  ]
+  edge [
+    source 105
+    target 76
+    key 0
+    relation "PREFERS"
+    weight 0.5
+  ]
+  edge [
+    source 105
+    target 86
+    key 0
+    relation "PREFERS"
+    weight 0.5
+  ]
+  edge [
+    source 105
+    target 15
     key 0
     relation "PREFERS"
     weight 0.3
   ]
   edge [
-    source 109
+    source 105
+    target 21
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 105
+    target 34
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 105
+    target 41
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 105
+    target 54
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 105
     target 62
     key 0
     relation "PREFERS"
     weight 0.3
   ]
   edge [
-    source 110
+    source 105
+    target 73
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 105
+    target 82
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 106
+    target 16
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 106
+    target 25
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 106
+    target 30
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 106
+    target 47
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 106
+    target 53
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 106
+    target 65
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 106
+    target 75
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 106
+    target 85
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 106
+    target 15
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 21
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 34
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 41
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 54
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 62
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 73
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 82
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 17
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 106
+    target 24
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 106
+    target 36
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 106
+    target 45
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 106
+    target 57
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 106
+    target 61
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 106
+    target 77
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 106
+    target 87
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 106
+    target 12
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 106
+    target 26
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 106
+    target 35
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 106
+    target 44
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 106
+    target 55
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 106
+    target 66
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 106
+    target 76
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 106
+    target 86
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 106
+    target 13
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 22
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 33
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 42
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 56
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 63
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 71
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 106
+    target 83
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 107
+    target 15
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 21
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 34
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 41
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 54
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 62
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 73
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 82
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 11
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 107
+    target 20
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 107
+    target 31
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 107
+    target 40
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 107
+    target 50
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 107
+    target 67
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 107
+    target 72
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 107
+    target 80
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 107
+    target 17
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 107
+    target 24
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 107
+    target 36
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 107
+    target 45
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 107
+    target 57
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 107
+    target 61
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 107
+    target 77
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 107
+    target 87
+    key 0
+    relation "PREFERS"
+    weight 0.9
+  ]
+  edge [
+    source 107
     target 12
     key 0
     relation "PREFERS"
     weight 0.8
   ]
   edge [
-    source 110
-    target 17
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 110
-    target 25
-    key 0
-    relation "PREFERS"
-    weight 0.8
-  ]
-  edge [
-    source 110
+    source 107
     target 26
     key 0
     relation "PREFERS"
     weight 0.8
   ]
   edge [
-    source 110
-    target 39
+    source 107
+    target 35
     key 0
     relation "PREFERS"
     weight 0.8
   ]
   edge [
-    source 110
+    source 107
+    target 44
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 107
+    target 55
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 107
+    target 66
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 107
+    target 76
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 107
+    target 86
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 107
+    target 9
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 18
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 27
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 29
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 38
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 49
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 58
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 69
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 107
+    target 79
+    key 0
+    relation "PREFERS"
+    weight 0.7
+  ]
+  edge [
+    source 108
+    target 16
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 108
+    target 25
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 108
+    target 30
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 108
     target 47
     key 0
     relation "PREFERS"
-    weight 0.8
+    weight 1.0
+  ]
+  edge [
+    source 108
+    target 53
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 108
+    target 65
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 108
+    target 75
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 108
+    target 85
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 108
+    target 12
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 108
+    target 26
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 108
+    target 35
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 108
+    target 44
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 108
+    target 55
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 108
+    target 66
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 108
+    target 76
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 108
+    target 86
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 108
+    target 15
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 108
+    target 21
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 108
+    target 34
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 108
+    target 41
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 108
+    target 54
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 108
+    target 62
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 108
+    target 73
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 108
+    target 82
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 109
+    target 13
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 109
+    target 22
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 109
+    target 33
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 109
+    target 42
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 109
+    target 56
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 109
+    target 63
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 109
+    target 71
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 109
+    target 83
+    key 0
+    relation "PREFERS"
+    weight 1.0
+  ]
+  edge [
+    source 109
+    target 14
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 109
+    target 46
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 109
+    target 52
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 109
+    target 64
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 109
+    target 74
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 109
+    target 84
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 109
+    target 8
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 109
+    target 19
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 109
+    target 28
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 109
+    target 37
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 109
+    target 39
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 109
+    target 48
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 109
+    target 59
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 109
+    target 68
+    key 0
+    relation "PREFERS"
+    weight 0.3
+  ]
+  edge [
+    source 109
+    target 78
+    key 0
+    relation "PREFERS"
+    weight 0.3
   ]
   edge [
     source 110
-    target 51
+    target 13
     key 0
     relation "PREFERS"
     weight 0.8
   ]
   edge [
     source 110
-    target 53
+    target 22
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 110
+    target 33
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 110
+    target 42
+    key 0
+    relation "PREFERS"
+    weight 0.8
+  ]
+  edge [
+    source 110
+    target 56
     key 0
     relation "PREFERS"
     weight 0.8
@@ -5239,28 +5097,35 @@ graph [
   ]
   edge [
     source 110
-    target 74
+    target 71
     key 0
     relation "PREFERS"
     weight 0.8
   ]
   edge [
     source 110
-    target 86
+    target 83
     key 0
     relation "PREFERS"
     weight 0.8
   ]
   edge [
     source 110
-    target 20
+    target 15
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
     source 110
-    target 35
+    target 21
+    key 0
+    relation "PREFERS"
+    weight 0.6
+  ]
+  edge [
+    source 110
+    target 34
     key 0
     relation "PREFERS"
     weight 0.6
@@ -5274,140 +5139,56 @@ graph [
   ]
   edge [
     source 110
-    target 46
+    target 54
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
     source 110
-    target 52
+    target 62
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
     source 110
-    target 56
+    target 73
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
     source 110
-    target 57
+    target 82
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
     source 110
-    target 60
+    target 11
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
     source 110
-    target 66
+    target 20
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
     source 110
-    target 67
+    target 31
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
     source 110
-    target 71
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 75
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 80
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 81
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 85
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 9
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 19
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 22
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 30
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 36
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 45
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 48
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 49
+    target 40
     key 0
     relation "PREFERS"
     weight 0.6
@@ -5421,28 +5202,28 @@ graph [
   ]
   edge [
     source 110
-    target 70
+    target 67
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
     source 110
-    target 77
+    target 72
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
     source 110
-    target 8
+    target 80
     key 0
     relation "PREFERS"
     weight 0.6
   ]
   edge [
     source 110
-    target 15
+    target 9
     key 0
     relation "PREFERS"
     weight 0.6
@@ -5463,21 +5244,7 @@ graph [
   ]
   edge [
     source 110
-    target 28
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 32
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 34
+    target 29
     key 0
     relation "PREFERS"
     weight 0.6
@@ -5491,7 +5258,7 @@ graph [
   ]
   edge [
     source 110
-    target 43
+    target 49
     key 0
     relation "PREFERS"
     weight 0.6
@@ -5505,35 +5272,7 @@ graph [
   ]
   edge [
     source 110
-    target 59
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 61
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 68
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 73
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 78
+    target 69
     key 0
     relation "PREFERS"
     weight 0.6
@@ -5547,21 +5286,28 @@ graph [
   ]
   edge [
     source 110
-    target 83
-    key 0
-    relation "PREFERS"
-    weight 0.6
-  ]
-  edge [
-    source 110
-    target 13
+    target 12
     key 0
     relation "PREFERS"
     weight 0.5
   ]
   edge [
     source 110
-    target 37
+    target 26
+    key 0
+    relation "PREFERS"
+    weight 0.5
+  ]
+  edge [
+    source 110
+    target 35
+    key 0
+    relation "PREFERS"
+    weight 0.5
+  ]
+  edge [
+    source 110
+    target 44
     key 0
     relation "PREFERS"
     weight 0.5
@@ -5575,14 +5321,21 @@ graph [
   ]
   edge [
     source 110
-    target 72
+    target 66
     key 0
     relation "PREFERS"
     weight 0.5
   ]
   edge [
     source 110
-    target 84
+    target 76
+    key 0
+    relation "PREFERS"
+    weight 0.5
+  ]
+  edge [
+    source 110
+    target 86
     key 0
     relation "PREFERS"
     weight 0.5
