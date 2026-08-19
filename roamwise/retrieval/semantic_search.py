@@ -2,46 +2,58 @@
 Semantic search component of the Fusion RAG layer.
 
 The proposal names FAISS/ChromaDB dense-vector retrieval over transformer
-embeddings. This prototype uses TF-IDF projected into a latent-semantic
-space (truncated SVD) instead of a downloaded transformer encoder: it needs
-no multi-hundred-MB model file, trains in milliseconds, and still captures
-synonymy/topic similarity beyond exact keyword overlap (e.g. "cheap eats"
-retrieving a market POI) -- which is what distinguishes it from the BM25
-keyword layer. Swapping in `sentence-transformers` + FAISS later only
-requires reimplementing `SemanticIndex.encode`; every caller goes through
-`SemanticIndex.search`.
+embeddings. This uses `sentence-transformers` (`all-MiniLM-L6-v2`, a small
+~80MB model) for the embeddings and FAISS (`IndexFlatIP` over L2-normalized
+vectors, i.e. exact cosine-similarity search) for the index -- the two
+libraries the proposal names for this exact purpose (issue #4; see
+REPORT.md §3.3 for why the project originally shipped a TF-IDF+LSA stand-in
+instead, and the trade-offs of this swap).
+
+Every caller goes through `SemanticIndex.search`, and the constructor still
+takes an optional `documents` list -- this is the same public interface the
+TF-IDF+LSA version had, so `retrieval/fusion.py` and everything upstream of
+it needed zero changes.
 """
 from pathlib import Path
 
+import faiss
 import numpy as np
-from sklearn.decomposition import TruncatedSVD
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 
 from retrieval.corpus import load_documents
 
+DEFAULT_MODEL = "all-MiniLM-L6-v2"
+
 
 class SemanticIndex:
-    def __init__(self, documents: list[dict] = None, n_components: int = 64):
+    def __init__(self, documents: list[dict] = None, model_name: str = DEFAULT_MODEL):
+        from sentence_transformers import SentenceTransformer
+
         self.documents = documents if documents is not None else load_documents()
+        self.model = SentenceTransformer(model_name)
+
         texts = [d["text"] for d in self.documents]
-        self.vectorizer = TfidfVectorizer(stop_words="english", max_df=0.9, min_df=1)
-        tfidf = self.vectorizer.fit_transform(texts)
-        n_components = min(n_components, tfidf.shape[1] - 1, tfidf.shape[0] - 1)
-        self.svd = TruncatedSVD(n_components=n_components, random_state=42)
-        self.embeddings = self.svd.fit_transform(tfidf)
+        embeddings = self.model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
+        self.embeddings = np.asarray(embeddings, dtype="float32")
+
+        self.index = faiss.IndexFlatIP(self.embeddings.shape[1])
+        self.index.add(self.embeddings)
 
     def search(self, query: str, top_k: int = 10, destination_id: str = None) -> list[dict]:
-        q_tfidf = self.vectorizer.transform([query])
-        q_vec = self.svd.transform(q_tfidf)
-        sims = cosine_similarity(q_vec, self.embeddings)[0]
-        order = np.argsort(-sims)
+        q_vec = self.model.encode([query], normalize_embeddings=True, show_progress_bar=False)
+        q_vec = np.asarray(q_vec, dtype="float32")
+
+        # Search the full ranking (not just top_k) so post-hoc destination_id
+        # filtering can't under-fill the result list -- same behavior the
+        # previous TF-IDF+LSA implementation had via a full argsort.
+        sims, order = self.index.search(q_vec, len(self.documents))
+        sims, order = sims[0], order[0]
+
         results = []
-        for i in order:
+        for score, i in zip(sims, order):
             doc = self.documents[i]
             if destination_id and doc.get("destination_id") != destination_id:
                 continue
-            results.append({**doc, "score": float(sims[i])})
+            results.append({**doc, "score": float(score)})
             if len(results) >= top_k:
                 break
         return results

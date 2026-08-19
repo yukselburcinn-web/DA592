@@ -1,25 +1,25 @@
 destination_id,archetype,category,config,recall_at_k,archetype_precision,grounded_entity_rate,n_candidate_pois,n_stops_day1,km_per_stop_day1
-IST,Culture Enthusiast,landmark,fusion,0.0,0.857,1.0,7,4,0.33
-IST,Culture Enthusiast,landmark,hybrid,0.0,0.857,1.0,7,6,1.05
+IST,Culture Enthusiast,landmark,fusion,0.13333333333333333,0.857,1.0,7,4,0.84
+IST,Culture Enthusiast,landmark,hybrid,0.13333333333333333,0.571,1.0,7,4,1.75
 IST,Culture Enthusiast,landmark,standard,0.0,0.625,0.0,8,5,1.26
-PAR,Culture Enthusiast,museum,fusion,0.35714285714285715,1.0,1.0,7,2,0.89
-PAR,Culture Enthusiast,museum,hybrid,0.07142857142857142,0.571,1.0,7,2,8.22
+PAR,Culture Enthusiast,museum,fusion,0.5,1.0,1.0,8,3,0.98
+PAR,Culture Enthusiast,museum,hybrid,0.2857142857142857,0.625,1.0,8,3,3.57
 PAR,Culture Enthusiast,museum,standard,0.0,0.625,0.0,8,5,0.77
-ROM,Culture Enthusiast,museum,fusion,0.0,1.0,1.0,8,6,1.25
-ROM,Culture Enthusiast,museum,hybrid,0.0,1.0,1.0,8,6,1.25
+ROM,Culture Enthusiast,museum,fusion,0.5,1.0,1.0,8,3,1.04
+ROM,Culture Enthusiast,museum,hybrid,0.25,0.857,1.0,7,3,1.8
 ROM,Culture Enthusiast,museum,standard,0.0,0.625,0.0,8,3,4.23
-BCN,Nightlife Seeker,nightlife,fusion,0.5454545454545454,1.0,1.0,8,1,0.46
+BCN,Nightlife Seeker,nightlife,fusion,0.45454545454545453,1.0,1.0,8,0,
 BCN,Nightlife Seeker,nightlife,hybrid,0.45454545454545453,1.0,1.0,8,0,
 BCN,Nightlife Seeker,nightlife,standard,0.0,0.25,0.0,8,5,1.31
 AMS,Nature & Adventure,nature,fusion,0.5714285714285714,1.0,1.0,8,4,2.22
-AMS,Nature & Adventure,nature,hybrid,0.5714285714285714,1.0,1.0,8,4,2.22
+AMS,Nature & Adventure,nature,hybrid,0.5,1.0,1.0,7,4,2.03
 AMS,Nature & Adventure,nature,standard,0.0,0.25,0.0,8,6,0.55
-PRG,Budget Backpacker,nightlife,fusion,0.4666666666666667,1.0,1.0,8,2,2.6
-PRG,Budget Backpacker,nightlife,hybrid,0.4666666666666667,1.0,1.0,8,2,0.95
+PRG,Budget Backpacker,nightlife,fusion,0.4666666666666667,1.0,1.0,8,1,1.73
+PRG,Budget Backpacker,nightlife,hybrid,0.4666666666666667,1.0,1.0,8,1,1.73
 PRG,Budget Backpacker,nightlife,standard,0.0,0.5,0.0,8,4,1.29
-VIE,Luxury Traveler,shopping,fusion,0.6363636363636364,1.0,1.0,8,4,2.06
-VIE,Luxury Traveler,shopping,hybrid,0.7272727272727273,1.0,1.0,8,5,0.95
+VIE,Luxury Traveler,shopping,fusion,0.7272727272727273,1.0,1.0,8,5,0.95
+VIE,Luxury Traveler,shopping,hybrid,0.6363636363636364,1.0,1.0,8,5,1.66
 VIE,Luxury Traveler,shopping,standard,0.0,0.375,0.0,8,4,2.36
-LIS,Beach & Relax,beach,fusion,,0.714,1.0,7,3,3.44
-LIS,Beach & Relax,beach,hybrid,,0.571,1.0,7,2,4.62
+LIS,Beach & Relax,beach,fusion,,0.857,1.0,7,3,2.03
+LIS,Beach & Relax,beach,hybrid,,0.571,1.0,7,2,1.85
 LIS,Beach & Relax,beach,standard,,0.375,0.0,8,4,0.73
