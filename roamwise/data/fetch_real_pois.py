@@ -43,7 +43,7 @@ WIKIDATA_URL = "https://query.wikidata.org/sparql"
 HEADERS = {"User-Agent": "RoamWise-DataFetch/1.0 (student term project; contact via GitHub repo)"}
 
 RADIUS_M = 7000
-POIS_PER_CITY = 10
+POIS_PER_CITY = 150
 
 # OSM tag -> RoamWise category. Order matters: first matching rule wins.
 TAG_CATEGORY_RULES = [

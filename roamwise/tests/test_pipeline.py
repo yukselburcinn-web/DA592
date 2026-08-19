@@ -21,7 +21,7 @@ def test_knowledge_graph_builds_and_traverses():
     idx = GraphIndex()
     stats = idx.stats()
     assert stats["by_type"]["City"] == 8
-    assert stats["by_type"]["POI"] == 80
+    assert stats["by_type"]["POI"] == 1200
     hop = idx.multi_hop_transport_to_poi("IST", "landmark")
     assert len(hop) > 0
     assert all("nearest_hub_km" in r for r in hop)

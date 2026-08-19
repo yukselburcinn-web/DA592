@@ -9,73 +9,1193 @@ POI0007,IST,Caddebostan Plajı,beach,40.963972,29.057689,150,0,4.0,A popular bea
 POI0008,IST,Baba Sahne,culture,40.98733,29.027924,90,1,4.0,A cultural venue in Istanbul.,9,20
 POI0009,IST,Bigudi,nightlife,41.036143,28.980608,120,1,4.0,"Bigudi is a Queer nightclub and bar in Istanbul, Turkey (2016–now).",18,2
 POI0010,IST,Atlas Pasajı,shopping,41.034113,28.979214,60,1,4.1,"Atlas Pasajı is a mall in Istanbul, Turkey.",10,20
-POI0011,PAR,Point zéro des Routes de France,landmark,48.853401,2.348788,60,1,4.2,Point zéro des Routes de France is a point from which distances from Paris are measured.,8,20
-POI0012,PAR,Mémorial du génocide arménien d'Issy-les-Moulineaux,history,48.819042,2.259764,60,0,4.1,"Mémorial du génocide arménien d'Issy-les-Moulineaux is a monument located in Hauts-de-Seine, in France, in Paris.",8,19
-POI0013,PAR,Conciergerie,museum,48.855949,2.346026,120,1,4.5,"Conciergerie is a Medieval building in Paris, France.",9,18
-POI0014,PAR,Silvia Monfort,culture,48.830812,2.300199,90,1,4.1,Silvia Monfort is a theatre company and building in Paris.,9,20
-POI0015,PAR,Jardin des Combattants-de-la-Nueve,nature,48.855765,2.352164,90,0,4.2,"Jardin des Combattants-de-la-Nueve is a garden in 4th arrondissement of Paris, France.",0,24
-POI0016,PAR,Chapelle des Catéchismes,religion,48.858968,2.318326,30,0,4.2,"Chapelle des Catéchismes is a chapel located in Paris, in France.",7,19
-POI0017,PAR,Galerie Vivienne,shopping,48.866721,2.339676,60,1,4.3,"Galerie Vivienne is a gallery in Paris, France.",8,20
-POI0018,PAR,Harry's Bar,nightlife,48.869209,2.332171,120,1,4.2,"Harry's Bar is a well-known bar in Paris, France.",12,2
-POI0019,PAR,Marché du Centre,food,48.803107,2.432937,60,1,4.0,A well-regarded food destination in Paris.,10,23
-POI0020,PAR,Folie Titon,landmark,48.850527,2.385844,60,1,4.1,"Folie Titon is an a former folly that became a wallpaper factory run by Jean-Baptiste Réveillon. located in the former Faubourg Saint-Antoine, in Paris.",8,20
-POI0021,ROM,Porta Magica,history,41.895502,12.50374,60,0,4.2,"Porta Magica is a building in Rome, Italy.",8,19
-POI0022,ROM,Obelisco Matteiano,landmark,41.883389,12.495335,60,1,4.2,A well-known landmark in Rome.,8,20
-POI0023,ROM,Harry's Bar,nightlife,41.909077,12.488319,120,1,4.2,"Harry's Bar is a bar in Italy, in Rome.",18,2
-POI0024,ROM,Forte Braschi,museum,41.915252,12.424695,120,1,4.2,"Forte Braschi is a building in Rome, Italy.",9,18
-POI0025,ROM,Chiesa di Sant'Urbano alla Caffarella,religion,41.85787,12.524318,30,0,4.2,"Chiesa di Sant'Urbano alla Caffarella is a church building in Rome, Italy.",7,19
-POI0026,ROM,Foro Boario,nature,41.888853,12.480894,90,0,4.4,Foro Boario is a cattle market of Ancient Rome.,0,24
-POI0027,ROM,Teatro Olimpico,culture,41.926364,12.461877,90,1,4.1,"Teatro Olimpico is a theatre in Rome, Italy.",9,20
-POI0028,ROM,Mercato Magna Grecia – Metronio,food,41.882788,12.50818,60,1,4.0,"Mercato Magna Grecia – Metronio is a building in Rome, Italy.",6,14
-POI0029,ROM,La Rinascente,shopping,41.911386,12.497742,60,1,4.0,"La Rinascente is a building in Rome, Italy.",10,21
-POI0030,ROM,Catacombe di Priscilla,history,41.929726,12.508765,60,0,4.3,"Catacombe di Priscilla is a cemetery in Rome, Italy; an archaeological site on the Via Salaria in Rome, Italy, situated in what was a quarry in Roman times. This quarry was used for Christian burials from the late 2nd century through the 4th century..",8,19
-POI0031,BCN,Portal del Bisbe,landmark,41.384003,2.175434,60,1,4.1,A well-known landmark in Barcelona.,8,20
-POI0032,BCN,Barcelona a Prim,history,41.38639,2.186795,60,0,4.2,A historic site in Barcelona.,8,19
-POI0033,BCN,Temple d'August,museum,41.383375,2.177231,120,0,4.2,"Temple d'August is a cultural property in Barcelona, Spain.",10,14
-POI0034,BCN,Blas Infante,culture,41.4377,2.222921,90,1,4.0,A cultural venue in Barcelona.,9,20
-POI0035,BCN,Jardins de Ramon Margalef i López,nature,41.365749,2.153034,90,0,4.1,A green space in Barcelona.,0,24
-POI0036,BCN,Sant Medir,religion,41.443638,2.121358,30,0,4.2,"Sant Medir is a church building in Sant Cugat del Vallès, Spain, in Barcelona.",7,19
-POI0037,BCN,Mercat de la Llibertat,food,41.399863,2.153485,60,1,4.1,A well-regarded food destination in Barcelona.,8,20
-POI0038,BCN,Arenas de Barcelona,shopping,41.376304,2.149305,60,1,4.3,"Arenas de Barcelona is a bullring in Barcelona, Spain.",10,22
-POI0039,BCN,Platja del Somorrostro,beach,41.383527,2.196406,150,0,4.1,"Platja del Somorrostro is a beach and memory place in Barcelona, Catalonia.",0,24
-POI0040,BCN,Boadas,nightlife,41.384664,2.170271,120,1,4.0,Boadas is a Cocktail Bar in Barcelona.,18,2
-POI0041,AMS,De Dokwerker,history,52.367196,4.905015,60,0,4.1,"De Dokwerker is a war memorial by Mari Andriessen in Amsterdam, the Netherlands.",8,19
-POI0042,AMS,Rasphuispoort,landmark,52.36774,4.891052,60,1,4.2,"Rasphuispoort is a prison ìn the Netherlands, in Amsterdam.",8,20
-POI0043,AMS,Hollandsche Schouwburg,museum,52.366439,4.911154,120,0,4.2,"Hollandsche Schouwburg is a memorial and former theater building in Amsterdam, the Netherlands.",10,17
-POI0044,AMS,Singelkerk,religion,52.367547,4.888281,30,0,4.1,"Singelkerk is a church building in Amsterdam, Netherlands.",7,19
-POI0045,AMS,"Nieuwe Meer Westzijde, Oeverlanden",beach,52.333295,4.812087,150,0,4.0,A popular beach in Amsterdam.,0,24
-POI0046,AMS,In't Aepjen,nightlife,52.376312,4.900146,120,1,4.1,In't Aepjen is a building in Amsterdam.,18,2
-POI0047,AMS,Koninklijk Theater Carré,culture,52.362335,4.903926,90,1,4.2,"Koninklijk Theater Carré is a theatre in Amsterdam, located near the river Amstel.",9,20
-POI0048,AMS,Nieuwmarkt,food,52.372553,4.900089,60,1,4.3,"Nieuwmarkt is a square in Amsterdam, Netherlands.",10,18
-POI0049,AMS,Beeldenbos Noord,nature,52.38996,4.938581,90,0,4.0,A green space in Amsterdam.,0,24
-POI0050,AMS,Magna Plaza,shopping,52.373656,4.890238,60,1,4.2,"Magna Plaza is a shopping center in Amsterdam, Netherlands.",11,19
-POI0051,PRG,U Tlustý Berty,landmark,50.093736,14.380539,60,1,4.0,"U Tlustý Berty is a villa in Prague, Czech Republic.",8,20
-POI0052,PRG,Mikoláš Aleš,history,50.024153,14.44661,60,0,4.0,A historic site in Prague.,8,19
-POI0053,PRG,Stětí svatého Jana Křtitele,religion,50.049033,14.524392,30,0,4.1,"Stětí svatého Jana Křtitele is a church building in Hostivař, Czech Republic, in Prague.",7,19
-POI0054,PRG,Kotva,shopping,50.088937,14.427163,60,1,4.2,Kotva is a department store in Prague.,9,20
-POI0055,PRG,svatý Šimon a Juda,culture,50.092039,14.420644,90,1,4.1,svatý Šimon a Juda is a church in Prague.,9,20
-POI0056,PRG,Valdštejnská zahrada,nature,50.090175,14.407568,90,0,4.1,"Valdštejnská zahrada is a park in Prague 1, Czech Republic.",7,19
-POI0057,PRG,Nudistická pláž Braník,beach,50.027785,14.399437,150,0,4.0,A popular beach in Prague.,0,24
-POI0058,PRG,Cross Club,nightlife,50.108293,14.443228,120,1,4.1,"Cross Club is a music venue in Prague, Czech Republic.",0,5
-POI0059,PRG,Havelské tržiště,food,50.084772,14.420993,60,1,4.0,"Havelské tržiště is a market in Prague, Czech Republic.",7,19
-POI0060,PRG,Gorlice,museum,50.06524,14.421215,120,1,4.1,A notable museum in Prague.,9,18
-POI0061,VIE,Mahnmal Morzinplatz,history,48.212989,16.374602,60,0,4.0,A historic site in Vienna.,8,19
-POI0062,VIE,Obelisk,landmark,48.179992,16.316076,60,1,4.1,A well-known landmark in Vienna.,8,20
-POI0063,VIE,Elisabethinen-Kirche,religion,48.205275,16.386718,30,0,4.1,"Elisabethinen-Kirche is a church, in Vienna.",7,19
-POI0064,VIE,Schubertpark,nature,48.226413,16.339115,90,0,4.1,"Schubertpark is a cemetery in Währing, Austria, in Vienna.",0,24
-POI0065,VIE,Oberes Belvedere,museum,48.191539,16.380903,120,1,4.0,"Oberes Belvedere is a Palace in Vienna, Austria.",10,18
-POI0066,VIE,Burgtheater,culture,48.210313,16.361481,90,1,4.5,"Burgtheater is a state drama theatre in Vienna, Austria.",9,20
-POI0067,VIE,Oststrand,beach,48.227808,16.433338,150,0,4.0,A popular beach in Vienna.,0,24
-POI0068,VIE,Eden Bar,nightlife,48.207272,16.372786,120,1,4.1,"Eden Bar is a bar in Vienna, Austria.",18,2
-POI0069,VIE,Meidlinger Markt,food,48.180672,16.333132,60,1,4.0,A well-regarded food destination in Vienna.,6,21
-POI0070,VIE,Ringstraßen-Galerien,shopping,48.202172,16.372295,60,1,4.1,Ringstraßen-Galerien is a shopping mall in Vienna.,10,20
-POI0071,LIS,Primeira Travessia Aérea do Atlântico Sul,history,38.692212,-9.213938,60,0,4.1,A historic site in Lisbon.,8,19
-POI0072,LIS,Pelourinho de Lisboa,landmark,38.708036,-9.139196,60,1,4.2,"Pelourinho de Lisboa is a pillory in Lisboa, Portugal, in Lisbon.",8,20
-POI0073,LIS,Reservatório da Patriarcal,museum,38.716176,-9.148721,120,1,4.1,A notable museum in Lisbon.,9,18
-POI0074,LIS,Igreja de São Domingos,religion,38.714637,-9.138234,30,0,4.3,"Igreja de São Domingos is a church building in Lisbon, Lisbon District, Portugal.",7,19
-POI0075,LIS,Teatro Nacional Dona Maria II,culture,38.714779,-9.139771,90,1,4.3,"Teatro Nacional Dona Maria II is a dramatic theatre in Lisbon, Portugal.",9,20
-POI0076,LIS,Quinta do Monte do Carmo,nature,38.700659,-9.188306,90,0,4.0,"Quinta do Monte do Carmo is a cultural heritage monument in Lisboa, Portugal, in Lisbon.",0,24
-POI0077,LIS,Prainha do Porto Brandão,beach,38.677265,-9.207271,150,0,4.0,A popular beach in Lisbon.,0,24
-POI0078,LIS,Cervejaria Solmar (Fechada),nightlife,38.716897,-9.141017,120,1,4.0,A lively nightlife spot in Lisbon.,18,2
-POI0079,LIS,Mercado da Ribeira,food,38.707061,-9.145693,60,1,4.2,"Mercado da Ribeira is a marketplace, in Lisbon.",10,0
-POI0080,LIS,Centro Comercial Colombo,shopping,38.754758,-9.188668,60,1,4.2,"Centro Comercial Colombo is a shopping center in Lisbon, Portugal.",9,24
+POI0011,IST,Cumhuriyet Anıtı,history,41.036999,28.985118,60,0,4.4,"Cumhuriyet Anıtı is a monument in İstanbul, Turkey.",8,19
+POI0012,IST,Belgrad Kapı,landmark,40.99983,28.920538,60,1,4.1,Belgrad Kapı is an Istanbul city gate.,8,20
+POI0013,IST,Panayia Belgradu Kilisesi,religion,41.000113,28.921979,30,0,4.1,"Panayia Belgradu Kilisesi is a church building in İstanbul, Turkey.",7,19
+POI0014,IST,İstanbul Arkeoloji Müzesi,museum,41.011643,28.981372,120,1,4.0,"İstanbul Arkeoloji Müzesi is a museum building in Istanbul, Turkey.",9,19
+POI0015,IST,Mısır Çarşısı,food,41.016463,28.971098,60,1,4.4,"Mısır Çarşısı is a food market in Istanbul, Turkey.",8,19
+POI0016,IST,Alfred Heilbronn Botanik Bahçesi,nature,41.018313,28.963871,90,0,4.1,A green space in Istanbul.,0,24
+POI0017,IST,Caddebostan Plajı 2,beach,40.967229,29.052837,150,0,4.0,A popular beach in Istanbul.,0,24
+POI0018,IST,Atatürk Kültür Merkezi,culture,41.036565,28.988246,90,1,4.3,"Atatürk Kültür Merkezi is a cultural centre in Istanbul, Turkey.",9,20
+POI0019,IST,Summit Bar & Terrace,nightlife,41.047294,29.009728,120,1,4.0,Summit Bar & Terrace is a Rooftop bar located within Conrad Istanbul Bosphorus..,12,1
+POI0020,IST,Büyük Beşiktaş Çarşısı,shopping,41.042708,29.005227,60,1,4.1,A popular shopping spot in Istanbul.,10,20
+POI0021,IST,Atatürk Anıtı,history,40.991581,29.022664,60,0,4.0,"Atatürk Anıtı is a monument in Kadıköy, İstanbul, Asian Turkey.",8,19
+POI0022,IST,Hatice Turhan Sultan Türbesi,landmark,41.016202,28.971905,60,1,4.5,"Hatice Turhan Sultan Türbesi is a sixth Valide Sultan of the Ottoman Empire from 1648 to 1683, in Istanbul.",8,20
+POI0023,IST,Surp Kevork Kilisesi,religion,41.001865,28.933147,30,0,4.3,"Surp Kevork Kilisesi is an Armenian church in Fatih, Istanbul.",7,19
+POI0024,IST,Aya İrini Kilisesi,museum,41.009829,28.980948,120,1,4.5,"Aya İrini Kilisesi is a Byzantine church building in Istanbul, Turkey now a hall and museum.",9,18
+POI0025,IST,Arasta Çarşısı,food,41.004999,28.977755,60,1,4.0,Arasta Çarşısı is a Bazaar in Istanbul.,10,23
+POI0026,IST,Taksim Gezi Parkı,nature,41.038855,28.986903,90,0,4.4,"Taksim Gezi Parkı is an urban park in Taksim Square, Beyoğlu district, Istanbul, Turkey.",0,24
+POI0027,IST,Oyun Atölyesi,culture,40.986326,29.025773,90,1,4.0,A cultural venue in Istanbul.,9,20
+POI0028,IST,Peyote,nightlife,41.035131,28.977286,120,1,4.0,A lively nightlife spot in Istanbul.,18,2
+POI0029,IST,İstanbul Cevahir Alışveriş ve Eğlence Merkezi,shopping,41.062576,28.992856,60,1,4.3,"İstanbul Cevahir Alışveriş ve Eğlence Merkezi is a shopping mall, in Istanbul.",10,22
+POI0030,IST,2. Abdülhamit Anıtı,history,41.001769,29.007116,60,0,4.1,"2. Abdülhamit Anıtı is a breakwater in Haydarpaşa, İstanbul.",8,19
+POI0031,IST,Milyon Taşı,landmark,41.008067,28.978018,60,1,4.4,"Milyon Taşı is a Byzantine mile-marker monument in Constantinople, in Istanbul.",8,20
+POI0032,IST,Ayasofya,religion,41.008511,28.979998,30,0,4.7,"Ayasofya is a mosque, museum, and former church in Istanbul, Turkey.",9,19
+POI0033,IST,Askerî Müze,museum,41.048876,28.988243,120,1,4.3,Askerî Müze is a museum in Istanbul.,9,17
+POI0034,IST,Sepetçi Han,food,41.009651,28.967175,60,1,4.0,"Sepetçi Han is a shopping arcade in İstanbul, Turkey.",10,23
+POI0035,IST,Abbasağa Parkı,nature,41.046545,29.006349,90,0,4.0,Abbasağa Parkı is a public park in Istanbul.,0,24
+POI0036,IST,Cemal Reşit Rey Konser Salonu,culture,41.048178,28.990146,90,1,4.2,Cemal Reşit Rey Konser Salonu is a concert hall in Istanbul.,9,20
+POI0037,IST,Urban Cafe,nightlife,41.03361,28.978564,120,1,4.0,A lively nightlife spot in Istanbul.,18,2
+POI0038,IST,Tepe Nautilus Alışveriş Merkezi,shopping,40.999609,29.031499,60,1,4.1,"Tepe Nautilus Alışveriş Merkezi is a shopping mall in Istanbul, Turkey.",10,22
+POI0039,IST,Boğa Heykeli,history,40.990491,29.029207,60,0,4.1,"Boğa Heykeli is a statue in Kadıköy, Turkey, in Istanbul.",8,19
+POI0040,IST,Gotlar Sütunu,landmark,41.014641,28.985677,60,1,4.3,"Gotlar Sütunu is a Roman triumphal column in Constantinople (Istanbul, Turkey).",8,20
+POI0041,IST,Gazi Atik Ali Paşa Camii,religion,41.008742,28.970545,30,0,4.3,"Gazi Atik Ali Paşa Camii is a mosque in İstanbul, Turkey.",7,19
+POI0042,IST,Miniatürk Açıkhava Müzesi,museum,41.059005,28.949068,120,1,4.4,"Miniatürk Açıkhava Müzesi is a miniature park, in Istanbul.",9,19
+POI0043,IST,Sandal Bedesten,food,41.010387,28.969606,60,1,4.1,A well-regarded food destination in Istanbul.,10,23
+POI0044,IST,Fındıklı Parkı,nature,41.031782,28.99077,90,0,4.1,"Fındıklı Parkı is a city park in İstanbul, Turkey.",0,24
+POI0045,IST,Harbiye Muhsin Ertuğrul Tiyatrosu,culture,41.046452,28.988652,90,1,4.2,"Harbiye Muhsin Ertuğrul Tiyatrosu is a theatre venue in Istanbul, Turkey.",9,20
+POI0046,IST,Badehane,nightlife,41.028784,28.974217,120,1,4.0,A lively nightlife spot in Istanbul.,18,2
+POI0047,IST,Astoria,shopping,41.068592,29.005869,60,1,4.1,A popular shopping spot in Istanbul.,10,20
+POI0048,IST,Kıztaşı,history,41.015441,28.950285,60,0,4.3,"Kıztaşı is a Roman triumphal column in Constantinople (Istanbul, Turkey).",8,19
+POI0049,IST,Şeyh Ahmet Buhara Türbesi,landmark,41.02316,28.96026,60,1,4.0,"Şeyh Ahmet Buhara Türbesi is a mausoleum complex in İstanbul, Turkey.",8,20
+POI0050,IST,Hz. Cabir Cami,religion,41.038594,28.944121,30,0,4.3,"Hz. Cabir Cami is a mosque in İstanbul, Turkey.",7,19
+POI0051,IST,Binbirdirek Sarnıcı,museum,41.007606,28.974417,120,1,4.4,"Binbirdirek Sarnıcı is a cistern of Byzantine Constantinople, in Istanbul.",9,18
+POI0052,IST,Rubi Hanı,food,41.009962,28.969402,60,1,4.0,"Rubi Hanı is a shopping arcade in İstanbul, Turkey.",10,23
+POI0053,IST,Dolmabahçe Sarayı,nature,41.039017,28.999649,90,0,4.5,"Dolmabahçe Sarayı is a palace in Istanbul, Turkey.",0,24
+POI0054,IST,Haldun Taner Sahnesi,culture,40.991888,29.023449,90,1,4.2,"Haldun Taner Sahnesi is a theatre venue in Istanbul, Turkey.",9,20
+POI0055,IST,360 Istanbul,nightlife,41.032744,28.976723,120,1,4.0,A lively nightlife spot in Istanbul.,18,2
+POI0056,IST,Trump Alışveriş Merkezi,shopping,41.068488,28.9923,60,1,4.3,Trump Alışveriş Merkezi is a Towers in Istanbul.,10,22
+POI0057,IST,Hava Şehitleri Anıtı,history,41.016075,28.952635,60,0,4.2,"Hava Şehitleri Anıtı is a military monument in Turkey, in Istanbul.",8,19
+POI0058,IST,Seyyit Velayet Türbesi,landmark,41.023848,28.954732,60,1,4.0,"Seyyit Velayet Türbesi is a mausoleum complex in İstanbul, Turkey.",8,20
+POI0059,IST,Panagia Paramythia Church,religion,41.030518,28.948524,30,0,4.1,A historic place of worship in Istanbul.,7,19
+POI0060,IST,Adam Mickiewicz Müzesi,museum,41.038782,28.977147,120,1,4.2,"Adam Mickiewicz Müzesi is a museum in Beyoğlu, İstanbul, European Turkey.",9,16
+POI0061,IST,Arnavutköy Farmers Market,food,41.070144,29.040802,60,1,4.0,A well-regarded food destination in Istanbul.,10,23
+POI0062,IST,Gülhane Parkı,nature,41.013099,28.98231,90,0,4.4,"Gülhane Parkı is a city park in İstanbul, Turkey.",0,24
+POI0063,IST,Devlet Tiyatroları Tekel Sahnesi,culture,41.031347,29.021531,90,1,4.0,A cultural venue in Istanbul.,9,20
+POI0064,IST,Roxy Bar,nightlife,41.033616,28.984524,120,1,4.0,A lively nightlife spot in Istanbul.,18,2
+POI0065,IST,Olivium Outlet Center,shopping,40.995372,28.909765,60,1,4.1,"Olivium Outlet Center is a shopping mall in Istanbul, Turkey.",10,22
+POI0066,IST,Kanuni Sultan Suleyman 1 Turbesi,history,41.0157,28.964466,60,0,4.7,"Kanuni Sultan Suleyman 1 Turbesi is a the tenth and greatest Sultan of Ottoman Empire (1520–1566), in Istanbul.",8,19
+POI0067,IST,İvaz Efendi Çeşmesi,landmark,41.037889,28.941146,60,1,4.1,A well-known landmark in Istanbul.,8,20
+POI0068,IST,Aya Dimitri Kilisesi,religion,41.037144,28.945001,30,0,4.1,"Aya Dimitri Kilisesi is a church building in İstanbul, Turkey.",7,19
+POI0069,IST,Masumiyet Müzesi,museum,41.030872,28.979795,120,1,4.4,Masumiyet Müzesi is a museum located in the district Çukurcuma in Beyoğlu district of Istanbul in Turkey.,10,18
+POI0070,IST,Galata Şarküteri,food,41.02709,28.975729,60,1,4.0,A well-regarded food destination in Istanbul.,10,23
+POI0071,IST,Maçka Demokrasi Parkı,nature,41.044342,28.993996,90,0,4.2,"Maçka Demokrasi Parkı is a city park in İstanbul, Turkey.",0,24
+POI0072,IST,Nazım Hikmet Kültür Merkezi,culture,40.989427,29.030178,90,1,4.1,"Nazım Hikmet Kültür Merkezi is an organization, in Istanbul.",9,20
+POI0073,IST,SAH BAR,nightlife,41.008275,28.976584,120,1,4.0,A lively nightlife spot in Istanbul.,18,2
+POI0074,IST,Forum İstanbul Alışveriş ve Yaşam Merkezi,shopping,41.046855,28.897651,60,1,4.1,"Forum İstanbul Alışveriş ve Yaşam Merkezi is a shopping mall in Istanbul, Turkey.",10,22
+POI0075,IST,Hurrem Haseki (Roksolana) Turbesi,history,41.015668,28.964809,60,0,4.6,"Hurrem Haseki (Roksolana) Turbesi is a Wife of Suleiman the Magnificent, in Istanbul.",8,19
+POI0076,IST,Karababa Türbesi,landmark,41.008301,28.969208,60,1,4.0,"Karababa Türbesi is a mausoleum complex in İstanbul, Turkey.",8,20
+POI0077,IST,Cankurtaran Mescidi,religion,41.004915,28.980788,30,0,4.0,"Cankurtaran Mescidi is a mosque and ruin in Fatih District, in Istanbul.",7,19
+POI0078,IST,Galatasaray Müzesi,museum,41.033482,28.97694,120,0,4.3,"Galatasaray Müzesi is a museum in Beyoğlu, İstanbul, European Turkey.",9,18
+POI0079,IST,Aksuvital Fındıkzade Şubesi,food,41.013256,28.939891,60,1,4.0,A well-regarded food destination in Istanbul.,10,23
+POI0080,IST,Ulus Parkı,nature,41.063865,29.032324,90,0,4.0,A green space in Istanbul.,0,24
+POI0081,IST,Reşat Nuri Sahnesi,culture,41.015848,28.956236,90,1,4.0,A cultural venue in Istanbul.,9,20
+POI0082,IST,Kino Garden,nightlife,41.030045,28.974339,120,1,4.0,A lively nightlife spot in Istanbul.,18,2
+POI0083,IST,İMÇ Çarşısı,shopping,41.017281,28.957593,60,1,4.1,A popular shopping spot in Istanbul.,8,17
+POI0084,IST,Ayios Polieuktos Kilisesi,history,41.014232,28.952959,60,0,4.3,Ayios Polieuktos Kilisesi is a byzantine church in Istanbul.,8,19
+POI0085,IST,Sadrazam Bahir Mustafa Paşa Çeşmesi,landmark,41.042539,28.918189,60,1,4.0,"Sadrazam Bahir Mustafa Paşa Çeşmesi is a fountain in İstanbul, Turkey.",8,20
+POI0086,IST,Yedekçiler Mescidi,religion,41.013506,28.987393,30,0,4.0,"Yedekçiler Mescidi is a mosque in İstanbul, Turkey.",7,19
+POI0087,IST,Dogançay Müzesi,museum,41.03577,28.978371,120,0,4.2,"Dogançay Müzesi is a museum in Beyoğlu, İstanbul, European Turkey.",10,18
+POI0088,IST,Horhor,food,41.012876,28.95156,60,1,4.0,A well-regarded food destination in Istanbul.,10,23
+POI0089,IST,Kalamış Parkı,nature,40.979889,29.038137,90,0,4.1,"Kalamış Parkı is a Park in Kadıköy, in Istanbul.",0,24
+POI0090,IST,Süreyya Operası,culture,40.988022,29.029027,90,1,4.3,"Süreyya Operası is an opera house and former cinema in Istanbul, Turkey.",9,20
+POI0091,IST,Sensus Wine Boutique,nightlife,41.025676,28.973884,120,1,4.0,A lively nightlife spot in Istanbul.,18,2
+POI0092,IST,Narmanlı Han,shopping,41.029252,28.974732,60,1,4.1,"Narmanlı Han is a building in Turkey, in Istanbul.",10,20
+POI0093,IST,Sarayburnu Atatürk Anıtı,history,41.016263,28.986133,60,0,4.1,"Sarayburnu Atatürk Anıtı is a building in Fatih, Turkey, in Istanbul.",8,19
+POI0094,IST,Kamondo Merdivenleri,landmark,41.023967,28.973778,60,1,4.2,"Kamondo Merdivenleri is a Stairway in Istanbul, Turkey.",8,20
+POI0095,IST,Üçler Mescidi,religion,41.005526,28.974331,30,0,4.0,"Üçler Mescidi is a mosque in Fatih, İstanbul, European Turkey.",7,19
+POI0096,IST,Rezan Has Museum,museum,41.02528,28.958433,120,1,4.2,"Rezan Has Museum is a museum in Fatih, İstanbul, European Turkey.",9,18
+POI0097,IST,Kömür Lokantası,food,41.020262,28.947278,60,1,4.0,A well-regarded food destination in Istanbul.,10,23
+POI0098,IST,Göztepe 60. Yıl Parkı,nature,40.969509,29.057965,90,0,4.1,"Göztepe 60. Yıl Parkı is a city park in İstanbul, Turkey.",0,24
+POI0099,IST,Terziler Sinagogu  / Schneidertempel Sanat Merkezi,culture,41.024076,28.974066,90,1,4.1,A cultural venue in Istanbul.,9,20
+POI0100,IST,Montreal,nightlife,41.029754,28.97494,120,1,4.0,A lively nightlife spot in Istanbul.,18,2
+POI0101,IST,Zorlu Center,shopping,41.066457,29.01688,60,1,4.3,"Zorlu Center is a building complex in Istanbul, Turkey.",10,22
+POI0102,IST,Cezayirli Gazi Hasan Paşa Anıtı,history,41.030551,28.967164,60,0,4.1,A historic site in Istanbul.,8,19
+POI0103,IST,İslambey Çeşmesi,landmark,41.051457,28.926759,60,1,4.0,"İslambey Çeşmesi is a fountain in İstanbul, Turkey.",8,20
+POI0104,IST,Katip Sinan Camii,religion,41.005963,28.970777,30,0,4.0,"Katip Sinan Camii is a mosque in İstanbul, Turkey.",7,19
+POI0105,IST,İstanbul Demiryolu Müzesi,museum,41.015199,28.976683,120,0,4.3,"İstanbul Demiryolu Müzesi is an a museum in Istanbul, Turkey.",9,17
+POI0106,IST,Odabaşı Çiğbörekçisi,food,41.01229,28.930183,60,1,4.0,A well-regarded food destination in Istanbul.,10,23
+POI0107,IST,Yoğurtçu Parkı,nature,40.985294,29.033708,90,0,4.1,"Yoğurtçu Parkı is a city park in İstanbul, Turkey.",0,24
+POI0108,IST,Harbiye Cemil Topuzlu Açık Hava Tiyatrosu,culture,41.04613,28.990054,90,1,4.2,"Harbiye Cemil Topuzlu Açık Hava Tiyatrosu is a 1946 amphitheatre in Istanbul, Turkey.",9,20
+POI0109,IST,Beer House,nightlife,41.034743,28.978354,120,1,4.0,A lively nightlife spot in Istanbul.,18,2
+POI0110,IST,Akasya Alışveriş Merkezi,shopping,41.001568,29.054815,60,1,4.1,"Akasya Alışveriş Merkezi is a shopping mall in Istanbul, Turkey.",10,20
+POI0111,IST,Nişan Taşı,history,41.051731,28.991515,60,0,4.0,A historic site in Istanbul.,8,19
+POI0112,IST,Hasan Rıza Paşa Çeşmesi,landmark,40.989541,29.027847,60,1,4.1,"Hasan Rıza Paşa Çeşmesi is a fountain in Osmanağa, Kadıköy, in Istanbul.",8,20
+POI0113,IST,Yeni Valide Camii,religion,41.024781,29.015039,30,0,4.4,"Yeni Valide Camii is a mosque in İstanbul, Turkey.",7,19
+POI0114,IST,Beyazıt Türk Hamam Kültürü Müzesi,museum,41.009946,28.961554,120,1,4.2,"Beyazıt Türk Hamam Kültürü Müzesi is a museum in Fatih, İstanbul, European Turkey.",9,18
+POI0115,IST,Dörtler Kuruyemiş,food,41.012264,28.930524,60,1,4.0,A well-regarded food destination in Istanbul.,10,23
+POI0116,IST,Özgürlük Parkı,nature,40.97928,29.056445,90,0,4.1,A green space in Istanbul.,0,24
+POI0117,IST,Bulgur Palas,culture,41.007028,28.943922,90,1,4.2,"Bulgur Palas is a historical mansion in Turkey, in Istanbul.",10,21
+POI0118,IST,Club Zarife,nightlife,41.034622,28.978411,120,1,4.0,A lively nightlife spot in Istanbul.,18,2
+POI0119,IST,Mevlana Bazaar,shopping,41.002811,28.979713,60,1,4.0,A popular shopping spot in Istanbul.,8,22
+POI0120,IST,Arkadyos Sütunu,history,41.007736,28.943061,60,0,4.3,"Arkadyos Sütunu is a Roman triumphal column in Constantinople (Istanbul, Turkey).",8,19
+POI0121,IST,Yoğurtçu Çeşmesi,landmark,40.983629,29.033242,60,1,4.1,"Yoğurtçu Çeşmesi is a fountain in İstanbul, Turkey.",8,20
+POI0122,IST,Kariye Camii,religion,41.031213,28.939039,30,0,4.5,"Kariye Camii is a church converted to mosque in Turkey, in Istanbul.",9,18
+POI0123,IST,Türk ve İslam Eserleri Müzesi,museum,41.00628,28.974915,120,1,4.4,Türk ve İslam Eserleri Müzesi is a museum of Islamic arts in Istanbul.,9,18
+POI0124,IST,Köşem Gıda,food,41.012158,28.929809,60,1,4.0,A well-regarded food destination in Istanbul.,10,23
+POI0125,IST,Topkapı Şehir Parkı,nature,41.019325,28.921412,90,0,4.1,A green space in Istanbul.,0,24
+POI0126,IST,Vialand İsfanbul Tema Park,culture,41.071331,28.922887,90,1,4.2,"Vialand İsfanbul Tema Park is a theme park in Istanbul, Turkey.",10,18
+POI0127,IST,Depo Taksim,nightlife,41.035429,28.980202,120,1,4.0,A lively nightlife spot in Istanbul.,3,12
+POI0128,IST,Ors Turistik is merkezi,shopping,41.033787,28.978198,60,1,4.0,A popular shopping spot in Istanbul.,10,20
+POI0129,IST,İshakpaşa Hamamı,history,41.006572,28.981206,60,0,4.0,"İshakpaşa Hamamı is a public baths in Fatih, İstanbul–Europe, Turkey.",8,19
+POI0130,IST,Yıldız Clock Tower,landmark,41.049864,29.009799,60,1,4.3,"Yıldız Clock Tower is a clock tower in Istanbul, Turkey.",8,20
+POI0131,IST,Sultanahmet Camii,religion,41.005407,28.97665,30,0,4.6,"Sultanahmet Camii is a historic mosque located in Istanbul, Turkey, also known as Blue Mosque.",8,12
+POI0132,IST,İslam bilim ve teknoloji tarihi müzesi,museum,41.013219,28.978968,120,1,4.2,İslam bilim ve teknoloji tarihi müzesi is a museum in Istanbul.,9,16
+POI0133,IST,Kastamono,food,41.037144,28.969142,60,1,4.0,A well-regarded food destination in Istanbul.,10,23
+POI0134,IST,Fenerbahçe Parkı,nature,40.967807,29.034551,90,0,4.1,A green space in Istanbul.,0,24
+POI0135,IST,Miniatürk,culture,41.059862,28.948761,90,1,4.4,"Miniatürk is a miniature park, in Istanbul.",9,20
+POI0136,IST,Just Bar,nightlife,41.005933,28.980897,120,1,4.0,A lively nightlife spot in Istanbul.,18,2
+POI0137,IST,Arabian Oud,shopping,41.033923,28.978552,60,1,4.0,A popular shopping spot in Istanbul.,10,20
+POI0138,IST,Adnan Menderes Anıt Mezarı,history,41.02538,28.92693,60,0,4.1,A historic site in Istanbul.,8,19
+POI0139,IST,Taâvün Çeşmesi,landmark,41.051186,28.922439,60,1,4.0,"Taâvün Çeşmesi is a fountain in İstanbul, Turkey.",8,20
+POI0140,IST,Nuruosmaniye Camisi,religion,41.010342,28.970406,30,0,4.4,"Nuruosmaniye Camisi is a mosque in İstanbul, Turkey.",7,19
+POI0141,IST,Abdulmecit Efendi Köşkü,museum,41.028241,29.041546,120,1,4.1,"Abdulmecit Efendi Köşkü is a mansion in Üsküdar, İstanbul, Asian Turkey.",9,18
+POI0142,IST,Mehtap Restaurant,food,41.016665,29.060628,60,1,4.0,A well-regarded food destination in Istanbul.,10,23
+POI0143,IST,Silahtarağa Gençlik Parkı,nature,41.071024,28.943911,90,0,4.0,"Silahtarağa Gençlik Parkı is a city park in İstanbul, Turkey.",0,24
+POI0144,IST,Garaj Istanbul,culture,41.032377,28.977454,90,1,4.0,A cultural venue in Istanbul.,9,20
+POI0145,IST,Supperclub,nightlife,41.050129,29.031054,120,1,4.0,A lively nightlife spot in Istanbul.,23,5
+POI0146,IST,Terkos Pasajı,shopping,41.031056,28.97559,60,1,4.0,A popular shopping spot in Istanbul.,10,20
+POI0147,IST,Abide-i Hürriyet,history,41.068131,28.982059,60,0,4.3,"Abide-i Hürriyet is a monument, in Istanbul.",8,19
+POI0148,IST,Yerebatan Sarnıcı,landmark,41.008479,28.978383,60,1,4.5,"Yerebatan Sarnıcı is a cistern of Byzantine Constantinople, in Istanbul.",9,19
+POI0149,IST,Surp Garabed Kilisesi,religion,41.020921,29.031366,30,0,4.2,"Surp Garabed Kilisesi is an Armenian church in Üsküdar, Istanbul.",7,19
+POI0150,IST,Türkiye Gazeteciler Cemiyeti Basın Müzesi,museum,41.008562,28.972216,120,1,4.1,"Türkiye Gazeteciler Cemiyeti Basın Müzesi is a media museum, technology museum in Istanbul, Turkey.",9,18
+POI0151,PAR,Point zéro des Routes de France,landmark,48.853401,2.348788,60,1,4.2,Point zéro des Routes de France is a point from which distances from Paris are measured.,8,20
+POI0152,PAR,Mémorial du génocide arménien d'Issy-les-Moulineaux,history,48.819042,2.259764,60,0,4.1,"Mémorial du génocide arménien d'Issy-les-Moulineaux is a monument located in Hauts-de-Seine, in France, in Paris.",8,19
+POI0153,PAR,Conciergerie,museum,48.855949,2.346026,120,1,4.5,"Conciergerie is a Medieval building in Paris, France.",9,18
+POI0154,PAR,Silvia Monfort,culture,48.830812,2.300199,90,1,4.1,Silvia Monfort is a theatre company and building in Paris.,9,20
+POI0155,PAR,Jardin des Combattants-de-la-Nueve,nature,48.855765,2.352164,90,0,4.2,"Jardin des Combattants-de-la-Nueve is a garden in 4th arrondissement of Paris, France.",0,24
+POI0156,PAR,Chapelle des Catéchismes,religion,48.858968,2.318326,30,0,4.2,"Chapelle des Catéchismes is a chapel located in Paris, in France.",7,19
+POI0157,PAR,Galerie Vivienne,shopping,48.866721,2.339676,60,1,4.3,"Galerie Vivienne is a gallery in Paris, France.",8,20
+POI0158,PAR,Harry's Bar,nightlife,48.869209,2.332171,120,1,4.2,"Harry's Bar is a well-known bar in Paris, France.",12,2
+POI0159,PAR,Marché du Centre,food,48.803107,2.432937,60,1,4.0,A well-regarded food destination in Paris.,10,23
+POI0160,PAR,Folie Titon,landmark,48.850527,2.385844,60,1,4.1,"Folie Titon is an a former folly that became a wallpaper factory run by Jean-Baptiste Réveillon. located in the former Faubourg Saint-Antoine, in Paris.",8,20
+POI0161,PAR,Statue de George Washington,history,48.864736,2.293906,60,0,4.1,"Statue de George Washington is a sculpture by Daniel Chester French and Edward Clark Potter in Paris, France.",8,19
+POI0162,PAR,Argonaute,museum,48.894535,2.389564,120,1,4.3,"Argonaute is a 1957 Aréthuse-class submarine, in Paris.",10,18
+POI0163,PAR,Collège des Bernardins,culture,48.848829,2.352034,90,1,4.2,"Collège des Bernardins is a school building, in Paris.",10,18
+POI0164,PAR,Square des Écrivains Combattants Morts pour la France,nature,48.859627,2.265388,90,0,4.1,"Square des Écrivains Combattants Morts pour la France is an alley in Paris, France.",0,24
+POI0165,PAR,Chapelle expiatoire,religion,48.873695,2.32276,30,0,4.3,"Chapelle expiatoire is a chapel located in the 8th arrondissement of Paris, France.",7,19
+POI0166,PAR,Passage des Panoramas,shopping,48.871,2.341631,60,1,4.3,"Passage des Panoramas is a thoroughfare in Paris, France.",6,0
+POI0167,PAR,Le Point Ephémère,nightlife,48.881517,2.368573,120,1,4.1,Le Point Ephémère is a music venue in Paris.,12,2
+POI0168,PAR,Marché Beauvau,food,48.849037,2.377748,60,1,4.1,Marché Beauvau is a covered market in Paris.,8,13
+POI0169,PAR,Fontaine Cuvier,landmark,48.843996,2.355031,60,0,4.1,"Fontaine Cuvier is a fountain in Paris, France.",8,20
+POI0170,PAR,Gustave Eiffel,history,48.858731,2.294489,60,0,4.1,"Gustave Eiffel is a bust by Antoine Bourdelle, in Paris.",8,19
+POI0171,PAR,Château d'Asnières,museum,48.910522,2.293535,120,0,4.2,"Château d'Asnières is a castle in France, in Paris.",14,18
+POI0172,PAR,Théâtre Daunou,culture,48.869265,2.331864,90,1,4.2,"Théâtre Daunou is a building in arrondissement of Paris, France.",9,20
+POI0173,PAR,Champ de Mars,nature,48.856163,2.297831,90,0,4.5,"Champ de Mars is a large public green space in Paris, France.",0,24
+POI0174,PAR,Synagogue Buffault,religion,48.876105,2.342547,30,0,4.0,A historic place of worship in Paris.,7,19
+POI0175,PAR,Printemps,shopping,48.874005,2.328356,60,1,4.1,"Printemps is a flagship store of the Printemps department-store chain, in Paris.",9,20
+POI0176,PAR,La Java,nightlife,48.871312,2.373625,120,1,4.1,A lively nightlife spot in Paris.,18,2
+POI0177,PAR,Marché aux Puces de Saint-Ouen,food,48.90299,2.340107,60,1,4.2,"Marché aux Puces de Saint-Ouen is a complex of flea markets in Saint-Ouen-sur-Seine, France, in Paris.",8,12
+POI0178,PAR,Fontaine Médicis,landmark,48.848059,2.339294,60,1,4.3,"Fontaine Médicis is a fountain in Paris, France.",8,20
+POI0179,PAR,Samuel Champlain,history,48.865027,2.310571,60,0,4.0,"Samuel Champlain is an artwork by Alfred Laliberté in Paris, France.",8,19
+POI0180,PAR,Musée de la Libération de Paris,museum,48.834094,2.331705,120,0,4.2,"Musée de la Libération de Paris is a museum in France, in Paris.",10,18
+POI0181,PAR,Au Lapin Agile,culture,48.888623,2.339995,90,1,4.3,"Au Lapin Agile is a cabaret in Montmartre, Paris.",21,1
+POI0182,PAR,Jardin des Plantes,nature,48.844039,2.359691,90,0,4.4,"Jardin des Plantes is an urban park in Paris, France.",8,18
+POI0183,PAR,Synagogue de Belleville,religion,48.871195,2.382833,30,0,4.1,"Synagogue de Belleville is a synagogue located in Paris, in France.",7,19
+POI0184,PAR,Bercy Village,shopping,48.833031,2.3864,60,1,4.2,Bercy Village is a shopping center in Paris.,11,2
+POI0185,PAR,Le Baiser Salé,nightlife,48.859845,2.347805,120,1,4.1,Le Baiser Salé is a jazz club in Paris.,18,2
+POI0186,PAR,Marché couvert des Enfants Rouges,food,48.862777,2.361972,60,1,4.2,Marché couvert des Enfants Rouges is a Covered market in Paris.,8,20
+POI0187,PAR,Abbaye de Port-Royal,landmark,48.83856,2.338331,60,1,4.2,"Abbaye de Port-Royal is an abbey located in Paris, in France.",8,20
+POI0188,PAR,Jacques Cartier,history,48.865009,2.310579,60,0,4.0,"Jacques Cartier is an artwork by Léon Drivier in Paris, France.",8,19
+POI0189,PAR,"Château de Réghat, Musée de Maisons-Alfort",museum,48.800426,2.435628,120,1,4.1,"Château de Réghat, Musée de Maisons-Alfort is a château in Val-de-Marne, Île-de-France, France, in Paris.",14,18
+POI0190,PAR,Cavae des Arènes de Lutèce,culture,48.845078,2.352912,90,1,4.4,Cavae des Arènes de Lutèce is an Ancient Roman amphitheatre in Paris.,9,20
+POI0191,PAR,Jardin du Palais Royal,nature,48.865006,2.337818,90,0,4.1,"Jardin du Palais Royal is an urban park in Paris, France.",8,22
+POI0192,PAR,Église Saint-Michel des Batignolles,religion,48.889076,2.324635,30,0,4.2,"Église Saint-Michel des Batignolles is a church located in Paris, in France.",7,19
+POI0193,PAR,Galeries Lafayette,shopping,48.873656,2.332203,60,1,4.4,"Galeries Lafayette is a department store in Paris, France.",9,20
+POI0194,PAR,Pley Hotel,nightlife,48.875628,2.304137,120,1,4.0,"Pley Hotel is a hotel in Paris, France.",18,2
+POI0195,PAR,Marché d'Aligre,food,48.848902,2.378049,60,1,4.1,"Marché d'Aligre is a greenmarket in Paris' 12th Arrondissement, France.",7,13
+POI0196,PAR,Gérard de Nerval,landmark,48.862735,2.39318,60,1,4.0,A well-known landmark in Paris.,8,20
+POI0197,PAR,Thermes de Cluny,history,48.850602,2.343274,60,0,4.3,Thermes de Cluny is a Gallo-Roman thermal baths in Paris' 5th arrondissement.,8,19
+POI0198,PAR,Crypte archéologique du parvis Notre-Dame,museum,48.853585,2.348085,120,1,4.3,Crypte archéologique du parvis Notre-Dame is a museum of the city of Paris.,9,18
+POI0199,PAR,L'Olympia,culture,48.870244,2.328359,90,1,4.4,L'Olympia is a music hall in the 9th arrondissement of Paris.,9,20
+POI0200,PAR,Jardin Atlantique,nature,48.839876,2.31898,90,0,4.2,"Jardin Atlantique is an urban park in Paris, France.",8,19
+POI0201,PAR,Chapelle Saint-Louis de la Salpêtrière,religion,48.838939,2.364141,30,0,4.2,"Chapelle Saint-Louis de la Salpêtrière is a chapel located in Paris, in France.",8,18
+POI0202,PAR,Issy Coeur de Ville,shopping,48.825871,2.274824,60,1,4.0,A popular shopping spot in Paris.,10,20
+POI0203,PAR,Caveau de la Huchette,nightlife,48.852787,2.346298,120,1,4.2,Caveau de la Huchette is a jazz club in Paris.,18,2
+POI0204,PAR,Marché Couvert Saint-Quentin,food,48.876923,2.355037,60,1,4.1,A well-regarded food destination in Paris.,8,20
+POI0205,PAR,Association Paris Historique,landmark,48.855568,2.357156,60,1,4.1,Association Paris Historique is a voluntary organization in Paris.,13,18
+POI0206,PAR,Général Diego Brosset,history,48.855057,2.289,60,0,4.0,"Général Diego Brosset is an artwork by Raymond Delamarre in Paris, France.",8,19
+POI0207,PAR,La Ville A des Arts,museum,48.88787,2.327209,120,1,4.2,"La Ville A des Arts is a Parisian private road with a set of artists' studios, historical monument.",9,18
+POI0208,PAR,Moulin Rouge,culture,48.884109,2.332356,90,1,4.5,"Moulin Rouge is a cabaret in Paris, France.",9,20
+POI0209,PAR,Jardin du Luxembourg,nature,48.846714,2.336365,90,0,4.5,"Jardin du Luxembourg is an urban park in Paris, France.",0,24
+POI0210,PAR,Église Saint-Pierre - Saint-Paul,religion,48.81096,2.382863,30,0,4.1,"Église Saint-Pierre - Saint-Paul is a church located in Val-de-Marne, in France, in Paris.",7,19
+POI0211,PAR,Beaupassage,shopping,48.854181,2.325134,60,1,4.0,A popular shopping spot in Paris.,10,20
+POI0212,PAR,Ti Jos,nightlife,48.841493,2.325993,120,1,4.0,A lively nightlife spot in Paris.,12,14
+POI0213,PAR,Marché Couvert Saint-Martin,food,48.870744,2.358185,60,1,4.1,A well-regarded food destination in Paris.,9,20
+POI0214,PAR,Pyramide,landmark,48.833904,2.445192,60,1,4.1,"Pyramide is an obelisk in Paris, France.",8,20
+POI0215,PAR,La Grisette de 1830,history,48.868596,2.367446,60,0,4.0,"La Grisette de 1830 is an artwork by Jean-Bernard Descomps in Paris, France.",8,19
+POI0216,PAR,Maison européenne de la Photographie,museum,48.85512,2.358956,120,1,4.3,"Maison européenne de la Photographie is a center for contemporary photographic art in Paris, France.",11,20
+POI0217,PAR,La Boule Noire,culture,48.882343,2.340276,90,1,4.1,"La Boule Noire is a concert hall in Paris, France.",9,20
+POI0218,PAR,Jardin Catherine Labouré,nature,48.851116,2.320532,90,0,4.2,"Jardin Catherine Labouré is an urban park in Paris, France.",0,24
+POI0219,PAR,Église Saint-Hermeland,religion,48.79645,2.302428,30,0,4.1,"Église Saint-Hermeland is a church located in Hauts-de-Seine, in France, in Paris.",7,19
+POI0220,PAR,Marché Saint-Germain,shopping,48.852089,2.335949,60,1,4.1,Marché Saint-Germain is a market hall in Paris.,10,19
+POI0221,PAR,New Morning,nightlife,48.873004,2.353481,120,1,4.1,"New Morning is a jazz club in Paris, France.",18,2
+POI0222,PAR,Marché Serpette,food,48.903202,2.33924,60,1,4.1,"Marché Serpette is a flea market in Saint-Ouen-sur-Seine, France, in Paris.",10,23
+POI0223,PAR,Augustin Fresnel,landmark,48.859732,2.393665,60,1,4.0,A well-known landmark in Paris.,8,20
+POI0224,PAR,Monument aux morts de Malakoff,history,48.819705,2.301519,60,0,4.0,A historic site in Paris.,8,19
+POI0225,PAR,Centre Georges Pompidou,museum,48.860523,2.35244,120,1,4.5,"Centre Georges Pompidou is a national cultural center of contemporary art in Paris, France.",9,18
+POI0226,PAR,Théâtre de la Main d'Or,culture,48.85228,2.377995,90,1,4.1,A cultural venue in Paris.,9,20
+POI0227,PAR,Square Louis-XIII,nature,48.855616,2.365543,90,0,4.1,Square Louis-XIII is a public space in Paris.,0,24
+POI0228,PAR,Cathédrale Notre-Dame de Paris,religion,48.852937,2.34987,30,0,4.6,Cathédrale Notre-Dame de Paris is a cathedral in Paris.,7,19
+POI0229,PAR,Le BHV Marais,shopping,48.857468,2.353317,60,1,4.2,"Le BHV Marais is a department store in Paris, France.",10,20
+POI0230,PAR,La Flèche d'or,nightlife,48.859434,2.402986,120,1,4.1,A lively nightlife spot in Paris.,12,14
+POI0231,PAR,Marché couvert Saint-Didier,food,48.867261,2.283997,60,1,4.0,Marché couvert Saint-Didier is a food market located in Paris.,8,19
+POI0232,PAR,Auguste Comte,landmark,48.859786,2.394232,60,1,4.0,A well-known landmark in Paris.,8,20
+POI0233,PAR,Statue du général Daumesnil,history,48.846721,2.43956,60,0,4.0,A historic site in Paris.,8,19
+POI0234,PAR,Institut suédois,museum,48.858226,2.361964,120,0,4.2,"Institut suédois is a museum, in Paris.",12,19
+POI0235,PAR,Théâtre de la Cité Internationale,culture,48.819034,2.338621,90,1,4.1,"Théâtre de la Cité Internationale is a theater in Paris, France.",9,20
+POI0236,PAR,Parc Montsouris,nature,48.822236,2.338011,90,0,4.4,"Parc Montsouris is an urban park in Paris, France.",7,20
+POI0237,PAR,Chapelle Notre-Dame-des-Anges,religion,48.846284,2.323556,30,0,4.1,"Chapelle Notre-Dame-des-Anges is a chapel located in Paris, France.",7,19
+POI0238,PAR,Beaugrenelle - Magnetic,shopping,48.848405,2.282385,60,1,4.1,Beaugrenelle - Magnetic is a shopping mall in Paris.,10,20
+POI0239,PAR,Le Gibus,nightlife,48.86825,2.366312,120,1,4.0,A lively nightlife spot in Paris.,18,2
+POI0240,PAR,Marché couvert de Passy,food,48.85737,2.277173,60,1,4.0,Marché couvert de Passy is a market hall in Paris.,8,13
+POI0241,PAR,Camille Pissarro,landmark,48.859107,2.39149,60,1,4.0,A well-known landmark in Paris.,8,20
+POI0242,PAR,Monument aux victimes de l'Afrique-du-Nord,history,48.881559,2.398951,60,0,4.0,"Monument aux victimes de l'Afrique-du-Nord is an artwork by Eugène Dodeigne in Paris, France.",8,19
+POI0243,PAR,Fondation Louis Vuitton,museum,48.876655,2.263326,120,1,4.4,"Fondation Louis Vuitton is an art museum and cultural center, in Paris.",12,19
+POI0244,PAR,Bouffes du Nord,culture,48.883995,2.358858,90,1,4.2,"Bouffes du Nord is a theatre in Paris, France.",9,20
+POI0245,PAR,Jardins des Champs-Élysées,nature,48.866175,2.313224,90,0,4.2,"Jardins des Champs-Élysées is an urban park in Paris, France.",0,24
+POI0246,PAR,Chapelle des Franciscains,religion,48.809133,2.331157,30,0,4.1,"Chapelle des Franciscains is a chapel located in Val-de-Marne, in France, in Paris.",7,19
+POI0247,PAR,So Ouest,shopping,48.892377,2.296484,60,1,4.1,A popular shopping spot in Paris.,10,20
+POI0248,PAR,Le Dernier Bar avant la Fin du Monde,nightlife,48.857924,2.346361,120,1,4.0,Le Dernier Bar avant la Fin du Monde is a geek bar in Paris.,15,0
+POI0249,PAR,Marché de La Chapelle,food,48.890963,2.361536,60,1,4.1,A well-regarded food destination in Paris.,9,13
+POI0250,PAR,Eugène Delacroix,landmark,48.862603,2.393429,60,1,4.0,A well-known landmark in Paris.,8,20
+POI0251,PAR,Henri-François d'Aguesseau - L'unificateur,history,48.862484,2.318632,60,0,4.0,"Henri-François d'Aguesseau - L'unificateur is an artwork by Jean Foucou in Paris, France.",8,19
+POI0252,PAR,Musée de l'Armée,museum,48.857037,2.311878,120,1,4.4,Musée de l'Armée is a military museum at the Invalides in Paris.,10,17
+POI0253,PAR,Théâtre de la Bastille,culture,48.855827,2.37558,90,1,4.1,"Théâtre de la Bastille is a theatre and former cinema in Paris, France.",9,20
+POI0254,PAR,Jardin Yitzhak Rabin,nature,48.834022,2.383476,90,0,4.1,"Jardin Yitzhak Rabin is a garden in Paris, France.",0,24
+POI0255,PAR,Synagogue,religion,48.855932,2.360679,30,0,4.2,"Synagogue is a synagogue located in Paris, in France.",7,19
+POI0256,PAR,Italie Deux,shopping,48.828804,2.355118,60,1,4.1,Italie Deux is a shopping centre in Paris.,10,20
+POI0257,PAR,Aux Trois Mailletz,nightlife,48.85218,2.346611,120,1,4.1,"Aux Trois Mailletz is a jazz club, restaurant in Paris, France.",18,2
+POI0258,PAR,Marché de Charentonneau,food,48.810305,2.444407,60,1,4.0,A well-regarded food destination in Paris.,10,23
+POI0259,PAR,Frédéric Chopin,landmark,48.860129,2.392818,60,1,4.2,Frédéric Chopin is a tomb in Paris.,8,20
+POI0260,PAR,Jean-Baptiste Colbert - L'organisateur,history,48.862525,2.318503,60,0,4.0,"Jean-Baptiste Colbert - L'organisateur is an artwork by Jacques Dumont in Paris, France.",8,19
+POI0261,PAR,Musée de l'Assistance Publique Hôpitaux de Paris,museum,48.809175,2.352437,120,1,4.2,Musée de l'Assistance Publique Hôpitaux de Paris is a museum dedicated to the history of Parisian hospitals.,9,18
+POI0262,PAR,Théâtre Antoine,culture,48.870577,2.355284,90,1,4.2,"Théâtre Antoine is a theatre in Paris, France.",9,20
+POI0263,PAR,Square Saint-Charles,nature,48.846424,2.389303,90,0,4.1,"Square Saint-Charles is an alley in Paris, France.",0,24
+POI0264,PAR,Chapelle Saint-Vincent de Paul,religion,48.848847,2.321845,30,0,4.2,"Chapelle Saint-Vincent de Paul is a chapel located in Paris, in France.",7,19
+POI0265,PAR,Centre Commercial Quais d'Ivry,shopping,48.819206,2.394724,60,1,4.1,A popular shopping spot in Paris.,10,20
+POI0266,PAR,Oculto,nightlife,48.860122,2.349974,120,1,4.0,A lively nightlife spot in Paris.,16,24
+POI0267,PAR,Marché Émile Bertrand,food,48.821225,2.420313,60,1,4.0,A well-regarded food destination in Paris.,8,13
+POI0268,PAR,Georges Bizet,landmark,48.862324,2.391787,60,1,4.0,A well-known landmark in Paris.,8,20
+POI0269,PAR,Maximilien de Sully - Le réformateur,history,48.862285,2.319251,60,0,4.0,"Maximilien de Sully - Le réformateur is an artwork by Pierre Beauvallet in Paris, France.",8,19
+POI0270,PAR,Musée des Arts Décoratifs,museum,48.863169,2.332951,120,1,4.4,"Musée des Arts Décoratifs is a museum of the decorative arts and design located in the Louvre's northwest wing, Paris.",9,18
+POI0271,PAR,Théâtre de la Michodière,culture,48.869315,2.334734,90,1,4.1,"Théâtre de la Michodière is a theatre Building, in Paris.",9,20
+POI0272,PAR,Square Georges Contenot,nature,48.837354,2.396405,90,0,4.1,"Square Georges Contenot is an alley in Paris, France.",0,24
+POI0273,PAR,Chapelle de l'Agneau de Dieu,religion,48.844602,2.377527,30,0,4.1,"Chapelle de l'Agneau de Dieu is a chapel located in Paris, in France.",7,19
+POI0274,PAR,Avenir,shopping,48.919733,2.421924,60,1,4.1,A popular shopping spot in Paris.,9,22
+POI0275,PAR,Le Royal,nightlife,48.864606,2.350064,120,1,4.0,A lively nightlife spot in Paris.,18,2
+POI0276,PAR,Marché aux fleurs Reine-Elizabeth-II,food,48.855418,2.347661,60,1,4.2,"Marché aux fleurs Reine-Elizabeth-II is a flower market in Paris, France.",8,19
+POI0277,PAR,Georges Cuvier,landmark,48.859955,2.392073,60,1,4.0,A well-known landmark in Paris.,8,20
+POI0278,PAR,Michel de L'Hospital - Le conciliateur,history,48.862327,2.319127,60,0,4.0,"Michel de L'Hospital - Le conciliateur is an artwork by Louis Deseine in Paris, France.",8,19
+POI0279,PAR,Musée des Arts et Métiers,museum,48.866098,2.355414,120,1,4.5,"Musée des Arts et Métiers is a science and technology museum located in Paris, France.",10,18
+POI0280,PAR,La Pépinière Théâtre,culture,48.868596,2.332248,90,1,4.1,"La Pépinière Théâtre is a theatre, Paris, France.",9,20
+POI0281,PAR,Square Jules-Durand,nature,48.830601,2.322985,90,0,4.1,"Square Jules-Durand is an urban park in Paris, France.",0,24
+POI0282,PAR,Église Adventiste du 7e jour Paris-Sud,religion,48.834338,2.357144,30,0,4.0,"Église Adventiste du 7e jour Paris-Sud is a church located in Paris, in France.",7,19
+POI0283,PAR,Centre commercial Okabé,shopping,48.811623,2.363094,60,1,4.1,A popular shopping spot in Paris.,8,22
+POI0284,PAR,Le Balajo,nightlife,48.854017,2.37216,120,1,4.1,A lively nightlife spot in Paris.,18,2
+POI0285,PAR,Place Django Reinhardt,food,48.900103,2.34353,60,1,4.1,"Place Django Reinhardt is a square of Paris, France.",10,23
+POI0286,PAR,Gilbert Bécaud,landmark,48.861143,2.39497,60,1,4.0,Gilbert Bécaud is a tomb in Paris.,8,20
+POI0287,PAR,Chevalier de La Barre,history,48.885999,2.341573,60,0,4.0,"Chevalier de La Barre is an artwork by Emmanuel Ball in Paris, France.",8,19
+POI0288,PAR,Musée national Gustave Moreau,museum,48.877896,2.334547,120,1,4.3,"Musée national Gustave Moreau is a museum in Paris, France.",9,18
+POI0289,PAR,La Cigale,culture,48.882475,2.34013,90,1,4.2,"La Cigale is a theatre in Paris, France.",9,20
+POI0290,PAR,Parc de Bercy,nature,48.835414,2.382119,90,0,4.4,"Parc de Bercy is an urban park in Paris, France.",0,24
+POI0291,PAR,Union Libérale Israélite de France,religion,48.869367,2.288836,30,0,4.2,"Union Libérale Israélite de France is a synagogue, in Paris.",7,19
+POI0292,PAR,Le Millénaire,shopping,48.902968,2.376635,60,1,4.1,A popular shopping spot in Paris.,10,20
+POI0293,PAR,Chez Moune,nightlife,48.881026,2.336025,120,1,4.0,Chez Moune is a Parisian nightclub.,18,2
+POI0294,PAR,Marché Paul Bert,food,48.903318,2.338836,60,1,4.1,"Marché Paul Bert is a flea market in Saint-Ouen-sur-Seine, France, in Paris.",10,23
+POI0295,PAR,Guillaume Apollinaire,landmark,48.862669,2.39472,60,1,4.0,A well-known landmark in Paris.,8,20
+POI0296,PAR,Monument aux travailleurs municipaux,history,48.862715,2.392767,60,0,4.1,Monument aux travailleurs municipaux is a monument in Paris.,8,19
+POI0297,PAR,Musée Grévin,museum,48.871837,2.342097,120,1,4.4,"Musée Grévin is a museum in Paris, France.",9,18
+POI0298,PAR,Studio Théâtre d'Asnières,culture,48.910974,2.290304,90,1,4.1,"Studio Théâtre d'Asnières is a theatre in Asnières-sur-Seine, France, in Paris.",9,20
+POI0299,PAR,Square Samuel Paty,nature,48.850054,2.344123,90,0,4.2,"Square Samuel Paty is an urban park in Paris, France.",0,24
+POI0300,PAR,Chapelle Sainte-Marie,religion,48.851185,2.268921,30,0,4.1,"Chapelle Sainte-Marie is a chapel located in Paris, France.",7,19
+POI0301,ROM,Porta Magica,history,41.895502,12.50374,60,0,4.2,"Porta Magica is a building in Rome, Italy.",8,19
+POI0302,ROM,Obelisco Matteiano,landmark,41.883389,12.495335,60,1,4.2,A well-known landmark in Rome.,8,20
+POI0303,ROM,Harry's Bar,nightlife,41.909077,12.488319,120,1,4.2,"Harry's Bar is a bar in Italy, in Rome.",18,2
+POI0304,ROM,Forte Braschi,museum,41.915252,12.424695,120,1,4.2,"Forte Braschi is a building in Rome, Italy.",9,18
+POI0305,ROM,Chiesa di Sant'Urbano alla Caffarella,religion,41.85787,12.524318,30,0,4.2,"Chiesa di Sant'Urbano alla Caffarella is a church building in Rome, Italy.",7,19
+POI0306,ROM,Foro Boario,nature,41.888853,12.480894,90,0,4.4,Foro Boario is a cattle market of Ancient Rome.,0,24
+POI0307,ROM,Teatro Olimpico,culture,41.926364,12.461877,90,1,4.1,"Teatro Olimpico is a theatre in Rome, Italy.",9,20
+POI0308,ROM,Mercato Magna Grecia – Metronio,food,41.882788,12.50818,60,1,4.0,"Mercato Magna Grecia – Metronio is a building in Rome, Italy.",6,14
+POI0309,ROM,La Rinascente,shopping,41.911386,12.497742,60,1,4.0,"La Rinascente is a building in Rome, Italy.",10,21
+POI0310,ROM,Catacombe di Priscilla,history,41.929726,12.508765,60,0,4.3,"Catacombe di Priscilla is a cemetery in Rome, Italy; an archaeological site on the Via Salaria in Rome, Italy, situated in what was a quarry in Roman times. This quarry was used for Christian burials from the late 2nd century through the 4th century..",8,19
+POI0311,ROM,Porta Latina,landmark,41.876519,12.502488,60,1,4.3,Porta Latina is a gate in the Aurelian Walls of ancient Rome.,8,20
+POI0312,ROM,Piper Club,nightlife,41.918909,12.501198,120,1,4.1,"Piper Club is a discothèque in Rome, Italy.",20,5
+POI0313,ROM,Mausoleo di Romolo,museum,41.855119,12.518444,120,0,4.2,"Mausoleo di Romolo is a tomb from the 4th century Rome, Italy.",9,18
+POI0314,ROM,Basilica dei Santi Bonifacio ed Alessio all’Aventino,religion,41.883833,12.478659,30,0,4.4,"Basilica dei Santi Bonifacio ed Alessio all’Aventino is a church on the Aventine Hill in Rome, Italy.",7,19
+POI0315,ROM,Parco delle Tombe di via Latina,nature,41.861757,12.535724,90,0,4.2,"Parco delle Tombe di via Latina is an archeological site in Italy, in Rome.",0,24
+POI0316,ROM,Auditorium Conciliazione,culture,41.902587,12.463647,90,1,4.2,"Auditorium Conciliazione is a building in Rome, Italy.",9,20
+POI0317,ROM,Mercato Rionale Settimanale,food,41.962899,12.534911,60,1,4.0,A well-regarded food destination in Rome.,10,23
+POI0318,ROM,Coin,shopping,41.885214,12.509361,60,1,4.0,A popular shopping spot in Rome.,10,20
+POI0319,ROM,Catacombe di Sant'Agnese,history,41.922768,12.51876,60,0,4.3,"Catacombe di Sant'Agnese is a catacomb in Rome, Italy.",8,19
+POI0320,ROM,Porta Metronia,landmark,41.882323,12.498639,60,1,4.3,Porta Metronia is a gate in the third-century Aurelian Walls of Rome.,8,20
+POI0321,ROM,Bar Cornetteria,nightlife,41.871175,12.479079,120,1,4.0,A lively nightlife spot in Rome.,18,2
+POI0322,ROM,Museo Storico dei Bersaglieri,museum,41.909267,12.501079,120,0,4.1,"Museo Storico dei Bersaglieri is a museum in Italy, in Rome.",9,18
+POI0323,ROM,Basilica di Santa Maria del Popolo,religion,41.911457,12.476551,30,0,4.4,"Basilica di Santa Maria del Popolo is a church in Rome, Italy.",7,12
+POI0324,ROM,Horti Sallustiani,nature,41.908091,12.496928,90,0,4.4,Horti Sallustiani is a gardens in ancient Rome founded ca. 50 BCE.,0,24
+POI0325,ROM,Accademia Filarmonica Romana,culture,41.916678,12.474017,90,1,4.2,"Accademia Filarmonica Romana is an Italian musical institution, in Rome.",9,20
+POI0326,ROM,MercatoBIO di Aguzzano al Casale Podere Rosa,food,41.944222,12.565045,60,1,4.0,A well-regarded food destination in Rome.,10,23
+POI0327,ROM,Ex-novo,shopping,41.855345,12.476247,60,1,4.0,A popular shopping spot in Rome.,10,20
+POI0328,ROM,Ninfeo di Egeria,history,41.859159,12.524261,60,0,4.2,"Ninfeo di Egeria is an ancient Roman nymphaeum in Rome, Italy, connected with the nymph Egeria.",8,19
+POI0329,ROM,Catacombe di San Sebastiano,landmark,41.85593,12.515797,60,1,4.3,"Catacombe di San Sebastiano is a catacomb in Rome, Italy.",9,17
+POI0330,ROM,Bar San Calisto,nightlife,41.889055,12.470738,120,1,4.0,A lively nightlife spot in Rome.,18,2
+POI0331,ROM,Galleria Spada,museum,41.893887,12.472201,120,1,4.3,"Galleria Spada is a museum in Rome, Italy.",8,19
+POI0332,ROM,Chiesa di Santa Maria dei Miracoli,religion,41.909779,12.476483,30,0,4.3,Chiesa di Santa Maria dei Miracoli is a church in Rome.,10,19
+POI0333,ROM,Parco Archeologico del Celio,nature,41.88775,12.491812,90,0,4.1,Parco Archeologico del Celio is an archaeological park in Rome.,0,24
+POI0334,ROM,Teatro Petrolini,culture,41.880272,12.473959,90,1,4.1,"Teatro Petrolini is a theatre in Rome, Italy.",9,20
+POI0335,ROM,Pizza e...,food,41.931226,12.560703,60,1,4.0,A well-regarded food destination in Rome.,10,23
+POI0336,ROM,Upim,shopping,41.932008,12.519275,60,1,4.0,A popular shopping spot in Rome.,10,20
+POI0337,ROM,"Statua ""parlante"" di Pasquino",history,41.897715,12.472308,60,0,4.4,"Statua ""parlante"" di Pasquino is an one of the six talking statues of Rome.",8,19
+POI0338,ROM,Porta San Lorenzo,landmark,41.897465,12.51031,60,1,4.3,"Porta San Lorenzo is a building in Rome, Italy.",8,20
+POI0339,ROM,404 Name Not Found,nightlife,41.887605,12.477163,120,1,4.0,A lively nightlife spot in Rome.,6,23
+POI0340,ROM,Museo di Roma,museum,41.897278,12.472777,120,1,4.2,Museo di Roma is a museum in Rome.,10,19
+POI0341,ROM,San Giacomo in Augusta,religion,41.907753,12.477301,30,0,4.3,San Giacomo in Augusta is a church built in central Rome.,7,19
+POI0342,ROM,Circo Massimo,nature,41.886002,12.485704,90,0,4.5,Circo Massimo is an Ancient Roman circus in Rome.,0,24
+POI0343,ROM,Accademia Tedesca Roma - Villa Massimo,culture,41.916712,12.519118,90,1,4.2,"Accademia Tedesca Roma - Villa Massimo is an academy in Rome, Italy.",9,20
+POI0344,ROM,Mercato,food,41.90536,12.553219,60,1,4.0,A well-regarded food destination in Rome.,10,23
+POI0345,ROM,OVS,shopping,41.897672,12.499571,60,1,4.0,A popular shopping spot in Rome.,10,20
+POI0346,ROM,Villa Romana - Via Pollenza,history,41.946544,12.577425,60,0,4.0,A historic site in Rome.,8,19
+POI0347,ROM,Fontanella per cani,landmark,41.900973,12.469274,60,1,4.0,A well-known landmark in Rome.,8,20
+POI0348,ROM,Batucada,nightlife,41.945618,12.535207,120,1,4.0,A lively nightlife spot in Rome.,18,2
+POI0349,ROM,Museo Nazionale Romano,museum,41.901198,12.472838,120,1,4.0,"Museo Nazionale Romano is a Museum in Italy, in Rome.",9,19
+POI0350,ROM,Chiesa di Santa Maria Liberatrice,religion,41.879327,12.473967,30,0,4.3,"Chiesa di Santa Maria Liberatrice is a church building in Rome, Italy.",7,19
+POI0351,ROM,Villa Gordiani,nature,41.893915,12.553474,90,0,4.3,"Villa Gordiani is a park along the Via Prenestina, in Rome, Italy, and home to several ancient Roman remains, traditionally identified with the villa of the Gordian imperial family.",0,24
+POI0352,ROM,Teatro Sistina,culture,41.904222,12.486885,90,1,4.1,"Teatro Sistina is a theatre and cinema in Rome, Italy.",9,20
+POI0353,ROM,Mercato di Monti,food,41.894713,12.492763,60,1,4.0,A well-regarded food destination in Rome.,10,20
+POI0354,ROM,Maury's,shopping,41.915569,12.438273,60,1,4.0,A popular shopping spot in Rome.,10,20
+POI0355,ROM,Villa di Massenzio,history,41.855922,12.519595,60,0,4.2,"Villa di Massenzio is a building in Rome, Italy.",10,16
+POI0356,ROM,Obelisco della Minerva,landmark,41.897974,12.47756,60,1,4.3,"Obelisco della Minerva is a sculpture designed by Gianlorenzo Bernini, in Rome.",8,20
+POI0357,ROM,Fayenas,nightlife,41.880927,12.470669,120,1,4.0,A lively nightlife spot in Rome.,18,2
+POI0358,ROM,Palazzo Doria Pamphilj,museum,41.897824,12.481561,120,1,4.4,Palazzo Doria Pamphilj is an art museum in Rome.,9,19
+POI0359,ROM,Santi Vito e Modesto,religion,41.895859,12.501553,30,0,4.2,"Santi Vito e Modesto is a church building in Rome, Italy.",7,8
+POI0360,ROM,Giardino degli Aranci,nature,41.884994,12.480351,90,0,4.2,"Giardino degli Aranci is a garden in Rome, Italy with excellent views of the city.",0,24
+POI0361,ROM,Anfiteatro Quercia del Tasso,culture,41.89576,12.46106,90,1,4.0,"Anfiteatro Quercia del Tasso is an open-air theatre in Rome, Italy.",9,20
+POI0362,ROM,Mercatino delle pulci,food,41.918424,12.500958,60,1,4.0,A well-regarded food destination in Rome.,10,23
+POI0363,ROM,Muji,shopping,41.902151,12.483193,60,1,4.0,A popular shopping spot in Rome.,11,19
+POI0364,ROM,Testa di Costantino,history,41.892895,12.482489,60,0,4.4,"Testa di Costantino is a 4th-century acrolithic statue, 12 m. tall, in Rome.",8,19
+POI0365,ROM,Arcus de Campanis,landmark,41.901761,12.455024,60,1,4.1,A well-known landmark in Rome.,8,20
+POI0366,ROM,Alexanderplatz,nightlife,41.909085,12.453644,120,1,4.0,A lively nightlife spot in Rome.,18,2
+POI0367,ROM,Museo Pietro Canonica,museum,41.915124,12.486237,120,0,4.1,"Museo Pietro Canonica is a museum in Rome, Italy.",10,16
+POI0368,ROM,Basilica di Sant'Antonio da Padova all'Esquilino,religion,41.888863,12.504266,30,0,4.3,Basilica di Sant'Antonio da Padova all'Esquilino is a Roman Catholic titular church in Rome.,7,12
+POI0369,ROM,Villa Paganini,nature,41.916552,12.510006,90,0,4.1,Villa Paganini is a park in Rome.,0,24
+POI0370,ROM,Teatro Quirino,culture,41.899923,12.48258,90,1,4.2,Teatro Quirino is an opera house in Rome.,9,20
+POI0371,ROM,Mercato di Campagna Amica Circo Massimo,food,41.888817,12.483225,60,1,4.0,A well-regarded food destination in Rome.,8,15
+POI0372,ROM,Dal Buongustaio,shopping,41.91533,12.547198,60,1,4.0,A popular shopping spot in Rome.,10,20
+POI0373,ROM,Tempio di Augusto,history,41.891399,12.485294,60,0,4.3,"Tempio di Augusto is a major temple in Rome built to commemorate Roman emperor, Augustus.",8,19
+POI0374,ROM,Porta Ardeatina,landmark,41.873243,12.497105,60,1,4.3,Porta Ardeatina is an One of the gates in the Aurelian Walls of Rome.,8,20
+POI0375,ROM,Beere mangiare e co.,nightlife,41.910214,12.447835,120,1,4.0,A lively nightlife spot in Rome.,11,2
+POI0376,ROM,Galleria Borghese,museum,41.914113,12.492105,120,1,4.5,"Galleria Borghese is an Art museum in Rome, Italy.",9,19
+POI0377,ROM,Chiesa di Sant'Andrea al Quirinale,religion,41.90068,12.489355,30,0,4.4,Chiesa di Sant'Andrea al Quirinale is a church in Rome.,9,12
+POI0378,ROM,Parco Valle dell'Aniene,nature,41.927323,12.553171,90,0,4.1,"Parco Valle dell'Aniene is a protected area in Italy (EUAP1045), in Rome.",0,24
+POI0379,ROM,Teatro Salone Margherita,culture,41.904275,12.484037,90,1,4.1,"Teatro Salone Margherita is a cinema in Rome, Italy.",9,20
+POI0380,ROM,Mercato Arabo,food,41.878025,12.567994,60,1,4.0,A well-regarded food destination in Rome.,8,20
+POI0381,ROM,Fincato,shopping,41.900483,12.479567,60,1,4.0,A popular shopping spot in Rome.,10,20
+POI0382,ROM,Torrione di Via Prenestina,history,41.892065,12.529708,60,0,4.0,A historic site in Rome.,8,19
+POI0383,ROM,Porta San Giovanni,landmark,41.885905,12.509334,60,1,4.3,"Porta San Giovanni is a building in Rome, Italy.",8,20
+POI0384,ROM,Elliot,nightlife,41.912653,12.443471,120,1,4.0,A lively nightlife spot in Rome.,18,2
+POI0385,ROM,Galleria Colonna,museum,41.897448,12.484845,120,1,4.4,"Galleria Colonna is a palace in Rome, Italy.",9,13
+POI0386,ROM,Chiesa di Santo Stefano degli Abissini,religion,41.901796,12.451961,30,0,4.3,"Chiesa di Santo Stefano degli Abissini is a church of the Vatican City, in Rome.",7,19
+POI0387,ROM,Villa Ada,nature,41.932006,12.501808,90,0,4.3,"Villa Ada is a public park in Rome, Italy.",0,24
+POI0388,ROM,Teatro Sala Umberto,culture,41.903034,12.481752,90,1,4.1,"Teatro Sala Umberto is a theatre in Rome, Italy.",9,20
+POI0389,ROM,Le Comptoir,food,41.904536,12.462467,60,1,4.0,A well-regarded food destination in Rome.,10,23
+POI0390,ROM,Society,shopping,41.897946,12.472217,60,1,4.0,A popular shopping spot in Rome.,10,20
+POI0391,ROM,Criptoportico Neroniano,history,41.890019,12.487174,60,0,4.4,"Criptoportico Neroniano is a covered corrdior in ancient Roman architecture, in Rome.",8,19
+POI0392,ROM,Porta Asinaria,landmark,41.885678,12.508687,60,1,4.3,"Porta Asinaria is a Roman gate, in Rome.",8,20
+POI0393,ROM,Tree Bar,nightlife,41.923047,12.471434,120,1,4.0,A lively nightlife spot in Rome.,18,1
+POI0394,ROM,Chiostro del Bramante,museum,41.900022,12.471503,120,1,4.2,Chiostro del Bramante is an Italian Renaissance building in Rome.,9,18
+POI0395,ROM,Santa Maria in Via Lata,religion,41.898123,12.481307,30,0,4.4,"Santa Maria in Via Lata is a church in Roma, in Rome.",7,19
+POI0396,ROM,Villa Aldobrandini,nature,41.896603,12.487941,90,0,4.2,"Villa Aldobrandini is a villa in Rome, Italy.",0,24
+POI0397,ROM,Teatro Duse,culture,41.883374,12.521662,90,1,4.0,"Teatro Duse is a theatre in Rome, Italy.",9,20
+POI0398,ROM,Campo de' Fiori,food,41.895494,12.472365,60,1,4.0,A well-regarded food destination in Rome.,10,23
+POI0399,ROM,Risparmio Casa Shop,shopping,41.846969,12.483071,60,1,4.0,A popular shopping spot in Rome.,10,20
+POI0400,ROM,Monumento a Giovanni Paolo II,history,41.901996,12.499013,60,0,4.2,"Monumento a Giovanni Paolo II is a monument in Rome, Italy.",8,19
+POI0401,ROM,Porta Pia,landmark,41.909316,12.501321,60,1,4.4,"Porta Pia is a building in Castro Pretorio, Italy, in Rome.",8,20
+POI0402,ROM,Punto Bar,nightlife,41.928784,12.462984,120,1,4.0,A lively nightlife spot in Rome.,18,2
+POI0403,ROM,Explora,museum,41.915095,12.474666,120,1,4.0,"Explora is a children's museum in Rome, Italy.",9,18
+POI0404,ROM,Basilica di San Marco,religion,41.896043,12.481547,30,0,4.4,"Basilica di San Marco is a church in Rome, Italy.",10,13
+POI0405,ROM,Parco Virgiliano,nature,41.925551,12.51087,90,0,4.1,A green space in Rome.,8,20
+POI0406,ROM,Teatro Nazionale,culture,41.899789,12.494815,90,1,4.0,"Teatro Nazionale is a theatre and former cinema in Rome, Italy.",9,20
+POI0407,ROM,Mercato Rionale del Tufello,food,41.94938,12.532706,60,1,4.0,A well-regarded food destination in Rome.,10,23
+POI0408,ROM,Cinecittà Due,shopping,41.85305,12.571741,60,1,4.0,A popular shopping spot in Rome.,10,20
+POI0409,ROM,Cisterna Romana,history,41.894906,12.549604,60,0,4.0,A historic site in Rome.,8,19
+POI0410,ROM,Porta Settimiana,landmark,41.89224,12.467604,60,1,4.3,"Porta Settimiana is a building in Rome, Italy.",8,20
+POI0411,ROM,Il Tiaso,nightlife,41.889812,12.525695,120,1,4.0,A lively nightlife spot in Rome.,18,2
+POI0412,ROM,Museo napoleonico di Roma,museum,41.901781,12.472039,120,0,4.2,Museo napoleonico di Roma is a museum in Rome.,10,18
+POI0413,ROM,Santa Maria della neve al Colosseo,religion,41.892618,12.490161,30,0,4.2,"Santa Maria della neve al Colosseo is a church building in Rome, Italy.",7,19
+POI0414,ROM,Villa Glori,nature,41.930949,12.480227,90,0,4.0,"Villa Glori is a park in Rome, Italy.",0,24
+POI0415,ROM,Teatro San Genesio,culture,41.9174,12.465726,90,1,4.0,"Teatro San Genesio is a theatre in Rome, Italy.",9,20
+POI0416,ROM,TaoMark,food,41.921188,12.457517,60,1,4.0,A well-regarded food destination in Rome.,10,23
+POI0417,ROM,Centro commerciale Roma Casal Bertone,shopping,41.898831,12.531567,60,1,4.0,A popular shopping spot in Rome.,8,20
+POI0418,ROM,Ruderi di Coazzo,history,41.947446,12.573353,60,0,4.1,"Ruderi di Coazzo is an Archeological site, in Rome.",8,19
+POI0419,ROM,Fontana del Prigione,landmark,41.88804,12.467327,60,1,4.1,Fontana del Prigione is a fountain in Rome.,8,20
+POI0420,ROM,Vini e Olii,nightlife,41.889313,12.524452,120,1,4.0,A lively nightlife spot in Rome.,18,2
+POI0421,ROM,Galleria Nazionale d'Arte Antica,museum,41.903325,12.489875,120,1,4.4,"Galleria Nazionale d'Arte Antica is an art museum in Rome, Italy.",8,19
+POI0422,ROM,Chiesa di Santa Maria della Pietà,religion,41.901228,12.454911,30,0,4.3,"Chiesa di Santa Maria della Pietà is a church, in Rome.",7,19
+POI0423,ROM,Villa Torlonia,nature,41.913792,12.512091,90,0,4.3,"Villa Torlonia is a villa in Rome, Italy.",0,24
+POI0424,ROM,Teatro Biblioteca Quarticciolo,culture,41.891408,12.576006,90,1,4.1,"Teatro Biblioteca Quarticciolo is a theatre in Rome, Italy.",9,20
+POI0425,ROM,Mercato Conca d'Oro,food,41.93904,12.525574,60,1,4.0,A well-regarded food destination in Rome.,10,23
+POI0426,ROM,Casetta Mattei,shopping,41.852629,12.416598,60,1,4.0,A popular shopping spot in Rome.,8,20
+POI0427,ROM,Anfiteatro castrense,history,41.887647,12.515084,60,0,4.3,"Anfiteatro castrense is a Roman amphitheatre in Rome, Italy.",8,19
+POI0428,ROM,Porta Pinciana,landmark,41.90947,12.488383,60,1,4.3,"Porta Pinciana is a building in Rome, Italy.",8,20
+POI0429,ROM,Bar dei Cesaroni,nightlife,41.862777,12.489926,120,1,4.0,A lively nightlife spot in Rome.,18,2
+POI0430,ROM,Casa di Goethe,museum,41.909047,12.477168,120,1,4.2,Casa di Goethe is a museum in Rome.,10,18
+POI0431,ROM,Chiesa di Nostra Signora di Guadalupe a Monte Mario,religion,41.9438,12.424065,30,0,4.2,Chiesa di Nostra Signora di Guadalupe a Monte Mario is a church in Rome.,7,19
+POI0432,ROM,Villa Giorgina,nature,41.916087,12.495968,90,0,4.0,"Villa Giorgina is a building in Rome, Italy.",0,24
+POI0433,ROM,Teatro Rossini,culture,41.897678,12.476639,90,1,4.1,"Teatro Rossini is a theatre in Rome, Italy.",9,20
+POI0434,ROM,Mercato Talenti,food,41.947328,12.543016,60,1,4.0,A well-regarded food destination in Rome.,10,23
+POI0435,ROM,Talenti Village Commerciale,shopping,41.957945,12.548602,60,1,4.0,A popular shopping spot in Rome.,10,20
+POI0436,ROM,Domus Augustana - Peristilio,history,41.887862,12.486565,60,0,4.3,"Domus Augustana - Peristilio is a central residential part of the Palace of Domitian, in Rome.",8,19
+POI0437,ROM,Porta Salaria,landmark,41.910795,12.498135,60,1,4.3,Porta Salaria is a former gate in the Aurelian Walls of Rome.,8,20
+POI0438,ROM,dello Studente,nightlife,41.93444,12.4191,120,1,4.0,A lively nightlife spot in Rome.,18,2
+POI0439,ROM,Stadio di Domiziano,museum,41.900205,12.472561,120,1,4.3,"Stadio di Domiziano is an ancient Roman circus, in Rome.",10,19
+POI0440,ROM,Santi Vincenzo e Anastasio a Fontana di Trevi,religion,41.900683,12.483892,30,0,4.3,"Santi Vincenzo e Anastasio a Fontana di Trevi is a church building in Rome, Italy.",7,19
+POI0441,ROM,Villa Sciarra,nature,41.883723,12.463837,90,0,4.2,Villa Sciarra is a park in Rome named for the villa.,0,24
+POI0442,ROM,Teatro Palladium,culture,41.86249,12.485491,90,1,4.1,"Teatro Palladium is a theatre in Rome, Italy.",9,20
+POI0443,ROM,Mercato Rionale,food,41.929942,12.484092,60,1,4.0,A well-regarded food destination in Rome.,10,23
+POI0444,ROM,Galleria Guglielmo Marconi,shopping,41.868052,12.46752,60,1,4.0,A popular shopping spot in Rome.,10,20
+POI0445,ROM,Tomba alla Torre del Giudizio (Sepolcro romano di via Teodora sotto la Torre del Giudizio),history,41.852949,12.459781,60,0,4.0,A historic site in Rome.,8,19
+POI0446,ROM,Monumento della Caravella,landmark,41.903738,12.495558,60,1,4.0,Monumento della Caravella is a town twinning memorial in Rome.,8,20
+POI0447,ROM,Monaco,nightlife,41.909804,12.537915,120,1,4.0,A lively nightlife spot in Rome.,18,2
+POI0448,ROM,Museo Storico della Liberazione,museum,41.888717,12.506352,120,0,4.2,"Museo Storico della Liberazione is a Roman museum, in Rome.",9,18
+POI0449,ROM,Santa Maria della Luce,religion,41.889152,12.475525,30,0,4.2,"Santa Maria della Luce is a church, in Rome.",7,19
+POI0450,ROM,Parco di Villa Fiorelli,nature,41.884783,12.52311,90,0,4.1,"Parco di Villa Fiorelli is an urban park in Rome, Italy.",0,24
+POI0451,BCN,Portal del Bisbe,landmark,41.384003,2.175434,60,1,4.1,A well-known landmark in Barcelona.,8,20
+POI0452,BCN,Barcelona a Prim,history,41.38639,2.186795,60,0,4.2,A historic site in Barcelona.,8,19
+POI0453,BCN,Temple d'August,museum,41.383375,2.177231,120,0,4.2,"Temple d'August is a cultural property in Barcelona, Spain.",10,14
+POI0454,BCN,Blas Infante,culture,41.4377,2.222921,90,1,4.0,A cultural venue in Barcelona.,9,20
+POI0455,BCN,Jardins de Ramon Margalef i López,nature,41.365749,2.153034,90,0,4.1,A green space in Barcelona.,0,24
+POI0456,BCN,Sant Medir,religion,41.443638,2.121358,30,0,4.2,"Sant Medir is a church building in Sant Cugat del Vallès, Spain, in Barcelona.",7,19
+POI0457,BCN,Mercat de la Llibertat,food,41.399863,2.153485,60,1,4.1,A well-regarded food destination in Barcelona.,8,20
+POI0458,BCN,Arenas de Barcelona,shopping,41.376304,2.149305,60,1,4.3,"Arenas de Barcelona is a bullring in Barcelona, Spain.",10,22
+POI0459,BCN,Platja del Somorrostro,beach,41.383527,2.196406,150,0,4.1,"Platja del Somorrostro is a beach and memory place in Barcelona, Catalonia.",0,24
+POI0460,BCN,Boadas,nightlife,41.384664,2.170271,120,1,4.0,Boadas is a Cocktail Bar in Barcelona.,18,2
+POI0461,BCN,Homenatge als castellers,landmark,41.382033,2.177009,60,1,4.1,A well-known landmark in Barcelona.,8,20
+POI0462,BCN,Monument als Herois de 1809,history,41.383576,2.175785,60,0,4.1,A historic site in Barcelona.,8,19
+POI0463,BCN,Refugi 307,museum,41.371437,2.166627,120,0,4.1,Refugi 307 is an air-raid shelter in Barcelona.,9,18
+POI0464,BCN,Teatre Romea,culture,41.380532,2.171081,90,1,4.2,"Teatre Romea is a theatre in Barcelona, Spain (occasionally used as a cinema in the past).",9,20
+POI0465,BCN,Parc Güell,nature,41.414203,2.151602,90,0,4.5,"Parc Güell is a public park system in Barcelona, Spain.",8,18
+POI0466,BCN,Santa Maria de Vallvidrera,religion,41.418719,2.09946,30,0,4.1,"Santa Maria de Vallvidrera is a church building in Barcelona, Spain.",7,19
+POI0467,BCN,Mercat de Sants,food,41.374657,2.133381,60,1,4.2,A well-regarded food destination in Barcelona.,8,15
+POI0468,BCN,El Triangle,shopping,41.385898,2.169093,60,1,4.1,A popular shopping spot in Barcelona.,10,22
+POI0469,BCN,Platja Pont del Petroli,beach,41.441477,2.246668,150,0,4.1,"Platja Pont del Petroli is a beach in Badalona, in Barcelona.",0,24
+POI0470,BCN,La Confiteria,nightlife,41.375481,2.167898,120,1,4.1,A lively nightlife spot in Barcelona.,18,2
+POI0471,BCN,Font de Can Borni,landmark,41.423432,2.122674,60,1,4.1,"Font de Can Borni is a spring in Collserola, Barcelona.",8,20
+POI0472,BCN,Font del Geni català,history,41.382811,2.183495,60,0,4.1,A historic site in Barcelona.,8,19
+POI0473,BCN,Centre Martorell d'Exposicions,museum,41.387132,2.184365,120,1,4.1,Centre Martorell d'Exposicions is a museum in Barcelona.,9,18
+POI0474,BCN,Teatre Grec,culture,41.369517,2.159659,90,1,4.2,"Teatre Grec is a modern open-air theatre in Greek style in Barcelona, Spain.",9,20
+POI0475,BCN,Jardins de Miramar,nature,41.370404,2.171995,90,0,4.1,"Jardins de Miramar is a garden in Sants-Montjuïc, Spain, in Barcelona.",0,24
+POI0476,BCN,Mare de Déu de la Salut,religion,41.425726,2.089815,30,0,4.0,Mare de Déu de la Salut is a Historic building in Barcelona (Catalonia).,7,19
+POI0477,BCN,Mercat Torner,food,41.444815,2.241128,60,1,4.1,"Mercat Torner is a building in Barcelona Province, Spain.",10,23
+POI0478,BCN,Westfield La Maquinista,shopping,41.440773,2.197797,60,1,4.1,Westfield La Maquinista is a shopping center in Barcelona.,9,21
+POI0479,BCN,Platja de l'Estació,beach,41.444777,2.249519,150,0,4.1,"Platja de l'Estació is a beach in Spain, in Barcelona.",0,24
+POI0480,BCN,4Gats,nightlife,41.385738,2.173639,120,1,4.4,"4Gats is a restaurant, in Barcelona.",11,17
+POI0481,BCN,Farmàcia Hereus Torras Surroca,landmark,41.44854,2.248803,60,1,4.1,"Farmàcia Hereus Torras Surroca is a building in Barcelona Province, Spain.",8,20
+POI0482,BCN,A Joan Güell i Ferrer,history,41.388673,2.16728,60,0,4.1,A historic site in Barcelona.,8,19
+POI0483,BCN,Poble Espanyol de Barcelona,museum,41.368648,2.148502,120,1,4.4,"Poble Espanyol de Barcelona is a museum in Barcelona, Spain.",10,20
+POI0484,BCN,Teatre Tantarantana,culture,41.375947,2.167338,90,1,4.0,A cultural venue in Barcelona.,9,20
+POI0485,BCN,Jardins de Laribal,nature,41.368307,2.157853,90,0,4.1,A green space in Barcelona.,0,24
+POI0486,BCN,Capella Castrense,religion,41.387124,2.187444,30,0,4.1,Capella Castrense is a military parish church in Barcelona.,7,19
+POI0487,BCN,Mercat de Santa Caterina,food,41.386146,2.178517,60,0,4.2,Mercat de Santa Caterina is a Marketplace in Barcelona.,7,14
+POI0488,BCN,la Farga,shopping,41.362559,2.105107,60,1,4.1,"la Farga is a building in Barcelona Province, Spain.",10,20
+POI0489,BCN,Platja dels Pescadors,beach,41.447976,2.252438,150,0,4.1,"Platja dels Pescadors is a beach in Spain, in Barcelona.",0,24
+POI0490,BCN,Sala Apolo,nightlife,41.374391,2.169561,120,1,4.1,"Sala Apolo is a building in Barcelona Province, Spain.",18,2
+POI0491,BCN,Elogi de l'aigua,landmark,41.418219,2.145737,60,1,4.1,"Elogi de l'aigua is a sculpture by Eduardo Chillida, in Barcelona.",8,20
+POI0492,BCN,Triangle rosa,history,41.386148,2.186273,60,0,4.1,A historic site in Barcelona.,8,19
+POI0493,BCN,Museu Torre Balldovina,museum,41.446991,2.209374,120,1,4.1,"Museu Torre Balldovina is a museum in the Barcelona Province, (Spain).",9,18
+POI0494,BCN,Teatre Goya,culture,41.384087,2.164267,90,1,4.1,"Teatre Goya is a cinema in Barcelona, Spain.",9,20
+POI0495,BCN,Jardins de l'Umbracle,nature,41.368746,2.157667,90,0,4.1,"Jardins de l'Umbracle is a garden in Sants-Montjuïc, Spain, in Barcelona.",0,24
+POI0496,BCN,Sant Llàtzer,religion,41.3796,2.16643,30,0,4.1,"Sant Llàtzer is a church building in Barcelona, Spain.",7,19
+POI0497,BCN,Mercat de Sant Andreu,food,41.434774,2.188394,60,1,4.1,"Mercat de Sant Andreu is a building in Barcelona, Spain.",8,14
+POI0498,BCN,Gran Via 2,shopping,41.358872,2.129413,60,1,4.1,A popular shopping spot in Barcelona.,10,20
+POI0499,BCN,Platja del Fòrum,beach,41.416705,2.23171,150,0,4.1,A popular beach in Barcelona.,0,24
+POI0500,BCN,Barcelona Pipa Club,nightlife,41.380126,2.174672,120,1,4.0,A lively nightlife spot in Barcelona.,23,4
+POI0501,BCN,Font del Camp del Miracle,landmark,41.443863,2.121132,60,1,4.1,"Font del Camp del Miracle is a spring in Collserola, in Barcelona.",8,20
+POI0502,BCN,Monument a Carmen Amaya,history,41.368524,2.165651,60,0,4.0,A historic site in Barcelona.,8,19
+POI0503,BCN,Vil·la Joana,museum,41.419762,2.099801,120,1,4.2,"Vil·la Joana is a masia in Barcelona, Spanje.",10,14
+POI0504,BCN,Poliorama,culture,41.384078,2.170737,90,1,4.1,"Poliorama is a theatre and former cinema in Barcelona, Spain.",9,20
+POI0505,BCN,Jardins de Joan Maragall,nature,41.367776,2.156342,90,0,4.1,"Jardins de Joan Maragall is a building, in Barcelona.",10,15
+POI0506,BCN,Santa Maria de Montalegre,religion,41.383981,2.165951,30,0,4.1,"Santa Maria de Montalegre is a church building in Barcelona, Spain.",7,19
+POI0507,BCN,Mercat de Sant Gervasi,food,41.405463,2.138364,60,1,4.0,A well-regarded food destination in Barcelona.,10,23
+POI0508,BCN,L'Illa Diagonal,shopping,41.389535,2.135194,60,1,4.2,L'Illa Diagonal is a building complex in Barcelona.,10,21
+POI0509,BCN,Platja del Litoral,beach,41.421678,2.233757,150,0,4.1,A popular beach in Barcelona.,0,24
+POI0510,BCN,Depósito Legal,nightlife,41.358765,2.101318,120,1,4.0,A lively nightlife spot in Barcelona.,18,2
+POI0511,BCN,el Gòtic,landmark,41.38384,2.174512,60,1,4.4,el Gòtic is a the centre of the old city of Barcelona.,8,20
+POI0512,BCN,Monument a Rafael Casanova,history,41.390892,2.177471,60,0,4.1,A historic site in Barcelona.,8,19
+POI0513,BCN,Saló del Tinell,museum,41.384313,2.177115,120,1,4.2,Saló del Tinell is a building in Barcelona in Ciutat Vella district.,9,18
+POI0514,BCN,Casa dels Entremesos,culture,41.386186,2.176856,90,1,4.1,A cultural venue in Barcelona.,9,20
+POI0515,BCN,Mirador del Llobregat,nature,41.367021,2.144325,90,0,4.1,A green space in Barcelona.,0,24
+POI0516,BCN,Santa Madrona,religion,41.36874,2.155205,30,0,4.1,A historic place of worship in Barcelona.,7,19
+POI0517,BCN,Mercat Municipal de Collblanc,food,41.374908,2.120313,60,1,4.1,"Mercat Municipal de Collblanc is a building in Barcelona Province, Spain.",10,23
+POI0518,BCN,Màgic Badalona,shopping,41.443337,2.230024,60,1,4.1,"Màgic Badalona is a building in Barcelona Province, Spain.",10,20
+POI0519,BCN,Platja del Bogatell,beach,41.393942,2.207358,150,0,4.3,A popular beach in Barcelona.,0,24
+POI0520,BCN,Bar Borrell,nightlife,41.375176,2.166833,120,1,4.1,A lively nightlife spot in Barcelona.,18,2
+POI0521,BCN,Font de Can Llevallol,landmark,41.409442,2.09372,60,1,4.1,"Font de Can Llevallol is a fountain in Collserola, Barcelona.",8,20
+POI0522,BCN,Memorial de la Sida a Barcelona,history,41.365566,2.15343,60,0,4.0,A historic site in Barcelona.,8,19
+POI0523,BCN,Centre de Cultura Contemporània de Barcelona,museum,41.383715,2.166578,120,1,4.2,Centre de Cultura Contemporània de Barcelona is a cultural center in Barcelona.,10,20
+POI0524,BCN,Club Capitol,culture,41.384998,2.170708,90,1,4.1,A cultural venue in Barcelona.,9,20
+POI0525,BCN,Parc del Laberint d'Horta,nature,41.439978,2.145593,90,0,4.3,"Parc del Laberint d'Horta is a park and maze in Barcelona, Spain.",10,18
+POI0526,BCN,Sant Pau del Camp,religion,41.376325,2.169521,30,0,4.3,"Sant Pau del Camp is a cultural property in Barcelona, Spain.",7,19
+POI0527,BCN,Mercat del Poblenou,food,41.400849,2.205247,60,1,4.1,Mercat del Poblenou is a building in Barcelona in Sant Martí district.,10,23
+POI0528,BCN,Diagonal Mar,shopping,41.409697,2.216575,60,1,4.1,"Diagonal Mar is a shopping center in Barcelona, Spain.",9,21
+POI0529,BCN,Platja de Llevant,beach,41.404415,2.218238,150,0,4.2,"Platja de Llevant is a beach in Spain, in Barcelona.",0,24
+POI0530,BCN,Luz de Gas,nightlife,41.3946,2.149039,120,1,4.1,"Luz de Gas is a building in Barcelona, Spain.",18,2
+POI0531,BCN,Font d'Hèrcules,landmark,41.387783,2.117005,60,0,4.1,A well-known landmark in Barcelona.,8,20
+POI0532,BCN,A Salvador Allende. La historia es nuestra y la hacen los pueblos,history,41.420302,2.151822,60,0,4.0,A historic site in Barcelona.,8,19
+POI0533,BCN,Museu de la Música,museum,41.398892,2.185576,120,1,4.2,"Museu de la Música is a music museum in Barcelona, Spain.",10,18
+POI0534,BCN,Teatre Joventut,culture,41.372552,2.117784,90,1,4.1,"Teatre Joventut is a building in L'Hospitalet de Llobregat, Spain, in Barcelona.",9,20
+POI0535,BCN,Plaça del Nord,nature,41.406983,2.155496,90,0,4.1,"Plaça del Nord is a square in Barcelona, Spain.",0,24
+POI0536,BCN,Basílica de la Sagrada Família,religion,41.403505,2.17428,30,0,4.6,"Basílica de la Sagrada Família is a basilica under construction since 1882 in Barcelona, Spain.",9,20
+POI0537,BCN,Mercat de la Barceloneta,food,41.380377,2.189187,60,1,4.1,"Mercat de la Barceloneta is a building in Barcelona, Spain.",7,14
+POI0538,BCN,Westfield Glòries,shopping,41.405421,2.191356,60,1,4.1,A popular shopping spot in Barcelona.,10,22
+POI0539,BCN,Platja de la Mar Bella,beach,41.398043,2.212244,150,0,4.3,A popular beach in Barcelona.,0,24
+POI0540,BCN,Cor de Marina,nightlife,41.447657,2.250768,120,1,4.1,"Cor de Marina is a building in Barcelona Province, Spain.",18,2
+POI0541,BCN,Porta Gaudí de la Facultat de Farmàcia i Ciències de l'Alimentació,landmark,41.385975,2.122379,60,1,4.3,"Porta Gaudí de la Facultat de Farmàcia i Ciències de l'Alimentació is a Group of buildings designed by Antoni Gaudí, in Barcelona.",8,20
+POI0542,BCN,Monument a les Brigades Internacionals,history,41.424404,2.158236,60,0,4.1,A historic site in Barcelona.,8,19
+POI0543,BCN,Museu d'Història de Barcelona,museum,41.383921,2.177678,120,1,4.4,"Museu d'Història de Barcelona is a History museum in Barcelona, Spain.",10,19
+POI0544,BCN,El Molino,culture,41.374551,2.167245,90,1,4.2,"El Molino is a Barcelona, Spain.",9,20
+POI0545,BCN,Parc de l'Espanya Industrial,nature,41.377744,2.140795,90,0,4.2,"Parc de l'Espanya Industrial is a park in Barcelona, Spain.",8,23
+POI0546,BCN,Parròquia de Santa Eulàlia de Vilapicina,religion,41.430476,2.1752,30,0,4.0,Parròquia de Santa Eulàlia de Vilapicina is a Religious building in Barcelona (Catalonia).,7,19
+POI0547,BCN,Mercat de les Tres Torres,food,41.400003,2.131154,60,1,4.0,A well-regarded food destination in Barcelona.,10,23
+POI0548,BCN,Vorwerk Thermomix Feelina,shopping,41.38029,2.153373,60,1,4.0,A popular shopping spot in Barcelona.,10,20
+POI0549,BCN,Platja de la Nova Icària,beach,41.39022,2.20256,150,0,4.2,A popular beach in Barcelona.,0,24
+POI0550,BCN,Sala Bikini,nightlife,41.389458,2.137099,120,1,4.1,A lively nightlife spot in Barcelona.,18,2
+POI0551,BCN,"Memorial Durruti, Ascaso, Ferrer i Guardia",landmark,41.354,2.150131,60,1,4.0,"Memorial Durruti, Ascaso, Ferrer i Guardia is a Grave of anarchist Buenaventura Durruti (1896–1936), in Barcelona.",8,20
+POI0552,BCN,Monument a Lluís Companys,history,41.428024,2.224568,60,0,4.1,"Monument a Lluís Companys is a monument in Sant Adrià de Besòs, Spain, in Barcelona.",8,19
+POI0553,BCN,Museu de la Moto,museum,41.38334,2.17453,120,1,4.1,"Museu de la Moto is a museum in Spain, in Barcelona.",9,18
+POI0554,BCN,Teatre Victòria,culture,41.374803,2.168743,90,1,4.1,Teatre Victòria is a theatre in Barcelona.,9,20
+POI0555,BCN,Plaça de la Sagrada Família,nature,41.402662,2.173166,90,0,4.1,"Plaça de la Sagrada Família is a square in Barcelona, Spain.",0,24
+POI0556,BCN,Santa Agnès,religion,41.400883,2.14443,30,0,4.1,Santa Agnès is a church in Barcelona (Catalonia).,7,19
+POI0557,BCN,Mercat de la Concepció,food,41.395878,2.168638,60,1,4.1,A well-regarded food destination in Barcelona.,8,15
+POI0558,BCN,Dorven,shopping,41.380106,2.15311,60,1,4.0,A popular shopping spot in Barcelona.,10,20
+POI0559,BCN,Platja de la Nova Mar Bella,beach,41.40174,2.215491,150,0,4.2,A popular beach in Barcelona.,0,24
+POI0560,BCN,Razzmatazz,nightlife,41.397585,2.191249,120,1,4.2,"Razzmatazz is a concert hall, in Barcelona.",18,2
+POI0561,BCN,Font de Sant Medir,landmark,41.442269,2.121489,60,1,4.0,"Font de Sant Medir is a fountain in Sant Cugat del Vallès (Catalonia), in Barcelona.",8,20
+POI0562,BCN,Monument a Francesc Macià,history,41.428001,2.223785,60,0,4.0,"Monument a Francesc Macià is a monument in Sant Adrià de Besòs, Spain, in Barcelona.",8,19
+POI0563,BCN,Museu del Modernisme Català,museum,41.388854,2.163397,120,1,4.1,Museu del Modernisme Català is a museum in Barcelona.,10,14
+POI0564,BCN,Teatre Apolo,culture,41.374746,2.170363,90,1,4.2,Teatre Apolo is a theatre in Barcelona.,9,20
+POI0565,BCN,Parc de Can Mercader,nature,41.357625,2.084923,90,0,4.1,"Parc de Can Mercader is a park in Cornellà de Llobregat, Spain, in Barcelona.",0,24
+POI0566,BCN,Parroquia Sant Jaume,religion,41.355616,2.086498,30,0,4.0,"Parroquia Sant Jaume is a Historic building in Cornellà de Llobregat (Catalonia), in Barcelona.",7,19
+POI0567,BCN,Mercat d'Hostafrancs,food,41.374947,2.143835,60,1,4.1,"Mercat d'Hostafrancs is a building in Barcelona, Spain.",10,23
+POI0568,BCN,Galaxia,shopping,41.399341,2.20371,60,1,4.0,A popular shopping spot in Barcelona.,10,20
+POI0569,BCN,Platja de la Barceloneta,beach,41.379381,2.193398,150,0,4.3,"Platja de la Barceloneta is a beach in Barcelona, Spain.",0,24
+POI0570,BCN,Chiribito,nightlife,41.430449,2.174321,120,1,4.0,A lively nightlife spot in Barcelona.,18,2
+POI0571,BCN,Xemeneia de Can Folch,landmark,41.387724,2.194784,60,1,4.1,"Xemeneia de Can Folch is a building in Barcelona Province, Spain.",8,20
+POI0572,BCN,El bes de la mort,history,41.39622,2.204198,60,0,4.2,El bes de la mort is a sculpture by Jaume Barba in iPoblenou Cemetery (Barcelona).,8,19
+POI0573,BCN,Museu Tàpies,museum,41.391622,2.163664,120,1,4.3,"Museu Tàpies is a cultural center and museum in Barcelona, Spain.",10,19
+POI0574,BCN,Sala FlyHard,culture,41.371842,2.140672,90,1,4.1,A cultural venue in Barcelona.,9,20
+POI0575,BCN,Parc de la Pegaso,nature,41.427307,2.188988,90,0,4.2,"Parc de la Pegaso is a park in Spain, in Barcelona.",0,24
+POI0576,BCN,Església Parroquial de la Concepció,religion,41.394667,2.167686,30,0,4.2,"Església Parroquial de la Concepció is a church building in Barcelona, Spain.",7,19
+POI0577,BCN,Mercat dels Encants,food,41.401009,2.186145,60,1,4.1,"Mercat dels Encants is a building in Barcelona, Spain.",9,20
+POI0578,BCN,rafay fuit i verduras,shopping,41.353763,2.116383,60,1,4.0,A popular shopping spot in Barcelona.,10,20
+POI0579,BCN,Platja de Sant Miquel,beach,41.375528,2.191188,150,0,4.1,"Platja de Sant Miquel is a beach in Barcelona, Spain.",0,24
+POI0580,BCN,La Flor,nightlife,41.432072,2.173724,120,1,4.0,A lively nightlife spot in Barcelona.,18,2
+POI0581,BCN,Xemeneia de l'antiga fàbrica C.E.L.O.,landmark,41.427976,2.227484,60,1,4.1,"Xemeneia de l'antiga fàbrica C.E.L.O. is a building in Barcelona Province, Spain.",8,20
+POI0582,BCN,Francesc Layret,history,41.38375,2.163557,60,0,4.1,A historic site in Barcelona.,8,19
+POI0583,BCN,Museu de la Marihuana,museum,41.380808,2.180124,120,1,4.3,"Museu de la Marihuana is a museum located in Barcelona, Spain and dedicated to the culture of cannabis.",9,18
+POI0584,BCN,Teatreneu,culture,41.40324,2.158559,90,1,4.1,A cultural venue in Barcelona.,9,20
+POI0585,BCN,Parc de l'Estació del Nord,nature,41.394444,2.184572,90,0,4.2,Parc de l'Estació del Nord is a park in Barcelona.,0,24
+POI0586,BCN,Mare de Déu del Coll,religion,41.420052,2.151552,30,0,4.1,"Mare de Déu del Coll is a church building in Barcelona, Spain.",7,19
+POI0587,BCN,Mercat de Sant Antoni,food,41.378623,2.162049,60,1,4.2,"Mercat de Sant Antoni is a building in Barcelona Province, Spain.",8,20
+POI0588,BCN,Cash Converters,shopping,41.419328,2.18171,60,1,4.0,A popular shopping spot in Barcelona.,10,14
+POI0589,BCN,Platja de Sant Sebastià,beach,41.371504,2.189512,150,0,4.3,"Platja de Sant Sebastià is a beach in Spain, in Barcelona.",0,24
+POI0590,BCN,Cotxeres,nightlife,41.428191,2.175741,120,1,4.0,A lively nightlife spot in Barcelona.,18,2
+POI0591,BCN,Monument a Bartomeu Robert,landmark,41.394887,2.175562,60,1,4.1,A well-known landmark in Barcelona.,8,20
+POI0592,BCN,El Treball,history,41.370799,2.150955,60,0,4.0,El Treball is a public artwork in Barcelona.,8,19
+POI0593,BCN,Museu del Calçat,museum,41.383464,2.175268,120,1,4.1,"Museu del Calçat is a Showcase different shoes style from the ancient times to the modern era, in Barcelona.",9,18
+POI0594,BCN,Telenoika,culture,41.372666,2.161142,90,1,4.0,A cultural venue in Barcelona.,9,20
+POI0595,BCN,Hivernacle,nature,41.387659,2.183929,90,0,4.1,"Hivernacle is a building in Barcelona, Spain.",0,24
+POI0596,BCN,Parròquia de la Mare de Déu de Lurdes,religion,41.373045,2.156047,30,0,4.0,Parròquia de la Mare de Déu de Lurdes is a Historic building in Barcelona (Catalonia).,7,19
+POI0597,BCN,Mercat del Ninot,food,41.388058,2.154116,60,1,4.1,A well-regarded food destination in Barcelona.,10,23
+POI0598,BCN,tokomusic,shopping,41.38435,2.170304,60,1,4.0,A popular shopping spot in Barcelona.,10,20
+POI0599,BCN,Platja de La Marina,beach,41.431755,2.240433,150,0,4.0,A popular beach in Barcelona.,0,24
+POI0600,BCN,Bar Nuria,nightlife,41.393234,2.188499,120,1,4.0,A lively nightlife spot in Barcelona.,18,2
+POI0601,AMS,De Dokwerker,history,52.367196,4.905015,60,0,4.1,"De Dokwerker is a war memorial by Mari Andriessen in Amsterdam, the Netherlands.",8,19
+POI0602,AMS,Rasphuispoort,landmark,52.36774,4.891052,60,1,4.2,"Rasphuispoort is a prison ìn the Netherlands, in Amsterdam.",8,20
+POI0603,AMS,Hollandsche Schouwburg,museum,52.366439,4.911154,120,0,4.2,"Hollandsche Schouwburg is a memorial and former theater building in Amsterdam, the Netherlands.",10,17
+POI0604,AMS,Singelkerk,religion,52.367547,4.888281,30,0,4.1,"Singelkerk is a church building in Amsterdam, Netherlands.",7,19
+POI0605,AMS,"Nieuwe Meer Westzijde, Oeverlanden",beach,52.333295,4.812087,150,0,4.0,A popular beach in Amsterdam.,0,24
+POI0606,AMS,In't Aepjen,nightlife,52.376312,4.900146,120,1,4.1,In't Aepjen is a building in Amsterdam.,18,2
+POI0607,AMS,Koninklijk Theater Carré,culture,52.362335,4.903926,90,1,4.2,"Koninklijk Theater Carré is a theatre in Amsterdam, located near the river Amstel.",9,20
+POI0608,AMS,Nieuwmarkt,food,52.372553,4.900089,60,1,4.3,"Nieuwmarkt is a square in Amsterdam, Netherlands.",10,18
+POI0609,AMS,Beeldenbos Noord,nature,52.38996,4.938581,90,0,4.0,A green space in Amsterdam.,0,24
+POI0610,AMS,Magna Plaza,shopping,52.373656,4.890238,60,1,4.2,"Magna Plaza is a shopping center in Amsterdam, Netherlands.",11,19
+POI0611,AMS,Samen Spelen Samen Leven,history,52.344915,4.90797,60,0,4.1,"Samen Spelen Samen Leven is a war memorial in Amsterdam, the Netherlands.",8,19
+POI0612,AMS,Faralda NDSM Crane Hotel Amsterdam,landmark,52.399409,4.894843,60,1,4.1,"Faralda NDSM Crane Hotel Amsterdam is a hotel in Amsterdam, Netherlands.",8,20
+POI0613,AMS,Museum Het Schip,museum,52.390488,4.873726,120,1,4.3,"Museum Het Schip is a residential complex in Amsterdam, the Netherlands.",11,17
+POI0614,AMS,Uilenburger Synagoge,religion,52.370176,4.90534,30,0,4.2,Uilenburger Synagoge is a Jewish house of prayer in Amsterdam.,7,19
+POI0615,AMS,"Nieuwe Meer, Noordoever",beach,52.334166,4.814034,150,0,4.0,A popular beach in Amsterdam.,0,24
+POI0616,AMS,Brouwerij 't IJ,nightlife,52.366698,4.926347,120,1,4.2,"Brouwerij 't IJ is a Dutch brewery, in Amsterdam.",14,22
+POI0617,AMS,AFAS Live,culture,52.312261,4.944217,90,1,4.3,AFAS Live is a concert hall in Amsterdam.,9,20
+POI0618,AMS,Bloemenmarkt,food,52.366954,4.891405,60,1,4.3,"Bloemenmarkt is a market in Amsterdam, Netherlands.",9,17
+POI0619,AMS,Hortus Botanicus,nature,52.366643,4.907775,90,0,4.3,Hortus Botanicus is a botanical garden in Amsterdam.,10,17
+POI0620,AMS,De Bijenkorf,shopping,52.373349,4.893942,60,1,4.1,"De Bijenkorf is a department store in Amsterdam, the Netherlands.",11,21
+POI0621,AMS,Koningin Emma,history,52.354103,4.86287,60,0,4.1,"Koningin Emma is a statue and memorial in Amsterdam, the Netherlands.",8,19
+POI0622,AMS,Kraan 2868,landmark,52.377585,4.939833,60,1,4.1,"Kraan 2868 is a structure in Amsterdam, Netherlands.",8,20
+POI0623,AMS,Oude Kerk,museum,52.374361,4.898072,120,1,4.4,Oude Kerk is an Amsterdam’s oldest building and oldest parish church.,10,18
+POI0624,AMS,Lekstraatsynagoge,religion,52.34412,4.902919,30,0,4.1,"Lekstraatsynagoge is a synagogue in Amsterdam, Netherlands.",7,19
+POI0625,AMS,Strand Diemerpark,beach,52.354266,4.986519,150,0,4.0,A popular beach in Amsterdam.,0,24
+POI0626,AMS,Schiller,nightlife,52.365674,4.896587,120,1,4.0,"Schiller is a bar in Amsterdam, Netherlands.",16,0
+POI0627,AMS,DeLaMar,culture,52.364419,4.880688,90,1,4.1,"DeLaMar is a theatre in Amsterdam, Netherlands.",9,20
+POI0628,AMS,Dappermarkt,food,52.363153,4.927288,60,1,4.2,"Dappermarkt is a market in Amsterdam, Netherlands.",9,17
+POI0629,AMS,Amstelpark,nature,52.328205,4.894235,90,0,4.3,"Amstelpark is a park in Amsterdam-Zuid, Netherlands.",0,24
+POI0630,AMS,Villa Arena,shopping,52.312069,4.938675,60,1,4.0,"Villa Arena is a shopping mall in Amsterdam, the Netherlands.",10,20
+POI0631,AMS,Van Randwijk-monument,history,52.358647,4.891456,60,0,4.0,A historic site in Amsterdam.,8,19
+POI0632,AMS,Sint Olofskapel,landmark,52.376147,4.899985,60,1,4.1,"Sint Olofskapel is a church building in Amsterdam, Netherlands.",8,20
+POI0633,AMS,Gemeenlandshuis,museum,52.361235,4.96637,120,1,4.1,"Gemeenlandshuis is a Dutch water board meeting house in Diemen, in Amsterdam.",12,16
+POI0634,AMS,Thomaskerk,religion,52.342086,4.874826,30,0,4.1,"Thomaskerk is a church building in Amsterdam, Netherlands.",7,19
+POI0635,AMS,Sloterstrand,beach,52.371723,4.822976,150,0,4.0,A popular beach in Amsterdam.,0,24
+POI0636,AMS,Brandon,nightlife,52.375401,4.886415,120,1,4.0,A lively nightlife spot in Amsterdam.,15,1
+POI0637,AMS,Opera & Ballet,culture,52.367431,4.901221,90,1,4.2,"Opera & Ballet is an opera house in Amsterdam, Netherlands.",9,20
+POI0638,AMS,Albert Cuyp-markt,food,52.356054,4.894968,60,1,4.3,Albert Cuyp-markt is a street market in Amsterdam.,9,17
+POI0639,AMS,Oosterpark,nature,52.360224,4.920422,90,0,4.2,"Oosterpark is a park in Amsterdam, Netherlands.",0,24
+POI0640,AMS,Kalverpassage,shopping,52.367473,4.891561,60,1,4.1,A popular shopping spot in Amsterdam.,10,20
+POI0641,AMS,Multatuli,history,52.374714,4.889431,60,0,4.0,"Multatuli is a public sculpture in Amsterdam, the Netherlands.",8,19
+POI0642,AMS,Huis aan 3 grachten,landmark,52.369392,4.894681,60,1,4.1,Huis aan 3 grachten is a 17th C. canal house in Amsterdam.,8,20
+POI0643,AMS,Wereldmuseum Amsterdam,museum,52.362688,4.92244,120,1,4.4,"Wereldmuseum Amsterdam is an anthropological museum located in Amsterdam, the Netherlands.",10,17
+POI0644,AMS,Begijnhofkapel,religion,52.369296,4.889605,30,0,4.2,"Begijnhofkapel is a church in RM Amsterdam, Netherlands.",7,19
+POI0645,AMS,Pllek,beach,52.398867,4.892903,150,0,4.0,A popular beach in Amsterdam.,0,24
+POI0646,AMS,Reijnders,nightlife,52.364616,4.882904,120,1,4.0,A lively nightlife spot in Amsterdam.,18,2
+POI0647,AMS,Meervaart Theater,culture,52.358948,4.807396,90,1,4.1,Meervaart Theater is a theatre in Amsterdam.,9,20
+POI0648,AMS,Biologische woensdagmarkt,food,52.371635,4.938714,60,1,4.0,A well-regarded food destination in Amsterdam.,10,18
+POI0649,AMS,Wertheimpark,nature,52.367865,4.908654,90,0,4.1,"Wertheimpark is a park in Amsterdam, the Netherlands.",0,24
+POI0650,AMS,Amsterdamse Poort,shopping,52.31416,4.953144,60,1,4.1,Amsterdamse Poort is a shopping centre in the Amsterdam borough Amsterdam Zuidoost.,10,20
+POI0651,AMS,Westerman Monument,history,52.366453,4.916424,60,0,4.0,"Westerman Monument is a memorial by Bart van Hove, Artis, Amsterdam, the Netherlands.",8,19
+POI0652,AMS,Heilig Hartbeeld,landmark,52.338908,4.958975,60,1,4.0,"Heilig Hartbeeld is a Diemen, in Amsterdam.",8,20
+POI0653,AMS,Willet-Holthuysen,museum,52.365603,4.899015,120,1,4.3,Willet-Holthuysen is a museum in Amsterdam.,10,17
+POI0654,AMS,Obrechtkerk,religion,52.355894,4.875107,30,0,4.1,"Obrechtkerk is a church in Amsterdam, the Netherlands.",7,19
+POI0655,AMS,Het Eikenhout,beach,52.394666,4.88262,150,0,4.0,A popular beach in Amsterdam.,0,24
+POI0656,AMS,'t Mandje,nightlife,52.374815,4.900983,120,1,4.2,'t Mandje is a Bar in Amsterdam.,18,2
+POI0657,AMS,Bellevue,culture,52.364097,4.880435,90,1,4.1,Bellevue is a theatre in Amsterdam.,9,20
+POI0658,AMS,Markt Anton de Komplein,food,52.315953,4.95628,60,1,4.0,A well-regarded food destination in Amsterdam.,9,18
+POI0659,AMS,Sarphatipark,nature,52.35442,4.896386,90,0,4.2,Sarphatipark is a park in Amsterdam.,0,24
+POI0660,AMS,Woonboulevard Zaandam,shopping,52.427288,4.822652,60,1,4.0,"Woonboulevard Zaandam is a shopping mall in Zaandam, the Netherlands, in Amsterdam.",10,20
+POI0661,AMS,Rembrandt,history,52.366004,4.896595,60,0,4.1,Rembrandt is a statue in Amsterdam.,8,19
+POI0662,AMS,Voormalige Schouwburgpoort,landmark,52.369263,4.884232,60,1,4.2,A well-known landmark in Amsterdam.,8,20
+POI0663,AMS,Museum Van Loon,museum,52.363464,4.893378,120,1,4.3,"Museum Van Loon is an Amsterdam museum on Keizersgracht 672, residence of members of the Van Loon family.",10,17
+POI0664,AMS,Koningskerk,religion,52.348404,4.936261,30,0,4.1,Koningskerk is a church in Amsterdam.,7,19
+POI0665,AMS,Scheltema,nightlife,52.372083,4.890368,120,1,4.0,"Scheltema is a bar in Amsterdam, Netherlands.",18,2
+POI0666,AMS,OCCII,culture,52.354338,4.855337,90,1,4.1,OCCII is a Self-managed music venue in Amsterdam.,9,20
+POI0667,AMS,Bos en Lommerplein markt,food,52.378563,4.845785,60,1,4.0,A well-regarded food destination in Amsterdam.,9,18
+POI0668,AMS,Gerbrandypark,nature,52.377936,4.83072,90,0,4.1,Gerbrandypark is a park in Amsterdam.,0,24
+POI0669,AMS,HEMA,shopping,52.353679,4.891022,60,1,4.0,A popular shopping spot in Amsterdam.,9,19
+POI0670,AMS,Rozenoord,history,52.333962,4.898396,60,0,4.1,Rozenoord is a World War II memorial in Amsterdam.,8,19
+POI0671,AMS,Wester-Amstel,landmark,52.30652,4.90559,60,1,4.0,"Wester-Amstel is a building in Amstelveen, Netherlands, in Amsterdam.",8,20
+POI0672,AMS,Theo Thijssen Museum,museum,52.375521,4.882688,120,1,4.0,"Theo Thijssen Museum is a museum in Amsterdam, The Netherlands.",12,17
+POI0673,AMS,Oude Lutherse Kerk,religion,52.368348,4.889191,30,0,4.1,"Oude Lutherse Kerk is a church building in Amsterdam, Netherlands.",7,19
+POI0674,AMS,Brouwerij Troost,nightlife,52.386089,4.872816,120,1,4.0,"Brouwerij Troost is a brewery in the Netherlands, in Amsterdam.",11,1
+POI0675,AMS,Orgelpark,culture,52.359912,4.868274,90,1,4.1,Orgelpark is an Amsterdam.,9,20
+POI0676,AMS,Waterloopleinmarkt,food,52.368622,4.901193,60,1,4.0,A well-regarded food destination in Amsterdam.,9,18
+POI0677,AMS,Theo van Goghpark,nature,52.349694,5.006661,90,0,4.1,"Theo van Goghpark is a park in Amsterdam, Netherlands.",0,24
+POI0678,AMS,TK Maxx,shopping,52.374496,4.894406,60,1,4.0,A popular shopping spot in Amsterdam.,10,21
+POI0679,AMS,Auschwitzmonument,history,52.367941,4.909206,60,0,4.1,A historic site in Amsterdam.,8,19
+POI0680,AMS,Haarlemmerpoort,landmark,52.384967,4.88308,60,1,4.2,Haarlemmerpoort is a city gate in Amsterdam.,8,20
+POI0681,AMS,Amsterdam Museum,museum,52.370431,4.890429,120,1,4.4,"Amsterdam Museum is a municipal museum in Amsterdam, Netherlands.",10,17
+POI0682,AMS,Muiderkerk,religion,52.361733,4.924547,30,0,4.1,"Muiderkerk is a church building in Amsterdam, Netherlands.",7,19
+POI0683,AMS,No Man's Art Gallery,nightlife,52.382372,4.855281,120,1,4.0,"No Man's Art Gallery is a travelling art gallery, in Amsterdam.",18,2
+POI0684,AMS,Boom Chicago,culture,52.372808,4.879009,90,1,4.1,"Boom Chicago is an International English language improv troupe, based in Amsterdam.",9,20
+POI0685,AMS,Yada Yada Market,food,52.421819,4.831779,60,1,4.0,A well-regarded food destination in Amsterdam.,10,23
+POI0686,AMS,Diemerpark,nature,52.352134,4.986665,90,0,4.1,"Diemerpark is a park in Amsterdam, the Netherlands.",0,24
+POI0687,AMS,Poppo,shopping,52.398676,4.93725,60,1,4.0,A popular shopping spot in Amsterdam.,10,20
+POI0688,AMS,Thorbecke,history,52.365058,4.895853,60,0,4.1,A historic site in Amsterdam.,8,19
+POI0689,AMS,Huize Frankendael,landmark,52.351161,4.933508,60,1,4.0,"Huize Frankendael is a house in Amsterdam, Netherlands.",8,20
+POI0690,AMS,Allard Pierson Museum,museum,52.368805,4.893055,120,1,4.0,"Allard Pierson Museum is a former museum in Amsterdam, the Netherlands, until 2019.",9,18
+POI0691,AMS,Hofkerk,religion,52.353037,4.93364,30,0,4.1,"Hofkerk is a church in Amsterdam, Netherlands.",7,19
+POI0692,AMS,Rijnbar,nightlife,52.348804,4.904551,120,1,4.0,A lively nightlife spot in Amsterdam.,14,1
+POI0693,AMS,De Krakeling,culture,52.386148,4.873548,90,1,4.1,A cultural venue in Amsterdam.,9,20
+POI0694,AMS,Market 33,food,52.337363,4.871452,60,1,4.0,A well-regarded food destination in Amsterdam.,10,22
+POI0695,AMS,Martin Luther Kingpark,nature,52.338496,4.905222,90,0,4.1,"Martin Luther Kingpark is a park in the Netherlands, in Amsterdam.",0,24
+POI0696,AMS,Winkelcentrum Plein '40-'45,shopping,52.380077,4.822469,60,1,4.0,A popular shopping spot in Amsterdam.,10,20
+POI0697,AMS,Simon Carmiggelt,history,52.359861,4.888709,60,0,4.1,"Simon Carmiggelt is a sculpture in Amsterdam-Centrum, Netherlands.",8,19
+POI0698,AMS,Muiderpoort,landmark,52.363733,4.919475,60,1,4.1,"Muiderpoort is a city gate in Amsterdam, the Netherlands.",8,20
+POI0699,AMS,foam,museum,52.363988,4.893263,120,1,4.2,"foam is a museum in Amsterdam, the Netherlands.",10,18
+POI0700,AMS,Fatih,religion,52.373054,4.878479,30,0,4.2,"Fatih is a mosque in Amsterdam, Netherlands.",7,19
+POI0701,AMS,Panama,nightlife,52.374936,4.930426,120,1,4.0,A lively nightlife spot in Amsterdam.,18,2
+POI0702,AMS,Het Veem Theater,culture,52.390274,4.88707,90,1,4.0,"Het Veem Theater is a theater in Amsterdam, Netherlands.",9,20
+POI0703,AMS,Lindenmarkt,food,52.380038,4.883459,60,1,4.0,A well-regarded food destination in Amsterdam.,9,16
+POI0704,AMS,Westerpark,nature,52.387273,4.872306,90,0,4.2,"Westerpark is a park in Amsterdam, the Netherlands.",0,24
+POI0705,AMS,Bos en Lommerplein,shopping,52.378396,4.845764,60,1,4.0,A popular shopping spot in Amsterdam.,10,20
+POI0706,AMS,Kunstenaarsverzet,history,52.365565,4.91363,60,0,4.1,"Kunstenaarsverzet is a monument and work of art in Amsterdam, Netherlands.",8,19
+POI0707,AMS,Centraal Station,landmark,52.379044,4.900564,60,1,4.4,Centraal Station is a central railway station of Amsterdam.,8,20
+POI0708,AMS,Rembrandthuis,museum,52.369369,4.90125,120,1,4.4,Rembrandthuis is a historic house and art museum in Amsterdam in the Netherlands.,10,17
+POI0709,AMS,Mozes en Aäronkerk,religion,52.368262,4.903196,30,0,4.3,Mozes en Aäronkerk is a church in Amsterdam in Netherlands.,7,19
+POI0710,AMS,Bar Botanique Cafe Tropique,nightlife,52.363449,4.930327,120,1,4.0,A lively nightlife spot in Amsterdam.,18,2
+POI0711,AMS,De Rode Hoed,culture,52.377344,4.88726,90,1,4.1,"De Rode Hoed is a debating centre located in Amsterdam, former church building.",9,20
+POI0712,AMS,Lapjesmarkt,food,52.378517,4.884078,60,1,4.0,A well-regarded food destination in Amsterdam.,9,13
+POI0713,AMS,Erasmuspark,nature,52.374804,4.851734,90,0,4.1,"Erasmuspark is a park in Amsterdam, the Netherlands.",0,24
+POI0714,AMS,Molenwijk,shopping,52.417196,4.892949,60,1,4.0,A popular shopping spot in Amsterdam.,8,22
+POI0715,AMS,Mahatma Gandhi,history,52.347035,4.893249,60,0,4.1,"Mahatma Gandhi is a statue in Amsterdam, Netherlands.",8,19
+POI0716,AMS,Van Gendt Hallen,landmark,52.371233,4.925587,60,1,4.1,"Van Gendt Hallen is a building in Amsterdam, Netherlands.",8,20
+POI0717,AMS,Venustempel Sexmuseum,museum,52.376582,4.897275,120,1,4.3,"Venustempel Sexmuseum is a museum in Amsterdam, the Netherlands.",10,18
+POI0718,AMS,Elthetokerk,religion,52.363613,4.937182,30,0,4.1,"Elthetokerk is a church building in Amsterdam, Netherlands.",7,19
+POI0719,AMS,Café de Jeugd,nightlife,52.361387,4.92478,120,1,4.0,A lively nightlife spot in Amsterdam.,18,2
+POI0720,AMS,Plein Theater,culture,52.360979,4.913996,90,1,4.0,"Plein Theater is a theater in Amsterdam, the Netherlands.",9,20
+POI0721,AMS,Museum Market,food,52.358722,4.882742,60,1,4.0,A well-regarded food destination in Amsterdam.,12,18
+POI0722,AMS,Veroneseplantsoen,nature,52.349006,4.870451,90,0,4.1,"Veroneseplantsoen is a park, in Amsterdam.",0,24
+POI0723,AMS,Gelderlandplein,shopping,52.331221,4.877483,60,1,4.0,A popular shopping spot in Amsterdam.,10,20
+POI0724,AMS,Sarphatimonument,history,52.354462,4.895573,60,0,4.1,"Sarphatimonument is a memorial in Amsterdam, Netherlands.",8,19
+POI0725,AMS,Oosterkerk,landmark,52.369988,4.919306,60,1,4.3,Oosterkerk is a church building in Amsterdam.,8,20
+POI0726,AMS,Verzetsmuseum,museum,52.367808,4.912728,120,1,4.3,"Verzetsmuseum is a museum in Amsterdam, the Netherlands.",10,17
+POI0727,AMS,Meerpadkerk,religion,52.392239,4.934112,30,0,4.1,"Meerpadkerk is a church building in Amsterdam, Netherlands.",7,19
+POI0728,AMS,De Biertuin,nightlife,52.362318,4.924288,120,1,4.0,A lively nightlife spot in Amsterdam.,18,2
+POI0729,AMS,Tobacco Theater,culture,52.36957,4.893377,90,1,4.0,A cultural venue in Amsterdam.,9,20
+POI0730,AMS,Albert Cuypmarkt,food,52.35573,4.894361,60,1,4.0,A well-regarded food destination in Amsterdam.,10,23
+POI0731,AMS,Prof. Durrerplantsoen,nature,52.346566,4.873384,90,0,4.0,"Prof. Durrerplantsoen is a square in Amsterdam, the Netherlands.",0,24
+POI0732,AMS,Banne Centrum,shopping,52.408238,4.916095,60,1,4.0,A popular shopping spot in Amsterdam.,10,20
+POI0733,AMS,Monument voor gefusilleerde verzetstrijders,history,52.350703,4.877753,60,0,4.1,"Monument voor gefusilleerde verzetstrijders is a war memorial in Amsterdam, Netherlands.",8,19
+POI0734,AMS,Montelbaanstoren,landmark,52.372039,4.905658,60,1,4.3,Montelbaanstoren is a tower in Amsterdam.,8,20
+POI0735,AMS,Torture Museum,museum,52.367287,4.890665,120,1,4.1,"Torture Museum is a Museum in Amsterdan, Netherlands, in Amsterdam.",10,23
+POI0736,AMS,Gerard Dou Synagogue,religion,52.357057,4.897862,30,0,4.2,Gerard Dou Synagogue is a synagogue in Amsterdam.,7,19
+POI0737,AMS,Café Kale,nightlife,52.359495,4.897394,120,1,4.0,A lively nightlife spot in Amsterdam.,11,1
+POI0738,AMS,De Kleine Komedie,culture,52.366904,4.896025,90,1,4.2,De Kleine Komedie is a theater in Amsterdam.,9,20
+POI0739,AMS,Plantenmarkt,food,52.362304,4.897676,60,1,4.0,A well-regarded food destination in Amsterdam.,9,15
+POI0740,AMS,Leidsebosje,nature,52.363442,4.880066,90,0,4.1,"Leidsebosje is a park in Amsterdam, the Netherlands.",0,24
+POI0741,AMS,Brazilië,shopping,52.374354,4.936646,60,1,4.0,A popular shopping spot in Amsterdam.,9,18
+POI0742,AMS,Grenspaal,history,52.369576,4.901227,60,0,4.1,"Grenspaal is an art work in Amsterdam, Netherlands.",8,19
+POI0743,AMS,Zuiderkerk,landmark,52.370293,4.899748,60,1,4.3,Zuiderkerk is a church in Amsterdam.,8,20
+POI0744,AMS,Huis Marseille,museum,52.367641,4.884837,120,1,4.1,Huis Marseille is a photography museum in Amsterdam.,10,18
+POI0745,AMS,Raw Aron Schuster Synagoge,religion,52.352557,4.877496,30,0,4.1,A historic place of worship in Amsterdam.,7,19
+POI0746,AMS,Gambrinus,nightlife,52.351326,4.891211,120,1,4.0,A lively nightlife spot in Amsterdam.,11,24
+POI0747,AMS,Bimhuis,culture,52.377969,4.912886,90,1,4.2,Bimhuis is a concert hall in Amsterdam.,9,20
+POI0748,AMS,IJ-Hallen,food,52.401278,4.896595,60,1,4.0,A well-regarded food destination in Amsterdam.,10,23
+POI0749,AMS,Museumplein,nature,52.357402,4.881608,90,0,4.4,"Museumplein is a square in Amsterdam, Netherlands.",0,24
+POI0750,AMS,Design020,shopping,52.362182,4.975303,60,1,4.0,A popular shopping spot in Amsterdam.,10,18
+POI0751,PRG,U Tlustý Berty,landmark,50.093736,14.380539,60,1,4.0,"U Tlustý Berty is a villa in Prague, Czech Republic.",8,20
+POI0752,PRG,Mikoláš Aleš,history,50.024153,14.44661,60,0,4.0,A historic site in Prague.,8,19
+POI0753,PRG,Stětí svatého Jana Křtitele,religion,50.049033,14.524392,30,0,4.1,"Stětí svatého Jana Křtitele is a church building in Hostivař, Czech Republic, in Prague.",7,19
+POI0754,PRG,Kotva,shopping,50.088937,14.427163,60,1,4.2,Kotva is a department store in Prague.,9,20
+POI0755,PRG,svatý Šimon a Juda,culture,50.092039,14.420644,90,1,4.1,svatý Šimon a Juda is a church in Prague.,9,20
+POI0756,PRG,Valdštejnská zahrada,nature,50.090175,14.407568,90,0,4.1,"Valdštejnská zahrada is a park in Prague 1, Czech Republic.",7,19
+POI0757,PRG,Nudistická pláž Braník,beach,50.027785,14.399437,150,0,4.0,A popular beach in Prague.,0,24
+POI0758,PRG,Cross Club,nightlife,50.108293,14.443228,120,1,4.1,"Cross Club is a music venue in Prague, Czech Republic.",0,5
+POI0759,PRG,Havelské tržiště,food,50.084772,14.420993,60,1,4.0,"Havelské tržiště is a market in Prague, Czech Republic.",7,19
+POI0760,PRG,Gorlice,museum,50.06524,14.421215,120,1,4.1,A notable museum in Prague.,9,18
+POI0761,PRG,Zvonička,landmark,50.092725,14.349762,60,1,4.1,A well-known landmark in Prague.,8,20
+POI0762,PRG,Franz Kafka,history,50.087891,14.41922,60,0,4.0,A historic site in Prague.,8,19
+POI0763,PRG,Staronová synagoga,religion,50.090068,14.418599,30,0,4.4,"Staronová synagoga is a synagogue in Prague, Czechia.",11,17
+POI0764,PRG,Galerie Butovice,shopping,50.047607,14.354685,60,1,4.1,"Galerie Butovice is a shopping mall in Prague, Czech Republic.",10,20
+POI0765,PRG,Chodovská tvrz,culture,50.034641,14.499015,90,1,4.1,Chodovská tvrz is a stronghold in Prague.,13,19
+POI0766,PRG,Hadovka,nature,50.098132,14.373428,90,0,4.1,"Hadovka is a park in Prague, Czech Republic.",0,24
+POI0767,PRG,Kenton's New York Bar,nightlife,50.089599,14.42185,120,1,4.0,Kenton's New York Bar is a building in Prague.,19,3
+POI0768,PRG,Kunratická stodola,food,50.013139,14.481476,60,1,4.0,Kunratická stodola is a building in Prague.,10,23
+POI0769,PRG,Vojenský historický ústav Praha,museum,50.087663,14.445164,120,0,4.1,"Vojenský historický ústav Praha is an organization, in Prague.",9,18
+POI0770,PRG,Čertův sloup,landmark,50.064311,14.419142,60,1,4.1,"Čertův sloup is a stone formation in Prague, Czech Republic.",8,20
+POI0771,PRG,Jaroslav Vrchlický,history,50.085061,14.396624,60,0,4.1,Jaroslav Vrchlický is a statue on Petrin in Prague.,8,19
+POI0772,PRG,svatý Mikuláš,religion,50.087976,14.403204,30,0,4.4,svatý Mikuláš is a church in Prague in Malá Strana neighborhood.,9,17
+POI0773,PRG,Máj Národní,shopping,50.082065,14.419772,60,1,4.1,"Máj Národní is a building in Czech Republic, in Prague.",10,20
+POI0774,PRG,Divadlo Gong,culture,50.107083,14.48844,90,1,4.1,"Divadlo Gong is a theatre in Prague, Czech Republic.",9,20
+POI0775,PRG,Park Portheimka,nature,50.073961,14.405138,90,0,4.1,"Park Portheimka is a garden in Prague, Czech Republic.",0,24
+POI0776,PRG,Karlovy lázně,nightlife,50.085395,14.413865,120,1,4.2,"Karlovy lázně is a building in the Czech Republic, in Prague.",18,2
+POI0777,PRG,Holešovická tržnice,food,50.099672,14.445984,60,1,4.0,A well-regarded food destination in Prague.,10,23
+POI0778,PRG,Náprstkovo muzeum,museum,50.084094,14.415969,120,1,4.2,"Náprstkovo muzeum is a museum in Prague, Czechia.",9,18
+POI0779,PRG,1. zastavení,landmark,50.084192,14.394512,60,1,4.0,A well-known landmark in Prague.,8,20
+POI0780,PRG,Jan Masaryk,history,50.071241,14.437897,60,0,4.0,A historic site in Prague.,8,19
+POI0781,PRG,Panna Maria Sněžná,religion,50.083004,14.423634,30,0,4.3,"Panna Maria Sněžná is a church building in New Town, Czech Republic, in Prague.",7,19
+POI0782,PRG,Myšák Gallery,shopping,50.081269,14.424233,60,1,4.1,Myšák Gallery is a building in Prague.,10,20
+POI0783,PRG,Divadlo Spejbla a Hurvínka,culture,50.098995,14.398878,90,1,4.2,"Divadlo Spejbla a Hurvínka is a theatre in Prague, Czechia.",9,20
+POI0784,PRG,Dienzenhoferovy sady,nature,50.074999,14.408339,90,0,4.1,"Dienzenhoferovy sady is a park in Prague, Czech Republic.",0,24
+POI0785,PRG,U Černého vola,nightlife,50.088148,14.391847,120,1,4.1,"U Černého vola is a house in Hradčany, Czech Republic, in Prague.",10,22
+POI0786,PRG,Bakeshop,food,50.089693,14.422312,60,1,4.0,A well-regarded food destination in Prague.,7,20
+POI0787,PRG,Galerie VIA ART,museum,50.075572,14.415782,120,1,4.0,"Galerie VIA ART is an art gallery in Prague, Czech Republic.",9,18
+POI0788,PRG,10. zastavení,landmark,50.08358,14.394133,60,1,4.0,"10. zastavení is a chapel in Czech Republic, in Prague.",8,20
+POI0789,PRG,Simón Bolívar,history,50.106873,14.39872,60,0,4.1,"Simón Bolívar is a bronze statue, Bubeneč, Prague, Czech Republic.",8,19
+POI0790,PRG,Nejsvětější Salvátor,religion,50.086143,14.415033,30,0,4.3,Nejsvětější Salvátor is a church in Prague.,7,19
+POI0791,PRG,Černá růže,shopping,50.084809,14.42572,60,1,4.1,"Černá růže is a Haus with passage in Prague, Na příkopě.",10,20
+POI0792,PRG,Semafor,culture,50.099157,14.39762,90,1,4.2,"Semafor is a theatre in Prague, Czech Republic.",9,20
+POI0793,PRG,Vojanovy sady,nature,50.088781,14.408255,90,0,4.1,"Vojanovy sady is a park in Prague, Czech Republic.",0,24
+POI0794,PRG,Ikona,nightlife,50.087746,14.407891,120,1,4.0,"Ikona is a house in Malá Strana, Czech Republic, in Prague.",16,24
+POI0795,PRG,Farmářské tržiště Jiřák,food,50.07829,14.449177,60,1,4.0,A well-regarded food destination in Prague.,8,18
+POI0796,PRG,Kafka Museum,museum,50.087984,14.410511,120,1,4.3,Kafka Museum is a museum in Prague.,10,18
+POI0797,PRG,11. zastavení,landmark,50.083301,14.394174,60,1,4.0,"11. zastavení is a chapel in Czech Republic, in Prague.",8,20
+POI0798,PRG,František Langer,history,50.073026,14.406626,60,0,4.0,"František Langer is a statue in Smíchov, Czech Republic, in Prague.",8,19
+POI0799,PRG,svatý Jiljí,religion,50.085007,14.418627,30,0,4.2,"svatý Jiljí is a church building in Old Town, Czech Republic, in Prague.",7,19
+POI0800,PRG,VIVO!,shopping,50.053152,14.517476,60,1,4.1,VIVO! is a shopping mall in Prague.,6,22
+POI0801,PRG,Dejvické divadlo,culture,50.106678,14.393144,90,1,4.1,"Dejvické divadlo is a theatre in Prague, Czech Republic.",16,19
+POI0802,PRG,náměstí Organizace spojených národů,nature,50.110119,14.502975,90,0,4.1,"náměstí Organizace spojených národů is a square in Prague, Czech Republic.",0,24
+POI0803,PRG,Lucerna Music Bar,nightlife,50.081269,14.42532,120,1,4.1,Lucerna Music Bar is a music club in Prague.,18,2
+POI0804,PRG,Farmářské trhy,food,50.050906,14.439522,60,1,4.0,A well-regarded food destination in Prague.,8,18
+POI0805,PRG,DOX,museum,50.106785,14.447555,120,1,4.1,"DOX is a museum in Czech Republic, in Prague.",11,19
+POI0806,PRG,12. zastavení,landmark,50.083274,14.394656,60,1,4.0,"12. zastavení is a chapel in Czech Republic, in Prague.",8,20
+POI0807,PRG,Tomáš Garrigue Masaryk,history,50.089487,14.397932,60,0,4.2,Tomáš Garrigue Masaryk is a bronze sculpture installed at Prague Castle in Prague.,8,19
+POI0808,PRG,Panna Maria pod Řetězem,religion,50.086581,14.40648,30,0,4.3,Panna Maria pod Řetězem is a church in Prague.,7,19
+POI0809,PRG,Novodvorská Plaza,shopping,50.026764,14.43294,60,1,4.1,Novodvorská Plaza is a shopping mall in Prague.,9,21
+POI0810,PRG,Studio Ypsilon,culture,50.080888,14.420284,90,1,4.1,"Studio Ypsilon is a theatre in Prague, Czech Republic.",9,20
+POI0811,PRG,Čelakovského sady,nature,50.078259,14.4304,90,0,4.0,"Čelakovského sady is a street in Prague, Czech Republic.",0,24
+POI0812,PRG,Autentista,nightlife,50.085426,14.417586,120,1,4.0,"Autentista is a building in Prague, Czech Republic.",18,2
+POI0813,PRG,Holešovické trhy,food,50.100152,14.445038,60,1,4.0,A well-regarded food destination in Prague.,7,17
+POI0814,PRG,Národní galerie v Praze - Veletržní palác,museum,50.101523,14.432334,120,1,4.4,"Národní galerie v Praze - Veletržní palác is an art museum in Prague, Czechia.",10,18
+POI0815,PRG,13. zastavení,landmark,50.083251,14.395139,60,1,4.0,"13. zastavení is a chapel in Czech Republic, in Prague.",8,20
+POI0816,PRG,Alois Jirásek,history,50.075921,14.414336,60,0,4.2,"Alois Jirásek is a statue of Alois, in Prague.",8,19
+POI0817,PRG,svatý Vavřinec,religion,50.083079,14.396104,30,0,4.3,"svatý Vavřinec is a cathedral, in Prague.",7,19
+POI0818,PRG,Galerie Harfa,shopping,50.104294,14.490906,60,1,4.1,"Galerie Harfa is a shopping mall in Prague, Czech Republic.",10,20
+POI0819,PRG,Divadlo V Dlouhé,culture,50.091235,14.42675,90,1,4.1,"Divadlo V Dlouhé is a theatre in Prague, Czechia.",9,20
+POI0820,PRG,Velká strahovská zahrada,nature,50.085695,14.39183,90,0,4.1,A green space in Prague.,0,24
+POI0821,PRG,Vinárna U Laury,nightlife,50.088693,14.401336,120,1,4.0,"Vinárna U Laury is a house in Malá Strana, Czech Republic, in Prague.",18,2
+POI0822,PRG,Food Story,food,50.089214,14.422731,60,1,4.0,A well-regarded food destination in Prague.,9,21
+POI0823,PRG,Království železnic,museum,50.071324,14.402534,120,1,4.1,A notable museum in Prague.,9,19
+POI0824,PRG,14. zastavení,landmark,50.083226,14.395614,60,1,4.0,A well-known landmark in Prague.,8,20
+POI0825,PRG,Jakub Arbes,history,50.07645,14.40532,60,0,4.0,"Jakub Arbes is a statue in Smíchov, Czech Republic, in Prague.",8,19
+POI0826,PRG,Matka Boží před Týnem,religion,50.087711,14.422707,30,0,4.4,"Matka Boží před Týnem is a church building in Old Town, Czech Republic, in Prague.",10,13
+POI0827,PRG,Obchodní centrum Letňany,shopping,50.135836,14.501631,60,1,4.1,"Obchodní centrum Letňany is a shopping mall in Prague, Czech Republic.",9,21
+POI0828,PRG,ARCHA+,culture,50.089508,14.434176,90,1,4.1,"ARCHA+ is a cultural venue in Prague, Czech Republic.",9,20
+POI0829,PRG,park Holubička,nature,50.091929,14.408977,90,0,4.1,"park Holubička is a park in Prague, Czech Republic.",0,24
+POI0830,PRG,Euphoria Music Club,nightlife,50.098618,14.442915,120,1,4.1,"Euphoria Music Club is a tenement in Czech Republic, in Prague.",21,1
+POI0831,PRG,Momento Vestibul,food,50.052628,14.472771,60,1,4.0,A well-regarded food destination in Prague.,10,23
+POI0832,PRG,Památník národního písemnictví,museum,50.086643,14.390086,120,1,4.1,"Památník národního písemnictví is a literary museum in Prague, Czech Republic.",9,18
+POI0833,PRG,2. zastavení,landmark,50.084096,14.394919,60,1,4.0,"2. zastavení is a chapel in Czech Republic, in Prague.",8,20
+POI0834,PRG,Karel Hynek Mácha,history,50.081602,14.401927,60,0,4.1,"Karel Hynek Mácha is a statue in Malá Strana, Czech Republic, in Prague.",8,19
+POI0835,PRG,Farní sbor ČCE v Praze 10 - Strašnicích,religion,50.075484,14.490369,30,0,4.1,"Farní sbor ČCE v Praze 10 - Strašnicích is a Parish of Evangelical Church of Czech Brethren, in Prague.",7,19
+POI0836,PRG,Bílá labuť,shopping,50.090302,14.43377,60,1,4.1,"Bílá labuť is a shopping mall in Prague, Czech Republic.",9,20
+POI0837,PRG,Hudební divadlo Karlín,culture,50.090122,14.441241,90,1,4.2,"Hudební divadlo Karlín is a musical and operetta theatre in Prague, Czech Republic.",9,20
+POI0838,PRG,Klášterní zahrada,nature,50.086159,14.356383,90,0,4.1,"Klášterní zahrada is a garden in Břevnov, Czech Republic, in Prague.",0,24
+POI0839,PRG,U Vávrů,nightlife,50.076368,14.437673,120,1,4.0,U Vávrů is a building in Prague.,11,22
+POI0840,PRG,Farmářské trhy na Kulaťáku,food,50.101661,14.393436,60,1,4.0,A well-regarded food destination in Prague.,8,14
+POI0841,PRG,Museum Kampa,museum,50.083999,14.408491,120,1,4.3,Museum Kampa is a museum in Prague.,10,18
+POI0842,PRG,3. zastavení,landmark,50.084006,14.395268,60,1,4.0,"3. zastavení is a chapel in Czech Republic, in Prague.",8,20
+POI0843,PRG,Vítězslav Novák,history,50.082128,14.401492,60,0,4.0,"Vítězslav Novák is a statue in Malá Strana, Czech Republic, in Prague.",8,19
+POI0844,PRG,svatý Florián,religion,50.086179,14.363549,30,0,4.1,A historic place of worship in Prague.,7,19
+POI0845,PRG,Quadrio,shopping,50.081505,14.420126,60,1,4.1,Quadrio is an office building complex in Prague.,7,21
+POI0846,PRG,Alfred ve dvoře,culture,50.101185,14.430472,90,1,4.1,"Alfred ve dvoře is a theatre in Prague, Czech Republic.",9,20
+POI0847,PRG,park Willyho Brandta,nature,50.105191,14.401425,90,0,4.0,"park Willyho Brandta is a street in Prague, Czech Republic.",0,24
+POI0848,PRG,Marina Pivovar,nightlife,50.106179,14.456532,120,1,4.0,"Marina Pivovar is a microbrewery in Prague, Czech Republic.",18,2
+POI0849,PRG,Náměstí Republiky,food,50.088109,14.429415,60,1,4.0,A well-regarded food destination in Prague.,10,23
+POI0850,PRG,Muzeum Bedřicha Smetany,museum,50.085613,14.412925,120,1,4.3,Muzeum Bedřicha Smetany is a museum in Prague.,10,17
+POI0851,PRG,4. zastavení,landmark,50.083912,14.395637,60,1,4.0,"4. zastavení is a chapel in Czech Republic, in Prague.",8,20
+POI0852,PRG,Johannes Kepler a Tycho Brahe,history,50.087982,14.387911,60,0,4.0,Johannes Kepler a Tycho Brahe is a statue in Prague.,8,19
+POI0853,PRG,svatý Kříž,religion,50.071327,14.426761,30,0,4.1,"svatý Kříž is a chapel in Czech Republic, in Prague.",7,19
+POI0854,PRG,Slovanský dům,shopping,50.085964,14.427757,60,1,4.1,Slovanský dům is a building in Prague.,8,0
+POI0855,PRG,Divadlo pod Palmovkou,culture,50.105468,14.473096,90,1,4.1,"Divadlo pod Palmovkou is a theatre in Prague, Czech Republic.",9,20
+POI0856,PRG,Heroldovy sady,nature,50.070442,14.453491,90,0,4.0,"Heroldovy sady is a park in Prague, Czech Republic.",0,24
+POI0857,PRG,separé,nightlife,50.08095,14.41819,120,1,4.0,A lively nightlife spot in Prague.,17,0
+POI0858,PRG,MINT: Weekend Market,food,50.099015,14.446931,60,1,4.0,A well-regarded food destination in Prague.,9,18
+POI0859,PRG,Chlupáčovo muzeum historie Země,museum,50.068753,14.424277,120,1,4.1,"Chlupáčovo muzeum historie Země is a museum in Czech Republic, in Prague.",8,12
+POI0860,PRG,5. zastavení,landmark,50.083755,14.396264,60,1,4.0,"5. zastavení is a chapel in Czech Republic, in Prague.",8,20
+POI0861,PRG,Rabíndranáth Thákur,history,50.100674,14.387469,60,0,4.0,"Rabíndranáth Thákur is a monument in Dejvice, Czech Republic, in Prague.",8,19
+POI0862,PRG,Husův sbor,religion,50.097608,14.396959,30,0,4.1,"Husův sbor is a church building in Dejvice, Czech Republic, in Prague.",7,19
+POI0863,PRG,Arkády Pankrác,shopping,50.050892,14.437965,60,1,4.1,"Arkády Pankrác is a shopping mall in Prague, Czech Republic.",9,21
+POI0864,PRG,Branické divadlo,culture,50.035825,14.413852,90,1,4.1,"Branické divadlo is a theatre in Prague, Czech Republic.",9,20
+POI0865,PRG,Růžový sad,nature,50.081537,14.396518,90,0,4.1,A green space in Prague.,0,24
+POI0866,PRG,Irony vs. Satyr Bar,nightlife,50.091287,14.43112,120,1,4.0,A lively nightlife spot in Prague.,16,2
+POI0867,PRG,Foodcourt,food,50.136618,14.502204,60,1,4.0,A well-regarded food destination in Prague.,9,21
+POI0868,PRG,Muzeum Karlova mostu,museum,50.086511,14.413927,120,1,4.1,A notable museum in Prague.,10,19
+POI0869,PRG,6. zastavení,landmark,50.083709,14.395716,60,1,4.0,"6. zastavení is a chapel in Czech Republic, in Prague.",8,20
+POI0870,PRG,Ladislav Vertat,history,50.104635,14.392261,60,0,4.0,Ladislav Vertat is a memorial in Prague.,8,19
+POI0871,PRG,Církev Ježíše Krista Svatých posledních dnů,religion,50.097558,14.408067,30,0,4.6,"Církev Ježíše Krista Svatých posledních dnů is a Christian restorationist denomination centered on the Book of Mormon, in Prague.",7,19
+POI0872,PRG,Nový Smíchov,shopping,50.073153,14.402159,60,1,4.2,Nový Smíchov is a shopping mall in Prague.,6,1
+POI0873,PRG,Divadlo Kampa,culture,50.084301,14.406992,90,1,4.1,"Divadlo Kampa is a theatre in Prague, Czech Republic.",9,20
+POI0874,PRG,Vrtbovská zahrada,nature,50.086481,14.402558,90,0,4.2,"Vrtbovská zahrada is a Czech garden, in Prague.",10,19
+POI0875,PRG,Na Slamníku,nightlife,50.103733,14.408437,120,1,4.1,"Na Slamníku is a restaurant in Czech Republic, in Prague.",11,24
+POI0876,PRG,Farmářské tržiště Náplavka,food,50.0688,14.414436,60,1,4.0,A well-regarded food destination in Prague.,8,14
+POI0877,PRG,Židovské muzeum,museum,50.090285,14.4211,120,1,4.3,"Židovské muzeum is a museum in Czechia, in Prague.",9,18
+POI0878,PRG,7. zastavení,landmark,50.083733,14.395244,60,1,4.0,"7. zastavení is a chapel in Czech Republic, in Prague.",8,20
+POI0879,PRG,František Kollman,history,50.103375,14.397651,60,0,4.0,František Kollman is a plaque in Prague.,8,19
+POI0880,PRG,Smíchovská synagoga,religion,50.071739,14.403119,30,0,4.2,"Smíchovská synagoga is a former Reform synagogue in Pacific, Czech Republic, in Prague.",7,19
+POI0881,PRG,Obchodní dům Petřiny,shopping,50.087753,14.345074,60,1,4.1,A popular shopping spot in Prague.,10,20
+POI0882,PRG,Rokoko,culture,50.081391,14.426269,90,1,4.1,"Rokoko is a theatre in Prague, Czech Republic.",11,19
+POI0883,PRG,Vratislavská zahrada,nature,50.086668,14.401999,90,0,4.1,"Vratislavská zahrada is a garden in Prague 1, Czech Republic.",0,24
+POI0884,PRG,Minus,nightlife,50.134281,14.507543,120,1,4.0,A lively nightlife spot in Prague.,18,2
+POI0885,PRG,Farmářské trhy Prosek,food,50.128327,14.490327,60,1,4.0,A well-regarded food destination in Prague.,8,16
+POI0886,PRG,Galerie Václava Špály,museum,50.082412,14.420334,120,1,4.1,"Galerie Václava Špály is a museum in Czech Republic, in Prague.",11,19
+POI0887,PRG,8. zastavení,landmark,50.08375,14.394846,60,1,4.0,"8. zastavení is a chapel in Czech Republic, in Prague.",8,20
+POI0888,PRG,Antonín Dvořák,history,50.089238,14.415174,60,0,4.0,A historic site in Prague.,8,19
+POI0889,PRG,Nová libeňská synagoga,religion,50.104096,14.474036,30,0,4.1,A historic place of worship in Prague.,7,19
+POI0890,PRG,OC Flora,shopping,50.078777,14.461115,60,1,4.1,"OC Flora is a shopping mall with cinema in Prague, Czech Republic.",10,20
+POI0891,PRG,Divadlo ABC,culture,50.080365,14.424881,90,1,4.1,"Divadlo ABC is a theatre in Prague, Czech Republic.",9,20
+POI0892,PRG,Lobkovická zahrada,nature,50.086839,14.397902,90,0,4.1,"Lobkovická zahrada is a garden in Prague, Czech Republic.",0,24
+POI0893,PRG,Na hradbách,nightlife,50.063611,14.422183,120,1,4.0,A lively nightlife spot in Prague.,12,24
+POI0894,PRG,BioAid,food,50.079654,14.450662,60,1,4.0,A well-regarded food destination in Prague.,10,19
+POI0895,PRG,Galerie Smečky,museum,50.079169,14.4273,120,0,4.0,A notable museum in Prague.,11,18
+POI0896,PRG,9. zastavení,landmark,50.08377,14.394445,60,1,4.0,"9. zastavení is a chapel in Czech Republic, in Prague.",8,20
+POI0897,PRG,Josef Mánes,history,50.089755,14.414502,60,0,4.0,A historic site in Prague.,8,19
+POI0898,PRG,svatý Petr a Pavel,religion,50.06442,14.41787,30,0,4.4,svatý Petr a Pavel is a church in Prague.,7,19
+POI0899,PRG,Palladium,shopping,50.089461,14.429615,60,1,4.2,Palladium is a shopping mall in Prague.,7,24
+POI0900,PRG,Divadlo Kámen,culture,50.095597,14.468466,90,1,4.1,"Divadlo Kámen is a theatre in Prague, Czech Republic.",9,20
+POI0901,VIE,Mahnmal Morzinplatz,history,48.212989,16.374602,60,0,4.0,A historic site in Vienna.,8,19
+POI0902,VIE,Obelisk,landmark,48.179992,16.316076,60,1,4.1,A well-known landmark in Vienna.,8,20
+POI0903,VIE,Elisabethinen-Kirche,religion,48.205275,16.386718,30,0,4.1,"Elisabethinen-Kirche is a church, in Vienna.",7,19
+POI0904,VIE,Schubertpark,nature,48.226413,16.339115,90,0,4.1,"Schubertpark is a cemetery in Währing, Austria, in Vienna.",0,24
+POI0905,VIE,Oberes Belvedere,museum,48.191539,16.380903,120,1,4.0,"Oberes Belvedere is a Palace in Vienna, Austria.",10,18
+POI0906,VIE,Burgtheater,culture,48.210313,16.361481,90,1,4.5,"Burgtheater is a state drama theatre in Vienna, Austria.",9,20
+POI0907,VIE,Oststrand,beach,48.227808,16.433338,150,0,4.0,A popular beach in Vienna.,0,24
+POI0908,VIE,Eden Bar,nightlife,48.207272,16.372786,120,1,4.1,"Eden Bar is a bar in Vienna, Austria.",18,2
+POI0909,VIE,Meidlinger Markt,food,48.180672,16.333132,60,1,4.0,A well-regarded food destination in Vienna.,6,21
+POI0910,VIE,Ringstraßen-Galerien,shopping,48.202172,16.372295,60,1,4.1,Ringstraßen-Galerien is a shopping mall in Vienna.,10,20
+POI0911,VIE,Augustinbrunnen,history,48.205412,16.35135,60,0,4.1,"Augustinbrunnen is a water well, in Vienna.",8,19
+POI0912,VIE,Denkmal der Republik,landmark,48.207003,16.359237,60,1,4.1,Denkmal der Republik is a Monument in Vienna.,8,20
+POI0913,VIE,Schieferlkreuz,religion,48.172361,16.326909,30,0,4.1,A historic place of worship in Vienna.,7,19
+POI0914,VIE,Augarten,nature,48.224502,16.376603,90,0,4.3,Augarten is a public park and baroque palace in Vienna.,7,17
+POI0915,VIE,Secession,museum,48.200496,16.365783,120,1,4.4,"Secession is a historic exhibition hall in Vienna, Austria.",10,18
+POI0916,VIE,Wiener Staatsoper,culture,48.203273,16.369211,90,1,4.5,"Wiener Staatsoper is an opera house in Vienna, Austria.",9,20
+POI0917,VIE,Südstrand,beach,48.225542,16.432666,150,0,4.0,A popular beach in Vienna.,0,24
+POI0918,VIE,Rupps,nightlife,48.184685,16.347469,120,1,4.0,A lively nightlife spot in Vienna.,18,2
+POI0919,VIE,Karmelitermarkt,food,48.21755,16.376901,60,1,4.1,Karmelitermarkt is a market in Vienna.,10,23
+POI0920,VIE,Gasometer A,shopping,48.185153,16.418406,60,1,4.0,A popular shopping spot in Vienna.,10,20
+POI0921,VIE,Johann Strauß,history,48.203804,16.379166,60,0,4.2,"Johann Strauß is a monument in Vienna, Austria.",8,19
+POI0922,VIE,Pietá,landmark,48.157599,16.316369,60,1,4.0,A well-known landmark in Vienna.,8,20
+POI0923,VIE,Hofburgkapelle,religion,48.206592,16.365933,30,0,4.1,"Hofburgkapelle is a Chapel, Hofburg palace, Vienna.",10,14
+POI0924,VIE,Japanischer Garten,nature,48.183629,16.302599,90,0,4.0,"Japanischer Garten is a Japanese style garden in Schönbrunn Palace in Vienna, Austria.",0,24
+POI0925,VIE,Unteres Belvedere,museum,48.196743,16.379847,120,1,4.0,"Unteres Belvedere is a Palace in Austria, in Vienna.",10,18
+POI0926,VIE,Rabenhof,culture,48.19582,16.401665,90,1,4.1,"Rabenhof is a building in Vienna, Austria.",9,20
+POI0927,VIE,Weststrand,beach,48.231062,16.42824,150,0,4.0,A popular beach in Vienna.,0,24
+POI0928,VIE,U4 Discothek,nightlife,48.183304,16.328165,120,1,4.1,"U4 Discothek is a nightclub in Vienna, Austria.",18,2
+POI0929,VIE,Naschmarkt,food,48.198347,16.362579,60,1,4.3,"Naschmarkt is a square and market in Vienna, Austria.",10,23
+POI0930,VIE,Westfield Donau Zentrum,shopping,48.242195,16.437611,60,1,4.2,"Westfield Donau Zentrum is a shopping mall in Vienna, Austria.",9,20
+POI0931,VIE,Mozart-Denkmal,history,48.204085,16.364761,60,0,4.3,Mozart-Denkmal is a monument in Vienna.,8,19
+POI0932,VIE,hl. Johannes Nepomuk,landmark,48.251833,16.321984,60,1,4.0,A well-known landmark in Vienna.,8,20
+POI0933,VIE,Waldandacht,religion,48.2542,16.280283,30,0,4.0,A historic place of worship in Vienna.,7,19
+POI0934,VIE,Belvedere,nature,48.193282,16.380508,90,0,4.5,"Belvedere is a building complex that includes two Baroque palaces in Vienna, Austria.",0,24
+POI0935,VIE,Geymüllerschlössel,museum,48.243778,16.307319,120,1,4.1,"Geymüllerschlössel is a small palace situated in Pötzleinsdorf, near Vienna, Austria.",10,18
+POI0936,VIE,Metropol,culture,48.217006,16.33422,90,1,4.1,"Metropol is a theatre in Hernals, Vienna, Austria.",9,20
+POI0937,VIE,Pirat Bucht,beach,48.216177,16.432258,150,0,4.0,A popular beach in Vienna.,0,24
+POI0938,VIE,Loosbar,nightlife,48.207161,16.371203,120,1,4.1,"Loosbar is an architectural structure, in Vienna.",12,4
+POI0939,VIE,Rochusmarkt,food,48.202709,16.390793,60,1,4.1,A well-regarded food destination in Vienna.,6,19
+POI0940,VIE,Donauplex,shopping,48.242036,16.433318,60,1,4.0,"Donauplex is an IMAX theater, in Vienna.",10,20
+POI0941,VIE,Goethe,history,48.203391,16.366141,60,0,4.1,"Goethe is an architectural structure, in Vienna.",8,19
+POI0942,VIE,Penzinger Lichtsäule,landmark,48.191967,16.301771,60,1,4.0,A well-known landmark in Vienna.,8,20
+POI0943,VIE,St. Leopold,religion,48.218929,16.379341,30,0,4.1,"St. Leopold is a parish church, in Vienna.",7,19
+POI0944,VIE,Rathauspark,nature,48.210586,16.359386,90,0,4.2,Rathauspark is a park in Vienna.,0,24
+POI0945,VIE,Klimt-Villa,museum,48.188551,16.283032,120,1,4.1,"Klimt-Villa is a building in Hietzing, Austria, in Vienna.",10,18
+POI0946,VIE,Theater im Zentrum,culture,48.207203,16.372964,90,1,4.1,"Theater im Zentrum is a theatre in Vienna, Austria.",9,20
+POI0947,VIE,Arena Beach,beach,48.222769,16.421771,150,0,4.0,A popular beach in Vienna.,0,24
+POI0948,VIE,Flex,nightlife,48.217772,16.370884,120,1,4.1,Flex is a nightclub in Vienna.,23,6
+POI0949,VIE,Hannovermarkt,food,48.231829,16.368829,60,1,4.1,A well-regarded food destination in Vienna.,10,23
+POI0950,VIE,Stadion Center,shopping,48.209729,16.422794,60,1,4.1,A popular shopping spot in Vienna.,9,19
+POI0951,VIE,Friedrich Schiller,history,48.20211,16.365494,60,0,4.1,A historic site in Vienna.,8,19
+POI0952,VIE,Figur hl. Florian,landmark,48.149583,16.34726,60,1,4.0,A well-known landmark in Vienna.,8,20
+POI0953,VIE,Johannes-Nepomuk-Kapelle,religion,48.225718,16.38372,30,0,4.1,"Johannes-Nepomuk-Kapelle is a church building in Leopoldstadt, Austria, in Vienna.",7,19
+POI0954,VIE,Rothschildgarten,nature,48.25187,16.358674,90,0,4.1,A green space in Vienna.,0,24
+POI0955,VIE,Otto Wagner Hofpavillon Hietzing,museum,48.187522,16.305984,120,1,4.2,"Otto Wagner Hofpavillon Hietzing is a building in Vienna, Austria.",10,13
+POI0956,VIE,Schönbrunner Schlosstheater,culture,48.186689,16.312109,90,1,4.1,Schönbrunner Schlosstheater is a stage at the Schönbrunn Palace in Vienna.,9,20
+POI0957,VIE,FKK Bereich Wienerberg - Naturistenstrand,beach,48.161974,16.351305,150,0,4.0,A popular beach in Vienna.,0,24
+POI0958,VIE,Flucc,nightlife,48.21773,16.393192,120,1,4.0,Flucc is a nightclub in Vienna.,20,6
+POI0959,VIE,Meiselmarkt,food,48.198348,16.319824,60,1,4.1,"Meiselmarkt is a Markt in Wien, in Vienna.",6,20
+POI0960,VIE,Q19 Einkaufsquartier Döbling,shopping,48.253736,16.367625,60,1,4.1,"Q19 Einkaufsquartier Döbling is a building in Vienna, Austria.",9,19
+POI0961,VIE,Karl-Kantner-Denkmal,history,48.213959,16.304809,60,0,4.0,"Karl-Kantner-Denkmal is a memorial in Vienna, Austria.",8,19
+POI0962,VIE,Heiliger Johannes von Nepomuk,landmark,48.219595,16.368323,60,1,4.0,A well-known landmark in Vienna.,8,20
+POI0963,VIE,Schottenkirche,religion,48.212014,16.364985,30,0,4.2,Schottenkirche is a parish church in Vienna.,7,19
+POI0964,VIE,Bruno-Kreisky-Park,nature,48.187985,16.343742,90,0,4.1,"Bruno-Kreisky-Park is a park in Margareten, Austria, in Vienna.",0,24
+POI0965,VIE,Winterpalais,museum,48.205396,16.372898,120,1,4.3,"Winterpalais is a building in Innere Stadt, Austria, in Vienna.",10,18
+POI0966,VIE,Kammerspiele,culture,48.211105,16.375983,90,1,4.1,"Kammerspiele is a theater in Vienna, Austria.",9,20
+POI0967,VIE,Familienstrand an der Neuen Donau,beach,48.243212,16.396367,150,0,4.0,A popular beach in Vienna.,0,24
+POI0968,VIE,Café Anno,nightlife,48.208016,16.341797,120,1,4.0,A lively nightlife spot in Vienna.,18,2
+POI0969,VIE,Schwendermarkt,food,48.191016,16.326665,60,1,4.1,"Schwendermarkt is a market and marketplace in Vienna, Austria.",6,21
+POI0970,VIE,Zentrum Simmering,shopping,48.173165,16.416095,60,1,4.1,Zentrum Simmering is a shopping mall in Vienna.,9,19
+POI0971,VIE,Liebenberg Denkmal,history,48.212545,16.361721,60,0,4.1,A historic site in Vienna.,8,19
+POI0972,VIE,Beschornerkreuz,landmark,48.167105,16.38126,60,1,4.1,A well-known landmark in Vienna.,8,20
+POI0973,VIE,St. Thomas Morus,religion,48.23729,16.298869,30,0,4.1,"St. Thomas Morus is a church building in Hernals, Austria, in Vienna.",7,19
+POI0974,VIE,Alois-Drasche-Park,nature,48.18642,16.36786,90,0,4.1,"Alois-Drasche-Park is a park in Vienna, Austria.",0,24
+POI0975,VIE,Albertina,museum,48.204636,16.368261,120,1,4.5,"Albertina is an art museum in Vienna, Austria.",10,18
+POI0976,VIE,Renaissancetheater,culture,48.201372,16.349214,90,1,4.0,"Renaissancetheater is a theatre in Vienna, Austria.",9,20
+POI0977,VIE,Café Amadeus,nightlife,48.200688,16.336473,120,1,4.0,A lively nightlife spot in Vienna.,17,23
+POI0978,VIE,Palais Freiluft,food,48.207694,16.354593,60,1,4.0,A well-regarded food destination in Vienna.,15,22
+POI0979,VIE,Gerngross,shopping,48.20002,16.353255,60,1,4.1,"Gerngross is a department store, in Vienna.",9,19
+POI0980,VIE,Kaiserin Elisabeth Denkmal,history,48.209416,16.361842,60,0,4.0,A historic site in Vienna.,8,19
+POI0981,VIE,Hesser-Denkmal,landmark,48.198568,16.338578,60,1,4.1,"Hesser-Denkmal is a monument in Neubau, Austria, in Vienna.",8,20
+POI0982,VIE,Atzgersdorfer Pfarrkirche hl. Katharina,religion,48.14744,16.294468,30,0,4.1,"Atzgersdorfer Pfarrkirche hl. Katharina is a church building in Liesing, Austria, in Vienna.",7,19
+POI0983,VIE,Waldmüllerpark,nature,48.180524,16.365599,90,0,4.1,"Waldmüllerpark is a cemetery, in Vienna.",0,24
+POI0984,VIE,Bank Austria Kunstforum,museum,48.211441,16.366258,120,1,4.1,"Bank Austria Kunstforum is a museum and art gallery, in Vienna.",10,19
+POI0985,VIE,Kammeroper,culture,48.209995,16.377879,90,1,4.2,"Kammeroper is a building in Vienna, Austria.",9,20
+POI0986,VIE,Shebeen,nightlife,48.206374,16.348949,120,1,4.0,A lively nightlife spot in Vienna.,15,0
+POI0987,VIE,Bau-Portal-Gläser,food,48.221885,16.36473,60,1,4.0,A well-regarded food destination in Vienna.,8,14
+POI0988,VIE,Steffl,shopping,48.206402,16.372143,60,1,4.2,"Steffl is a department store in WIen, in Vienna.",10,20
+POI0989,VIE,Johann Strauß Vater / Joseph Lanner,history,48.209205,16.358486,60,0,4.0,A historic site in Vienna.,8,19
+POI0990,VIE,Hl. Johannes von Nepomuk (Statue),landmark,48.190419,16.321055,60,1,4.0,"Hl. Johannes von Nepomuk (Statue) is a monument in Winckelmannstraße, Rudolfsheim-Fünfhaus, Austria, in Vienna.",8,20
+POI0991,VIE,St. Anna Kapelle,religion,48.233461,16.291426,30,0,4.1,"St. Anna Kapelle is a church building in Hernals, Austria, in Vienna.",7,19
+POI0992,VIE,Sigmund-Freud-Park,nature,48.214892,16.360473,90,0,4.0,"Sigmund-Freud-Park is a park in Alsergrund, Austria, in Vienna.",0,24
+POI0993,VIE,Architekturzentrum Wien,museum,48.204179,16.357616,120,1,4.3,Architekturzentrum Wien is a museum in Vienna.,10,19
+POI0994,VIE,Theater Drachengasse,culture,48.210033,16.377734,90,1,4.1,"Theater Drachengasse is a building in Vienna, Austria.",9,20
+POI0995,VIE,Sing Your Song Karaoke,nightlife,48.202584,16.363817,120,1,4.0,A lively nightlife spot in Vienna.,20,2
+POI0996,VIE,Ostermarkt Schloß Schönbrunn,food,48.186068,16.31354,60,1,4.0,A well-regarded food destination in Vienna.,10,23
+POI0997,VIE,CITYGATE,shopping,48.264128,16.453118,60,1,4.0,"CITYGATE is a Shopping mall in Vienna, Austria.",7,21
+POI0998,VIE,Dr. Karl Renner,history,48.208966,16.359679,60,0,4.0,"Dr. Karl Renner is a monument in Innere Stadt, Austria, in Vienna.",8,19
+POI0999,VIE,Carl Freiherr Auer von Welsbach,landmark,48.220304,16.356502,60,1,4.0,"Carl Freiherr Auer von Welsbach is a monument in Alsergrund, Austria, in Vienna.",8,20
+POI1000,VIE,St. Paul,religion,48.242401,16.350209,30,0,4.1,"St. Paul is a parish church, in Vienna.",7,19
+POI1001,VIE,Volksgarten,nature,48.20805,16.361728,90,0,4.3,"Volksgarten is an urban park in Vienna, Austria.",0,24
+POI1002,VIE,Pfadfindermuseum,museum,48.199936,16.325881,120,1,4.0,"Pfadfindermuseum is a Scouting museum and archive in Vienna, Austria.",17,21
+POI1003,VIE,Ateliertheater,culture,48.204199,16.347074,90,1,4.1,"Ateliertheater is a building in Vienna, Austria.",9,20
+POI1004,VIE,Jazzclub ZWE,nightlife,48.216291,16.374826,120,1,4.0,A lively nightlife spot in Vienna.,18,2
+POI1005,VIE,Servitenmarkt,food,48.220681,16.364097,60,1,4.0,A well-regarded food destination in Vienna.,9,18
+POI1006,VIE,Galerie Wieden,shopping,48.189619,16.365092,60,1,4.0,A popular shopping spot in Vienna.,10,20
+POI1007,VIE,Gotthold Ephraim Lessing,history,48.211527,16.369845,60,0,4.0,"Gotthold Ephraim Lessing is a monument in Innere Stadt, Austria, in Vienna.",8,19
+POI1008,VIE,St. Augustinus,landmark,48.162996,16.322167,60,1,4.0,A well-known landmark in Vienna.,8,20
+POI1009,VIE,Erlöserkirche Endresstraße,religion,48.147318,16.28265,30,0,4.1,"Erlöserkirche Endresstraße is a parish church, in Vienna.",7,19
+POI1010,VIE,Burggarten,nature,48.204389,16.365795,90,0,4.2,Burggarten is a park in Vienna.,0,24
+POI1011,VIE,Jüdisches Museum Wien,museum,48.20713,16.369293,120,1,4.2,"Jüdisches Museum Wien is a museum in Vienna, Austria dedicated to Jewish history, culture and religion.",10,18
+POI1012,VIE,Theater Akzent,culture,48.192225,16.375008,90,1,4.1,"Theater Akzent is a building in Vienna, Austria.",9,20
+POI1013,VIE,Cafe Stadtbahn,nightlife,48.23046,16.328522,120,1,4.0,A lively nightlife spot in Vienna.,19,2
+POI1014,VIE,Food Plaza,food,48.240279,16.385493,60,1,4.0,A well-regarded food destination in Vienna.,10,23
+POI1015,VIE,Dorotheum,shopping,48.175883,16.330439,60,1,4.0,A popular shopping spot in Vienna.,8,19
+POI1016,VIE,Theodor-Hermann-von-Leschetizky-Bank,history,48.235927,16.335509,60,0,4.0,A historic site in Vienna.,8,19
+POI1017,VIE,Hl. Johannes von Nepomuk,landmark,48.149412,16.352964,60,1,4.0,"Hl. Johannes von Nepomuk is a statue in Liesing, Austria, in Vienna.",8,20
+POI1018,VIE,Maria-Loretto-Kirche,religion,48.2697,16.385517,30,0,4.1,"Maria-Loretto-Kirche is a church building in Vienna, Austria.",7,19
+POI1019,VIE,Grete-Rehor-Park,nature,48.206927,16.35833,90,0,4.0,"Grete-Rehor-Park is a park in Innere Stadt, Austria, in Vienna.",0,24
+POI1020,VIE,Wiener Kriminalmuseum,museum,48.218225,16.378488,120,1,4.1,"Wiener Kriminalmuseum is a museum in Austria, in Vienna.",10,17
+POI1021,VIE,Kosmos Theater,culture,48.202354,16.351337,90,1,4.1,"Kosmos Theater is a building in Vienna, Austria.",9,20
+POI1022,VIE,Schlupfwinkel,nightlife,48.193207,16.36283,120,1,4.0,A lively nightlife spot in Vienna.,17,1
+POI1023,VIE,Gleis//Garten,food,48.179308,16.347133,60,1,4.0,A well-regarded food destination in Vienna.,16,24
+POI1024,VIE,Woolworth,shopping,48.199388,16.352363,60,1,4.0,A popular shopping spot in Vienna.,10,20
+POI1025,VIE,Guttenberg-Denkmal,history,48.235858,16.334911,60,0,4.0,"Guttenberg-Denkmal is a monument in Währing, Austria, in Vienna.",8,19
+POI1026,VIE,Schmerber Kreuz,landmark,48.149686,16.406016,60,1,4.1,"Schmerber Kreuz is a wayside cross in Vienna, Austria.",8,20
+POI1027,VIE,(ehem.) Fieberkreuz,religion,48.151137,16.292352,30,0,4.0,A historic place of worship in Vienna.,7,19
+POI1028,VIE,Schweizergarten,nature,48.186125,16.386213,90,0,4.1,"Schweizergarten is a park in Vienna, Austria.",0,24
+POI1029,VIE,Bezirksmuseum Hernals,museum,48.217968,16.333013,120,1,4.1,"Bezirksmuseum Hernals is a museum in Austria, in Vienna.",16,20
+POI1030,VIE,MuTh Konzertsaal der Wiener Sängerknaben,culture,48.22007,16.380019,90,1,4.1,"MuTh Konzertsaal der Wiener Sängerknaben is a building in Vienna, Austria.",9,20
+POI1031,VIE,Wilde Ehe,nightlife,48.224235,16.344437,120,1,4.0,A lively nightlife spot in Vienna.,16,24
+POI1032,VIE,4OH!4,food,48.185212,16.381738,60,1,4.0,A well-regarded food destination in Vienna.,7,15
+POI1033,VIE,TK Maxx,shopping,48.197892,16.349423,60,1,4.0,A popular shopping spot in Vienna.,9,21
+POI1034,VIE,Kriegergedenkstein,history,48.235606,16.334701,60,0,4.0,A historic site in Vienna.,8,19
+POI1035,VIE,Deserteursdenkmal,landmark,48.208072,16.363344,60,1,4.1,A well-known landmark in Vienna.,8,20
+POI1036,VIE,Salesianerinnenkirche,religion,48.195878,16.381671,30,0,4.1,"Salesianerinnenkirche is a church building in Landstraße, Austria, in Vienna.",7,19
+POI1037,VIE,Josef-Strauß-Park,nature,48.207598,16.340577,90,0,4.0,"Josef-Strauß-Park is a park in Neubau, Austria, in Vienna.",0,24
+POI1038,VIE,Viktor-Frankl-Museum,museum,48.215771,16.3508,120,1,4.0,"Viktor-Frankl-Museum is a museum in Austria, in Vienna.",13,18
+POI1039,VIE,Porgy & Bess,culture,48.206801,16.376589,90,1,4.1,Porgy & Bess is an Austrian jazz and music venue in Vienna.,9,20
+POI1040,VIE,BackBone Irish Pub,nightlife,48.204413,16.343262,120,1,4.0,A lively nightlife spot in Vienna.,17,18
+POI1041,VIE,Bauernmarkt Margareten,food,48.191922,16.358784,60,1,4.0,A well-regarded food destination in Vienna.,8,18
+POI1042,VIE,Manufactum Warenhaus,shopping,48.210559,16.367442,60,1,4.0,A popular shopping spot in Vienna.,10,19
+POI1043,VIE,Kosakendenkmal,history,48.235557,16.334064,60,0,4.0,"Kosakendenkmal is a monument in Währing, Austria, in Vienna.",8,19
+POI1044,VIE,Hendlkreuz,landmark,48.163177,16.392104,60,1,4.1,A well-known landmark in Vienna.,8,20
+POI1045,VIE,Deutschordenskirche St. Elisabeth,religion,48.207596,16.373399,30,0,4.2,"Deutschordenskirche St. Elisabeth is a church in Vienna, Austria.",7,19
+POI1046,VIE,Lore-Segal-Park,nature,48.211067,16.345408,90,0,4.1,Lore-Segal-Park is a park in Vienna.,0,24
+POI1047,VIE,Bezirksmuseum Mariahilf,museum,48.19377,16.352734,120,0,4.1,"Bezirksmuseum Mariahilf is a museum in Austria, in Vienna.",10,12
+POI1048,VIE,Kabarett Simpl,culture,48.207625,16.37847,90,1,4.1,"Kabarett Simpl is a building in Vienna, Austria.",9,20
+POI1049,VIE,Club tresor,nightlife,48.197686,16.360426,120,1,4.0,A lively nightlife spot in Vienna.,18,2
+POI1050,VIE,Seewinkler Bio Gemüse,food,48.213851,16.33512,60,1,4.0,A well-regarded food destination in Vienna.,8,12
+POI1051,LIS,Primeira Travessia Aérea do Atlântico Sul,history,38.692212,-9.213938,60,0,4.1,A historic site in Lisbon.,8,19
+POI1052,LIS,Pelourinho de Lisboa,landmark,38.708036,-9.139196,60,1,4.2,"Pelourinho de Lisboa is a pillory in Lisboa, Portugal, in Lisbon.",8,20
+POI1053,LIS,Reservatório da Patriarcal,museum,38.716176,-9.148721,120,1,4.1,A notable museum in Lisbon.,9,18
+POI1054,LIS,Igreja de São Domingos,religion,38.714637,-9.138234,30,0,4.3,"Igreja de São Domingos is a church building in Lisbon, Lisbon District, Portugal.",7,19
+POI1055,LIS,Teatro Nacional Dona Maria II,culture,38.714779,-9.139771,90,1,4.3,"Teatro Nacional Dona Maria II is a dramatic theatre in Lisbon, Portugal.",9,20
+POI1056,LIS,Quinta do Monte do Carmo,nature,38.700659,-9.188306,90,0,4.0,"Quinta do Monte do Carmo is a cultural heritage monument in Lisboa, Portugal, in Lisbon.",0,24
+POI1057,LIS,Prainha do Porto Brandão,beach,38.677265,-9.207271,150,0,4.0,A popular beach in Lisbon.,0,24
+POI1058,LIS,Cervejaria Solmar (Fechada),nightlife,38.716897,-9.141017,120,1,4.0,A lively nightlife spot in Lisbon.,18,2
+POI1059,LIS,Mercado da Ribeira,food,38.707061,-9.145693,60,1,4.2,"Mercado da Ribeira is a marketplace, in Lisbon.",10,0
+POI1060,LIS,Centro Comercial Colombo,shopping,38.754758,-9.188668,60,1,4.2,"Centro Comercial Colombo is a shopping center in Lisbon, Portugal.",9,24
+POI1061,LIS,Chiado (António Ribeiro),history,38.7105,-9.14222,60,0,4.1,"Chiado (António Ribeiro) is a monument in Lisbon, Portugal.",8,19
+POI1062,LIS,Arco do Rosário,landmark,38.710062,-9.129365,60,1,4.1,A well-known landmark in Lisbon.,8,20
+POI1063,LIS,Reservatório da Mãe d'Água das Amoreiras,museum,38.721266,-9.155687,120,1,4.1,"Reservatório da Mãe d'Água das Amoreiras is a historic reservoir in Lisbon, Portugal.",10,12
+POI1064,LIS,Igreja do Convento de Santa Maria do Carmo,religion,38.712186,-9.140261,30,0,4.0,A historic place of worship in Lisbon.,7,19
+POI1065,LIS,Teatro Thalia,culture,38.745004,-9.169312,90,1,4.1,"Teatro Thalia is a building in Lisbon, Lisbon District, Portugal.",9,20
+POI1066,LIS,Jardim Botânico da Ajuda,nature,38.706216,-9.200812,90,0,4.2,A green space in Lisbon.,0,24
+POI1067,LIS,Praia do Portinho da Costa,beach,38.675184,-9.220154,150,0,4.0,A popular beach in Lisbon.,0,24
+POI1068,LIS,Botequim,nightlife,38.715987,-9.130498,120,1,4.0,A lively nightlife spot in Lisbon.,11,2
+POI1069,LIS,Mercado de Santa Clara,food,38.715533,-9.125612,60,1,4.1,Mercado de Santa Clara is a market in Lisbon.,10,18
+POI1070,LIS,Armazéns do Chiado,shopping,38.710988,-9.139325,60,1,4.1,"Armazéns do Chiado is a building in Santa Maria Maior, Lisbon District, Portugal.",10,23
+POI1071,LIS,Fernando Pessoa,history,38.710624,-9.142108,60,0,4.1,"Fernando Pessoa is a statue in Lisbon, Portugal.",8,19
+POI1072,LIS,Martinho da Arcada,landmark,38.708689,-9.135848,60,1,4.1,"Martinho da Arcada is a café in Lisbon, Portugal.",7,23
+POI1073,LIS,Palácio Foz,museum,38.71579,-9.142561,120,1,4.1,"Palácio Foz is a cultural heritage monument in Lisboa, Portugal, in Lisbon.",9,18
+POI1074,LIS,Igreja da Conceição Velha,religion,38.70889,-9.134196,30,0,4.2,"Igreja da Conceição Velha is a church in Lisbon, Portugal.",9,17
+POI1075,LIS,Teatro Ibérico,culture,38.726741,-9.111988,90,1,4.1,A cultural venue in Lisbon.,9,20
+POI1076,LIS,Jardim do Alto de Santa Catarina,nature,38.709538,-9.14768,90,0,4.1,A green space in Lisbon.,0,24
+POI1077,LIS,Praia do Clube Naval,beach,38.658882,-9.092031,150,0,4.0,A popular beach in Lisbon.,0,24
+POI1078,LIS,Maria Caxuxa,nightlife,38.711163,-9.144436,120,1,4.0,A lively nightlife spot in Lisbon.,18,2
+POI1079,LIS,Mercado de Arroios,food,38.735242,-9.132663,60,1,4.0,A well-regarded food destination in Lisbon.,7,14
+POI1080,LIS,Saldanha Residence,shopping,38.732045,-9.145274,60,1,4.0,"Saldanha Residence is a shopping center in Lisbon, Portugal.",10,22
+POI1081,LIS,Lisboa - Aos Construtores da Cidade,history,38.743516,-9.098812,60,0,4.0,A historic site in Lisbon.,8,19
+POI1082,LIS,Mausoléu de Alfredo da Silva,landmark,38.666012,-9.067196,60,1,4.0,A well-known landmark in Lisbon.,8,20
+POI1083,LIS,Fundação Ricardo do Espírito Santo Silva,museum,38.712025,-9.130535,120,1,4.0,A notable museum in Lisbon.,10,17
+POI1084,LIS,Igreja do Corpo Santo,religion,38.707245,-9.142386,30,0,4.1,Igreja do Corpo Santo is a church in Lisbon.,7,19
+POI1085,LIS,Teatro Maria Matos,culture,38.745956,-9.138526,90,1,4.2,"Teatro Maria Matos is a theater in Lisbon, Portugal.",9,20
+POI1086,LIS,Jardim Vasco da Gama,nature,38.696284,-9.203194,90,0,4.2,A green space in Lisbon.,0,24
+POI1087,LIS,Praia da Mutela,beach,38.673049,-9.149778,150,0,4.0,A popular beach in Lisbon.,0,24
+POI1088,LIS,Xafarix,nightlife,38.708997,-9.153719,120,1,4.0,"Xafarix is a pub in Lisbon, Portugal.",18,2
+POI1089,LIS,Mercado do Bairro de Santos,food,38.743024,-9.158418,60,1,4.0,A well-regarded food destination in Lisbon.,10,23
+POI1090,LIS,Atrium Saldanha,shopping,38.73284,-9.144694,60,1,4.1,"Atrium Saldanha is a shopping center in Lisbon, Portugal.",10,23
+POI1091,LIS,Luís de Camões,history,38.710574,-9.143478,60,0,4.1,Luís de Camões is a monument in Lisbon.,8,19
+POI1092,LIS,Leitaria A Camponeza,landmark,38.71174,-9.138598,60,1,4.0,"Leitaria A Camponeza is a grocery store in Lisbon, Portugal.",19,23
+POI1093,LIS,Museu Nacional de Arte Antiga,museum,38.704784,-9.161447,120,1,4.4,"Museu Nacional de Arte Antiga is a museum in Lisboa, Portugal, in Lisbon.",10,18
+POI1094,LIS,Igreja do Menino Deus,religion,38.713644,-9.131465,30,0,4.2,Igreja do Menino Deus is a church in Lisbon.,7,19
+POI1095,LIS,Culturgest,culture,38.740949,-9.142605,90,1,4.1,"Culturgest is a foundation at Lisbon, Lisbon District, Portugal.",11,18
+POI1096,LIS,Jardim Afonso de Albuquerque,nature,38.696637,-9.200275,90,0,4.1,"Jardim Afonso de Albuquerque is a garden in Belém, Portugal, in Lisbon.",0,24
+POI1097,LIS,British Bar,nightlife,38.706901,-9.143178,120,1,4.0,"British Bar is a pub in Lisbon, Portugal.",18,2
+POI1098,LIS,Mercado de Campo de Ourique,food,38.716143,-9.166779,60,1,4.1,A well-regarded food destination in Lisbon.,10,0
+POI1099,LIS,Espaço Chiado,shopping,38.711258,-9.142597,60,1,4.1,"Espaço Chiado is a building in Lisbon, Lisbon District, Portugal.",10,20
+POI1100,LIS,Muralha Fernandina,history,38.711427,-9.142589,60,0,4.0,"Muralha Fernandina is a medieval city wall in Lisbon, Portugal (14th century).",8,19
+POI1101,LIS,Animatógrafo do Rossio,landmark,38.712799,-9.13901,60,1,4.1,Animatógrafo do Rossio is a cinema in the municipality of São Nicolau in the Portuguese capital Lisbon.,8,20
+POI1102,LIS,Casa da Cerca - Centro de Arte Contemporânea,museum,38.684015,-9.159083,120,1,4.1,"Casa da Cerca - Centro de Arte Contemporânea is a building in Almada, Setúbal District, Portugal, in Lisbon.",10,18
+POI1103,LIS,Capela de Santo Amaro,religion,38.70212,-9.182653,30,0,4.1,"Capela de Santo Amaro is a building in Lisbon, Lisbon District, Portugal.",7,19
+POI1104,LIS,Teatro Villaret,culture,38.730247,-9.146717,90,1,4.1,"Teatro Villaret is a theatre venue in Lisbon, Portugal.",9,20
+POI1105,LIS,Jardim da Estrela,nature,38.714638,-9.159051,90,0,4.2,"Jardim da Estrela is an urban park in Lisbon, Portugal.",7,24
+POI1106,LIS,Hot Club Portugal,nightlife,38.718149,-9.145647,120,1,4.2,"Hot Club Portugal is a historic Portuguese jazz club & jazz school, in Lisbon.",18,2
+POI1107,LIS,Mercado Municipal Rosa Agulhas,food,38.704899,-9.179326,60,1,4.0,"Mercado Municipal Rosa Agulhas is a commercial building in Lisbon, Portugal.",10,23
+POI1108,LIS,Centro Comercial Vasco da Gama,shopping,38.767665,-9.096828,60,1,4.2,"Centro Comercial Vasco da Gama is a shopping mall in Lisbon, Portugal.",9,24
+POI1109,LIS,Oliveira Martins,history,38.723279,-9.147981,60,0,4.1,"Oliveira Martins is a monument in Lisbon, Portugal.",8,19
+POI1110,LIS,Cruzeiro de Arroios,landmark,38.732504,-9.13623,60,1,4.0,"Cruzeiro de Arroios is a wayside cross in Lisbon, Lisbon District, Portugal.",8,20
+POI1111,LIS,Observatório Astronómico de Lisboa,museum,38.71052,-9.187434,120,1,4.3,"Observatório Astronómico de Lisboa is a building in Lisbon, Lisbon District, Portugal.",9,18
+POI1112,LIS,Ermida do Senhor Jesus da Boa Nova,religion,38.712599,-9.125454,30,0,4.0,A historic place of worship in Lisbon.,7,19
+POI1113,LIS,Teatro do Bairro Alto,culture,38.717968,-9.154018,90,1,4.0,Teatro do Bairro Alto is a Municipal theatre in Lisbon.,9,20
+POI1114,LIS,Jardim Alfredo Keil,nature,38.717861,-9.145285,90,0,4.1,A green space in Lisbon.,0,24
+POI1115,LIS,Magnetic,nightlife,38.735526,-9.148485,120,1,4.0,A lively nightlife spot in Lisbon.,11,2
+POI1116,LIS,Time Out Market Lisboa,food,38.707093,-9.145897,60,1,4.1,"Time Out Market Lisboa is a food hall in Lisbon, Portugal.",10,0
+POI1117,LIS,Almada Forum,shopping,38.659996,-9.175206,60,1,4.1,"Almada Forum is a Shopping center in Portugal, in Lisbon.",9,24
+POI1118,LIS,Pedro Álvares Cabral,history,38.715792,-9.158716,60,0,4.1,"Pedro Álvares Cabral is a statue of Pedro Álvares Cabral in Lisbon, Portugal.",8,19
+POI1119,LIS,Cruzeiro das Laranjeiras,landmark,38.759868,-9.15587,60,1,4.1,"Cruzeiro das Laranjeiras is a building in Lisbon, Lisbon District, Portugal.",8,20
+POI1120,LIS,Museu Nacional do Azulejo,museum,38.724763,-9.113953,120,1,4.3,Museu Nacional do Azulejo is a museum in Lisbon.,9,18
+POI1121,LIS,Convento de Eremitas Descalços de Santo Agostinho,religion,38.704108,-9.194481,30,0,4.1,"Convento de Eremitas Descalços de Santo Agostinho is a building in Lisbon, Lisbon District, Portugal.",7,19
+POI1122,LIS,Sociedade Musical Ordem e Progresso,culture,38.706608,-9.162192,90,1,4.1,Sociedade Musical Ordem e Progresso is a musical association with headquarters in Lisbon.,9,20
+POI1123,LIS,Jardim Fialho de Almeida,nature,38.715046,-9.151599,90,0,4.1,"Jardim Fialho de Almeida is a garden in Lisbon, Portugal.",0,24
+POI1124,LIS,Instituto do Vinho do Porto,nightlife,38.714165,-9.144122,120,1,4.0,A lively nightlife spot in Lisbon.,18,2
+POI1125,LIS,Pastelaria Castrense,food,38.722845,-9.145878,60,1,4.0,A well-regarded food destination in Lisbon.,10,23
+POI1126,LIS,Amoreiras Shopping Center,shopping,38.723214,-9.162356,60,1,4.1,"Amoreiras Shopping Center is a shopping center in Lisbon, Portugal.",10,20
+POI1127,LIS,Padrão-Memória do Chão Salgado,history,38.697591,-9.203835,60,0,4.0,A historic site in Lisbon.,8,19
+POI1128,LIS,Caza das Vellas Loreto,landmark,38.710602,-9.144905,60,1,4.0,"Caza das Vellas Loreto is a candle store in Lisbon, Portugal.",8,20
+POI1129,LIS,Museu de Lisboa - Teatro Romano,museum,38.710517,-9.132388,120,1,4.2,"Museu de Lisboa - Teatro Romano is a Roman theater in Lisbon, Portugal.",10,18
+POI1130,LIS,Igreja da Memória,religion,38.702986,-9.201979,30,0,4.2,"Igreja da Memória is a church building in Ajuda, Lisbon District, Portugal.",7,19
+POI1131,LIS,Teatro Camões,culture,38.760968,-9.093313,90,1,4.1,"Teatro Camões is a building in Lisbon, Lisbon District, Portugal.",9,20
+POI1132,LIS,Jardim do Torel,nature,38.719245,-9.141545,90,0,4.1,"Jardim do Torel is a garden in Santo António (Lisbon), Portugal.",0,24
+POI1133,LIS,Carioca da Trindade,nightlife,38.711866,-9.142076,120,1,4.0,A lively nightlife spot in Lisbon.,18,2
+POI1134,LIS,Café Pérola de Alfragide,food,38.738347,-9.212901,60,1,4.0,A well-regarded food destination in Lisbon.,10,23
+POI1135,LIS,UBBO,shopping,38.776934,-9.220081,60,1,4.1,A popular shopping spot in Lisbon.,10,20
+POI1136,LIS,Bartolomeu de Gusmão,history,38.768463,-9.129644,60,0,4.0,"Bartolomeu de Gusmão is a statue in Lisbon, Portugal.",8,19
+POI1137,LIS,Moinhos do Casalinho da Ajuda,landmark,38.710101,-9.192514,60,1,4.1,"Moinhos do Casalinho da Ajuda is a building in Lisbon, Lisbon District, Portugal.",8,20
+POI1138,LIS,Centro Cultural de Belém,museum,38.695427,-9.208531,120,1,4.3,"Centro Cultural de Belém is an arts and convention center in Lisbon, Portugal.",9,18
+POI1139,LIS,Convento de Nossa Senhora do Bom Sucesso,religion,38.695194,-9.211758,30,0,4.0,"Convento de Nossa Senhora do Bom Sucesso is a cultural heritage monument in Lisboa, Portugal, in Lisbon.",7,19
+POI1140,LIS,Teatro Nacional de São Carlos,culture,38.709411,-9.141719,90,1,4.3,"Teatro Nacional de São Carlos is an opera house in Lisbon, Portugal.",9,20
+POI1141,LIS,Jardim Sá da Bandeira,nature,38.707068,-9.146732,90,0,4.1,A green space in Lisbon.,0,24
+POI1142,LIS,Bar Arché Cohiba,nightlife,38.712822,-9.143711,120,1,4.0,A lively nightlife spot in Lisbon.,18,2
+POI1143,LIS,Bazar Centro Sul,food,38.667859,-9.163644,60,1,4.0,A well-regarded food destination in Lisbon.,8,22
+POI1144,LIS,Sommer,shopping,38.679757,-9.15754,60,1,4.0,A popular shopping spot in Lisbon.,10,20
+POI1145,LIS,Réplica da Pedra de Dighton,history,38.697497,-9.208365,60,0,4.3,"Réplica da Pedra de Dighton is a boulder etched with petroglyphs, in Lisbon.",8,19
+POI1146,LIS,A Carioca,landmark,38.710985,-9.14304,60,1,4.0,"A Carioca is a café in Lisbon, Portugal.",8,20
+POI1147,LIS,Museu de Arte Contemporânea MAC/CCB,museum,38.695647,-9.20931,120,1,4.3,"Museu de Arte Contemporânea MAC/CCB is a museum of modern and contemporary art in Portugal, in Lisbon.",10,19
+POI1148,LIS,Convento de São Francisco de Paula,religion,38.704625,-9.164732,30,0,4.1,"Convento de São Francisco de Paula is a church in Lisbon, Portugal.",7,19
+POI1149,LIS,Teatro Politeama,culture,38.716527,-9.141059,90,1,4.2,"Teatro Politeama is a theatre and cinema in Lisbon, Portugal.",9,20
+POI1150,LIS,Jardim de São Pedro de Alcântara,nature,38.715091,-9.144278,90,0,4.2,"Jardim de São Pedro de Alcântara is a park in Portugal, in Lisbon.",0,24
+POI1151,LIS,Dos Capotes Brancos,nightlife,38.713851,-9.144534,120,1,4.0,A lively nightlife spot in Lisbon.,18,2
+POI1152,LIS,Mercado Municipal das Torcatas,food,38.678272,-9.164094,60,1,4.0,A well-regarded food destination in Lisbon.,10,23
+POI1153,LIS,Acqua Roma,shopping,38.743292,-9.139134,60,1,4.0,A popular shopping spot in Lisbon.,10,20
+POI1154,LIS,Calouste Gulbenkian,history,38.737308,-9.15581,60,0,4.1,"Calouste Gulbenkian is a statue in Lisbon, Portugal.",8,19
+POI1155,LIS,Palácio de Xabregas,landmark,38.727717,-9.110447,60,1,4.0,"Palácio de Xabregas is a cultural heritage monument in Lisboa, Portugal, in Lisbon.",8,20
+POI1156,LIS,Museu Geológico,museum,38.713107,-9.149755,120,1,4.1,"Museu Geológico is a building in Portugal, in Lisbon.",10,18
+POI1157,LIS,Capela de São Sebastião,religion,38.77202,-9.173916,30,0,4.1,"Capela de São Sebastião is a building in Lisbon, Lisbon District, Portugal.",7,19
+POI1158,LIS,Coliseu dos Recreios,culture,38.716637,-9.140282,90,1,4.2,"Coliseu dos Recreios is a multi-purpose auditiorium in Lisbon, Portugal.",9,20
+POI1159,LIS,Jardim Botânico de Lisboa,nature,38.718513,-9.148894,90,0,4.2,"Jardim Botânico de Lisboa is a cultural heritage monument in Lisboa, Portugal, in Lisbon.",9,20
+POI1160,LIS,Bar Charh,nightlife,38.735258,-9.155513,120,1,4.0,A lively nightlife spot in Lisbon.,18,2
+POI1161,LIS,Churrasqueira do Zambujal,food,38.738078,-9.2107,60,1,4.0,A well-regarded food destination in Lisbon.,10,23
+POI1162,LIS,Muji,shopping,38.71195,-9.139724,60,1,4.0,A popular shopping spot in Lisbon.,10,21
+POI1163,LIS,Santo António,history,38.753108,-9.143979,60,0,4.1,"Santo António is a statue in Lisbon, by António Duarte (1972).",8,19
+POI1164,LIS,Torre de Belém,landmark,38.691602,-9.215919,60,1,4.5,"Torre de Belém is a fortified tower located in the civil parish of Santa Maria de Belém in the municipality of Lisbon, Portugal.",10,17
+POI1165,LIS,Museu Nacional de Arqueologia,museum,38.697366,-9.207079,120,1,4.3,"Museu Nacional de Arqueologia is a building in Lisbon, Lisbon District, Portugal.",10,18
+POI1166,LIS,Capela do Vale de Santo António,religion,38.71856,-9.123029,30,0,4.0,A historic place of worship in Lisbon.,7,19
+POI1167,LIS,Teatro da Trindade,culture,38.711856,-9.142573,90,1,4.2,"Teatro da Trindade is a building in Lisbon, Portugal.",9,20
+POI1168,LIS,Jardim Cesário Verde,nature,38.732616,-9.140751,90,0,4.1,A green space in Lisbon.,0,24
+POI1169,LIS,Incógnito,nightlife,38.710767,-9.150902,120,1,4.0,A lively nightlife spot in Lisbon.,18,2
+POI1170,LIS,Flor do Zambujal II,food,38.738161,-9.210712,60,1,4.0,A well-regarded food destination in Lisbon.,10,23
+POI1171,LIS,O Faraó,shopping,38.679883,-9.156064,60,1,4.0,A popular shopping spot in Lisbon.,10,20
+POI1172,LIS,José Pinto Peixoto,history,38.757237,-9.155697,60,0,4.0,José Pinto Peixoto is a statue of José Pinto Peixoto in Lisbon.,8,19
+POI1173,LIS,Arco do Triunfo da Rua Augusta,landmark,38.708438,-9.136817,60,1,4.3,"Arco do Triunfo da Rua Augusta is a triumphal arch, in Lisbon.",8,20
+POI1174,LIS,Lisboa Story Center,museum,38.707733,-9.135286,120,1,4.1,A notable museum in Lisbon.,9,18
+POI1175,LIS,Ermida do Senhor Jesus dos Terramotos,religion,38.721715,-9.16784,30,0,4.0,A historic place of worship in Lisbon.,7,19
+POI1176,LIS,Tivoli,culture,38.720477,-9.144949,90,1,4.0,A cultural venue in Lisbon.,9,20
+POI1177,LIS,Jardim Constantino,nature,38.731006,-9.137293,90,0,4.1,"Jardim Constantino is a garden in Arroios, Portugal, in Lisbon.",0,24
+POI1178,LIS,Bicaense,nightlife,38.71,-9.145181,120,1,4.0,A lively nightlife spot in Lisbon.,18,2
+POI1179,LIS,Mercado Agrobio,food,38.743303,-9.146323,60,1,4.0,A well-regarded food destination in Lisbon.,9,14
+POI1180,LIS,Casa Yin Shihai,shopping,38.670089,-9.158405,60,1,4.0,A popular shopping spot in Lisbon.,10,20
+POI1181,LIS,Lápides das Pedras Negras,history,38.710393,-9.134897,60,0,4.1,A historic site in Lisbon.,8,19
+POI1182,LIS,Santuário Nacional de Cristo Rei,landmark,38.678602,-9.171338,60,1,4.3,"Santuário Nacional de Cristo Rei is a monument and Catholic shrine dedicated to the Sacred Heart of Jesus situated in Almada, Portugal, in Lisbon.",8,20
+POI1183,LIS,Verso Branco,museum,38.708973,-9.149822,120,1,4.0,"Verso Branco is an art gallery, art shop and atelier in Lisbon, Portugal.",11,20
+POI1184,LIS,Capela dos Castros,religion,38.741832,-9.18075,30,0,4.0,"Capela dos Castros is a building in Lisbon, Lisbon District, Portugal.",7,19
+POI1185,LIS,Fábrica Braço de Prata,culture,38.743796,-9.101225,90,1,4.1,"Fábrica Braço de Prata is a defunct Portuguese weapons manufacturer, in Lisbon.",18,0
+POI1186,LIS,Parque Oeste,nature,38.779383,-9.152805,90,0,4.1,A green space in Lisbon.,0,24
+POI1187,LIS,O pai tirano,nightlife,38.709841,-9.146983,120,1,4.0,A lively nightlife spot in Lisbon.,18,2
+POI1188,LIS,Feira da Ladra,food,38.715393,-9.125929,60,1,4.0,A well-regarded food destination in Lisbon.,9,18
+POI1189,LIS,Centro Comercial Renovação,shopping,38.679713,-9.156607,60,1,4.0,A popular shopping spot in Lisbon.,10,20
+POI1190,LIS,Padrão do Campo Pequeno,history,38.740059,-9.142034,60,0,4.0,A historic site in Lisbon.,8,19
+POI1191,LIS,Aqueduto das Águas Livres,landmark,38.726058,-9.166676,60,1,4.3,"Aqueduto das Águas Livres is a historic aqueduct in Lisbon, Portugal.",8,20
+POI1192,LIS,Museu da Marioneta,museum,38.708004,-9.155793,120,1,4.1,"Museu da Marioneta is a museum in Lisbon, Portugal.",10,18
+POI1193,LIS,Convento de Santo Agostinho,religion,38.739904,-9.118002,30,0,4.1,"Convento de Santo Agostinho is a church building in Lisbon, Lisbon District, Portugal.",7,19
+POI1194,LIS,Teatro de Carnide,culture,38.762116,-9.187005,90,1,4.1,A cultural venue in Lisbon.,9,20
+POI1195,LIS,Parque Silva Porto,nature,38.748553,-9.204603,90,0,4.1,A green space in Lisbon.,0,24
+POI1196,LIS,Oito Nove,nightlife,38.712093,-9.144644,120,1,4.0,A lively nightlife spot in Lisbon.,18,2
+POI1197,LIS,Mercado São João,food,38.753775,-9.173226,60,1,4.0,A well-regarded food destination in Lisbon.,10,23
+POI1198,LIS,Centro Comercial São João,shopping,38.679274,-9.156644,60,1,4.0,A popular shopping spot in Lisbon.,8,19
+POI1199,LIS,Forte de Santa Apolónia,history,38.723527,-9.116769,60,0,4.1,"Forte de Santa Apolónia is a building in Lisbon, Lisbon District, Portugal.",8,19
+POI1200,LIS,Palacete Nunes Correia,landmark,38.717399,-9.142364,60,1,4.0,A well-known landmark in Lisbon.,8,20
