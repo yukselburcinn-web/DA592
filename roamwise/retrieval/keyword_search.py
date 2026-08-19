@@ -3,7 +3,7 @@ retrieval to catch exact-match entities (names, landmark titles) that the
 latent-semantic layer can underweight."""
 from rank_bm25 import BM25Okapi
 
-from retrieval.corpus import load_documents, tokenize
+from roamwise.retrieval.corpus import load_documents, tokenize
 
 
 class KeywordIndex:

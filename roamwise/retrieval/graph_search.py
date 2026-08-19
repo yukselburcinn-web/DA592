@@ -10,7 +10,7 @@ dispatches to the matching GraphIndex traversal; results are wrapped into the
 same doc-like shape (doc_id/text/score) as the other two retrievers so
 fusion.py can merge all three with reciprocal rank fusion.
 """
-from knowledge_graph.build_graph import GraphIndex
+from roamwise.knowledge_graph.build_graph import GraphIndex
 
 ARCHETYPE_KEYWORDS = {
     "Culture Enthusiast": ["culture", "museum", "history", "art"],

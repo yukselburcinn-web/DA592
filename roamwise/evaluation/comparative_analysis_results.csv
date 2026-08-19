@@ -23,3 +23,33 @@ VIE,Luxury Traveler,shopping,standard,0.0,0.375,0.0,8,4,2.36
 LIS,Beach & Relax,beach,fusion,,0.857,1.0,7,3,2.03
 LIS,Beach & Relax,beach,hybrid,,0.571,1.0,7,2,1.85
 LIS,Beach & Relax,beach,standard,,0.375,0.0,8,4,0.73
+IST,Family Traveler,food,fusion,0.14285714285714285,0.857,1.0,7,3,4.54
+IST,Family Traveler,food,hybrid,0.21428571428571427,0.857,1.0,7,4,2.19
+IST,Family Traveler,food,standard,0.0,0.625,0.0,8,5,1.26
+PAR,Culture Enthusiast,museum,fusion,0.2857142857142857,0.571,1.0,7,3,1.12
+PAR,Culture Enthusiast,museum,hybrid,0.07142857142857142,0.143,1.0,7,2,1.5
+PAR,Culture Enthusiast,museum,standard,0.0,0.625,0.0,8,5,0.77
+ROM,Culture Enthusiast,history,fusion,0.0,0.714,1.0,7,3,1.32
+ROM,Culture Enthusiast,history,hybrid,0.07142857142857142,0.429,1.0,7,3,2.45
+ROM,Culture Enthusiast,history,standard,0.0,0.625,0.0,8,3,4.23
+AMS,Nightlife Seeker,nightlife,fusion,0.5,1.0,1.0,8,1,2.09
+AMS,Nightlife Seeker,nightlife,hybrid,0.5,1.0,1.0,8,1,2.09
+AMS,Nightlife Seeker,nightlife,standard,0.0,0.375,0.0,8,6,0.55
+BCN,Luxury Traveler,shopping,fusion,0.5833333333333334,1.0,1.0,7,4,1.78
+BCN,Luxury Traveler,shopping,hybrid,0.5833333333333334,1.0,1.0,7,4,1.78
+BCN,Luxury Traveler,shopping,standard,0.0,0.625,0.0,8,5,1.31
+LIS,Nature & Adventure,nature,fusion,0.3333333333333333,0.857,1.0,7,4,1.26
+LIS,Nature & Adventure,nature,hybrid,0.0,0.143,1.0,7,3,1.5
+LIS,Nature & Adventure,nature,standard,0.0,0.375,0.0,8,4,0.73
+VIE,Culture Enthusiast,culture,fusion,0.0625,0.429,1.0,7,3,0.91
+VIE,Culture Enthusiast,culture,hybrid,0.0625,0.286,1.0,7,2,1.03
+VIE,Culture Enthusiast,culture,standard,0.0,0.625,0.0,8,4,2.36
+PRG,Budget Backpacker,landmark,fusion,0.125,0.714,1.0,7,2,1.63
+PRG,Budget Backpacker,landmark,hybrid,0.25,0.286,1.0,7,5,1.33
+PRG,Budget Backpacker,landmark,standard,0.0,0.5,0.0,8,4,1.29
+IST,Culture Enthusiast,history,fusion,0.0625,0.714,1.0,7,4,0.57
+IST,Culture Enthusiast,history,hybrid,0.125,0.286,1.0,7,4,2.25
+IST,Culture Enthusiast,history,standard,0.0,0.625,0.0,8,5,1.26
+ROM,Culture Enthusiast,museum,fusion,0.375,0.857,1.0,7,3,1.18
+ROM,Culture Enthusiast,museum,hybrid,0.0,0.286,1.0,7,5,1.48
+ROM,Culture Enthusiast,museum,standard,0.0,0.625,0.0,8,3,4.23

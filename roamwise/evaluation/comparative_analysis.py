@@ -34,10 +34,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from agents.llm_client import get_default_llm_client
-from agents.router_agent import RouterAgent
-from knowledge_graph.build_graph import CATEGORY_AFFINITY, GraphIndex
-from retrieval.fusion import FusionRetriever
+from roamwise.agents.llm_client import get_default_llm_client
+from roamwise.agents.router_agent import RouterAgent
+from roamwise.knowledge_graph.build_graph import CATEGORY_AFFINITY, GraphIndex
+from roamwise.retrieval.fusion import FusionRetriever
 
 HERE = Path(__file__).parent
 CONFIGS = ["fusion", "hybrid", "standard"]
@@ -52,6 +52,16 @@ TEST_QUERIES = [
     ("PRG", "Budget Backpacker", "nightlife", "cheap nightlife near the train station"),
     ("VIE", "Luxury Traveler", "shopping", "upscale shopping close to transport hubs"),
     ("LIS", "Beach & Relax", "beach", "relaxing beach spots reachable from the airport"),
+    ("IST", "Family Traveler", "food", "we just arrived at the central station with heavy luggage and are starving, where can we get a quick meal without walking much?"),
+    ("PAR", "Culture Enthusiast", "museum", "suitable places for the first day after a morning arrival"),
+    ("ROM", "Culture Enthusiast", "history", "my elderly parents want to see historical monuments but cannot handle steep hills or long walks from the subway."),
+    ("AMS", "Nightlife Seeker", "nightlife", "traveling on a tight budget and want to experience local nightlife that is safely accessible via late-night public transit."),
+    ("BCN", "Luxury Traveler", "shopping", "we want to do a full day of luxury shopping and fine dining without needing to hail a taxi between locations."),
+    ("LIS", "Nature & Adventure", "nature", "are there any quiet natural escapes in the city that are directly connected to the main train lines?"),
+    ("VIE", "Culture Enthusiast", "culture", "where should we head for a relaxed evening out right after spending the entire afternoon at the main art gallery?"),
+    ("PRG", "Budget Backpacker", "landmark", "we have a short layover in the city, what is the most iconic landmark we can realistically visit and still catch our flight?"),
+    ("IST", "Culture Enthusiast", "history", "which neighborhoods offer the best mix of ancient architecture and modern cafes within a compact walking area?"),
+    ("ROM", "Culture Enthusiast", "museum", "if we start our morning at the central square, what is a logical path to hit a museum and a local market before lunch?")
 ]
 
 

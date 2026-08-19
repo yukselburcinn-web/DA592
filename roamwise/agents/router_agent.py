@@ -2,10 +2,10 @@
 to invent a route -- it calls the POIZoner + 2-opt routing tool (a real
 optimization method, not the LLM) to solve the routing problem logically,
 using graph-enriched POI context, then narrates the resulting itinerary."""
-from agents.llm_client import LLMClient, get_default_llm_client
-from knowledge_graph.build_graph import GraphIndex
-from models.segmentation import POIZoner
-from optimization.routing import build_multi_day_itinerary
+from roamwise.agents.llm_client import LLMClient, get_default_llm_client
+from roamwise.knowledge_graph.build_graph import GraphIndex
+from roamwise.models.segmentation import POIZoner
+from roamwise.optimization.routing import build_multi_day_itinerary
 
 
 class RouterAgent:
