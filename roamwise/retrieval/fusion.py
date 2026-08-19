@@ -11,10 +11,10 @@ RRF score for a document = sum over retrievers r that returned it of
 of a learned re-ranker because it needs no training data and is the
 explicitly offered alternative in the proposal.
 """
-from retrieval.corpus import load_documents
-from retrieval.graph_search import GraphSearchIndex
-from retrieval.keyword_search import KeywordIndex
-from retrieval.semantic_search import SemanticIndex
+from roamwise.retrieval.corpus import load_documents
+from roamwise.retrieval.graph_search import GraphSearchIndex
+from roamwise.retrieval.keyword_search import KeywordIndex
+from roamwise.retrieval.semantic_search import SemanticIndex
 
 RRF_K = 60
 

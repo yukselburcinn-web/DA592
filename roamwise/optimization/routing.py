@@ -27,7 +27,7 @@ Two constraints beyond pure geography, both from issue #8:
 """
 import math
 
-from optimization.osrm_client import fetch_distance_duration_matrix
+from roamwise.optimization.osrm_client import fetch_distance_duration_matrix
 
 
 def haversine_km(lat1, lon1, lat2, lon2):

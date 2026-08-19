@@ -19,7 +19,7 @@ from pathlib import Path
 import faiss
 import numpy as np
 
-from retrieval.corpus import load_documents
+from roamwise.retrieval.corpus import load_documents
 
 DEFAULT_MODEL = "all-MiniLM-L6-v2"
 
