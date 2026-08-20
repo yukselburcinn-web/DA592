@@ -19,6 +19,13 @@ from optimization.travel_modes import TRAVEL_MODES
 st.set_page_config(page_title="RoamWise", page_icon="\U0001f9ed", layout="wide", initial_sidebar_state="expanded")
 
 
+def _clock(hour: float) -> str:
+    """Fractional hour (13.5) -> wall clock ("13:30"), so the itinerary reads
+    as a plan for a day rather than as an ordered list."""
+    hours, minutes = divmod(int(round(hour * 60)), 60)
+    return f"{hours % 24:02d}:{minutes:02d}"
+
+
 def _fit_zoom(lats: list[float], lons: list[float]) -> float:
     """Rough degree-span-to-mapbox-zoom heuristic so the map frames whatever
     the itinerary actually covers instead of a fixed zoom that's too tight
@@ -125,8 +132,17 @@ if run:
                                 f"of your {daily_hours}h &middot; {day['distance_km']} km")
                     st.progress(min(1.0, used / budget_minutes) if budget_minutes else 0.0)
                     if day["route"]:
+                        schedule = day.get("schedule", [])
                         for i, poi in enumerate(day["route"], 1):
-                            st.markdown(f"{i}. **{poi['name']}** _{poi.get('category', '')}_")
+                            slot = schedule[i - 1] if i <= len(schedule) else None
+                            when = f"`{_clock(slot['arrival'])}`&nbsp; " if slot else ""
+                            # Meals are called "meal stop" rather than flagged
+                            # with a cutlery emoji: the icon depends on the
+                            # viewer having that glyph in their emoji font,
+                            # and a word can't fail to render.
+                            label = ("meal stop" if poi.get("category") == "food"
+                                     else poi.get("category", ""))
+                            st.markdown(f"{i}. {when}**{poi['name']}** _{label}_")
                     else:
                         st.markdown("_No stops fit the time budget for this day._")
         with col2:
