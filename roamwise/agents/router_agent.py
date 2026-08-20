@@ -6,6 +6,7 @@ from roamwise.agents.llm_client import LLMClient, get_default_llm_client
 from roamwise.knowledge_graph.build_graph import GraphIndex
 from roamwise.models.segmentation import POIZoner
 from roamwise.optimization.routing import build_multi_day_itinerary
+from roamwise.optimization.travel_modes import DEFAULT_MODE, get_travel_mode
 
 
 class RouterAgent:
@@ -16,8 +17,10 @@ class RouterAgent:
 
     def run(self, destination_id: str, candidate_pois: list[dict], n_days: int,
             daily_minutes_budget: int = 480, day_start_hour: float = 9.0,
-            respect_opening_hours: bool = True, use_real_routing: bool = False) -> dict:
+            respect_opening_hours: bool = True, use_real_routing: bool = False,
+            travel_mode=DEFAULT_MODE) -> dict:
         n_days = max(1, min(n_days, len(candidate_pois))) if candidate_pois else 1
+        mode = get_travel_mode(travel_mode)
         # Days start from the city's own center (proxy for a centrally booked
         # hotel), not the airport -- the airport hub only matters for the
         # single arrival leg, and anchoring every day there would make the
@@ -29,18 +32,20 @@ class RouterAgent:
         itinerary = build_multi_day_itinerary(
             zones, start_hub=start_hub, daily_minutes_budget=daily_minutes_budget,
             day_start_hour=day_start_hour, respect_opening_hours=respect_opening_hours,
-            use_real_routing=use_real_routing,
+            use_real_routing=use_real_routing, travel_mode=mode,
         )
-        narrative = self._narrate(destination_id, itinerary)
-        return {"destination_id": destination_id, "itinerary": itinerary, "narrative": narrative}
+        narrative = self._narrate(destination_id, itinerary, mode)
+        return {"destination_id": destination_id, "itinerary": itinerary,
+                "travel_mode": mode.key, "narrative": narrative}
 
-    def _narrate(self, destination_id: str, itinerary: list[dict]) -> str:
+    def _narrate(self, destination_id: str, itinerary: list[dict], mode) -> str:
         lines = []
         for day in itinerary:
             stops = " -> ".join(p["name"] for p in day["route"]) or "(no stops fit the time budget)"
             routing_note = "real street routing" if day.get("used_real_routing") else "straight-line estimate"
             lines.append(f"Day {day['day']}: {stops}  [{day['distance_km']}km, ~{day['total_minutes']}min, {routing_note}]")
-        prompt = "Optimized itinerary for " + destination_id + ":\n" + "\n".join(lines)
+        prompt = (f"Optimized itinerary for {destination_id} ({mode.label.lower()}):\n"
+                  + "\n".join(lines))
         return self.llm.complete(system="Present the itinerary clearly, day by day.", prompt=prompt)
 
 

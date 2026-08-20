@@ -12,7 +12,8 @@ from knowledge_graph.build_graph import GraphIndex
 from models.forecasting import forecast_city, best_months_to_visit
 from models.segmentation import TravelerSegmenter, POIZoner
 from retrieval.fusion import FusionRetriever
-from optimization.routing import optimize_day_route
+from optimization.routing import build_multi_day_itinerary, optimize_day_route
+from optimization.travel_modes import get_travel_mode
 from agents.orchestrator import RoamWiseOrchestrator
 from evaluation.comparative_analysis import run_comparative_analysis, summarize
 
@@ -93,7 +94,8 @@ def test_routing_waits_for_poi_to_open():
 
 def test_routing_falls_back_when_osrm_unreachable(monkeypatch):
     import optimization.routing as routing_module
-    monkeypatch.setattr(routing_module, "fetch_distance_duration_matrix", lambda points: None)
+    monkeypatch.setattr(routing_module, "fetch_distance_duration_matrix",
+                        lambda points, profile="foot": None)
 
     idx = GraphIndex()
     pois = idx.city_pois("VIE")[:4]
@@ -105,7 +107,7 @@ def test_routing_falls_back_when_osrm_unreachable(monkeypatch):
 def test_routing_uses_injected_real_routing_matrix(monkeypatch):
     import optimization.routing as routing_module
 
-    def fake_matrix(points):
+    def fake_matrix(points, profile="foot"):
         n = len(points)
         # every pairwise "real" distance/duration is a fixed, distinguishable
         # value the haversine fallback could never produce, so we can tell
@@ -120,6 +122,119 @@ def test_routing_uses_injected_real_routing_matrix(monkeypatch):
                                  respect_opening_hours=False)
     assert result["used_real_routing"] is True
     assert result["distance_km"] == 7.0  # single leg from the fake matrix, not a haversine value
+
+
+def _daytime_poi(name, lat, lon, minutes=60):
+    return {"name": name, "lat": lat, "lon": lon, "avg_visit_minutes": minutes,
+            "open_hour": 8, "close_hour": 20}
+
+
+# --- issue #19: day balance, budget filling, and travel modes ---
+
+def test_balanced_zoning_evens_out_day_zones():
+    """Plain KMeans collapses a dense city centre into one zone and leaves
+    outlying sights in zones of their own -- one packed day, several starved
+    ones. Balanced assignment has to narrow that spread without losing POIs."""
+    idx = GraphIndex()
+    pois = idx.city_pois("ROM")[:11]
+
+    def spread(balanced):
+        sizes = [len(v) for v in POIZoner().zone(pois, n_zones=5, balanced=balanced).values()]
+        assert sum(sizes) == len(pois)  # nothing dropped either way
+        return max(sizes) - min(sizes), min(sizes)
+
+    balanced_spread, balanced_min = spread(True)
+    plain_spread, _ = spread(False)
+
+    assert balanced_min >= 1, "no zone may be left empty"
+    assert balanced_spread < plain_spread
+
+
+def test_multi_day_itinerary_fills_every_day_near_its_budget():
+    """The reported symptom: a multi-day plan where some days were empty and
+    others held a two-hour route. Every day must now come back non-empty and
+    reasonably full."""
+    idx = GraphIndex()
+    pois = idx.city_pois("VIE")[:40]
+    zones = POIZoner().zone(pois, n_zones=5)
+    days = build_multi_day_itinerary(zones, daily_minutes_budget=480)
+
+    assert len(days) == 5
+    assert all(day["route"] for day in days), "no day may come back empty"
+    assert all(day["total_minutes"] >= 240 for day in days), \
+        "every day should reach at least half its 8-hour budget"
+    assert all(day["total_minutes"] <= 480 for day in days)
+
+
+def test_day_is_not_stranded_by_a_poi_that_cannot_fit_its_window():
+    """The actual cause of the empty days: a zone whose only POI was a
+    nightlife venue opening at 18:00, against a 09:00-17:00 day. That day
+    used to render as 'no stops fit the time budget' while other zones had
+    spare POIs. The fill pass must rescue it."""
+    club = {"name": "Club", "lat": 48.20, "lon": 16.37, "avg_visit_minutes": 120,
+            "open_hour": 18, "close_hour": 2}
+    spares = [_daytime_poi(f"Museum {i}", 48.21 + i * 0.002, 16.36) for i in range(4)]
+    zones = {0: [club], 1: spares}
+
+    days = build_multi_day_itinerary(zones, daily_minutes_budget=480, day_start_hour=9.0)
+
+    assert all(day["route"] for day in days), "the club's day should be filled from the pool"
+    assert club not in days[0]["route"]  # still correctly refused: it never opens in the window
+
+
+def test_no_fill_pass_reproduces_the_old_starved_day():
+    """Guards the fix itself: with filling switched off, the same input still
+    produces the empty day, so the test above is proving the fill pass works
+    rather than passing for some incidental reason."""
+    club = {"name": "Club", "lat": 48.20, "lon": 16.37, "avg_visit_minutes": 120,
+            "open_hour": 18, "close_hour": 2}
+    spares = [_daytime_poi(f"Museum {i}", 48.21 + i * 0.002, 16.36) for i in range(4)]
+
+    days = build_multi_day_itinerary({0: [club], 1: spares}, daily_minutes_budget=480,
+                                      day_start_hour=9.0, fill_days=False)
+    assert days[0]["route"] == []
+
+
+def test_driving_mode_fits_a_stop_walking_cannot_reach():
+    """Same two stops, same budget: 10km is over two hours on foot and blows
+    the budget, but is a short drive. The mode has to change the outcome."""
+    far_apart = [_daytime_poi("A", 48.20, 16.37), _daytime_poi("B", 48.29, 16.37)]
+
+    walking = optimize_day_route(far_apart, daily_minutes_budget=200, travel_mode="walking")
+    driving = optimize_day_route(far_apart, daily_minutes_budget=200, travel_mode="driving")
+
+    assert len(walking["route"]) == 1
+    assert len(driving["route"]) == 2
+
+
+def test_hybrid_mode_walks_short_legs_and_drives_long_ones():
+    walking, driving, hybrid = (get_travel_mode(m) for m in ("walking", "driving", "hybrid"))
+    short_km, long_km = 0.4, 6.0
+
+    assert hybrid.leg_minutes(short_km) == walking.leg_minutes(short_km)
+    assert hybrid.leg_minutes(long_km) == driving.leg_minutes(long_km)
+    assert hybrid.leg_minutes(long_km) < walking.leg_minutes(long_km)
+
+
+def test_driving_mode_requests_the_car_osrm_profile(monkeypatch):
+    """Real routing must price a drive on the road network, not on footpaths."""
+    import optimization.routing as routing_module
+    requested = []
+
+    def fake_matrix(points, profile="foot"):
+        requested.append(profile)
+        n = len(points)
+        return [[1.0] * n for _ in range(n)], [[5.0] * n for _ in range(n)]
+
+    monkeypatch.setattr(routing_module, "fetch_distance_duration_matrix", fake_matrix)
+
+    pois = [_daytime_poi("A", 48.20, 16.37), _daytime_poi("B", 48.21, 16.38)]
+    optimize_day_route(pois, use_real_routing=True, travel_mode="driving")
+    assert requested == ["car"]
+
+    requested.clear()
+    optimize_day_route(pois, use_real_routing=True, travel_mode="hybrid")
+    assert sorted(requested) == ["car", "foot"]  # hybrid needs both to choose per leg
 
 
 def test_orchestrator_end_to_end():

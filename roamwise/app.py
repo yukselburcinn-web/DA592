@@ -14,6 +14,7 @@ import streamlit as st
 
 from agents.orchestrator import RoamWiseOrchestrator
 from models.forecasting import forecast_city
+from optimization.travel_modes import TRAVEL_MODES
 
 st.set_page_config(page_title="RoamWise", page_icon="\U0001f9ed", layout="wide", initial_sidebar_state="expanded")
 
@@ -60,11 +61,20 @@ with st.sidebar:
         help="Drops POIs pricier than this before routing (falls back to the unfiltered list if nothing survives).",
     )
     daily_hours = st.slider("Daily sightseeing time (hours)", 3, 12, 8,
-                             help="How many hours per day to spend walking/visiting -- feeds the router's time budget.")
+                             help="How many hours per day to spend travelling/visiting -- feeds the router's time budget.")
+    travel_mode = st.radio(
+        "How are you getting around?",
+        list(TRAVEL_MODES),
+        format_func=lambda m: {"walking": "On foot", "driving": "By car",
+                               "hybrid": "Walk nearby, drive between areas"}[m],
+        help="Sets how travel between stops is costed, so a driving day can cover more ground "
+             "than a walking one within the same time budget.",
+    )
     use_real_routing = st.checkbox(
         "Use real street routing (OSRM)", value=False,
-        help="Fetches real walking distances/times from a public OSRM server instead of "
-             "straight-line + flat 4.5km/h. Needs internet; falls back automatically if unreachable.",
+        help="Fetches real street distances/times from a public OSRM server (walking or driving "
+             "network, matching the mode above) instead of the straight-line estimate. "
+             "Needs internet; falls back automatically if unreachable.",
     )
 
     st.header("Retrieval architecture")
@@ -89,7 +99,7 @@ if run:
     with st.spinner("Agents at work: segmenting traveler, forecasting demand, retrieving grounded context, routing..."):
         result = orch.plan_trip(preferences, destination_id=destination_id, n_days=n_days, travel_month=travel_month,
                                  max_price_level=max_price_level, daily_minutes_budget=daily_hours * 60,
-                                 use_real_routing=use_real_routing)
+                                 use_real_routing=use_real_routing, travel_mode=travel_mode)
 
     city_name = orch.destinations.set_index("destination_id").loc[result["destination_id"], "city"]
     st.success(f"Plan ready: **{city_name}** for a **{result['archetype']}**")
@@ -107,9 +117,13 @@ if run:
                            "straight-line + flat-walking-speed estimate instead.")
         col1, col2 = st.columns([1, 1])
         with col1:
+            budget_minutes = daily_hours * 60
             for day in result["routing"]["itinerary"]:
                 with st.container(border=True):
-                    st.markdown(f"**Day {day['day']}** &mdash; {day['distance_km']} km, ~{day['total_minutes']} min")
+                    used = day["total_minutes"]
+                    st.markdown(f"**Day {day['day']}** &mdash; {used // 60}h {used % 60:02d}m "
+                                f"of your {daily_hours}h &middot; {day['distance_km']} km")
+                    st.progress(min(1.0, used / budget_minutes) if budget_minutes else 0.0)
                     if day["route"]:
                         for i, poi in enumerate(day["route"], 1):
                             st.markdown(f"{i}. **{poi['name']}** _{poi.get('category', '')}_")
