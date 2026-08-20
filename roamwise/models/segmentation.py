@@ -8,6 +8,7 @@ Two distinct clustering jobs, as specified in the proposal:
   2. POI geographic zoning: per-city KMeans over POI lat/lon to group sights
      into walkable daily zones, which the RouterAgent then sequences.
 """
+import math
 from pathlib import Path
 
 import numpy as np
@@ -62,18 +63,69 @@ class TravelerSegmenter:
 
 
 class POIZoner:
-    """Per-city KMeans over POI coordinates -> geographic day-zones."""
+    """Per-city KMeans over POI coordinates -> geographic day-zones.
 
-    def zone(self, pois: list[dict], n_zones: int) -> dict[int, list[dict]]:
+    Plain KMeans optimizes only for geographic compactness, which on a real
+    city is badly unbalanced: the dense historic centre collapses into one
+    huge cluster while outlying sights each get a cluster of their own. Since
+    one zone == one day of the trip, that produced the symptom issue #19
+    reports -- a 5-day plan where one day held six sights and three days held
+    a single (often unreachable) one. `balanced=True` therefore keeps the
+    KMeans centroids but reassigns POIs under a per-zone capacity cap, so
+    every day starts from a comparable number of candidates.
+    """
+
+    def zone(self, pois: list[dict], n_zones: int, balanced: bool = True) -> dict[int, list[dict]]:
         if len(pois) <= n_zones:
             return {i: [p] for i, p in enumerate(pois)}
         coords = np.array([[p["lat"], p["lon"]] for p in pois])
         model = KMeans(n_clusters=n_zones, n_init=10, random_state=42)
         labels = model.fit_predict(coords)
+        if balanced:
+            labels = self._balance(coords, model.cluster_centers_, n_zones)
         zones: dict[int, list[dict]] = {i: [] for i in range(n_zones)}
         for poi, label in zip(pois, labels):
             zones[int(label)].append(poi)
         return zones
+
+    @staticmethod
+    def _balance(coords: np.ndarray, centers: np.ndarray, n_zones: int) -> np.ndarray:
+        """Capacity-constrained reassignment against fixed KMeans centroids.
+
+        Every (poi, zone) pair is considered cheapest-first and taken while
+        the POI is unassigned and the zone is under its cap, so a POI only
+        loses its nearest zone to a POI that wants it more. The cap is
+        ceil(n / n_zones), which is the smallest cap that can still hold
+        every POI. A final repair pass hands any zone that still came out
+        empty the POI nearest to it, since an empty zone is an empty day --
+        exactly the outcome this exists to prevent."""
+        n = len(coords)
+        capacity = math.ceil(n / n_zones)
+        # distances[i][z] = how far POI i is from zone z's centroid
+        distances = np.linalg.norm(coords[:, None, :] - centers[None, :, :], axis=2)
+
+        order = sorted(
+            ((distances[i][z], i, z) for i in range(n) for z in range(n_zones)),
+            key=lambda t: t[0],
+        )
+        labels = np.full(n, -1, dtype=int)
+        counts = [0] * n_zones
+        for _, i, z in order:
+            if labels[i] == -1 and counts[z] < capacity:
+                labels[i] = z
+                counts[z] += 1
+
+        for z in range(n_zones):
+            if counts[z] > 0:
+                continue
+            donors = [i for i in range(n) if counts[labels[i]] > 1]
+            if not donors:
+                break
+            take = min(donors, key=lambda i: distances[i][z])
+            counts[labels[take]] -= 1
+            labels[take] = z
+            counts[z] += 1
+        return labels
 
 
 if __name__ == "__main__":

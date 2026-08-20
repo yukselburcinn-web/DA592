@@ -24,7 +24,7 @@ streamlit run app.py
 
 `poi.csv` and `demand_timeseries.csv` are already committed with real data, so the two `fetch_real_*` steps are only needed if you want to refresh them. If you have no network access, skip them — `generate_data.py` alone still produces a fully offline, structurally-equivalent synthetic fallback for both files.
 
-Open the URL Streamlit prints (default `http://localhost:8501`). Set your preferences in the sidebar, optionally pin a destination, choose a Fusion RAG configuration, and click **Plan my trip**. The router respects each POI's opening hours by default, and can optionally fetch real OSRM street-network walking distances/times ("Use real street routing" checkbox) instead of the straight-line estimate -- see [`REPORT.md` §5](REPORT.md#5-known-limitations--honest-gaps-vs-the-proposal) for why that's opt-in rather than the default.
+Open the URL Streamlit prints (default `http://localhost:8501`). Set your preferences in the sidebar, optionally pin a destination, choose how you're getting around and a Fusion RAG configuration, and click **Plan my trip**. The router balances the trip so every day is filled close to your daily sightseeing budget rather than leaving some days empty, and costs travel between stops according to the selected mode -- on foot, by car, or walking short hops and driving between neighbourhoods. It respects each POI's opening hours by default, and can optionally fetch real OSRM street-network distances/times ("Use real street routing" checkbox) instead of the straight-line estimate -- see [`REPORT.md` §5](REPORT.md#5-known-limitations--honest-gaps-vs-the-proposal) for why that's opt-in rather than the default.
 
 ### Run with Docker
 
@@ -92,7 +92,7 @@ roamwise/
   knowledge_graph/       NetworkX-based Graph-RAG substrate (build_graph.py)
   models/                forecasting.py (Holt-Winters demand model), forecasting_prophet.py (optional), segmentation.py (KMeans)
   retrieval/             semantic_search.py, keyword_search.py, graph_search.py, fusion.py (RRF)
-  optimization/          routing.py (nearest-neighbor + 2-opt daily route solver)
+  optimization/          routing.py (nearest-neighbor + 2-opt daily route solver, day balancing), travel_modes.py (walking/driving/hybrid), osrm_client.py
   agents/                ForecasterAgent, FusionRAGAgent, RouterAgent, orchestrator.py
   evaluation/            comparative_analysis.py + saved results
   tests/                 pytest smoke tests covering every module

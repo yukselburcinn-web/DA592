@@ -2,12 +2,13 @@
 Optional real-street-network distance/duration client.
 
 Issue #8 asked for real walking distances/times instead of the haversine
-straight-line + flat 4.5km/h assumption. This uses OSRM's public foot-routing
+straight-line + flat 4.5km/h assumption. This uses OSRM's public routing
 demo server (routing.openstreetmap.de, run by the OpenStreetMap Foundation,
 no API key required) rather than OpenRouteService: OpenRouteService needs a
 signed-up API key we can't obtain on the user's behalf, while this endpoint
 is open and matches the "no confidentiality constraints" spirit the original
-proposal already applied to data sourcing.
+proposal already applied to data sourcing. Issue #19 added the `profile`
+argument so the same server can price driving legs on the road network.
 
 This is opt-in (see optimize_day_route(use_real_routing=...)), not the
 default: it requires network access, an external service can be slow/rate
@@ -19,20 +20,23 @@ call succeeded.
 """
 import requests
 
-OSRM_FOOT_TABLE_URL = "https://routing.openstreetmap.de/routed-foot/table/v1/foot"
+OSRM_TABLE_URL_TEMPLATE = "https://routing.openstreetmap.de/routed-{profile}/table/v1/{profile}"
 TIMEOUT_SECONDS = 6
 
 
-def fetch_distance_duration_matrix(points: list[dict]):
+def fetch_distance_duration_matrix(points: list[dict], profile: str = "foot"):
     """points: list of {"lat": .., "lon": ..}, in the exact order callers will
-    index into the result. Returns (distance_km_matrix, duration_min_matrix)
-    as same-order nested lists, or None if the request fails for any reason
-    (no network, timeout, rate limit, OSRM error response) -- callers must
-    fall back to the haversine heuristic in that case, never raise."""
+    index into the result. `profile` selects the OSRM routing profile ("foot"
+    or "car"; issue #19's travel modes), so a driving itinerary is priced on
+    the road network rather than on footpaths. Returns (distance_km_matrix,
+    duration_min_matrix) as same-order nested lists, or None if the request
+    fails for any reason (no network, timeout, rate limit, OSRM error
+    response) -- callers must fall back to the haversine heuristic in that
+    case, never raise."""
     if len(points) < 2:
         return None
     coords = ";".join(f"{p['lon']},{p['lat']}" for p in points)
-    url = f"{OSRM_FOOT_TABLE_URL}/{coords}"
+    url = f"{OSRM_TABLE_URL_TEMPLATE.format(profile=profile)}/{coords}"
     try:
         resp = requests.get(url, params={"annotations": "distance,duration"}, timeout=TIMEOUT_SECONDS)
         resp.raise_for_status()

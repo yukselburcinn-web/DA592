@@ -29,9 +29,17 @@ from agents.llm_client import LLMClient, get_default_llm_client
 from agents.router_agent import RouterAgent
 from knowledge_graph.build_graph import GraphIndex
 from models.segmentation import TravelerSegmenter
+from optimization.travel_modes import DEFAULT_MODE
 from pathlib import Path
 
 DATA_DIR = Path(__file__).parent.parent / "data"
+
+# Retrieval used to return a flat 12 POIs no matter how long the trip was, so
+# a 5-day plan started with barely two stops per day and most of each day's
+# budget went unused (issue #19). Scale with the trip instead, with headroom
+# for the ones the router will drop on opening hours or the time budget.
+RETRIEVED_POIS_PER_DAY = 8
+MIN_RETRIEVED_POIS = 12
 
 
 class RoamWiseOrchestrator:
@@ -47,15 +55,23 @@ class RoamWiseOrchestrator:
         self.destinations["tags"] = self.destinations.tags.apply(json.loads)
 
     def plan_trip(self, preferences: dict, destination_id: str = None, n_days: int = 3,
-                  travel_month: str = None, top_k_pois: int = 12, max_price_level: int = 3,
-                  daily_minutes_budget: int = 480, use_real_routing: bool = False) -> dict:
+                  travel_month: str = None, top_k_pois: int = None, max_price_level: int = 3,
+                  daily_minutes_budget: int = 480, use_real_routing: bool = False,
+                  travel_mode: str = DEFAULT_MODE) -> dict:
         """preferences: {budget, culture, nature, nightlife, relax, adventure} in [0,1].
         destination_id: pin a city, or leave None to let the orchestrator pick one.
+        top_k_pois: how many POIs to retrieve; defaults to scaling with trip length
+        (see RETRIEVED_POIS_PER_DAY) so a longer trip actually has enough candidates
+        to fill its days.
         max_price_level: drop POIs pricier than this (1=budget, 3=splurge) before routing.
         daily_minutes_budget: sightseeing time available per day, fed to the 2-opt router.
+        travel_mode: "walking", "driving" or "hybrid" -- how legs between stops are
+        costed, which decides how much of a day's budget travel consumes.
         use_real_routing: use real OSRM street-network distances/times instead of the
-        haversine + flat-walking-speed estimate (network-dependent, falls back
+        haversine + flat-speed estimate (network-dependent, falls back
         automatically if OSRM is unreachable)."""
+        if top_k_pois is None:
+            top_k_pois = max(MIN_RETRIEVED_POIS, n_days * RETRIEVED_POIS_PER_DAY)
         state: dict = {"preferences": preferences, "n_days": n_days}
 
         # --- Node 1: traveler segmentation ---
@@ -89,8 +105,10 @@ class RoamWiseOrchestrator:
 
         # --- Node 4: Router Agent builds the optimized day-by-day route ---
         routing = self.router.run(destination_id, candidate_pois, n_days=n_days,
-                                   daily_minutes_budget=daily_minutes_budget, use_real_routing=use_real_routing)
+                                   daily_minutes_budget=daily_minutes_budget,
+                                   use_real_routing=use_real_routing, travel_mode=travel_mode)
         state["routing"] = routing
+        state["travel_mode"] = routing["travel_mode"]
 
         # --- Node 5: final synthesis ---
         state["final_plan"] = self._synthesize(state)
