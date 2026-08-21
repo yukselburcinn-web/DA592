@@ -5,3 +5,5 @@ __pycache__/
 .DS_Store
 .streamlit/
 ~$*
+roamwise/data/.cache/
+roamwise/data/raw_osm/

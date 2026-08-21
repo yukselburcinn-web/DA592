@@ -17,7 +17,7 @@ All claims below are backed by code in this repository and a passing automated t
 |---|---|---|
 | Interactive Prototype (web UI) | **Built & verified in-browser** | `roamwise/app.py` (Streamlit) |
 | Agentic Architecture Codebase | **Built** | `roamwise/agents/`, `roamwise/models/`, `roamwise/retrieval/`, `roamwise/optimization/` |
-| Knowledge Graph | **Built** | `roamwise/knowledge_graph/build_graph.py` — 1231 nodes (8 City, 1200 POI, 16 Transport, 7 ArchetypeProfile), 66318 edges |
+| Knowledge Graph | **Built** | `roamwise/knowledge_graph/build_graph.py` — 1231 nodes (8 City, 1200 POI, 16 Transport, 7 ArchetypeProfile), 78364 edges |
 | Final Technical Report | **This document + `evaluation/comparative_analysis_*.csv`** | |
 
 ## 3. Methodology → implementation mapping
@@ -33,7 +33,13 @@ The proposal names Kaggle, TripAdvisor, OpenStreetMap, and Wikidata. `roamwise/d
 
 POIs and tourism-demand data are now **real**, fetched live from public APIs rather than generated:
 
-- **`data/fetch_real_pois.py`**: 1200 POIs (150/city, up from an initial 10/city — see `BACKLOG.md` issue #2) across the same 10 categories, pulled from **OpenStreetMap** (Overpass API) around each city center and enriched with **Wikidata** (SPARQL) for descriptions and a sitelink-count popularity signal — the two sources the proposal names for this exact purpose.
+- **`data/fetch_real_pois.py`**: 1200 POIs (150/city, up from an initial 10/city — see `BACKLOG.md` issue #2) across the same 10 categories, pulled from **OpenStreetMap** (Overpass API) around each city center and enriched with **Wikidata** (SPARQL) and **Wikipedia** — the sources the proposal names for this exact purpose.
+
+  **Which** 150 turns out to matter as much as how many. The first version of this script ranked candidates only by whether they carried a `wikidata` tag and then took Overpass's arbitrary return order, so each city's catalogue was effectively a random sample of its tagged features: Prague's 150 contained neither Prague Castle, Charles Bridge nor the Astronomical Clock, and Paris's contained neither the Louvre, the Musée d'Orsay nor the Arc de Triomphe. Selection now ranks within each category by Wikidata sitelink count before the round-robin cut. Across a fixed list of 47 headline sights spanning the eight cities, coverage went from **20/47 to 42/47** at the same 1200-row catalogue size.
+
+  Two further corrections come from the same pass. OSM's `wikidata` tag is hand-applied and often points at a *concept* rather than the feature — the red panda enclosure at Prague Zoo carries the QID for the species, a statue of Diana the QID for the goddess, the metre marker in Paris the QID for the unit of length. Because a species article collects far more sitelinks than any building, these outranked real landmarks; Prague's top-scoring POI was the Wikidata entity for the Church of Jesus Christ of Latter-day Saints, the worldwide organisation. Entities whose English Wikipedia article carries no coordinates are now rejected as non-places, which removed **274** such entries, plus **10** whose linked entity sat more than 5 km from the OSM feature. And `popularity_score`, previously derived from sitelink count alone, compressed all 1200 POIs into eight distinct values between 4.0 and 4.7; it is now a within-city percentile of sitelink count blended with mean monthly 2025 English-Wikipedia pageviews.
+
+  Descriptions are now the opening sentences of the Wikipedia article where one exists (686 of 1200), the Wikidata one-liner where it does not (190), and a category template only as a last resort (324) — previously every description was templated. Each row also carries provenance columns (`wikidata_qid`, `wikipedia_title`, `sitelink_count`, `monthly_pageviews`, `description_source`, `hours_source`, `price_source`) so any consumer can tell an observed value from a fallback: 427 of 1200 rows carry real OSM opening hours and 148 a real OSM fee signal, the rest are category defaults.
 - **`data/fetch_real_demand.py`**: the monthly tourism-demand series (2019–2026, real COVID-era dip and recovery) is Eurostat's `tour_occ_nim` — real nights-spent-by-non-residents data, at each destination's **country** level (there is no free, unauthenticated, monthly, per-city arrivals API covering all 8 cities). This is the one honest remaining gap: the *numbers* are 100% real, but they're a country-level proxy standing in for a city-level series — documented in the README's Data note and in §5 below.
 
 `generate_data.py` still produces a synthetic fallback for `poi.csv`/`demand_timeseries.csv` if run without the two fetch scripts, so the pipeline stays fully reproducible offline; the committed dataset in this repo, however, is the real one.
@@ -105,9 +111,11 @@ The orchestrator's `plan_trip()` runs all five nodes in sequence: segmentation �
 
 | Config | Mean Recall@k (multi-hop gold) | Mean archetype-category precision | Mean grounded-entity rate | Mean km/stop (itinerary coherence) |
 |---|---|---|---|---|
-| **Fusion RAG** (Semantic+Graph+Keyword) | **0.479** | **0.964** | 1.000 | 1.40 |
-| **Hybrid RAG** (Semantic+Keyword) | 0.390 | 0.828 | 1.000 | 2.06 |
-| **Standard prompting** (no retrieval) | 0.000 | 0.453 | 0.000 | 1.56 |
+| **Fusion RAG** (Semantic+Graph+Keyword) | **0.314** | **0.886** | 1.000 | 1.18 |
+| **Hybrid RAG** (Semantic+Keyword) | 0.223 | 0.623 | 1.000 | 1.19 |
+| **Standard prompting** (no retrieval) | 0.000 | 0.514 | 0.000 | 1.34 |
+
+Two notes on how these replace the previous revision's figures. First, the table published here previously (Fusion 0.479 / 0.964) did not match `comparative_analysis_summary.csv` as committed alongside it (0.343 / 0.857); re-running the harness unchanged against the previous POI catalogue reproduces the CSV, so the prose table was stale and the CSV was right. Second, the numbers above come from the re-ranked POI catalogue described in §3.1. Measured back to back in one environment, the change moves Fusion from 0.343 to 0.314 on recall and from 0.857 to 0.886 on precision — and, more to the point, widens Fusion's margin over Hybrid on both: **recall 0.072 → 0.091, precision 0.227 → 0.263**. Recall falls slightly in absolute terms for both configurations because re-ranking changes *which* POIs populate each city, and with them the multi-hop gold set the metric scores against; the margin between configurations is the comparable quantity, and it grew. Itinerary coherence is unchanged within noise (1.15 → 1.18 km/stop).
 
 (Numbers above are from the real OSM/Wikidata POI dataset at 150 POIs/city [§3.1, issue #2] with real `sentence-transformers`+FAISS semantic embeddings [§3.3, issue #4]. Full per-query results: `evaluation/comparative_analysis_results.csv`; aggregated: `evaluation/comparative_analysis_summary.csv`. Reproduce with `python evaluation/comparative_analysis.py`.)
 

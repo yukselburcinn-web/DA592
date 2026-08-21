@@ -38,12 +38,88 @@ import pandas as pd
 import requests
 
 HERE = Path(__file__).parent
+CACHE_DIR = HERE / ".cache"
 OVERPASS_URL = "https://overpass.openstreetmap.fr/api/interpreter"
 WIKIDATA_URL = "https://query.wikidata.org/sparql"
+WIKIPEDIA_API = "https://en.wikipedia.org/w/api.php"
+WIKIPEDIA_SUMMARY = "https://en.wikipedia.org/api/rest_v1/page/summary/"
+PAGEVIEWS_URL = ("https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/"
+                 "en.wikipedia/all-access/user/{title}/monthly/{start}/{end}")
+PAGEVIEW_WINDOW = ("2025010100", "2025123100")  # a full, complete calendar year
 HEADERS = {"User-Agent": "RoamWise-DataFetch/1.0 (student term project; contact via GitHub repo)"}
 
 RADIUS_M = 7000
 POIS_PER_CITY = 150
+
+# How far a Wikidata entity may sit from the OSM feature before the link counts
+# as wrong rather than imprecise.
+MAX_ENTITY_DRIFT_KM = 5.0
+
+
+def haversine_km(lat1, lon1, lat2, lon2):
+    import math
+
+    radius = 6371.0
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dlambda / 2) ** 2
+    return 2 * radius * math.asin(math.sqrt(a))
+
+
+def cached_json(url: str, cache_key: str, params: dict = None, pause: float = 0.4):
+    """GET returning parsed JSON, cached on disk under .cache/.
+
+    The enrichment below makes thousands of small requests, most of which
+    return the same answer every run. Caching keeps a re-run to seconds rather
+    than half an hour, and keeps the load off shared public endpoints. Returns
+    None on failure -- an enrichment gap must degrade one POI, not abort a
+    pull that is most of the way through eight cities."""
+    import json
+
+    cache_file = CACHE_DIR / (re.sub(r"[^A-Za-z0-9_.-]", "_", cache_key)[:160] + ".json")
+    if cache_file.exists():
+        try:
+            payload = json.loads(cache_file.read_text())
+        except json.JSONDecodeError:
+            cache_file.unlink()
+        else:
+            # a cached "this does not exist" is as useful as a cached answer:
+            # without it every re-run re-asks for the same missing articles
+            return None if payload == {"__absent__": True} else payload
+
+    def remember_absent():
+        CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        cache_file.write_text(json.dumps({"__absent__": True}))
+        return None
+
+    delay = 5.0
+    for attempt in range(4):
+        try:
+            resp = requests.get(url, params=params, headers=HEADERS, timeout=45)
+            resp.raise_for_status()
+            payload = resp.json()
+            CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            cache_file.write_text(json.dumps(payload))
+            time.sleep(pause)
+            return payload
+        except requests.exceptions.HTTPError as exc:
+            status = exc.response.status_code if exc.response is not None else None
+            # A 404 means the article simply does not exist -- retrying it three
+            # times behind an exponential backoff burns ~35 seconds to learn
+            # nothing. Only 429 and server errors are worth another attempt.
+            if status and status < 500 and status != 429:
+                return remember_absent()
+            if attempt == 3:
+                return None
+            time.sleep(delay)
+            delay *= 2
+        except (requests.exceptions.RequestException, ValueError):
+            if attempt == 3:
+                return None
+            time.sleep(delay)
+            delay *= 2
+    return None
 
 # OSM tag -> RoamWise category. Order matters: first matching rule wins.
 TAG_CATEGORY_RULES = [
@@ -188,15 +264,39 @@ def dedupe_elements(elements: list[dict]) -> list[dict]:
     return list(seen.values())
 
 
-def select_diverse(elements: list[dict], n: int) -> list[dict]:
+def fame_score(info: dict) -> float:
+    """Blend the two independent attention signals on a log scale. Pageviews
+    measure what people actually look up; sitelink count measures how widely a
+    place is documented. Using both means a locally famous place that is thinly
+    documented, or a heavily documented one nobody reads, still lands sensibly."""
+    import math
+
+    views = math.log1p(info.get("pageviews") or 0)
+    links = math.log1p(info.get("sitelinks") or 0)
+    return 0.6 * views + 0.8 * links
+
+
+def select_diverse(elements: list[dict], n: int, ranking: dict[str, dict]) -> list[dict]:
     """Round-robin across categories so one flooded tag (e.g. place_of_worship)
-    can't crowd out everything else, then fill any remaining slots."""
+    cannot crowd out everything else -- but rank *within* each category by how
+    well known the place is.
+
+    The ranking is the point. This used to sort each category only by whether
+    the element carried a `wikidata` tag and then take whatever order Overpass
+    happened to return, which meant the 150 POIs kept per city were an
+    arbitrary sample: Prague's catalogue came back without Prague Castle,
+    Charles Bridge or the Astronomical Clock, and Paris without the Louvre,
+    the Musée d'Orsay or the Arc de Triomphe."""
+    def score(el):
+        qid = normalize_qid(el.get("tags", {}).get("wikidata"))
+        return fame_score(ranking.get(qid, {})) if qid else 0.0
+
     by_category: dict[str, list[dict]] = {}
     for el in elements:
         category = classify(el.get("tags", {}))
         by_category.setdefault(category, []).append(el)
     for cat_elements in by_category.values():
-        cat_elements.sort(key=lambda e: "wikidata" not in e.get("tags", {}))
+        cat_elements.sort(key=score, reverse=True)
 
     picked, order = [], list(by_category.keys())
     idx = 0
@@ -210,39 +310,151 @@ def select_diverse(elements: list[dict], n: int) -> list[dict]:
     return picked[:n]
 
 
-def fetch_wikidata_info(qids: list[str]) -> dict[str, dict]:
-    if not qids:
-        return {}
-    values = " ".join(f"wd:{q}" for q in sorted(set(qids)))
-    query = f"""
-    SELECT ?item ?itemDescription ?sitelinks WHERE {{
-      VALUES ?item {{ {values} }}
-      ?item wikibase:sitelinks ?sitelinks .
-      OPTIONAL {{ ?item schema:description ?itemDescription . FILTER(lang(?itemDescription) = "en") }}
-    }}
-    """
-    last_error = None
-    for attempt in range(4):
-        try:
-            resp = requests.get(
-                WIKIDATA_URL, params={"query": query, "format": "json"}, headers=HEADERS, timeout=60
-            )
-            resp.raise_for_status()
-            break
-        except requests.exceptions.RequestException as exc:
-            last_error = exc
-            time.sleep(5 * (attempt + 1))
-    else:
-        raise RuntimeError(f"Wikidata query failed after retries: {last_error}")
+QID_RE = re.compile(r"^Q\d+$")
 
-    out = {}
-    for row in resp.json()["results"]["bindings"]:
-        qid = row["item"]["value"].rsplit("/", 1)[-1]
-        out[qid] = {
-            "description": row.get("itemDescription", {}).get("value"),
-            "sitelinks": int(row["sitelinks"]["value"]),
-        }
+
+def normalize_qid(raw: str | None) -> str | None:
+    """OSM's `wikidata` tag is hand-applied free text: it can hold several ids
+    ("Q1;Q2") or plain junk. One malformed value makes a whole batch query
+    fail, so keep the first well-formed id or nothing."""
+    if not raw:
+        return None
+    for part in re.split(r"[;,\s]+", raw.strip()):
+        if QID_RE.match(part):
+            return part
+    return None
+
+
+def fetch_wikidata_info(qids: list[str]) -> dict[str, dict]:
+    """Sitelink count, English description and English Wikipedia title per
+    entity, in chunks. This now runs over *every* candidate rather than over an
+    already-chosen subset: the selection below ranks on these numbers, so
+    fetching them afterwards -- as this script used to -- meant the 150 kept
+    per city were an arbitrary sample that the popularity score then ranked
+    after the fact."""
+    qids = sorted({q for q in (normalize_qid(q) for q in qids) if q})
+    out: dict[str, dict] = {}
+    for i in range(0, len(qids), 400):
+        chunk = qids[i:i + 400]
+        values = " ".join(f"wd:{q}" for q in chunk)
+        query = f"""
+        SELECT ?item ?itemDescription ?sitelinks ?articleName WHERE {{
+          VALUES ?item {{ {values} }}
+          ?item wikibase:sitelinks ?sitelinks .
+          OPTIONAL {{ ?item schema:description ?itemDescription . FILTER(lang(?itemDescription) = "en") }}
+          OPTIONAL {{
+            ?article schema:about ?item ;
+                     schema:isPartOf <https://en.wikipedia.org/> ;
+                     schema:name ?articleName .
+          }}
+        }}
+        """
+        payload = cached_json(WIKIDATA_URL, f"wd_{chunk[0]}_{len(chunk)}",
+                              params={"query": query, "format": "json"}, pause=1.0)
+        if not payload:
+            print(f"    ! Wikidata chunk starting {chunk[0]} failed; continuing without it")
+            continue
+        for row in payload["results"]["bindings"]:
+            qid = row["item"]["value"].rsplit("/", 1)[-1]
+            out[qid] = {
+                "description": row.get("itemDescription", {}).get("value"),
+                "sitelinks": int(row["sitelinks"]["value"]),
+                "title": row.get("articleName", {}).get("value"),
+            }
     return out
+
+
+def fetch_article_coords(titles: list[str]) -> dict[str, tuple[float, float]]:
+    """Which of these Wikipedia articles are about a *place*?
+
+    OSM's `wikidata` tag often points at a concept rather than the feature: the
+    red panda enclosure at Prague Zoo carries the QID for the *species*, a
+    statue of Diana the QID for the *goddess*, the metre marker in Paris the
+    QID for the *unit of length*. Because a species or a worldwide institution
+    collects far more sitelinks than any single building, these outrank real
+    landmarks -- Prague's top-scoring POI was the Wikidata entity for the
+    Church of Jesus Christ of Latter-day Saints, the organisation.
+
+    An article about a place carries coordinates; an article about a concept
+    does not. Asking Wikipedia rather than Wikidata's SPARQL endpoint is
+    deliberate: `prop=coordinates` takes 50 titles per call and answers in
+    milliseconds."""
+    import urllib.parse
+
+    coords: dict[str, tuple[float, float]] = {}
+    for i in range(0, len(titles), 50):
+        chunk = titles[i:i + 50]
+        payload = cached_json(WIKIPEDIA_API,
+                              f"wpcoord_{re.sub(r'[^A-Za-z0-9]', '', chunk[0])[:40]}_{len(chunk)}",
+                              # colimit defaults to 10 results per query, so a
+                              # 50-title batch silently returns coordinates for
+                              # only the first handful and the rest look like
+                              # concepts. "max" is required, not cosmetic.
+                              params={"action": "query", "prop": "coordinates",
+                                      "titles": "|".join(chunk), "colimit": "max",
+                                      "format": "json", "formatversion": "2"},
+                              pause=0.3)
+        if not payload:
+            continue
+        for page in (payload.get("query") or {}).get("pages") or []:
+            position = (page.get("coordinates") or [None])[0]
+            if position:
+                coords[page["title"]] = (position["lat"], position["lon"])
+        # the API normalises titles; map back so lookups by our string still hit
+        for norm in (payload.get("query") or {}).get("normalized") or []:
+            if norm["to"] in coords:
+                coords[norm["from"]] = coords[norm["to"]]
+    return coords
+
+
+def fetch_pageviews(title: str) -> int | None:
+    """Mean monthly English-Wikipedia pageviews over a complete calendar year.
+
+    Sitelink count measures how widely documented a place is; pageviews measure
+    whether anyone actually looks it up. They disagree often enough to be worth
+    having both -- a cathedral documented in 40 languages that nobody reads
+    should not outrank the landmark every visitor searches for."""
+    import urllib.parse
+
+    encoded = urllib.parse.quote(title.replace(" ", "_"), safe="")
+    payload = cached_json(PAGEVIEWS_URL.format(title=encoded, start=PAGEVIEW_WINDOW[0],
+                                               end=PAGEVIEW_WINDOW[1]),
+                          f"pv_{encoded}", pause=0.35)
+    if not payload or not payload.get("items"):
+        return None
+    views = [item["views"] for item in payload["items"]]
+    return int(sum(views) / len(views))
+
+
+def fetch_summary(title: str) -> str | None:
+    """First paragraphs of the English Wikipedia article, trimmed to whole
+    sentences. Replaces the templated `build_description` output ("X is a
+    türbe in Turkey, in Istanbul") with prose a retrieval layer can actually
+    match against."""
+    import urllib.parse
+
+    encoded = urllib.parse.quote(title.replace(" ", "_"), safe="")
+    payload = cached_json(WIKIPEDIA_SUMMARY + encoded, f"sum_{encoded}", pause=0.35)
+    if not payload:
+        return None
+    extract = re.sub(r"\s+", " ", (payload.get("extract") or "")).strip()
+    return extract or None
+
+
+MAX_DESCRIPTION_CHARS = 500
+
+
+def trim_description(text: str) -> str:
+    """Wikipedia extracts run past a thousand characters; keep whole sentences
+    up to a budget so POI cards and agent prompts stay readable."""
+    if len(text) <= MAX_DESCRIPTION_CHARS:
+        return text
+    out = ""
+    for sentence in re.split(r"(?<=[.!?]) ", text):
+        if out and len(out) + len(sentence) + 1 > MAX_DESCRIPTION_CHARS:
+            break
+        out = f"{out} {sentence}".strip()
+    return out or text[:MAX_DESCRIPTION_CHARS].rsplit(" ", 1)[0]
 
 
 def parse_opening_hours(raw: str | None) -> tuple[int, int] | None:
@@ -287,22 +499,51 @@ def build_description(name: str, city: str, category: str, wikidata_desc: str | 
     return generic.get(category, f"A point of interest in {city}.")
 
 
-def poi_row(poi_id: int, dest_id: str, city: str, el: dict, wikidata_info: dict[str, dict]) -> dict:
+def popularity_from_fame(info: dict, city_scores: list[float]) -> float:
+    """A within-city percentile of the fame score, mapped onto the 2.5-5.0 range
+    the rest of the codebase already expects. The previous formula ran off
+    sitelink count alone and compressed every POI into eight distinct values
+    between 4.0 and 4.7, which gave the ranking almost nothing to work with."""
+    if not city_scores:
+        return 4.0
+    score = fame_score(info)
+    below = sum(1 for s in city_scores if s <= score)
+    return round(2.5 + 2.5 * (below / len(city_scores)), 2)
+
+
+def poi_row(poi_id: int, dest_id: str, city: str, el: dict, wikidata_info: dict[str, dict],
+            city_scores: list[float]) -> dict:
     tags = el.get("tags", {})
     name = tags["name"]
     category = classify(tags)
     lat = el["lat"] if el["type"] == "node" else el["center"]["lat"]
     lon = el["lon"] if el["type"] == "node" else el["center"]["lon"]
 
-    qid = tags.get("wikidata")
+    qid = normalize_qid(tags.get("wikidata"))
     wd = wikidata_info.get(qid, {}) if qid else {}
 
     avg_minutes, default_price, default_open, default_close = CATEGORY_DEFAULTS[category]
     fee = tags.get("fee")
-    price_level = 0 if fee == "no" else default_price
+    if fee == "no":
+        price_level, price_source = 0, "osm"
+    elif fee == "yes" or tags.get("charge"):
+        price_level, price_source = max(default_price, 1), "osm"
+    else:
+        price_level, price_source = default_price, "category_default"
 
-    hours = parse_opening_hours(tags.get("opening_hours")) or (default_open, default_close)
+    parsed_hours = parse_opening_hours(tags.get("opening_hours"))
+    hours = parsed_hours or (default_open, default_close)
+    hours_source = "osm" if parsed_hours else "category_default"
 
+    summary = wd.get("summary")
+    if summary:
+        description, description_source = trim_description(summary), "wikipedia"
+    elif wd.get("description"):
+        description, description_source = build_description(name, city, category, wd["description"]), "wikidata"
+    else:
+        description, description_source = build_description(name, city, category, None), "template"
+
+    views = wd.get("pageviews")
     return {
         "poi_id": f"POI{poi_id:04d}",
         "destination_id": dest_id,
@@ -312,35 +553,100 @@ def poi_row(poi_id: int, dest_id: str, city: str, el: dict, wikidata_info: dict[
         "lon": round(lon, 6),
         "avg_visit_minutes": avg_minutes,
         "price_level": price_level,
-        "popularity_score": popularity_from_sitelinks(wd.get("sitelinks")),
-        "description": build_description(name, city, category, wd.get("description")),
+        "popularity_score": popularity_from_fame(wd, city_scores),
+        "description": description,
         "open_hour": hours[0],
         "close_hour": hours[1],
+        # provenance -- lets a reader tell an observed value from a fallback
+        "wikidata_qid": qid or "",
+        "wikipedia_title": wd.get("title") or "",
+        "sitelink_count": wd.get("sitelinks") or 0,
+        "monthly_pageviews": views if views is not None else "",
+        "description_source": description_source,
+        "hours_source": hours_source,
+        "price_source": price_source,
     }
 
 
 def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Refresh poi.csv from OSM/Wikidata/Wikipedia.")
+    parser.add_argument("--limit-cities", default="",
+                        help="comma-separated destination_ids, for a partial run while iterating")
+    parser.add_argument("--out", default="poi.csv", help="output filename inside this directory")
+    args = parser.parse_args()
+
+    wanted = {c.strip() for c in args.limit_cities.split(",") if c.strip()}
+    destinations = [d for d in DESTINATIONS if not wanted or d[0] in wanted]
+
     all_rows = []
     poi_id = 1
-    for dest_id, city, lat, lon in DESTINATIONS:
+    for dest_id, city, lat, lon in destinations:
         print(f"[{dest_id}] querying Overpass ({city})...")
-        elements = fetch_overpass(lat, lon)
-        elements = dedupe_elements(elements)
-        chosen = select_diverse(elements, POIS_PER_CITY)
+        elements = dedupe_elements(fetch_overpass(lat, lon))
 
-        qids = [el["tags"]["wikidata"] for el in chosen if "wikidata" in el.get("tags", {})]
-        print(f"[{dest_id}] {len(elements)} candidates -> {len(chosen)} selected, {len(qids)} with Wikidata IDs")
-        wikidata_info = fetch_wikidata_info(qids)
+        # Enrich every candidate before choosing, not after: the choice depends
+        # on these numbers.
+        qids = [t for t in (normalize_qid(el.get("tags", {}).get("wikidata")) for el in elements) if t]
+        info = fetch_wikidata_info(qids)
+        print(f"[{dest_id}] {len(elements)} candidates, {len(info)} enriched from Wikidata")
 
+        # Place gate: drop entities that are concepts rather than places, and
+        # links that point somewhere else entirely.
+        titled = {qid: v["title"] for qid, v in info.items() if v.get("title")}
+        coords = fetch_article_coords(sorted(set(titled.values())))
+        element_positions = {}
+        for el in elements:
+            qid = normalize_qid(el.get("tags", {}).get("wikidata"))
+            if qid:
+                element_positions[qid] = (el["lat"] if el["type"] == "node" else el["center"]["lat"],
+                                          el["lon"] if el["type"] == "node" else el["center"]["lon"])
+        dropped_concept = dropped_far = 0
+        for qid, title in titled.items():
+            position = coords.get(title)
+            if position is None:
+                info.pop(qid, None)
+                dropped_concept += 1
+            elif qid in element_positions and \
+                    haversine_km(*element_positions[qid], *position) > MAX_ENTITY_DRIFT_KM:
+                info.pop(qid, None)
+                dropped_far += 1
+        elements = [el for el in elements
+                    if not (normalize_qid(el.get("tags", {}).get("wikidata")) or "") in
+                    (set(titled) - set(info))]
+        print(f"[{dest_id}] place gate: dropped {dropped_concept} non-places, {dropped_far} mislinked")
+
+        # Selection ranks on sitelink count, which we already have for every
+        # candidate. Pageviews would refine the ordering, but one request per
+        # candidate over a few thousand candidates runs into the pageviews
+        # API's rate limit and costs hours; they are fetched below for the
+        # chosen POIs instead, where they sharpen popularity_score.
+        chosen = select_diverse(elements, POIS_PER_CITY, info)
+
+        # Pageviews and rich descriptions for the final cut only.
         for el in chosen:
-            all_rows.append(poi_row(poi_id, dest_id, city, el, wikidata_info))
+            qid = normalize_qid(el.get("tags", {}).get("wikidata"))
+            entry = info.get(qid) if qid else None
+            if entry and entry.get("title"):
+                entry["pageviews"] = fetch_pageviews(entry["title"])
+                entry["summary"] = fetch_summary(entry["title"])
+
+        city_scores = [fame_score(info[normalize_qid(el["tags"]["wikidata"])])
+                       for el in chosen
+                       if normalize_qid(el.get("tags", {}).get("wikidata")) in info]
+        for el in chosen:
+            all_rows.append(poi_row(poi_id, dest_id, city, el, info, city_scores))
             poi_id += 1
+        print(f"[{dest_id}] selected {len(chosen)}")
 
         time.sleep(1)  # be polite to the shared public Overpass/Wikidata endpoints
 
     poi_df = pd.DataFrame(all_rows)
-    poi_df.to_csv(HERE / "poi.csv", index=False)
-    print(f"\nWrote poi.csv ({len(poi_df)} rows across {poi_df.destination_id.nunique()} cities)")
+    poi_df.to_csv(HERE / args.out, index=False)
+    print(f"\nWrote {args.out} ({len(poi_df)} rows across {poi_df.destination_id.nunique()} cities)")
+    for column in ["description_source", "hours_source", "price_source"]:
+        print(f"  {column}: {poi_df[column].value_counts().to_dict()}")
 
 
 if __name__ == "__main__":
