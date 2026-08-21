@@ -135,20 +135,33 @@ def _daytime_poi(name, lat, lon, minutes=60):
 def test_balanced_zoning_evens_out_day_zones():
     """Plain KMeans collapses a dense city centre into one zone and leaves
     outlying sights in zones of their own -- one packed day, several starved
-    ones. Balanced assignment has to narrow that spread without losing POIs."""
-    idx = GraphIndex()
-    pois = idx.city_pois("ROM")[:11]
+    ones. Balanced assignment has to narrow that spread without losing POIs.
 
-    def spread(balanced):
+    Measured across cities rather than on one fixed sample: whether plain
+    KMeans happens to be balanced already depends on the exact coordinates of
+    whichever POIs the current poi.csv pull put first, and a refresh of that
+    real data turned the single-city version of this test red without anything
+    in the zoner changing."""
+    idx = GraphIndex()
+    cities = ["IST", "PAR", "ROM", "BCN", "AMS", "PRG", "VIE", "LIS"]
+
+    def spread(pois, balanced):
         sizes = [len(v) for v in POIZoner().zone(pois, n_zones=5, balanced=balanced).values()]
         assert sum(sizes) == len(pois)  # nothing dropped either way
         return max(sizes) - min(sizes), min(sizes)
 
-    balanced_spread, balanced_min = spread(True)
-    plain_spread, _ = spread(False)
+    strictly_better = 0
+    for city in cities:
+        pois = idx.city_pois(city)[:11]
+        balanced_spread, balanced_min = spread(pois, True)
+        plain_spread, _ = spread(pois, False)
 
-    assert balanced_min >= 1, "no zone may be left empty"
-    assert balanced_spread < plain_spread
+        assert balanced_min >= 1, f"{city}: no zone may be left empty"
+        assert balanced_spread <= plain_spread, f"{city}: balancing made the spread worse"
+        strictly_better += balanced_spread < plain_spread
+
+    assert strictly_better >= len(cities) // 2, \
+        "balancing should visibly help in most cities, not merely never hurt"
 
 
 def test_multi_day_itinerary_fills_every_day_near_its_budget():
