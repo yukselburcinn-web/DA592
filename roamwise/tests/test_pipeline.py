@@ -15,6 +15,7 @@ from retrieval.fusion import FusionRetriever
 from optimization.routing import build_multi_day_itinerary, optimize_day_route
 from optimization.travel_modes import get_travel_mode
 from agents.orchestrator import RoamWiseOrchestrator
+from agents.router_agent import RouterAgent
 from evaluation.comparative_analysis import run_comparative_analysis, summarize
 
 
@@ -235,6 +236,98 @@ def test_driving_mode_requests_the_car_osrm_profile(monkeypatch):
     requested.clear()
     optimize_day_route(pois, use_real_routing=True, travel_mode="hybrid")
     assert sorted(requested) == ["car", "foot"]  # hybrid needs both to choose per leg
+
+
+# --- issue #20: every day gets meals ---
+
+def _food_poi(name, lat, lon, minutes=60):
+    return {"name": name, "lat": lat, "lon": lon, "avg_visit_minutes": minutes,
+            "category": "food", "open_hour": 8, "close_hour": 22}
+
+
+def _sights_along_a_line(n, lat=48.20, lon=16.37, step=0.004, minutes=90):
+    return [_daytime_poi(f"Sight {i}", lat + i * step, lon, minutes) for i in range(n)]
+
+
+def _meals_in(day):
+    return [p for p in day["route"] if p.get("category") == "food"]
+
+
+def test_every_day_gets_its_minimum_meals():
+    zones = {0: _sights_along_a_line(4), 1: _sights_along_a_line(4, lat=48.24)}
+    food = [_food_poi(f"Cafe {i}", 48.20 + i * 0.006, 16.372) for i in range(8)]
+
+    days = build_multi_day_itinerary(zones, daily_minutes_budget=480,
+                                      food_pois=food, min_food_per_day=2)
+
+    assert all(len(_meals_in(day)) >= 2 for day in days)
+
+
+def test_no_meals_are_added_when_the_minimum_is_zero():
+    """Control for the test above: without the guarantee these itineraries
+    contain no food at all, which is exactly the bug #20 reported."""
+    zones = {0: _sights_along_a_line(4), 1: _sights_along_a_line(4, lat=48.24)}
+    food = [_food_poi(f"Cafe {i}", 48.20 + i * 0.006, 16.372) for i in range(8)]
+
+    days = build_multi_day_itinerary(zones, daily_minutes_budget=480,
+                                      food_pois=food, min_food_per_day=0)
+
+    assert all(not _meals_in(day) for day in days)
+
+
+def test_meals_are_spread_across_the_day_not_stacked_at_the_start():
+    """Two meals before 11am would satisfy a naive count but is not a day
+    anyone would travel. They have to straddle the day's midpoint."""
+    zones = {0: _sights_along_a_line(5)}
+    food = [_food_poi(f"Cafe {i}", 48.20 + i * 0.005, 16.372) for i in range(8)]
+
+    day = build_multi_day_itinerary(zones, daily_minutes_budget=600,
+                                     day_start_hour=9.0, food_pois=food,
+                                     min_food_per_day=2)[0]
+
+    meal_hours = sorted(slot["arrival"] for poi, slot in zip(day["route"], day["schedule"])
+                        if poi.get("category") == "food")
+    assert len(meal_hours) >= 2
+    assert meal_hours[0] >= 11.0, "the first meal should not be breakfast-time"
+    assert meal_hours[-1] - meal_hours[0] >= 2.0, "meals should be hours apart"
+
+
+def test_meal_choice_prefers_a_venue_on_the_route_over_a_distant_one():
+    """AC2: the meal has to be somewhere the traveler is already passing."""
+    zones = {0: _sights_along_a_line(4)}
+    on_route = _food_poi("Corner Bistro", 48.206, 16.3705)
+    far_away = _food_poi("Distant Grill", 48.35, 16.60)
+
+    day = build_multi_day_itinerary(zones, daily_minutes_budget=480,
+                                     food_pois=[far_away, on_route], min_food_per_day=1)[0]
+
+    names = [p["name"] for p in _meals_in(day)]
+    assert "Corner Bistro" in names
+    assert "Distant Grill" not in names
+
+
+def test_the_same_restaurant_is_not_booked_twice_in_one_trip():
+    zones = {0: _sights_along_a_line(3), 1: _sights_along_a_line(3, lat=48.23),
+             2: _sights_along_a_line(3, lat=48.26)}
+    food = [_food_poi(f"Cafe {i}", 48.20 + i * 0.008, 16.372) for i in range(10)]
+
+    days = build_multi_day_itinerary(zones, daily_minutes_budget=480,
+                                      food_pois=food, min_food_per_day=2)
+
+    booked = [p["name"] for day in days for p in _meals_in(day)]
+    assert len(booked) == len(set(booked))
+
+
+def test_router_agent_feeds_every_day_from_the_citys_own_restaurants():
+    idx = GraphIndex()
+    agent = RouterAgent(idx)
+    pois = [p for p in idx.city_pois("VIE") if p.get("category") != "food"][:24]
+
+    result = agent.run("VIE", pois, n_days=3, daily_minutes_budget=480)
+
+    assert len(result["itinerary"]) == 3
+    for day in result["itinerary"]:
+        assert len(_meals_in(day)) >= 2, f"day {day['day']} has no meals"
 
 
 def test_orchestrator_end_to_end():

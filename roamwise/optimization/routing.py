@@ -35,6 +35,17 @@ import math
 from roamwise.optimization.osrm_client import fetch_distance_duration_matrix
 from roamwise.optimization.travel_modes import DEFAULT_MODE, HybridTravelMode, get_travel_mode
 
+FOOD_CATEGORY = "food"
+# Fraction of a meal's sit-down time to also set aside for getting to it.
+MEAL_TRAVEL_ALLOWANCE = 0.25
+# How many sights a meal may bump to fit into a day. The guarantee is "every
+# day has meals", so a meal outranks the marginal last sight -- but only just:
+# past this the day stops being a sightseeing itinerary.
+MAX_MEAL_DISPLACEMENTS = 2
+# How far from its target time a meal may slide to find a venue the traveler
+# is already passing, instead of detouring to one that is on time.
+MEAL_WINDOW_HOURS = 2.0
+
 
 def haversine_km(lat1, lon1, lat2, lon2):
     r = 6371.0
@@ -171,31 +182,43 @@ def _two_opt(route: list[dict], distance_fn, start_hub: dict = None) -> list[dic
 def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_budget: int = 480,
                         day_start_hour: float = 9.0, respect_opening_hours: bool = True,
                         use_real_routing: bool = False, distance_fn=None, duration_fn=None,
-                        used_real_routing: bool = None, travel_mode=DEFAULT_MODE) -> dict:
+                        used_real_routing: bool = None, travel_mode=DEFAULT_MODE,
+                        preserve_order: bool = False) -> dict:
     """Returns an ordered subset of `pois` that fits the time budget (travel +
-    wait-for-opening + visit time), plus total distance/time and which
-    distance source was actually used.
+    wait-for-opening + visit time), plus total distance/time, a per-stop
+    schedule, and which distance source was actually used.
 
     travel_mode ("walking"/"driving"/"hybrid") sets how a leg is costed, so
     the same set of stops yields a fuller day when the traveler is driving
     than when they are on foot.
+
+    preserve_order keeps `pois` in the order given instead of re-solving the
+    TSP. Meal placement (issue #20) needs it: a meal is deliberately put at
+    the point in the day where the clock reaches lunch or dinner time, and
+    re-optimizing on pure geography would immediately move it back to
+    wherever it happens to be closest, which is how you end up with two
+    lunches before 11am.
 
     distance_fn/duration_fn/used_real_routing let build_multi_day_itinerary
     share a single OSRM matrix fetch across every day of a trip; if omitted
     (e.g. calling this function standalone), one is built just for this
     day's points."""
     if not pois:
-        return {"route": [], "distance_km": 0.0, "total_minutes": 0, "used_real_routing": False}
+        return {"route": [], "distance_km": 0.0, "total_minutes": 0,
+                "schedule": [], "used_real_routing": False}
 
     if distance_fn is None or duration_fn is None:
         all_points = ([start_hub] if start_hub else []) + pois
         distance_fn, duration_fn, used_real_routing = _build_distance_functions(
             all_points, use_real_routing, travel_mode)
 
-    ordered = _nearest_neighbor(pois, distance_fn, start=start_hub)
-    ordered = _two_opt(ordered, distance_fn, start_hub=start_hub)
+    if preserve_order:
+        ordered = list(pois)
+    else:
+        ordered = _nearest_neighbor(pois, distance_fn, start=start_hub)
+        ordered = _two_opt(ordered, distance_fn, start_hub=start_hub)
 
-    kept, total_km, clock, prev = [], 0.0, day_start_hour, start_hub
+    kept, schedule, total_km, clock, prev = [], [], 0.0, day_start_hour, start_hub
     for poi in ordered:
         leg_km = distance_fn(prev, poi) if prev else 0.0
         leg_minutes = duration_fn(prev, poi) if prev else 0.0
@@ -225,12 +248,14 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
         clock = finish
         total_km += leg_km
         kept.append(poi)
+        schedule.append({"arrival": arrival, "finish": finish})
         prev = poi
 
     return {
         "route": kept,
         "distance_km": round(total_km, 2),
         "total_minutes": int((clock - day_start_hour) * 60),
+        "schedule": schedule,
         "used_real_routing": used_real_routing,
     }
 
@@ -238,7 +263,8 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
 def build_multi_day_itinerary(pois_by_zone: dict[int, list[dict]], start_hub: dict = None,
                                daily_minutes_budget: int = 480, day_start_hour: float = 9.0,
                                respect_opening_hours: bool = True, use_real_routing: bool = False,
-                               travel_mode=DEFAULT_MODE, fill_days: bool = True) -> list[dict]:
+                               travel_mode=DEFAULT_MODE, fill_days: bool = True,
+                               food_pois: list[dict] = None, min_food_per_day: int = 0) -> list[dict]:
     """Zones in, one routed day per zone out.
 
     Geographic zoning alone decides *where* each day goes but not *how full*
@@ -251,22 +277,37 @@ def build_multi_day_itinerary(pois_by_zone: dict[int, list[dict]], start_hub: di
     the pool is empty but one day is still far fuller than another. Together
     they keep each day near its budget instead of leaving a 5-day trip at a
     quarter of the time the traveler asked for. Set it False to get the raw
-    one-zone-one-day behaviour."""
+    one-zone-one-day behaviour.
+
+    `min_food_per_day` (issue #20) guarantees each day that many meal stops,
+    drawn from `food_pois` and placed at meal times. Their time is reserved
+    *before* the sightseeing passes run, so meals get added to a day that has
+    room for them rather than displacing sights the traveler was already
+    promised."""
     # Fetch one OSRM matrix for every POI across every day of the trip, not
     # one per day -- the public demo server rate-limits back-to-back
     # requests, and one matrix covering the whole trip is also just the
     # architecturally correct amount of network I/O for this.
     all_pois = [p for zone in pois_by_zone.values() for p in zone]
-    all_points = ([start_hub] if start_hub else []) + all_pois
+    meal_pois = list(food_pois or []) if min_food_per_day > 0 else []
+    all_points = ([start_hub] if start_hub else []) + all_pois + meal_pois
     distance_fn, duration_fn, used_real_routing = _build_distance_functions(
         all_points, use_real_routing, travel_mode)
 
-    def route_day(day_pois):
-        return optimize_day_route(
-            day_pois, start_hub=start_hub, daily_minutes_budget=daily_minutes_budget,
-            day_start_hour=day_start_hour, respect_opening_hours=respect_opening_hours,
-            distance_fn=distance_fn, duration_fn=duration_fn, used_real_routing=used_real_routing,
-        )
+    sightseeing_budget = daily_minutes_budget - _meal_time_reserve(
+        meal_pois, min_food_per_day, daily_minutes_budget)
+
+    def make_router(budget, preserve_order=False):
+        def route(day_pois):
+            return optimize_day_route(
+                day_pois, start_hub=start_hub, daily_minutes_budget=budget,
+                day_start_hour=day_start_hour, respect_opening_hours=respect_opening_hours,
+                distance_fn=distance_fn, duration_fn=duration_fn,
+                used_real_routing=used_real_routing, preserve_order=preserve_order,
+            )
+        return route
+
+    route_day = make_router(sightseeing_budget)
 
     days = []
     for zone_id in sorted(pois_by_zone):
@@ -274,12 +315,201 @@ def build_multi_day_itinerary(pois_by_zone: dict[int, list[dict]], start_hub: di
                      **route_day(pois_by_zone[zone_id])})
 
     if fill_days:
-        pool = _fill_days_to_budget(days, route_day, daily_minutes_budget, distance_fn, start_hub)
+        pool = _fill_days_to_budget(days, route_day, sightseeing_budget, distance_fn, start_hub)
         _rebalance_days(days, route_day, distance_fn, start_hub, pool)
+
+    if meal_pois:
+        # Meals are timed into an order that is already settled, so this pass
+        # (and only this pass) routes with the full budget and without
+        # re-solving the geography.
+        _ensure_daily_meals(days, meal_pois, make_router(daily_minutes_budget, preserve_order=True),
+                            distance_fn, min_food_per_day, daily_minutes_budget,
+                            day_start_hour, start_hub)
 
     for day in days:
         day.pop("_assigned", None)
     return days
+
+
+def _meal_time_reserve(food_pois: list[dict], min_food_per_day: int, daily_minutes_budget: int) -> int:
+    """Minutes to hold back from sightseeing so the day's meals fit.
+
+    A meal costs more than the time spent eating: the traveler also has to
+    get there, and a reserve covering only the sit-down time left days
+    finishing at 16:00 with 63 minutes of slack and a second meal needing 72,
+    so it never fit. MEAL_TRAVEL_ALLOWANCE covers that leg.
+
+    Capped at half the day: on a very short day it is better to return a
+    thin itinerary with meals in it than to hand back a day that is nothing
+    but lunch and dinner."""
+    if not food_pois or min_food_per_day <= 0:
+        return 0
+    visits = sorted(p.get("avg_visit_minutes", 60) for p in food_pois)
+    typical = visits[len(visits) // 2] * (1 + MEAL_TRAVEL_ALLOWANCE)
+    return int(min(min_food_per_day * typical, daily_minutes_budget * 0.5))
+
+
+def _meal_target_hours(day_start_hour: float, daily_minutes_budget: int, n_meals: int) -> list[float]:
+    """Clock times to aim each meal at, as fractions of the day's own window.
+
+    Fixed clock times (13:00, 19:00) would be wrong for a day that runs
+    09:00-15:00 -- dinner falls outside it entirely and the meal is simply
+    dropped. Fractions of the actual window degrade sensibly instead: on a
+    full 12-hour day from 09:00 they land at 13:48 and 19:12, real lunch and
+    dinner; on a short 6-hour day they become an early and a late lunch,
+    which is the honest answer for someone only sightseeing until 15:00."""
+    span = daily_minutes_budget / 60
+    fractions = [0.40, 0.85] if n_meals <= 2 else [
+        (i + 1) / (n_meals + 1) for i in range(n_meals)
+    ]
+    return [day_start_hour + f * span for f in fractions[:n_meals]]
+
+
+def _is_food(poi: dict) -> bool:
+    return poi.get("category") == FOOD_CATEGORY
+
+
+def _open_at(poi: dict, hour: float) -> bool:
+    open_h = poi.get("open_hour", 0)
+    close_h = poi.get("close_hour", 24)
+    effective_close = 24.0 if close_h < open_h else close_h
+    return open_h <= hour < effective_close
+
+
+def _ensure_daily_meals(days: list[dict], food_pois: list[dict], route_day_ordered,
+                         distance_fn, min_per_day: int, daily_minutes_budget: int,
+                         day_start_hour: float, start_hub: dict = None) -> None:
+    """Gives every day at least `min_per_day` food stops, placed at meal times.
+
+    Retrieval is archetype-driven, so a Culture Enthusiast's itinerary came
+    back with museums and no meals at all (issue #20). Food stops are
+    therefore added here rather than by widening retrieval, which would
+    distort the Fusion-vs-Hybrid-vs-standard comparison the evaluation rests
+    on.
+
+    Each meal is inserted at the point in the day where the clock is nearest
+    that meal's target time, and among the food POIs open then, the one
+    chosen is whichever adds the least detour to the surrounding legs
+    (cheapest insertion) -- so the meal is somewhere the traveler is already
+    walking past, not a cross-town round trip. Insertion order is then
+    preserved when the day is re-timed, since re-solving the route on pure
+    geography would undo the placement."""
+    if not food_pois or min_per_day <= 0:
+        return
+
+    used = {id(p) for day in days for p in day["route"]}
+    targets = _meal_target_hours(day_start_hour, daily_minutes_budget, min_per_day)
+
+    for day in days:
+        # Keep going until the day is fed rather than making one pass per
+        # target: a meal aimed at lunch can land late if that is where the
+        # day's geography puts the traveler, and it would then sit close
+        # enough to the dinner target to look like dinner was handled too.
+        while _food_count(day) < min_per_day:
+            open_targets = [t for t in targets if not _has_meal_near(day, t)]
+            target = open_targets[0] if open_targets else _least_covered_target(day, targets)
+            before = _food_count(day)
+            _insert_meal_at(day, food_pois, used, target, distance_fn,
+                            route_day_ordered, start_hub)
+            if _food_count(day) == before:
+                break  # nothing placeable is left for this day; don't spin
+
+
+def _food_count(day: dict) -> int:
+    return _food_count_in(day["route"])
+
+
+def _food_count_in(route: list[dict]) -> int:
+    return sum(1 for p in route if _is_food(p))
+
+
+def _least_covered_target(day: dict, targets: list[float]) -> float:
+    """The meal slot furthest from anything the day already eats -- used when
+    every slot looks nominally covered but the day is still short of its
+    minimum, so the extra meal still lands in the emptiest part of the day
+    instead of next to an existing one."""
+    eaten = [s["arrival"] for p, s in zip(day["route"], day.get("schedule", [])) if _is_food(p)]
+    if not eaten:
+        return targets[0]
+    return max(targets, key=lambda t: min(abs(t - e) for e in eaten))
+
+
+def _meal_slots(route: list[dict], schedule: list[dict], target_hour: float,
+                 start_hub: dict = None) -> list[int]:
+    """Positions in the day where a meal could plausibly go: every seam whose
+    clock is within MEAL_WINDOW_HOURS of the target, plus the end of the day
+    as a last resort so a short day can still be fed."""
+    slots = []
+    for i in range(len(route) + 1):
+        if i == 0:
+            clock = schedule[0]["arrival"] if schedule else target_hour
+        else:
+            clock = schedule[i - 1]["finish"]
+        if abs(clock - target_hour) <= MEAL_WINDOW_HOURS:
+            slots.append(i)
+    return slots or [len(route)]
+
+
+def _has_meal_near(day: dict, target_hour: float, tolerance_hours: float = 1.25) -> bool:
+    """True if the day already eats around `target_hour` -- so a food POI that
+    retrieval happened to surface counts, instead of being served a second
+    lunch next to it."""
+    for poi, slot in zip(day["route"], day.get("schedule", [])):
+        if _is_food(poi) and abs(slot["arrival"] - target_hour) <= tolerance_hours:
+            return True
+    return False
+
+
+def _insert_meal_at(day: dict, food_pois: list[dict], used: set, target_hour: float,
+                     distance_fn, route_day_ordered, start_hub: dict = None,
+                     max_attempts: int = 5) -> None:
+    route, schedule = day["route"], day.get("schedule", [])
+    candidates = [f for f in food_pois if id(f) not in used and _open_at(f, target_hour)]
+    if not candidates:
+        return
+
+    def detour(index, f):
+        prev = route[index - 1] if index > 0 else start_hub
+        nxt = route[index] if index < len(route) else None
+        if prev is None:
+            return distance_fn(f, nxt) if nxt else 0.0
+        if nxt is None:
+            return distance_fn(prev, f)
+        return distance_fn(prev, f) + distance_fn(f, nxt) - distance_fn(prev, nxt)
+
+    # Rather than pinning the meal to the single seam where the clock crosses
+    # meal time, consider every seam within MEAL_WINDOW_HOURS of it and take
+    # whichever (seam, venue) pair adds the least detour. Eating at 13:30
+    # somewhere the traveler already walks past beats eating at 12:15 after a
+    # kilometre round trip, and the timing stays plausible either way.
+    options = [(detour(i, f), i, f)
+               for i in _meal_slots(route, schedule, target_hour, start_hub)
+               for f in candidates]
+    if not options:
+        return
+    options.sort(key=lambda t: t[0])
+
+    meals_before = _food_count(day)
+    for _, index, cand in options[:max_attempts]:
+        sequence = route[:index] + [cand] + route[index:]
+        for _ in range(MAX_MEAL_DISPLACEMENTS + 1):
+            attempt = route_day_ordered(sequence)
+            # The day has to end up with *more* meals, not just with this one
+            # in it: adding a midday meal pushes everything after it later,
+            # and an already-placed evening meal can fall off the end of the
+            # budget as it does, which would net out at no gain at all.
+            if _food_count_in(attempt["route"]) > meals_before:
+                day.update(attempt)
+                used.add(id(cand))
+                return
+            # It overran the day. Give up the last sight rather than the meal
+            # -- a day that ends an hour early but is fed beats one that
+            # sightsees straight through dinner.
+            droppable = next((i for i in range(len(sequence) - 1, -1, -1)
+                              if id(sequence[i]) != id(cand) and not _is_food(sequence[i])), None)
+            if droppable is None:
+                break
+            sequence = sequence[:droppable] + sequence[droppable + 1:]
 
 
 def _fill_days_to_budget(days: list[dict], route_day, daily_minutes_budget: int,
