@@ -477,7 +477,7 @@ def test_map_view_frames_every_stop_without_wasting_the_canvas(city):
     if they were the same unit, so it mis-framed north-south days by the
     Mercator factor 1/cos(lat) and filled roughly a third of the viewport.
     """
-    from roamwise.app import _fit_view, _MAP_HEIGHT_PX
+    from roamwise.app import _fit_view, _MAP_ASSUMED_WIDTH_PX, _MAP_HEIGHT_PX
 
     idx = GraphIndex()
     pois = idx.city_pois(city)[:12]
@@ -485,9 +485,9 @@ def test_map_view_frames_every_stop_without_wasting_the_canvas(city):
     lons = [p["lon"] for p in pois]
 
     zoom, center_lat, center_lon = _fit_view(lats, lons)
-    # the narrowest column this layout realistically renders at; a wider one
-    # only adds margin, so checking the tight case covers both
-    lat_span, lon_span = _visible_spans(zoom, center_lat, 420, _MAP_HEIGHT_PX)
+    # checked at the width the fit assumes, which is deliberately the narrowest
+    # this column renders at -- a wider canvas only adds margin, never clips
+    lat_span, lon_span = _visible_spans(zoom, center_lat, _MAP_ASSUMED_WIDTH_PX, _MAP_HEIGHT_PX)
 
     assert min(lats) >= center_lat - lat_span / 2, f"{city}: a stop falls off the south edge"
     assert max(lats) <= center_lat + lat_span / 2, f"{city}: a stop falls off the north edge"

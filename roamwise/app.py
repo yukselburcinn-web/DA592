@@ -40,11 +40,18 @@ def _clock(hour: float) -> str:
 # Mercator is defined against pixels, so framing an itinerary means asking how
 # many pixels its bounding box needs and picking the zoom where that fits.
 _MAP_HEIGHT_PX = 460
-# Width is fluid (use_container_width), so Python cannot measure it. This is a
-# deliberate under-estimate of the half-width column in Streamlit's wide
-# layout: guessing low costs a little unused margin, guessing high pushes stops
-# off the edge, and only one of those is recoverable by the user panning.
-_MAP_ASSUMED_WIDTH_PX = 420
+# Width is fluid (use_container_width), so Python cannot measure it, and the
+# fit has to assume a value. The two failure modes are not symmetric: assuming
+# too much width pushes stops off the edge and the user loses information,
+# while assuming too little only leaves unused margin. So this is the narrowest
+# the half-width column realistically renders at, not the typical one.
+#
+# 420 was tried first and measured 5 of 8 cities clipping on a 291px canvas --
+# which is what this column collapses to in a narrow window. At 300 nothing
+# clips down to that width. The cost is real and worth stating: on a 482px
+# canvas the itinerary fills ~54% instead of ~67%. Removing that slack needs
+# the actual width, which means measuring it client-side rather than guessing.
+_MAP_ASSUMED_WIDTH_PX = 300
 _MAP_PADDING = 0.82  # keep markers and their labels clear of the edges
 _MAP_MAX_ZOOM = 16.0  # a one-stop day would otherwise zoom to street level
 
