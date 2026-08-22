@@ -139,7 +139,7 @@ def run_llm_hallucination_probe():
     so the rest of the evaluation stays free/offline."""
     if not os.environ.get("ANTHROPIC_API_KEY"):
         return None
-    from agents.llm_client import AnthropicLLMClient
+    from roamwise.agents.llm_client import AnthropicLLMClient
     idx = GraphIndex()
     known_names = {data["name"].lower() for _, data in idx.g.nodes(data=True) if data.get("type") == "POI"}
     llm = AnthropicLLMClient()

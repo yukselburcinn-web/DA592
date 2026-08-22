@@ -606,10 +606,9 @@ def _rebalance_days(days: list[dict], route_day, distance_fn, start_hub: dict = 
 
 
 if __name__ == "__main__":
-    import sys
-    sys.path.insert(0, "..")
-    from knowledge_graph.build_graph import GraphIndex
-    from models.segmentation import POIZoner
+    # Run from the repo root with: python -m roamwise.optimization.routing
+    from roamwise.knowledge_graph.build_graph import GraphIndex
+    from roamwise.models.segmentation import POIZoner
 
     idx = GraphIndex()
     pois = idx.city_pois("ROM")

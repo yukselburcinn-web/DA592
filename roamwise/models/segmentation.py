@@ -135,7 +135,7 @@ if __name__ == "__main__":
     print("Classified traveler:", result["archetype"])
     print("Ranked matches:", result["ranked_matches"][:3])
 
-    from knowledge_graph.build_graph import GraphIndex  # noqa: E402
+    from roamwise.knowledge_graph.build_graph import GraphIndex  # noqa: E402
     idx = GraphIndex()
     pois = idx.city_pois("PAR")
     zoner = POIZoner()
