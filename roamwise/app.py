@@ -6,15 +6,25 @@ graph-grounded, optimized itinerary").
 Run with: streamlit run app.py
 """
 import math
+import sys
+from pathlib import Path
+
+# Streamlit puts the *script's* directory (roamwise/) on sys.path, not the repo
+# root, so the `roamwise.*` package the rest of the codebase imports would not
+# resolve. Put the repo root first so there is exactly one import path for every
+# module -- importing the same file under two names loads it twice (see #26).
+_REPO_ROOT = str(Path(__file__).resolve().parent.parent)
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
 
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from agents.orchestrator import RoamWiseOrchestrator
-from models.forecasting import forecast_city
-from optimization.travel_modes import TRAVEL_MODES
+from roamwise.agents.orchestrator import RoamWiseOrchestrator
+from roamwise.models.forecasting import forecast_city
+from roamwise.optimization.travel_modes import TRAVEL_MODES
 
 st.set_page_config(page_title="RoamWise", page_icon="\U0001f9ed", layout="wide", initial_sidebar_state="expanded")
 

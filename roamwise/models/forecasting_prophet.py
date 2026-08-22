@@ -20,7 +20,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from models.forecasting import load_demand
+from roamwise.models.forecasting import load_demand
 
 logging.getLogger("cmdstanpy").setLevel(logging.WARNING)
 logging.getLogger("prophet").setLevel(logging.WARNING)

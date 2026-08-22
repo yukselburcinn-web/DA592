@@ -1,7 +1,7 @@
 """Forecaster Agent: interprets the Holt-Winters demand model's outputs and
 turns them into a destination recommendation / crowding narrative."""
-from agents.llm_client import LLMClient, get_default_llm_client
-from models.forecasting import forecast_city, load_demand
+from roamwise.agents.llm_client import LLMClient, get_default_llm_client
+from roamwise.models.forecasting import forecast_city, load_demand
 
 
 class ForecasterAgent:

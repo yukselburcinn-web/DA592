@@ -1,22 +1,20 @@
 """End-to-end smoke tests covering every module in the pipeline. Run with:
     cd roamwise && ../venv/bin/pytest tests/ -v
 """
+import importlib
 import sys
-from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from knowledge_graph.build_graph import GraphIndex
-from models.forecasting import forecast_city, best_months_to_visit
-from models.segmentation import TravelerSegmenter, POIZoner
-from retrieval.fusion import FusionRetriever
-from optimization.routing import build_multi_day_itinerary, optimize_day_route
-from optimization.travel_modes import get_travel_mode
-from agents.orchestrator import RoamWiseOrchestrator
-from agents.router_agent import RouterAgent
-from evaluation.comparative_analysis import run_comparative_analysis, summarize
+from roamwise.knowledge_graph.build_graph import GraphIndex
+from roamwise.models.forecasting import forecast_city, best_months_to_visit
+from roamwise.models.segmentation import TravelerSegmenter, POIZoner
+from roamwise.retrieval.fusion import FusionRetriever
+from roamwise.optimization.routing import build_multi_day_itinerary, optimize_day_route
+from roamwise.optimization.travel_modes import get_travel_mode
+from roamwise.agents.orchestrator import RoamWiseOrchestrator
+from roamwise.agents.router_agent import RouterAgent
+from roamwise.evaluation.comparative_analysis import run_comparative_analysis, summarize
 
 
 def test_knowledge_graph_builds_and_traverses():
@@ -94,7 +92,7 @@ def test_routing_waits_for_poi_to_open():
 
 
 def test_routing_falls_back_when_osrm_unreachable(monkeypatch):
-    import optimization.routing as routing_module
+    import roamwise.optimization.routing as routing_module
     monkeypatch.setattr(routing_module, "fetch_distance_duration_matrix",
                         lambda points, profile="foot": None)
 
@@ -106,7 +104,7 @@ def test_routing_falls_back_when_osrm_unreachable(monkeypatch):
 
 
 def test_routing_uses_injected_real_routing_matrix(monkeypatch):
-    import optimization.routing as routing_module
+    import roamwise.optimization.routing as routing_module
 
     def fake_matrix(points, profile="foot"):
         n = len(points)
@@ -232,7 +230,7 @@ def test_hybrid_mode_walks_short_legs_and_drives_long_ones():
 
 def test_driving_mode_requests_the_car_osrm_profile(monkeypatch):
     """Real routing must price a drive on the road network, not on footpaths."""
-    import optimization.routing as routing_module
+    import roamwise.optimization.routing as routing_module
     requested = []
 
     def fake_matrix(points, profile="foot"):
@@ -367,7 +365,7 @@ def test_langgraph_orchestrator_matches_custom_orchestrator_interface():
     the same plan_trip() shape and honors a pinned destination via its
     conditional edge (select_destination is skipped)."""
     pytest.importorskip("langgraph")
-    from agents.orchestrator_langgraph import RoamWiseLangGraphOrchestrator
+    from roamwise.agents.orchestrator_langgraph import RoamWiseLangGraphOrchestrator
 
     orch = RoamWiseLangGraphOrchestrator()
     prefs = {"budget": 0.7, "culture": 0.3, "nature": 0.2, "nightlife": 0.9, "relax": 0.2, "adventure": 0.3}
@@ -380,6 +378,31 @@ def test_langgraph_orchestrator_matches_custom_orchestrator_interface():
 
     pinned = orch.plan_trip(prefs, destination_id="PAR", n_days=2)
     assert pinned["destination_id"] == "PAR"
+
+
+def test_streamlit_app_imports():
+    """Guards the failure mode where the whole suite is green but the app does
+    not start at all: app.py's import chain reaches every agent/retrieval module,
+    so a half-migrated import path breaks here instead of at launch."""
+    importlib.import_module("roamwise.app")
+
+
+def test_internal_modules_are_loaded_under_a_single_import_path():
+    """Every internal module must be reachable as `roamwise.<pkg>.<mod>` only.
+    A bare `<pkg>.<mod>` entry in sys.modules means the same file was loaded
+    twice under two names, which silently splits module state and breaks
+    isinstance/monkeypatch across the two copies."""
+    importlib.import_module("roamwise.app")
+
+    internal_packages = {
+        "agents", "models", "optimization", "retrieval",
+        "knowledge_graph", "evaluation", "data",
+    }
+    duplicated = sorted(
+        name for name in sys.modules
+        if name.split(".")[0] in internal_packages
+    )
+    assert not duplicated, f"modules loaded outside the roamwise.* path: {duplicated}"
 
 
 if __name__ == "__main__":

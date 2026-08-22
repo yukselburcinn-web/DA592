@@ -19,8 +19,8 @@ import numpy as np
 import pandas as pd
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
-from models.forecasting import load_demand
-from models.forecasting_prophet import fit_prophet
+from roamwise.models.forecasting import load_demand
+from roamwise.models.forecasting_prophet import fit_prophet
 
 HERE = Path(__file__).parent
 HOLDOUT_MONTHS = 6

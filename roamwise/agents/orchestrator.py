@@ -23,13 +23,13 @@ Flow for a user request:
 import json
 import pandas as pd
 
-from agents.forecaster_agent import ForecasterAgent
-from agents.fusion_rag_agent import FusionRAGAgent
-from agents.llm_client import LLMClient, get_default_llm_client
-from agents.router_agent import RouterAgent
-from knowledge_graph.build_graph import GraphIndex
-from models.segmentation import TravelerSegmenter
-from optimization.travel_modes import DEFAULT_MODE
+from roamwise.agents.forecaster_agent import ForecasterAgent
+from roamwise.agents.fusion_rag_agent import FusionRAGAgent
+from roamwise.agents.llm_client import LLMClient, get_default_llm_client
+from roamwise.agents.router_agent import RouterAgent
+from roamwise.knowledge_graph.build_graph import GraphIndex
+from roamwise.models.segmentation import TravelerSegmenter
+from roamwise.optimization.travel_modes import DEFAULT_MODE
 from pathlib import Path
 
 DATA_DIR = Path(__file__).parent.parent / "data"

@@ -3,8 +3,8 @@ prioritizing Graph-RAG for multi-hop relational queries and falling back to
 semantic/keyword search for descriptive content -- then grounds a short
 narrative in exactly the retrieved snippets (so downstream text stays
 attributable, reducing geographic hallucination)."""
-from agents.llm_client import LLMClient, get_default_llm_client
-from retrieval.fusion import FusionRetriever
+from roamwise.agents.llm_client import LLMClient, get_default_llm_client
+from roamwise.retrieval.fusion import FusionRetriever
 
 
 class FusionRAGAgent:
