@@ -36,12 +36,49 @@ def _clock(hour: float) -> str:
     return f"{hours % 24:02d}:{minutes:02d}"
 
 
-def _fit_zoom(lats: list[float], lons: list[float]) -> float:
-    """Rough degree-span-to-mapbox-zoom heuristic so the map frames whatever
-    the itinerary actually covers instead of a fixed zoom that's too tight
-    for spread-out days and too loose for a single-block day."""
-    span = max(max(lats) - min(lats), max(lons) - min(lons), 0.002)
-    return min(15.0, max(11.0, 13.5 - math.log2(span * 100)))
+# The map is drawn at a fixed height in a half-width column. Zoom in Web
+# Mercator is defined against pixels, so framing an itinerary means asking how
+# many pixels its bounding box needs and picking the zoom where that fits.
+_MAP_HEIGHT_PX = 460
+# Width is fluid (use_container_width), so Python cannot measure it. This is a
+# deliberate under-estimate of the half-width column in Streamlit's wide
+# layout: guessing low costs a little unused margin, guessing high pushes stops
+# off the edge, and only one of those is recoverable by the user panning.
+_MAP_ASSUMED_WIDTH_PX = 420
+_MAP_PADDING = 0.82  # keep markers and their labels clear of the edges
+_MAP_MAX_ZOOM = 16.0  # a one-stop day would otherwise zoom to street level
+
+
+def _fit_view(lats: list[float], lons: list[float]) -> tuple[float, float, float]:
+    """Bounding box of the stops -> (zoom, center_lat, center_lon).
+
+    This replaces a heuristic that compared raw latitude and longitude degrees
+    against each other. In Web Mercator they are not comparable: latitude is
+    stretched by 1/cos(latitude), so at Amsterdam one degree of latitude covers
+    1.6x the pixels of one degree of longitude. A north-south day was therefore
+    framed as though it were 1.6x smaller than it is. The old version also
+    centred on the *mean* of the stops rather than the middle of their bounding
+    box, which let one outlying stop drag the frame away from everything else,
+    and clamped zoom to [11, 15] for no geometric reason -- a clamp that bound
+    on two of the eight cities. Measured over 3-day itineraries in all eight,
+    the itinerary filled about a third of the map; fitting the box properly
+    fills it.
+    """
+    south, north = min(lats), max(lats)
+    west, east = min(lons), max(lons)
+    center_lat, center_lon = (south + north) / 2, (west + east) / 2
+
+    # a degenerate box (one stop, or several at the same address) has no scale
+    # to fit against, so fall through to the max-zoom clamp below
+    lat_span = max(north - south, 1e-6)
+    lon_span = max(east - west, 1e-6)
+
+    # Web Mercator, 512px tiles: the whole world is 512 * 2**zoom pixels wide.
+    zoom_x = math.log2(_MAP_ASSUMED_WIDTH_PX * 360.0 / (512.0 * lon_span))
+    zoom_y = math.log2(_MAP_HEIGHT_PX * 360.0 * math.cos(math.radians(center_lat))
+                       / (512.0 * lat_span))
+    zoom = min(zoom_x, zoom_y) + math.log2(_MAP_PADDING)
+    return min(_MAP_MAX_ZOOM, zoom), center_lat, center_lon
 
 
 @st.cache_resource
@@ -157,27 +194,52 @@ if run:
                         st.markdown("_No stops fit the time budget for this day._")
         with col2:
             fig = go.Figure()
-            colors = px.colors.qualitative.Set2
+            colors = px.colors.qualitative.Bold
             for day in result["routing"]["itinerary"]:
                 if not day["route"]:
                     continue
-                lats = [p["lat"] for p in day["route"]]
-                lons = [p["lon"] for p in day["route"]]
-                names = [p["name"] for p in day["route"]]
-                fig.add_trace(go.Scattermapbox(
-                    lat=lats, lon=lons, mode="markers+lines+text", text=names, textposition="top right",
-                    name=f"Day {day['day']}", marker=dict(size=11, color=colors[(day['day'] - 1) % len(colors)]),
+                color = colors[(day["day"] - 1) % len(colors)]
+                stops = day["route"]
+                schedule = day.get("schedule", [])
+                # The marker carries the stop's position in the day so the map
+                # reads in the same order as the list beside it. Names moved to
+                # hover: printed on the map they overlapped into an unreadable
+                # smear as soon as a day had more than three or four stops in a
+                # dense city centre, which is every day in this dataset.
+                hover = []
+                for i, poi in enumerate(stops, 1):
+                    slot = schedule[i - 1] if i <= len(schedule) else None
+                    when = f"{_clock(slot['arrival'])} &middot; " if slot else ""
+                    kind = "meal stop" if poi.get("category") == "food" else poi.get("category", "")
+                    hover.append(f"<b>{poi['name']}</b><br>{when}Day {day['day']}, stop {i}<br><i>{kind}</i>")
+                fig.add_trace(go.Scattermap(
+                    lat=[p["lat"] for p in stops], lon=[p["lon"] for p in stops],
+                    mode="markers+lines+text",
+                    text=[str(i) for i in range(1, len(stops) + 1)],
+                    textposition="middle center",
+                    textfont=dict(size=11, color="white", family="Arial Black"),
+                    hovertext=hover, hoverinfo="text",
+                    name=f"Day {day['day']}",
+                    marker=dict(size=20, color=color, opacity=0.95),
+                    line=dict(width=3, color=color),
                 ))
             if any(day["route"] for day in result["routing"]["itinerary"]):
                 all_lats = [p["lat"] for day in result["routing"]["itinerary"] for p in day["route"]]
                 all_lons = [p["lon"] for day in result["routing"]["itinerary"] for p in day["route"]]
+                zoom, center_lat, center_lon = _fit_view(all_lats, all_lons)
                 fig.update_layout(
-                    mapbox=dict(style="open-street-map", zoom=_fit_zoom(all_lats, all_lons),
-                                center=dict(lat=sum(all_lats) / len(all_lats), lon=sum(all_lons) / len(all_lons))),
-                    margin=dict(l=0, r=0, t=0, b=0), height=450, showlegend=True,
+                    map=dict(style="open-street-map", zoom=zoom,
+                             center=dict(lat=center_lat, lon=center_lon)),
+                    margin=dict(l=0, r=0, t=0, b=0), height=_MAP_HEIGHT_PX,
+                    showlegend=True,
+                    legend=dict(orientation="h", yanchor="bottom", y=0.01,
+                                xanchor="left", x=0.01,
+                                bgcolor="rgba(255,255,255,0.75)", borderwidth=0),
+                    hoverlabel=dict(bgcolor="white", font_size=12),
                 )
                 st.plotly_chart(fig, use_container_width=True)
-                st.caption("Map tiles load from OpenStreetMap over the network -- give it a moment on first load.")
+                st.caption("Numbers are the visiting order. Hover a stop for its name and arrival time. "
+                           "Map tiles load from OpenStreetMap over the network -- give it a moment on first load.")
 
         st.markdown("##### Agent narrative")
         st.info(result["final_plan"])
