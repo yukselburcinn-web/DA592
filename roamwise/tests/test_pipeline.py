@@ -2,7 +2,10 @@
     cd roamwise && ../venv/bin/pytest tests/ -v
 """
 import importlib
+import os
+import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -403,6 +406,52 @@ def test_internal_modules_are_loaded_under_a_single_import_path():
         if name.split(".")[0] in internal_packages
     )
     assert not duplicated, f"modules loaded outside the roamwise.* path: {duplicated}"
+
+
+# Every file the README/Dockerfile/launch.json tell a user to run directly.
+# Importing them the normal way (as `roamwise.<pkg>.<mod>`) proves nothing about
+# these commands, because that path already has the repo root on sys.path.
+DOCUMENTED_ENTRY_POINT_SCRIPTS = [
+    "app.py",
+    "evaluation/comparative_analysis.py",
+    "evaluation/forecasting_comparison.py",
+]
+
+# Load the file the way `python <script>` does -- under a throwaway module name,
+# so any `if __name__ == "__main__":` body stays unexecuted and only the imports
+# and module-level code run.
+_IMPORT_PROBE = (
+    "import importlib.util, sys\n"
+    "spec = importlib.util.spec_from_file_location('_entry_point_probe', sys.argv[1])\n"
+    "spec.loader.exec_module(importlib.util.module_from_spec(spec))\n"
+)
+
+
+@pytest.mark.parametrize("script", DOCUMENTED_ENTRY_POINT_SCRIPTS)
+def test_documented_entry_point_scripts_resolve_roamwise_imports(script):
+    """Run as a script, sys.path[0] is the script's own directory, so the repo
+    root -- where the `roamwise` package lives -- never enters the path unless
+    the script puts it there. This is the exact reason the app used to die with
+    `ModuleNotFoundError: No module named 'roamwise'` while the suite was green,
+    so reproduce that sys.path instead of relying on pytest's.
+
+    Only the roamwise import path is asserted on: these scripts may still exit
+    non-zero for unrelated reasons (a missing optional dependency, no network),
+    and that is not what this test is guarding.
+    """
+    path = Path(__file__).resolve().parents[1] / script
+    env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
+
+    # cwd == the script's directory makes the child's sys.path[0] ('') resolve
+    # to that directory, matching how the interpreter launches a script.
+    proc = subprocess.run(
+        [sys.executable, "-c", _IMPORT_PROBE, str(path)],
+        cwd=path.parent, env=env, capture_output=True, text=True,
+    )
+
+    assert "No module named 'roamwise" not in proc.stderr, (
+        f"`python {script}` cannot import the roamwise package:\n{proc.stderr}"
+    )
 
 
 if __name__ == "__main__":
