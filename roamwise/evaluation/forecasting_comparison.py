@@ -13,7 +13,15 @@ Run with:
     pip install -r requirements-prophet.txt
     python evaluation/forecasting_comparison.py
 """
+import sys
 from pathlib import Path
+
+# Run as a script (`python evaluation/forecasting_comparison.py`), sys.path[0]
+# is this file's directory, so the repo root -- where the `roamwise` package
+# lives -- never enters the path. Put it there before the roamwise.* imports.
+_REPO_ROOT = str(Path(__file__).resolve().parents[2])
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
 
 import numpy as np
 import pandas as pd

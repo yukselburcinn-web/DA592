@@ -30,7 +30,15 @@ is optional and skipped by default.
 """
 import json
 import os
+import sys
 from pathlib import Path
+
+# Run as a script (`python evaluation/comparative_analysis.py`), sys.path[0] is
+# this file's directory, so the repo root -- where the `roamwise` package lives
+# -- never enters the path. Put it there before the roamwise.* imports below.
+_REPO_ROOT = str(Path(__file__).resolve().parents[2])
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
 
 import pandas as pd
 
