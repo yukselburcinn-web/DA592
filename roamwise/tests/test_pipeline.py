@@ -45,6 +45,21 @@ def test_traveler_segmentation_classifies():
     assert result["archetype"] == "Nature & Adventure"
 
 
+def test_preference_levels_produce_distinct_archetypes():
+    """Issue #23: the sidebar exposes Low/Medium/High instead of raw 0-1
+    sliders, so the three tiers must actually separate archetype centroids --
+    not just satisfy TravelerSegmenter.classify()'s float contract."""
+    from roamwise.app import PREFERENCE_LEVELS
+    from roamwise.models.segmentation import FEATURES
+
+    seg = TravelerSegmenter()
+    archetypes = {
+        level: seg.classify({f: value for f in FEATURES})["archetype"]
+        for level, value in PREFERENCE_LEVELS.items()
+    }
+    assert len(set(archetypes.values())) == len(archetypes)
+
+
 def test_poi_zoning_covers_all_pois():
     idx = GraphIndex()
     pois = idx.city_pois("AMS")
