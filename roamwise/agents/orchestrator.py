@@ -139,15 +139,19 @@ class RoamWiseOrchestrator:
 
     def _synthesize(self, state: dict) -> str:
         city = self.destinations.set_index("destination_id").loc[state["destination_id"], "city"]
-        prompt = f"""
-        Trip plan for a {state['archetype']} traveler visiting {city} ({state['destination_id']}).
-
-        Forecast: {state['forecast']['narrative']}
-
-        Retrieved context ({state['fusion_rag']['config']} configuration): {state['fusion_rag']['narrative']}
-
-        Itinerary: {state['routing']['narrative']}
-        """
+        # Built as a join, not an indented triple-quoted f-string: the
+        # sub-agent narratives are already dedented, so splicing them into a
+        # further-indented template leaves the template's own lines indented
+        # (their common-whitespace no longer matches the flush-left injected
+        # text) and TemplateLLMClient's dedent can't undo that. Under the
+        # default no-API-key LLM, that indentation renders as a Markdown code
+        # block in the UI instead of prose.
+        prompt = "\n\n".join([
+            f"Trip plan for a {state['archetype']} traveler visiting {city} ({state['destination_id']}).",
+            f"Forecast: {state['forecast']['narrative']}",
+            f"Retrieved context ({state['fusion_rag']['config']} configuration): {state['fusion_rag']['narrative']}",
+            f"Itinerary: {state['routing']['narrative']}",
+        ])
         return self.llm.complete(
             system="You are RoamWise, an agentic travel-planning assistant. Combine the forecast, "
                    "retrieved context, and itinerary into one coherent recommendation.",

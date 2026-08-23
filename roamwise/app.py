@@ -88,9 +88,16 @@ def _fit_view(lats: list[float], lons: list[float]) -> tuple[float, float, float
     return min(_MAP_MAX_ZOOM, zoom), center_lat, center_lon
 
 
-@st.cache_resource
+@st.cache_resource(show_spinner="Loading RoamWise engine...")
 def get_orchestrator(config: str):
+    # Without an explicit show_spinner message, Streamlit's default caching
+    # spinner shows the raw call signature ("Running get_orchestrator(...)."),
+    # which is an implementation detail, not something a user needs to see.
     return RoamWiseOrchestrator(retrieval_config=config)
+
+
+def _humanize_category(category: str) -> str:
+    return category.replace("_", " ").title() if category else ""
 
 
 st.title("\U0001f9ed RoamWise")
@@ -195,7 +202,7 @@ if run:
                             # viewer having that glyph in their emoji font,
                             # and a word can't fail to render.
                             label = ("meal stop" if poi.get("category") == "food"
-                                     else poi.get("category", ""))
+                                     else _humanize_category(poi.get("category", "")))
                             st.markdown(f"{i}. {when}**{poi['name']}** _{label}_")
                     else:
                         st.markdown("_No stops fit the time budget for this day._")
@@ -217,7 +224,7 @@ if run:
                 for i, poi in enumerate(stops, 1):
                     slot = schedule[i - 1] if i <= len(schedule) else None
                     when = f"{_clock(slot['arrival'])} &middot; " if slot else ""
-                    kind = "meal stop" if poi.get("category") == "food" else poi.get("category", "")
+                    kind = "meal stop" if poi.get("category") == "food" else _humanize_category(poi.get("category", ""))
                     hover.append(f"<b>{poi['name']}</b><br>{when}Day {day['day']}, stop {i}<br><i>{kind}</i>")
                 fig.add_trace(go.Scattermap(
                     lat=[p["lat"] for p in stops], lon=[p["lon"] for p in stops],

@@ -62,9 +62,10 @@ class RouterAgent:
     def _narrate(self, destination_id: str, itinerary: list[dict], mode) -> str:
         lines = []
         for day in itinerary:
-            stops = " -> ".join(p["name"] for p in day["route"]) or "(no stops fit the time budget)"
+            stops = " -> ".join(p["name"] for p in day["route"]) or "no stops fit the time budget"
             routing_note = "real street routing" if day.get("used_real_routing") else "straight-line estimate"
-            lines.append(f"Day {day['day']}: {stops}  [{day['distance_km']}km, ~{day['total_minutes']}min, {routing_note}]")
+            hours, minutes = divmod(day["total_minutes"], 60)
+            lines.append(f"Day {day['day']}: {stops} ({day['distance_km']}km, {hours}h {minutes}m, {routing_note})")
         prompt = (f"Optimized itinerary for {destination_id} ({mode.label.lower()}):\n"
                   + "\n".join(lines))
         return self.llm.complete(system="Present the itinerary clearly, day by day.", prompt=prompt)
