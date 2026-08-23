@@ -37,6 +37,7 @@ import os
 import sys
 import time
 from pathlib import Path
+import warnings
 from typing import NamedTuple
 
 # Run as a script (`python evaluation/comparative_analysis.py`), sys.path[0] is
@@ -59,6 +60,7 @@ from roamwise.retrieval.fusion import FusionRetriever
 from roamwise.retrieval.graph_search import CATEGORY_KEYWORDS, TRANSPORT_KEYWORDS
 
 HERE = Path(__file__).parent
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 CONFIGS = ["fusion", "hybrid", "standard"]
 
 # Committed alongside the code so the System logs screen can show the
@@ -90,68 +92,81 @@ class TestQuery(NamedTuple):
 
 
 # How close a POI must be to a transport hub to count, when a query asks for it.
-# Deliberately looser than the 3.0 km the graph retriever traverses with, so a
+# Deliberately looser than the radius the graph retriever traverses with, so a
 # correct answer is not defined as "whatever that one traversal returns".
-GOLD_MAX_KM = 6.0
+#
+# 2.0 km, down from 6.0. That 6.0 was twice the retriever's old 3.0 and
+# discriminated on the previous catalogue, where a city carried two hand-picked
+# transport rows and one of them (CDG) sat 23 km outside. With real interchanges
+# and a denser catalogue it stopped selecting anything at all: every POI in both
+# cities lies within 6 km of a hub, so `near_transport` silently became a no-op
+# and those queries were graded against the whole category. At 2.0 km the gold
+# set is 75% of the unconstrained one -- a real constraint again -- and no query
+# is left with an empty answer key. The 2x ratio to the traversal radius is
+# preserved.
+GOLD_MAX_KM = 2.0
 
 # Written by hand to read like something a traveler would actually type. These
 # are the realism tier: they keep the evaluation honest about natural phrasing,
 # which the generated grid below cannot test.
 HANDWRITTEN_QUERIES = [
-    TestQuery("IST", "Culture Enthusiast", ("landmark",), True,
+    TestQuery("BER", "Culture Enthusiast", ("landmark",), True,
               "landmarks within walking distance of a transport hub"),
     TestQuery("PAR", "Culture Enthusiast", ("museum",), True,
               "museums close to a train station or airport"),
-    TestQuery("ROM", "Culture Enthusiast", ("museum",), True,
+    TestQuery("BER", "Culture Enthusiast", ("museum",), True,
               "museums near a transport hub for history lovers"),
-    TestQuery("BCN", "Nightlife Seeker", ("nightlife",), False,
+    TestQuery("PAR", "Nightlife Seeker", ("nightlife",), False,
               "nightlife spots this traveler would enjoy"),
-    TestQuery("AMS", "Nature & Adventure", ("nature",), True,
+    TestQuery("BER", "Nature & Adventure", ("nature",), True,
               "parks and nature spots near transport"),
-    TestQuery("PRG", "Budget Backpacker", ("nightlife",), True,
+    TestQuery("PAR", "Budget Backpacker", ("nightlife",), True,
               "cheap nightlife near the train station"),
-    TestQuery("VIE", "Luxury Traveler", ("shopping",), True,
+    TestQuery("BER", "Luxury Traveler", ("shopping",), True,
               "upscale shopping close to transport hubs"),
-    # Moved off Lisbon: it has four beach POIs and none within GOLD_MAX_KM of a
-    # hub, so this query's gold set was empty and it scored nothing at all.
-    TestQuery("BCN", "Beach & Relax", ("beach",), True,
-              "relaxing beach spots reachable from the airport"),
-    TestQuery("IST", "Family Traveler", ("food",), True,
+    # Was a `beach` query. Neither city in the current catalogue has a single
+    # beach POI, so the gold set was empty and it scored nothing at all -- the
+    # same failure this query was already moved off Lisbon to escape. Kept on
+    # Beach & Relax, against the categories the catalogue can actually answer,
+    # so the archetype stays represented in the evaluation.
+    TestQuery("PAR", "Beach & Relax", ("nature",), True,
+              "relaxing green spaces and waterside walks reachable from the airport"),
+    TestQuery("BER", "Family Traveler", ("food",), True,
               "we just arrived at the central station with heavy luggage and are starving, "
               "where can we get a quick meal without walking much?"),
     # "suitable places" names no category at all; grading it against museums
     # alone was arbitrary. The archetype is what narrows it.
     TestQuery("PAR", "Culture Enthusiast", ("museum", "landmark", "history", "culture"), True,
               "suitable places for the first day after a morning arrival"),
-    TestQuery("ROM", "Culture Enthusiast", ("history", "landmark"), True,
+    TestQuery("BER", "Culture Enthusiast", ("history", "landmark"), True,
               "my elderly parents want to see historical monuments but cannot handle steep "
               "hills or long walks from the subway."),
-    TestQuery("AMS", "Nightlife Seeker", ("nightlife",), True,
+    TestQuery("PAR", "Nightlife Seeker", ("nightlife",), True,
               "traveling on a tight budget and want to experience local nightlife that is "
               "safely accessible via late-night public transit."),
-    TestQuery("BCN", "Luxury Traveler", ("shopping", "food"), True,
+    TestQuery("BER", "Luxury Traveler", ("shopping", "food"), True,
               "we want to do a full day of luxury shopping and fine dining without needing "
               "to hail a taxi between locations."),
-    TestQuery("LIS", "Nature & Adventure", ("nature",), True,
+    TestQuery("PAR", "Nature & Adventure", ("nature",), True,
               "are there any quiet natural escapes in the city that are directly connected "
               "to the main train lines?"),
     # Asks where to spend an evening, not where to find culture -- the old
     # `culture` gold graded a nightlife question against museums.
-    TestQuery("VIE", "Culture Enthusiast", ("nightlife", "food"), False,
+    TestQuery("BER", "Culture Enthusiast", ("nightlife", "food"), False,
               "where should we head for a relaxed evening out right after spending the "
               "entire afternoon at the main art gallery?"),
-    TestQuery("PRG", "Budget Backpacker", ("landmark",), True,
+    TestQuery("PAR", "Budget Backpacker", ("landmark",), True,
               "we have a short layover in the city, what is the most iconic landmark we can "
               "realistically visit and still catch our flight?"),
-    TestQuery("IST", "Culture Enthusiast", ("history", "landmark", "food"), False,
+    TestQuery("BER", "Culture Enthusiast", ("history", "landmark", "food"), False,
               "which neighborhoods offer the best mix of ancient architecture and modern "
               "cafes within a compact walking area?"),
-    TestQuery("ROM", "Culture Enthusiast", ("museum", "shopping"), False,
+    TestQuery("PAR", "Culture Enthusiast", ("museum", "shopping"), False,
               "if we start our morning at the central square, what is a logical path to hit "
               "a museum and a local market before lunch?"),
-    # Lisbon's catalogue is small enough that these gold sets fit inside top_k,
-    # so at least a few queries can actually reach recall 1.0 (issue #49).
-    TestQuery("LIS", "Beach & Relax", ("beach", "nature"), False,
+    # Also formerly a `beach` query. The text needs no rewriting -- both cities
+    # answer it from the river and lake shores already in `nature`.
+    TestQuery("BER", "Beach & Relax", ("nature",), False,
               "somewhere calm by the water to spend a slow afternoon"),
 ]
 
@@ -165,15 +180,43 @@ _GRID_PHRASE = {
     "food": "food markets and restaurants", "beach": "beaches",
     "culture": "culture venues", "religion": "places of worship",
 }
-_GRID_CITIES = ["IST", "PAR", "ROM", "BCN", "AMS", "PRG", "VIE", "LIS"]
+# `religion` was missing here while _GRID_PHRASE already carried its phrasing.
+# Both cities hold plenty of it (50 and 31 POIs), so leaving it out dropped a
+# populated category out of the sweep for no stated reason. `beach` stays out:
+# it has a phrasing too, but no POI in either city, so every cell would be
+# discarded for an empty answer key.
 _GRID_CATEGORIES = ["museum", "landmark", "history", "nature", "nightlife",
-                    "shopping", "food", "culture"]
+                    "shopping", "food", "culture", "religion"]
 
 
-# Four categories per city rather than all eight: that lands the combined set
-# near 50 queries, which is where the power curve flattens, without doubling
-# how long a re-run takes for evidence nobody needs.
-_GRID_CATEGORIES_PER_CITY = 4
+def _grid_cities() -> list[str]:
+    """The destinations actually in the catalogue, deepest first.
+
+    This was a literal list of eight city codes, which meant the evaluation
+    silently emptied out when the catalogue changed underneath it: on the
+    two-city set, seven of nine hand-written cities and twenty-eight of
+    thirty-two generated cells graded against an empty answer key.
+    """
+    pois = pd.read_csv(DATA_DIR / "poi.csv")
+    dests = pd.read_csv(DATA_DIR / "destinations.csv")
+    counts = pois.destination_id.value_counts()
+    return sorted((c for c in dests.destination_id if counts.get(c, 0)),
+                  key=lambda c: -counts[c])
+
+
+# How many generated queries to aim for. The grid exists to give the pairwise
+# tests enough paired observations: at 11 gradeable queries a real effect is
+# detected about a third of the time, which is what issue #50 set out to fix.
+# Holding the *target* fixed rather than the categories-per-city keeps that
+# power when the destination list shrinks -- two cities simply sweep more
+# categories each instead of contributing four cells apiece.
+#
+# 36 rather than 32: sweeping each (city, category) cell in both phrasings puts
+# half the generated tier in the "subset" bucket, where grading leans on the
+# retriever's own traversal (issue #48). The independently-graded count is what
+# carries the pairwise tests, so the target is set by that floor, not by the
+# total.
+_GRID_TARGET = 36
 
 
 def _eligible_archetypes(category: str) -> list[str]:
@@ -191,25 +234,44 @@ def _eligible_archetypes(category: str) -> list[str]:
 def build_grid_queries(idx: GraphIndex = None) -> list[TestQuery]:
     """A balanced sweep of (city, category) cells with non-empty gold sets.
 
-    The hand-written set covers 16 of the 80 city x category cells and leans
+    The hand-written set covers a minority of the city x category cells and leans
     hard on one archetype, which left the comparison underpowered: the queries
     whose grading does not lean on the retriever's own traversal numbered 11,
     and at that size a real effect is only detected about a third of the time.
     """
     idx = idx or GraphIndex()
-    queries = []
-    for position, city in enumerate(_GRID_CITIES):
-        for slot in range(_GRID_CATEGORIES_PER_CITY):
+    cities = _grid_cities()
+    if not cities:
+        return []
+
+    # Spread the target over the cities, then over categories within each. With
+    # eight cities this is four categories each, exactly as before; with two it
+    # is all eight categories in both phrasings.
+    per_city = max(1, round(_GRID_TARGET / len(cities)))
+    queries, used = [], set()
+    for position, city in enumerate(cities):
+        for slot in range(per_city):
             # Walking the category list with a per-city offset gives every
             # category the same number of cells instead of front-loading the
             # first four.
-            category = _GRID_CATEGORIES[(position * _GRID_CATEGORIES_PER_CITY + slot) % len(_GRID_CATEGORIES)]
+            category = _GRID_CATEGORIES[(position * per_city + slot) % len(_GRID_CATEGORIES)]
             eligible = _eligible_archetypes(category)
             archetype = eligible[(position + slot) % len(eligible)]
 
             # Alternate the two phrasings across the grid rather than splitting
             # by city or category, so neither family clusters in one city.
             near_transport = (position + slot) % 5 < 2
+            # Fewer cities than categories means a city sweeps the category
+            # list more than once, and the pattern above would then re-emit a
+            # cell it had already produced -- six queries came back byte-identical
+            # on the two-city catalogue. Asking the repeat the other way keeps
+            # the observation distinct instead of double-counting one.
+            if (city, category, near_transport) in used:
+                near_transport = not near_transport
+            if (city, category, near_transport) in used:
+                continue          # both phrasings already asked for this cell
+            used.add((city, category, near_transport))
+
             phrase = _GRID_PHRASE[category]
             text = (f"{phrase} within easy reach of a transport hub" if near_transport
                     else f"the best {phrase} to visit in this city")
@@ -257,7 +319,26 @@ def dependence_level(query: TestQuery) -> str:
     return "superset"                 # same category filter, wider than the gold
 
 
-TEST_QUERIES = HANDWRITTEN_QUERIES + build_grid_queries()
+def _live_handwritten() -> list[TestQuery]:
+    """Hand-written queries whose destination is still in the catalogue.
+
+    The hand-written tier is maintained by hand against a particular set of
+    cities -- that is what makes it the realism tier. When the catalogue drops
+    a city, its queries would otherwise stay in the set and grade against an
+    empty answer key, quietly shrinking the sample instead of failing.
+    """
+    live = set(_grid_cities())
+    kept = [q for q in HANDWRITTEN_QUERIES if q.destination_id in live]
+    dropped = {q.destination_id for q in HANDWRITTEN_QUERIES} - live
+    if dropped:
+        warnings.warn(
+            f"hand-written queries dropped for cities not in the catalogue: "
+            f"{sorted(dropped)}. Re-target them in HANDWRITTEN_QUERIES.",
+            stacklevel=2)
+    return kept
+
+
+TEST_QUERIES = _live_handwritten() + build_grid_queries()
 
 
 def recall_at_k(retrieved_ids: list, gold: set) -> float:

@@ -51,7 +51,7 @@ kod incelenirken ortaya çıkan yeni bulgular.
 [#1](https://github.com/yukselburcinn-web/DA592/issues/1) → sonradan #27 ile daha da derinleştirildi.
 
 ### #2. POI kataloğunu şehir başına büyüt — ✅ Kapalı
-10 POI/şehirden başlayıp kademeli büyütüldü (bugün 1200 POI, 150/şehir).
+10 POI/şehirden başlayıp kademeli büyütüldü; katalog daha sonra sekiz şehirde 150 POI/şehirden iki şehirde 400 (Paris) + 300 (Berlin) POI'ye taşındı — toplam 700. Şehir başına derinlik, Wikivoyage referans listesine karşı kapsamayı Paris'te %38'den %75'e çıkardı.
 [#2](https://github.com/yukselburcinn-web/DA592/issues/2)
 
 ### #3. Forecasting modelini genişlet / karşılaştır — ✅ Kapalı

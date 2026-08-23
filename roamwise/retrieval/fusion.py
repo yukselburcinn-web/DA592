@@ -69,10 +69,19 @@ class FusionRetriever:
         return reciprocal_rank_fusion(lists, top_k=top_k)
 
 
+# Demo blocks below take their city from the catalogue rather than naming one:
+# a hardcoded code prints nothing at all once that city stops shipping.
+def _demo_city():
+    import pandas as pd
+    from pathlib import Path as _P
+    d = _P(__file__).resolve().parents[1] / "data" / "destinations.csv"
+    return pd.read_csv(d).destination_id.iloc[0]
+
+
 if __name__ == "__main__":
     fr = FusionRetriever()
     query = "museums and landmarks near a transport hub for a culture-loving traveler"
     for config in ["fusion", "hybrid", "standard"]:
         print(f"\n=== {config} ===")
-        for r in fr.retrieve(query, config=config, destination_id="ROM", archetype="Culture Enthusiast", top_k=5):
+        for r in fr.retrieve(query, config=config, destination_id=_demo_city(), archetype="Culture Enthusiast", top_k=5):
             print(f"  {r.get('rrf_score', 0):.4f}  {r['doc_id']}  via={r.get('retrieved_by')}  {r['text'][:70]}")

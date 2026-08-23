@@ -54,10 +54,19 @@ class FusionRAGAgent:
         )
 
 
+# Demo blocks below take their city from the catalogue rather than naming one:
+# a hardcoded code prints nothing at all once that city stops shipping.
+def _demo_city():
+    import pandas as pd
+    from pathlib import Path as _P
+    d = _P(__file__).resolve().parents[1] / "data" / "destinations.csv"
+    return pd.read_csv(d).destination_id.iloc[0]
+
+
 if __name__ == "__main__":
     agent = FusionRAGAgent()
     out = agent.run(
         "museums and landmarks near a transport hub for a culture-loving traveler",
-        destination_id="ROM", archetype="Culture Enthusiast",
+        destination_id=_demo_city(), archetype="Culture Enthusiast",
     )
     print(out["narrative"])

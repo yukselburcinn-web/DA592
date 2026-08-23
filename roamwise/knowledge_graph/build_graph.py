@@ -167,7 +167,16 @@ class GraphIndex:
         out.sort(key=lambda x: (x["weight"], x["popularity_score"]), reverse=True)
         return out[:top_k]
 
-    def multi_hop_transport_to_poi(self, destination_id: str, category: str, max_km: float = 3.0):
+    # 1.0 km, not the 3.0 this used to default to. The radius has to be small
+    # enough that "near a transport hub" separates some POIs from the rest, and
+    # 3.0 no longer did: against a 7 km-radius catalogue with real interchanges
+    # in it, 96% of Paris POIs and 92% of Berlin's sat inside 3 km, so the
+    # relation returned nearly the whole city and distinguished nothing. It is
+    # geometry rather than a data problem -- a 3 km circle covers most of the
+    # disc whatever hubs you pick. 1.0 km keeps 18% / 55%, and it is also what
+    # the queries actually ask for: a hub is "within walking distance", which
+    # 3 km is not.
+    def multi_hop_transport_to_poi(self, destination_id: str, category: str, max_km: float = 1.0):
         if self.backend == "neo4j":
             hubs = self.city_transport(destination_id)
             pois = self.city_pois(destination_id, category=category)
@@ -216,8 +225,11 @@ if __name__ == "__main__":
     g = build_graph()
     idx = GraphIndex(g)
     print("Knowledge graph stats:", idx.stats())
-    print("Sample: culture POIs near Istanbul transport hubs ->")
-    for r in idx.multi_hop_transport_to_poi("IST", "landmark")[:3]:
+    # Was hardcoded to "IST", which prints nothing once the catalogue no longer
+    # ships Istanbul. Take whichever city the graph actually holds.
+    demo_city = next(n for n, d in g.nodes(data=True) if d.get("type") == "City")
+    print(f"Sample: landmark POIs near {demo_city} transport hubs ->")
+    for r in idx.multi_hop_transport_to_poi(demo_city, "landmark")[:3]:
         print(" ", r["name"], f"{r['nearest_hub_km']}km from nearest hub")
     out_path = DATA_DIR / "knowledge_graph.gml"
     save_graph(g, out_path)

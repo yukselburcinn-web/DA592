@@ -1,9 +1,3 @@
 destination_id,city,country,lat,lon,budget_level,tags
-IST,Istanbul,Turkey,41.0082,28.9784,1,"[""culture"", ""history"", ""food"", ""nightlife""]"
-PAR,Paris,France,48.8566,2.3522,3,"[""culture"", ""romance"", ""art"", ""shopping""]"
-ROM,Rome,Italy,41.9028,12.4964,2,"[""history"", ""culture"", ""food"", ""religion""]"
-BCN,Barcelona,Spain,41.3874,2.1686,2,"[""beach"", ""art"", ""nightlife"", ""culture""]"
-AMS,Amsterdam,Netherlands,52.3676,4.9041,2,"[""culture"", ""nightlife"", ""art"", ""nature""]"
-PRG,Prague,Czechia,50.0755,14.4378,1,"[""history"", ""budget"", ""nightlife"", ""culture""]"
-VIE,Vienna,Austria,48.2082,16.3738,3,"[""culture"", ""music"", ""history"", ""luxury""]"
-LIS,Lisbon,Portugal,38.7223,-9.1393,1,"[""beach"", ""food"", ""budget"", ""culture""]"
+PAR,Paris,France,48.8566,2.3522,3,"[""culture"", ""art"", ""food"", ""shopping""]"
+BER,Berlin,Germany,52.52,13.405,2,"[""history"", ""culture"", ""nightlife"", ""art""]"
