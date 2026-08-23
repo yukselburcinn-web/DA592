@@ -3,8 +3,18 @@ prioritizing Graph-RAG for multi-hop relational queries and falling back to
 semantic/keyword search for descriptive content -- then grounds a short
 narrative in exactly the retrieved snippets (so downstream text stays
 attributable, reducing geographic hallucination)."""
+import re
+
 from roamwise.agents.llm_client import LLMClient, get_default_llm_client
 from roamwise.retrieval.fusion import FusionRetriever
+
+# Graph-retrieved doc text ends in a "[graph: reason]" attribution tag (see
+# graph_search.py) so the Retrieved-context tab can explain why a POI
+# surfaced. That tag is internal retrieval bookkeeping, not something a
+# reader of the narrative needs -- keep it out of the text fed to the "LLM"
+# synthesis step (the raw r['text'] with the tag is still what the
+# Retrieved-context tab displays).
+_SOURCE_TAG_RE = re.compile(r"\s*\[[^\[\]]*\]\s*$")
 
 
 class FusionRAGAgent:
@@ -28,12 +38,16 @@ class FusionRAGAgent:
     def _narrate(self, query: str, results: list[dict]) -> str:
         if not results:
             return "No retrieval context available (standard-prompting configuration)."
-        bullets = "\n".join(f"- {r['text']}" for r in results[:6])
-        prompt = f"""
-        Query: {query}
-        Grounded context retrieved from the knowledge base:
-        {bullets}
-        """
+        bullets = "\n".join(f"- {_SOURCE_TAG_RE.sub('', r['text'])}" for r in results[:6])
+        # Joined rather than an indented triple-quoted f-string for the same
+        # reason as orchestrator._synthesize: bullets is already flush-left,
+        # so splicing it into an indented template defeats dedent and the
+        # template lines render as a Markdown code block.
+        prompt = "\n".join([
+            f"Query: {query}",
+            "Grounded context retrieved from the knowledge base:",
+            bullets,
+        ])
         return self.llm.complete(
             system="Summarize only the facts present in the retrieved context. Do not invent places.",
             prompt=prompt,
