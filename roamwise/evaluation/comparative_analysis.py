@@ -46,6 +46,7 @@ if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
 import pandas as pd
+from scipy import stats
 
 from roamwise.agents.llm_client import get_default_llm_client
 from roamwise.agents.router_agent import RouterAgent
@@ -59,6 +60,7 @@ CONFIGS = ["fusion", "hybrid", "standard"]
 # comparison without every viewer paying to recompute it.
 RESULTS_CSV = HERE / "comparative_analysis_results.csv"
 SUMMARY_CSV = HERE / "comparative_analysis_summary.csv"
+SIGNIFICANCE_CSV = HERE / "comparative_analysis_significance.csv"
 
 TEST_QUERIES = [
     # (destination_id, archetype, category, query_text)
@@ -100,7 +102,7 @@ def run_comparative_analysis(top_k: int = 8) -> pd.DataFrame:
     router = RouterAgent(idx)
     rows = []
 
-    for dest_id, archetype, category, query in TEST_QUERIES:
+    for query_id, (dest_id, archetype, category, query) in enumerate(TEST_QUERIES):
         gold = _gold_multi_hop(idx, dest_id, category)
         preferred_categories = set(CATEGORY_AFFINITY[archetype])
 
@@ -130,6 +132,11 @@ def run_comparative_analysis(top_k: int = 8) -> pd.DataFrame:
             km_per_stop = day["distance_km"] / n_stops if n_stops else None
 
             rows.append({
+                # Explicit key rather than row position: the significance test
+                # pairs configs per query, and (destination, archetype,
+                # category) is not unique -- ROM/Culture Enthusiast/museum
+                # appears three times in TEST_QUERIES.
+                "query_id": query_id,
                 "destination_id": dest_id, "archetype": archetype, "category": category,
                 "config": config, "recall_at_k": recall, "archetype_precision": round(precision, 3),
                 "grounded_entity_rate": grounded_rate, "n_candidate_pois": len(candidate_pois),
@@ -153,6 +160,80 @@ def summarize(df: pd.DataFrame) -> pd.DataFrame:
         .reindex(CONFIGS)
         .round(3)
     )
+
+
+ALPHA = 0.05
+
+# (results column, higher_is_better) -- the direction decides which sign of the
+# per-query difference counts as a win.
+METRICS_UNDER_TEST = [
+    ("recall_at_k", True),
+    ("archetype_precision", True),
+    ("grounded_entity_rate", True),
+    ("km_per_stop_day1", False),
+    ("retrieval_ms", False),
+]
+
+
+def paired_significance(df: pd.DataFrame, champion: str = "fusion", alpha: float = ALPHA) -> pd.DataFrame:
+    """Is each config's lead real, or is it noise?
+
+    Every config answers the same TEST_QUERIES, so the observations are paired
+    and a Wilcoxon signed-rank test applies -- signed-rank rather than a t-test
+    because these are bounded rates and per-day distances over 18 queries, with
+    no reason to assume normal differences.
+
+    Reporting means alone was actively misleading here: Fusion's 1.14 km/stop
+    against Hybrid's 1.23 reads as a win, but Fusion is actually *behind* on 9
+    of 18 queries (p=0.46). Without this table the summary invites a claim the
+    data does not support (issue #46).
+    """
+    if "query_id" not in df.columns:
+        # Results written before query_id existed. Rows are emitted in
+        # TEST_QUERIES order within each config and a CSV round-trip preserves
+        # that order, so position within a config recovers the same pairing --
+        # which is why the committed results do not need regenerating for this.
+        df = df.assign(query_id=df.groupby("config").cumcount())
+
+    rows = []
+    present = set(df["config"].unique())
+    for opponent in [c for c in CONFIGS if c != champion and c in present]:
+        for column, higher_is_better in METRICS_UNDER_TEST:
+            if column not in df.columns:
+                continue  # a results set predating this metric
+            paired = (df.pivot(index="query_id", columns="config", values=column)
+                        [[champion, opponent]].dropna())
+            # A query whose gold set is empty scores None for recall and drops
+            # out of that metric's pairing, not out of the whole comparison.
+            advantage = paired[champion] - paired[opponent]
+            if not higher_is_better:
+                advantage = -advantage
+
+            wins = int((advantage > 0).sum())
+            losses = int((advantage < 0).sum())
+            ties = int((advantage == 0).sum())
+
+            if ties == len(advantage):
+                # Wilcoxon cannot rank an all-zero difference vector, and there
+                # is nothing to test: grounded_entity_rate is 1.0 by
+                # construction for every retrieval-based config, so fusion and
+                # hybrid are identical on it and it cannot separate them.
+                p_value, verdict = None, "identical"
+            else:
+                p_value = float(stats.wilcoxon(paired[champion], paired[opponent]).pvalue)
+                if p_value >= alpha:
+                    verdict = "no difference"
+                else:
+                    verdict = "better" if wins > losses else "worse"
+
+            rows.append({
+                "metric": column, "champion": champion, "opponent": opponent,
+                "n": len(advantage), "mean_advantage": round(float(advantage.mean()), 4),
+                "wins": wins, "losses": losses, "ties": ties,
+                "p_value": None if p_value is None else round(p_value, 5),
+                "verdict": verdict,
+            })
+    return pd.DataFrame(rows)
 
 
 def run_llm_hallucination_probe():
@@ -184,6 +265,11 @@ if __name__ == "__main__":
     summary = summarize(df)
     summary.to_csv(SUMMARY_CSV)
     print(summary.to_string())
+
+    significance = paired_significance(df)
+    significance.to_csv(SIGNIFICANCE_CSV, index=False)
+    print("\nIs the lead real? (Wilcoxon signed-rank, paired by query)\n",
+          significance.to_string(index=False))
 
     probe = run_llm_hallucination_probe()
     if probe is not None:
