@@ -8,3 +8,7 @@ __pycache__/
 roamwise/data/.cache/
 roamwise/data/raw_osm/
 roamwise/.cache/
+
+# Per-city intermediates from roamwise/pipeline/build_catalogue.py;
+# poi.csv is their union and is the file the app reads.
+roamwise/data/*_poi.csv
