@@ -269,7 +269,11 @@ def _meals_in(day):
 
 
 def test_every_day_gets_its_minimum_meals():
-    zones = {0: _sights_along_a_line(4), 1: _sights_along_a_line(4, lat=48.24)}
+    """A day with enough sightseeing content to actually span the day (unlike
+    the sparser #29 scenarios below) should still get both meals -- the
+    sightseeing floor added for #29 only trades a meal away when the day
+    genuinely can't fit both 3h apart, not by default."""
+    zones = {0: _sights_along_a_line(6, minutes=60), 1: _sights_along_a_line(6, lat=48.24, minutes=60)}
     food = [_food_poi(f"Cafe {i}", 48.20 + i * 0.006, 16.372) for i in range(8)]
 
     days = build_multi_day_itinerary(zones, daily_minutes_budget=480,
@@ -292,8 +296,10 @@ def test_no_meals_are_added_when_the_minimum_is_zero():
 
 def test_meals_are_spread_across_the_day_not_stacked_at_the_start():
     """Two meals before 11am would satisfy a naive count but is not a day
-    anyone would travel. They have to straddle the day's midpoint."""
-    zones = {0: _sights_along_a_line(5)}
+    anyone would travel. They have to straddle the day's midpoint, and (#29)
+    land close to MIN_MEAL_GAP_FRACTION's ~3h-on-a-full-day target, not just
+    the old, easily-gamed ">= 2 hours"."""
+    zones = {0: _sights_along_a_line(8, minutes=60)}
     food = [_food_poi(f"Cafe {i}", 48.20 + i * 0.005, 16.372) for i in range(8)]
 
     day = build_multi_day_itinerary(zones, daily_minutes_budget=600,
@@ -304,7 +310,44 @@ def test_meals_are_spread_across_the_day_not_stacked_at_the_start():
                         if poi.get("category") == "food")
     assert len(meal_hours) >= 2
     assert meal_hours[0] >= 11.0, "the first meal should not be breakfast-time"
-    assert meal_hours[-1] - meal_hours[0] >= 2.0, "meals should be hours apart"
+    assert meal_hours[-1] - meal_hours[0] >= 2.5, "meals should be close to 3 hours apart"
+
+
+# --- issue #29: meal placement was clustering meals together and, in the
+# sparsest days, displacing every sightseeing stop to fit them ---
+
+def test_meals_do_not_land_back_to_back():
+    """The originally-reported #29 shape: a short, sparse day where cheapest-
+    insertion used to converge both meals on the same end-of-day slot."""
+    zones = {0: _sights_along_a_line(3)}
+    food = [_food_poi(f"Cafe {i}", 48.20 + i * 0.005, 16.372) for i in range(8)]
+
+    day = build_multi_day_itinerary(zones, daily_minutes_budget=480,
+                                     day_start_hour=9.0, food_pois=food,
+                                     min_food_per_day=2)[0]
+
+    meal_hours = sorted(slot["arrival"] for poi, slot in zip(day["route"], day["schedule"])
+                        if poi.get("category") == "food")
+    if len(meal_hours) >= 2:
+        assert meal_hours[-1] - meal_hours[0] >= 1.0, \
+            "two meals within an hour of each other is not two separate meals"
+
+
+def test_a_sparse_day_keeps_at_least_one_sightseeing_stop():
+    """The #29 comment's finding: a zone with barely more sightseeing content
+    than meals could lose every non-food stop to meal displacement, leaving
+    a day that is literally nothing but food. A day may drop to 1 meal
+    instead (see test above / MIN_SIGHTSEEING_STOPS's docstring), but it may
+    never lose its last sight to make room for a second one."""
+    zones = {0: _sights_along_a_line(2)}
+    food = [_food_poi(f"Cafe {i}", 48.20 + i * 0.005, 16.372) for i in range(8)]
+
+    day = build_multi_day_itinerary(zones, daily_minutes_budget=480,
+                                     day_start_hour=9.0, food_pois=food,
+                                     min_food_per_day=2)[0]
+
+    non_food = [p for p in day["route"] if p.get("category") != "food"]
+    assert len(non_food) >= 1, "a day must never be emptied down to food-only"
 
 
 def test_meal_choice_prefers_a_venue_on_the_route_over_a_distant_one():
@@ -342,7 +385,11 @@ def test_router_agent_feeds_every_day_from_the_citys_own_restaurants():
 
     assert len(result["itinerary"]) == 3
     for day in result["itinerary"]:
-        assert len(_meals_in(day)) >= 2, f"day {day['day']} has no meals"
+        # >= 1, not >= 2: on real (unpredictable, occasionally sparse) city
+        # data, #29's sightseeing floor can legitimately trade the second
+        # meal away on a short day. The invariant this test actually guards
+        # -- meals are sourced from the graph at all -- only needs >= 1.
+        assert len(_meals_in(day)) >= 1, f"day {day['day']} has no meals"
 
 
 def test_orchestrator_end_to_end():
