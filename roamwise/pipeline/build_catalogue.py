@@ -193,7 +193,7 @@ def _spine_query(city):
     """
     langs = ", ".join(f'"{l}"' for l in city["langs"].split(","))
     return QLEVER_PREFIXES + f"""
-SELECT ?item ?label ?llang ?sitelinks ?typeLabel ?article ?desc ?coord WHERE {{
+SELECT ?item ?label ?llang ?sitelinks ?typeLabel ?article ?desc ?coord ?dissolved ?closed WHERE {{
   ?item wdt:P625 ?coord .
   FILTER(geof:distance(?coord, "POINT({city['lon']} {city['lat']})"^^geo:wktLiteral)
          < {city['radius_km']})
@@ -204,6 +204,10 @@ SELECT ?item ?label ?llang ?sitelinks ?typeLabel ?article ?desc ?coord WHERE {{
   ?item wdt:P31 ?type . ?type rdfs:label ?typeLabel . FILTER(lang(?typeLabel) = "en")
   OPTIONAL {{ ?article schema:about ?item ; schema:isPartOf <https://en.wikipedia.org/> }}
   OPTIONAL {{ ?item schema:description ?desc . FILTER(lang(?desc) = "en") }}
+  # P576 dissolved/abolished/demolished, P3999 date of official closure. Only
+  # acted on for the venue categories -- see SERVICE_CATEGORIES below.
+  OPTIONAL {{ ?item wdt:P576 ?dissolved }}
+  OPTIONAL {{ ?item wdt:P3999 ?closed }}
 }}
 """
 
@@ -238,6 +242,7 @@ def fetch_spine_qlever(city):
             "types": set(),
             "wikipedia_title": "",
             "wd_description": "",
+            "ended": "",
             "source": "qlever",
         })
         # Prefer the English label; the local one is only a fallback for items
@@ -250,6 +255,9 @@ def fetch_spine_qlever(city):
                 b["article"]["value"].rsplit("/wiki/", 1)[-1])
         if "desc" in b and not rec["wd_description"]:
             rec["wd_description"] = b["desc"]["value"]
+        for key in ("dissolved", "closed"):
+            if key in b and not rec["ended"]:
+                rec["ended"] = b[key]["value"][:10].lstrip("+")
     return by_item
 
 
@@ -365,6 +373,16 @@ BLACKLIST_RE = _word_re(TYPE_BLACKLIST)
 QUARTER_RE = _word_re(QUARTER_TYPES)
 
 
+# Categories whose POIs are a service the traveller consumes rather than a
+# sight they look at. The distinction decides what a Wikidata closure date
+# means: a restaurant that shut in 1913 cannot serve lunch, but the Berlin Wall
+# (P576 = 1989), the Bastille (1789) and the Kaiser-Wilhelm-Gedaechtniskirche
+# (1943) are among the best-known things to go and see in their cities. P576
+# says the *entity* ended, not that the site is gone -- so it is only grounds
+# for dropping a row in these three categories.
+SERVICE_CATEGORIES = {"food", "nightlife", "shopping"}
+
+
 def categorise(types):
     joined = " ; ".join(types)
     for cat, pattern in CATEGORY_PATTERNS:
@@ -385,7 +403,7 @@ def classify_spine(by_item, city):
     the island is the reason to go there.
     """
     sights, quarters = [], []
-    dropped_concept = dropped_uncat = 0
+    dropped_concept = dropped_uncat = dropped_closed = 0
 
     for rec in by_item.values():
         if re.fullmatch(r"Q\d+", rec["name"]):       # unlabelled entity
@@ -413,11 +431,19 @@ def classify_spine(by_item, city):
             dropped_uncat += 1
             continue
 
+        if cat in SERVICE_CATEGORIES and rec.get("ended"):
+            # A venue Wikidata records as closed. The router books meal stops
+            # out of `food`, so leaving these in put the Reich Ministry of Food
+            # and Agriculture (typed "ministry of food", abolished 1945) and
+            # cafes shut since 1910 into itineraries as places to eat.
+            dropped_closed += 1
+            continue
+
         rec["category"] = cat
         rec["is_quarter"] = False
         sights.append(rec)
 
-    return sights, quarters, dropped_concept, dropped_uncat
+    return sights, quarters, dropped_concept, dropped_uncat, dropped_closed
 
 
 # ---------------------------------------------------------------------------
@@ -476,19 +502,43 @@ out body 4000;
             continue
         tail.append({"qid": None, "name": name, "lat": el["lat"], "lon": el["lon"],
                      "sitelinks": 0, "category": cat, "km": km, "is_quarter": False,
-                     "wikipedia_title": "", "tags": tags})
+                     "wikipedia_title": "", "tags": tags,
+                     # These rows are OSM objects to begin with, so their
+                     # on-the-ground evidence is the record itself.
+                     "has_osm": True})
     return tail
 
 
 # ---------------------------------------------------------------------------
 # 3. Selection
 # ---------------------------------------------------------------------------
+# Larger than any reachable fame score (sitelinks top out near log1p(140) and
+# the pageview term near 2.8), so this acts as a tier boundary rather than as a
+# weight to be traded off. Within the service categories, "is on the ground
+# today" is not one signal among several -- a venue that does not exist cannot
+# be a good answer however famous it is.
+SERVICE_NO_OSM_PENALTY = 20.0
+
+
 def blended_fame(rec, w_s=None, w_p=None):
-    """Log-scale blend of documentation and attention."""
+    """Log-scale blend of documentation and attention.
+
+    Service-category rows with no OpenStreetMap counterpart are demoted below
+    every matched one. Wikidata records closure dates unevenly -- Cafe de la
+    Regence carries P576, but Cafe Josty, Cafe Bauer and Moka Efti, all long
+    gone, carry nothing at all and are typed simply "cafe". Sitelink fame then
+    ranked them above Konnopke's Imbiss and Curry 36, which are open, and the
+    router booked lunches at them. An OSM match separates the two cleanly:
+    across every venue checked by hand, all ten defunct ones were unmatched and
+    six of seven operating ones matched.
+    """
     w_s = FAME_W_SITELINKS if w_s is None else w_s
     w_p = FAME_W_PAGEVIEWS if w_p is None else w_p
-    return (w_s * math.log1p(rec.get("sitelinks") or 0)
-            + w_p * math.log1p(rec.get("rank_pageviews") or 0))
+    score = (w_s * math.log1p(rec.get("sitelinks") or 0)
+             + w_p * math.log1p(rec.get("rank_pageviews") or 0))
+    if rec["category"] in SERVICE_CATEGORIES and not rec.get("has_osm"):
+        score -= SERVICE_NO_OSM_PENALTY
+    return score
 
 
 def select_spine(candidates, slots, radius_km, quarter_slots):
@@ -808,10 +858,13 @@ def build_city(code, start_id, stable_pageviews=False):
 
     print("2) Wikidata omurgasi...")
     by_item = fetch_spine(city, osm_by_qid)
-    sights, quarters, n_concept, n_uncat = classify_spine(by_item, city)
+    sights, quarters, n_concept, n_uncat, n_closed = classify_spine(by_item, city)
     print(f"   {len(by_item)} aday -> {len(sights)} yer + {len(quarters)} unlu semt")
-    print(f"   {n_concept} kavram elendi, {n_uncat} kategorize edilemedi")
-    matched = sum(1 for r in sights + quarters if r["qid"] in osm_by_qid)
+    print(f"   {n_concept} kavram elendi, {n_uncat} kategorize edilemedi, "
+          f"{n_closed} kapanmis mekan elendi")
+    for rec in sights + quarters:
+        rec["has_osm"] = rec["qid"] in osm_by_qid
+    matched = sum(1 for r in sights + quarters if r["has_osm"])
     print(f"   omurganin {matched}/{len(sights) + len(quarters)}'i OSM etiketine eslesti")
 
     print("3) OSM uzun kuyrugu (yeme-icme / gece hayati)...")

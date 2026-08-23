@@ -1,166 +1,166 @@
 query_id,tier,dependence,destination_id,archetype,category,near_transport,gold_size,config,recall_at_k,archetype_precision,grounded_entity_rate,n_candidate_pois,n_stops_day1,km_per_stop_day1,retrieval_ms
-0,handwritten,subset,BER,Culture Enthusiast,landmark,True,53,fusion,0.07547169811320754,1.0,1.0,8,5,0.38,14.74
-0,handwritten,subset,BER,Culture Enthusiast,landmark,True,53,hybrid,0.11320754716981132,1.0,1.0,8,6,0.59,7.11
-0,handwritten,subset,BER,Culture Enthusiast,landmark,True,53,standard,0.0,0.75,0.0,8,5,0.52,0.0
-1,handwritten,subset,PAR,Culture Enthusiast,museum,True,41,fusion,0.17073170731707318,1.0,1.0,8,4,0.51,6.68
-1,handwritten,subset,PAR,Culture Enthusiast,museum,True,41,hybrid,0.0975609756097561,0.75,1.0,8,5,1.41,5.72
-1,handwritten,subset,PAR,Culture Enthusiast,museum,True,41,standard,0.0,0.75,0.0,8,5,0.63,0.0
-2,handwritten,subset,BER,Culture Enthusiast,museum,True,45,fusion,0.15555555555555556,1.0,1.0,8,3,0.17,6.79
-2,handwritten,subset,BER,Culture Enthusiast,museum,True,45,hybrid,0.1111111111111111,1.0,1.0,8,4,0.24,5.14
-2,handwritten,subset,BER,Culture Enthusiast,museum,True,45,standard,0.0,0.75,0.0,8,5,0.52,0.0
-3,handwritten,superset,PAR,Nightlife Seeker,nightlife,False,33,fusion,0.24242424242424243,1.0,1.0,8,2,0.33,13.01
-3,handwritten,superset,PAR,Nightlife Seeker,nightlife,False,33,hybrid,0.24242424242424243,1.0,1.0,8,2,0.33,6.18
-3,handwritten,superset,PAR,Nightlife Seeker,nightlife,False,33,standard,0.0,0.25,0.0,8,5,0.63,0.0
-4,handwritten,subset,BER,Nature & Adventure,nature,True,16,fusion,0.3125,1.0,1.0,8,5,0.66,17.98
-4,handwritten,subset,BER,Nature & Adventure,nature,True,16,hybrid,0.25,0.625,1.0,8,5,1.08,6.14
-4,handwritten,subset,BER,Nature & Adventure,nature,True,16,standard,0.0,0.25,0.0,8,5,0.52,0.0
-5,handwritten,subset,PAR,Budget Backpacker,nightlife,True,24,fusion,0.16666666666666666,0.875,1.0,8,3,0.73,7.03
-5,handwritten,subset,PAR,Budget Backpacker,nightlife,True,24,hybrid,0.125,0.75,1.0,8,4,0.79,6.5
-5,handwritten,subset,PAR,Budget Backpacker,nightlife,True,24,standard,0.0,0.375,0.0,8,5,0.63,0.0
-6,handwritten,subset,BER,Luxury Traveler,shopping,True,7,fusion,0.7142857142857143,1.0,1.0,8,4,1.47,6.34
-6,handwritten,subset,BER,Luxury Traveler,shopping,True,7,hybrid,0.5714285714285714,1.0,1.0,7,5,2.13,6.24
-6,handwritten,subset,BER,Luxury Traveler,shopping,True,7,standard,0.0,0.5,0.0,8,5,0.52,0.0
-7,handwritten,independent,PAR,Beach & Relax,nature,True,27,fusion,0.18518518518518517,0.75,1.0,8,3,0.59,14.74
-7,handwritten,independent,PAR,Beach & Relax,nature,True,27,hybrid,0.1111111111111111,0.5,1.0,8,4,1.66,7.79
-7,handwritten,independent,PAR,Beach & Relax,nature,True,27,standard,0.0,0.25,0.0,8,5,0.63,0.0
-8,handwritten,independent,BER,Family Traveler,food,True,19,fusion,0.15789473684210525,1.0,1.0,8,5,1.48,13.49
-8,handwritten,independent,BER,Family Traveler,food,True,19,hybrid,0.21052631578947367,1.0,1.0,8,4,1.8,6.63
-8,handwritten,independent,BER,Family Traveler,food,True,19,standard,0.0,0.625,0.0,8,5,0.52,0.0
-9,handwritten,independent,PAR,Culture Enthusiast,museum+landmark+history+culture,True,145,fusion,0.020689655172413793,0.429,1.0,7,4,0.36,13.22
-9,handwritten,independent,PAR,Culture Enthusiast,museum+landmark+history+culture,True,145,hybrid,0.006896551724137931,0.143,1.0,7,4,0.36,10.86
-9,handwritten,independent,PAR,Culture Enthusiast,museum+landmark+history+culture,True,145,standard,0.0,0.75,0.0,8,5,0.63,0.0
-10,handwritten,independent,BER,Culture Enthusiast,history+landmark,True,78,fusion,0.01282051282051282,0.75,1.0,8,3,0.3,12.75
-10,handwritten,independent,BER,Culture Enthusiast,history+landmark,True,78,hybrid,0.01282051282051282,0.625,1.0,8,3,0.4,7.98
-10,handwritten,independent,BER,Culture Enthusiast,history+landmark,True,78,standard,0.0,0.75,0.0,8,5,0.52,0.0
-11,handwritten,superset,PAR,Nightlife Seeker,nightlife,True,24,fusion,0.20833333333333334,0.75,1.0,8,5,0.89,13.31
-11,handwritten,superset,PAR,Nightlife Seeker,nightlife,True,24,hybrid,0.125,0.625,1.0,8,4,0.57,7.7
-11,handwritten,superset,PAR,Nightlife Seeker,nightlife,True,24,standard,0.0,0.25,0.0,8,5,0.63,0.0
-12,handwritten,superset,BER,Luxury Traveler,shopping+food,True,26,fusion,0.19230769230769232,0.857,1.0,7,3,1.39,13.75
-12,handwritten,superset,BER,Luxury Traveler,shopping+food,True,26,hybrid,0.15384615384615385,0.714,1.0,7,5,1.24,7.92
-12,handwritten,superset,BER,Luxury Traveler,shopping+food,True,26,standard,0.0,0.5,0.0,8,5,0.52,0.0
-13,handwritten,independent,PAR,Nature & Adventure,nature,True,27,fusion,0.07407407407407407,0.5,1.0,8,5,0.96,13.41
-13,handwritten,independent,PAR,Nature & Adventure,nature,True,27,hybrid,0.037037037037037035,0.375,1.0,8,5,0.41,7.36
-13,handwritten,independent,PAR,Nature & Adventure,nature,True,27,standard,0.0,0.25,0.0,8,5,0.63,0.0
-14,handwritten,independent,BER,Culture Enthusiast,nightlife+food,False,42,fusion,0.0,1.0,1.0,7,4,1.73,13.08
-14,handwritten,independent,BER,Culture Enthusiast,nightlife+food,False,42,hybrid,0.07142857142857142,0.571,1.0,7,4,0.46,8.14
-14,handwritten,independent,BER,Culture Enthusiast,nightlife+food,False,42,standard,0.0,0.75,0.0,8,5,0.52,0.0
-15,handwritten,superset,PAR,Budget Backpacker,landmark,True,49,fusion,0.02040816326530612,0.375,1.0,8,5,1.62,13.55
-15,handwritten,superset,PAR,Budget Backpacker,landmark,True,49,hybrid,0.04081632653061224,0.25,1.0,8,6,0.86,8.52
-15,handwritten,superset,PAR,Budget Backpacker,landmark,True,49,standard,0.0,0.375,0.0,8,5,0.63,0.0
-16,handwritten,independent,BER,Culture Enthusiast,history+landmark+food,False,109,fusion,0.027522935779816515,0.625,1.0,8,3,0.3,13.67
-16,handwritten,independent,BER,Culture Enthusiast,history+landmark+food,False,109,hybrid,0.03669724770642202,0.375,1.0,8,3,1.84,8.27
-16,handwritten,independent,BER,Culture Enthusiast,history+landmark+food,False,109,standard,0.0,0.75,0.0,8,5,0.52,0.0
-17,handwritten,superset,PAR,Culture Enthusiast,museum+shopping,False,75,fusion,0.04,0.429,1.0,7,5,0.81,15.3
-17,handwritten,superset,PAR,Culture Enthusiast,museum+shopping,False,75,hybrid,0.013333333333333334,0.143,1.0,7,5,0.82,8.21
-17,handwritten,superset,PAR,Culture Enthusiast,museum+shopping,False,75,standard,0.0,0.75,0.0,8,5,0.63,0.0
-18,handwritten,independent,BER,Beach & Relax,nature,False,33,fusion,0.12121212121212122,0.5,1.0,8,5,1.19,10.1
-18,handwritten,independent,BER,Beach & Relax,nature,False,33,hybrid,0.06060606060606061,0.25,1.0,8,3,0.64,10.74
-18,handwritten,independent,BER,Beach & Relax,nature,False,33,standard,0.0,0.25,0.0,8,5,0.52,0.0
-19,grid,subset,PAR,Culture Enthusiast,museum,True,41,fusion,0.17073170731707318,1.0,1.0,8,4,0.51,9.54
-19,grid,subset,PAR,Culture Enthusiast,museum,True,41,hybrid,0.0975609756097561,0.875,1.0,8,4,0.87,9.0
-19,grid,subset,PAR,Culture Enthusiast,museum,True,41,standard,0.0,0.75,0.0,8,5,0.63,0.0
-20,grid,subset,PAR,Family Traveler,landmark,True,49,fusion,0.04081632653061224,0.875,1.0,8,4,1.64,9.07
-20,grid,subset,PAR,Family Traveler,landmark,True,49,hybrid,0.061224489795918366,0.75,1.0,8,5,0.65,8.19
-20,grid,subset,PAR,Family Traveler,landmark,True,49,standard,0.0,0.625,0.0,8,5,0.63,0.0
-21,grid,superset,PAR,Culture Enthusiast,history,False,29,fusion,0.034482758620689655,1.0,1.0,8,4,0.93,16.62
-21,grid,superset,PAR,Culture Enthusiast,history,False,29,hybrid,0.034482758620689655,0.75,1.0,8,5,0.41,9.21
-21,grid,superset,PAR,Culture Enthusiast,history,False,29,standard,0.0,0.75,0.0,8,5,0.63,0.0
-22,grid,superset,PAR,Nature & Adventure,nature,False,40,fusion,0.15,0.75,1.0,8,4,1.09,9.55
-22,grid,superset,PAR,Nature & Adventure,nature,False,40,hybrid,0.125,0.625,1.0,8,4,1.42,9.15
-22,grid,superset,PAR,Nature & Adventure,nature,False,40,standard,0.0,0.25,0.0,8,5,0.63,0.0
-23,grid,superset,PAR,Budget Backpacker,nightlife,False,33,fusion,0.21212121212121213,1.0,1.0,8,4,2.31,10.54
-23,grid,superset,PAR,Budget Backpacker,nightlife,False,33,hybrid,0.15151515151515152,0.875,1.0,8,4,1.12,10.57
-23,grid,superset,PAR,Budget Backpacker,nightlife,False,33,standard,0.0,0.375,0.0,8,5,0.63,0.0
-24,grid,subset,PAR,Luxury Traveler,shopping,True,15,fusion,0.3333333333333333,1.0,1.0,8,5,0.49,9.2
-24,grid,subset,PAR,Luxury Traveler,shopping,True,15,hybrid,0.26666666666666666,1.0,1.0,8,4,0.61,8.57
-24,grid,subset,PAR,Luxury Traveler,shopping,True,15,standard,0.0,0.5,0.0,8,5,0.63,0.0
-25,grid,subset,PAR,Budget Backpacker,food,True,39,fusion,0.02564102564102564,1.0,1.0,8,2,3.57,17.82
-25,grid,subset,PAR,Budget Backpacker,food,True,39,hybrid,0.05128205128205128,0.875,1.0,8,3,2.41,10.3
-25,grid,subset,PAR,Budget Backpacker,food,True,39,standard,0.0,0.375,0.0,8,5,0.63,0.0
-26,grid,superset,PAR,Budget Backpacker,culture,False,56,fusion,0.017857142857142856,0.875,1.0,8,3,1.28,9.35
-26,grid,superset,PAR,Budget Backpacker,culture,False,56,hybrid,0.017857142857142856,0.875,1.0,8,4,0.85,8.79
-26,grid,superset,PAR,Budget Backpacker,culture,False,56,standard,0.0,0.375,0.0,8,5,0.63,0.0
-27,grid,independent,PAR,Culture Enthusiast,religion,False,50,fusion,0.06,0.75,1.0,8,5,1.03,9.89
-27,grid,independent,PAR,Culture Enthusiast,religion,False,50,hybrid,0.08,0.75,1.0,8,3,1.49,9.18
-27,grid,independent,PAR,Culture Enthusiast,religion,False,50,standard,0.0,0.75,0.0,8,5,0.63,0.0
-28,grid,superset,PAR,Culture Enthusiast,museum,False,54,fusion,0.14814814814814814,1.0,1.0,8,4,0.98,9.57
-28,grid,superset,PAR,Culture Enthusiast,museum,False,54,hybrid,0.09259259259259259,0.75,1.0,8,4,0.38,8.29
-28,grid,superset,PAR,Culture Enthusiast,museum,False,54,standard,0.0,0.75,0.0,8,5,0.63,0.0
-29,grid,superset,PAR,Family Traveler,landmark,False,68,fusion,0.04411764705882353,0.875,1.0,8,6,0.22,9.43
-29,grid,superset,PAR,Family Traveler,landmark,False,68,hybrid,0.04411764705882353,0.75,1.0,8,6,0.45,9.21
-29,grid,superset,PAR,Family Traveler,landmark,False,68,standard,0.0,0.625,0.0,8,5,0.63,0.0
-30,grid,subset,PAR,Nature & Adventure,history,True,15,fusion,0.0,0.375,1.0,8,4,1.21,9.29
-30,grid,subset,PAR,Nature & Adventure,history,True,15,hybrid,0.0,0.0,1.0,8,5,0.87,8.84
-30,grid,subset,PAR,Nature & Adventure,history,True,15,standard,0.0,0.25,0.0,8,5,0.63,0.0
-31,grid,subset,PAR,Beach & Relax,nature,True,27,fusion,0.14814814814814814,0.75,1.0,8,4,0.85,9.87
-31,grid,subset,PAR,Beach & Relax,nature,True,27,hybrid,0.07407407407407407,0.625,1.0,8,5,0.45,9.23
-31,grid,subset,PAR,Beach & Relax,nature,True,27,standard,0.0,0.25,0.0,8,5,0.63,0.0
-32,grid,subset,PAR,Nightlife Seeker,nightlife,True,24,fusion,0.25,1.0,1.0,7,4,1.28,10.09
-32,grid,subset,PAR,Nightlife Seeker,nightlife,True,24,hybrid,0.20833333333333334,0.857,1.0,7,3,0.34,9.19
-32,grid,subset,PAR,Nightlife Seeker,nightlife,True,24,standard,0.0,0.25,0.0,8,5,0.63,0.0
-33,grid,superset,PAR,Budget Backpacker,shopping,False,21,fusion,0.2857142857142857,1.0,1.0,8,5,0.67,9.36
-33,grid,superset,PAR,Budget Backpacker,shopping,False,21,hybrid,0.38095238095238093,1.0,1.0,8,5,1.21,8.57
-33,grid,superset,PAR,Budget Backpacker,shopping,False,21,standard,0.0,0.375,0.0,8,5,0.63,0.0
-34,grid,superset,PAR,Beach & Relax,food,False,49,fusion,0.12244897959183673,1.0,1.0,8,3,1.34,11.06
-34,grid,superset,PAR,Beach & Relax,food,False,49,hybrid,0.14285714285714285,0.875,1.0,8,2,3.3,10.43
-34,grid,superset,PAR,Beach & Relax,food,False,49,standard,0.0,0.25,0.0,8,5,0.63,0.0
-35,grid,subset,PAR,Luxury Traveler,culture,True,40,fusion,0.0,0.625,1.0,8,6,0.8,9.78
-35,grid,subset,PAR,Luxury Traveler,culture,True,40,hybrid,0.0,0.5,1.0,8,5,1.9,9.14
-35,grid,subset,PAR,Luxury Traveler,culture,True,40,standard,0.0,0.5,0.0,8,5,0.63,0.0
-36,grid,independent,PAR,Culture Enthusiast,religion,True,41,fusion,0.0,0.625,1.0,8,5,0.45,10.12
-36,grid,independent,PAR,Culture Enthusiast,religion,True,41,hybrid,0.04878048780487805,0.625,1.0,8,6,0.63,9.61
-36,grid,independent,PAR,Culture Enthusiast,religion,True,41,standard,0.0,0.75,0.0,8,5,0.63,0.0
-37,grid,subset,BER,Family Traveler,museum,True,45,fusion,0.1111111111111111,1.0,1.0,8,5,0.43,9.14
-37,grid,subset,BER,Family Traveler,museum,True,45,hybrid,0.1111111111111111,1.0,1.0,8,5,0.43,8.02
-37,grid,subset,BER,Family Traveler,museum,True,45,standard,0.0,0.625,0.0,8,5,0.52,0.0
-38,grid,superset,BER,Luxury Traveler,landmark,False,60,fusion,0.06666666666666667,1.0,1.0,8,4,0.79,8.68
-38,grid,superset,BER,Luxury Traveler,landmark,False,60,hybrid,0.1,0.875,1.0,8,4,1.34,8.6
-38,grid,superset,BER,Luxury Traveler,landmark,False,60,standard,0.0,0.5,0.0,8,5,0.52,0.0
-39,grid,superset,BER,Nature & Adventure,history,False,28,fusion,0.0,0.375,1.0,8,5,0.4,9.27
-39,grid,superset,BER,Nature & Adventure,history,False,28,hybrid,0.0,0.0,1.0,8,4,0.53,8.98
-39,grid,superset,BER,Nature & Adventure,history,False,28,standard,0.0,0.25,0.0,8,5,0.52,0.0
-40,grid,superset,BER,Beach & Relax,nature,False,33,fusion,0.24242424242424243,1.0,1.0,8,3,1.64,9.34
-40,grid,superset,BER,Beach & Relax,nature,False,33,hybrid,0.15151515151515152,0.714,1.0,7,4,1.1,9.08
-40,grid,superset,BER,Beach & Relax,nature,False,33,standard,0.0,0.25,0.0,8,5,0.52,0.0
-41,grid,subset,BER,Nightlife Seeker,nightlife,True,19,fusion,0.42105263157894735,1.0,1.0,8,2,0.26,10.33
-41,grid,subset,BER,Nightlife Seeker,nightlife,True,19,hybrid,0.2631578947368421,0.714,1.0,7,4,0.41,9.09
-41,grid,subset,BER,Nightlife Seeker,nightlife,True,19,standard,0.0,0.25,0.0,8,5,0.52,0.0
-42,grid,subset,BER,Budget Backpacker,shopping,True,7,fusion,0.5714285714285714,0.875,1.0,8,5,1.39,9.4
-42,grid,subset,BER,Budget Backpacker,shopping,True,7,hybrid,0.5714285714285714,0.75,1.0,8,5,0.83,8.92
-42,grid,subset,BER,Budget Backpacker,shopping,True,7,standard,0.0,0.375,0.0,8,5,0.52,0.0
-43,grid,superset,BER,Family Traveler,food,False,21,fusion,0.14285714285714285,1.0,1.0,7,5,1.35,10.36
-43,grid,superset,BER,Family Traveler,food,False,21,hybrid,0.19047619047619047,1.0,1.0,7,5,1.26,10.34
-43,grid,superset,BER,Family Traveler,food,False,21,standard,0.0,0.625,0.0,8,5,0.52,0.0
-44,grid,superset,BER,Culture Enthusiast,culture,False,45,fusion,0.022222222222222223,0.5,1.0,8,3,0.25,9.25
-44,grid,superset,BER,Culture Enthusiast,culture,False,45,hybrid,0.022222222222222223,0.286,1.0,7,3,0.25,9.02
-44,grid,superset,BER,Culture Enthusiast,culture,False,45,standard,0.0,0.75,0.0,8,5,0.52,0.0
-45,grid,independent,BER,Culture Enthusiast,religion,False,31,fusion,0.16129032258064516,1.0,1.0,8,6,1.13,9.62
-45,grid,independent,BER,Culture Enthusiast,religion,False,31,hybrid,0.22580645161290322,1.0,1.0,8,7,0.97,9.71
-45,grid,independent,BER,Culture Enthusiast,religion,False,31,standard,0.0,0.75,0.0,8,5,0.52,0.0
-46,grid,superset,BER,Family Traveler,museum,False,50,fusion,0.1,1.0,1.0,8,4,0.4,9.37
-46,grid,superset,BER,Family Traveler,museum,False,50,hybrid,0.14,1.0,1.0,8,4,0.51,8.22
-46,grid,superset,BER,Family Traveler,museum,False,50,standard,0.0,0.625,0.0,8,5,0.52,0.0
-47,grid,subset,BER,Luxury Traveler,landmark,True,53,fusion,0.07547169811320754,1.0,1.0,8,5,1.15,9.23
-47,grid,subset,BER,Luxury Traveler,landmark,True,53,hybrid,0.1320754716981132,1.0,1.0,8,6,0.59,9.08
-47,grid,subset,BER,Luxury Traveler,landmark,True,53,standard,0.0,0.5,0.0,8,5,0.52,0.0
-48,grid,subset,BER,Culture Enthusiast,history,True,25,fusion,0.0,1.0,1.0,8,6,0.42,10.08
-48,grid,subset,BER,Culture Enthusiast,history,True,25,hybrid,0.0,1.0,1.0,8,6,0.42,9.45
-48,grid,subset,BER,Culture Enthusiast,history,True,25,standard,0.0,0.75,0.0,8,5,0.52,0.0
-49,grid,subset,BER,Budget Backpacker,nature,True,16,fusion,0.0,0.375,1.0,8,5,0.98,9.85
-49,grid,subset,BER,Budget Backpacker,nature,True,16,hybrid,0.0625,0.375,1.0,8,6,0.4,8.62
-49,grid,subset,BER,Budget Backpacker,nature,True,16,standard,0.0,0.375,0.0,8,5,0.52,0.0
-50,grid,superset,BER,Budget Backpacker,nightlife,False,21,fusion,0.38095238095238093,1.0,1.0,8,2,0.26,10.08
-50,grid,superset,BER,Budget Backpacker,nightlife,False,21,hybrid,0.23809523809523808,0.857,1.0,7,3,0.51,9.92
-50,grid,superset,BER,Budget Backpacker,nightlife,False,21,standard,0.0,0.375,0.0,8,5,0.52,0.0
-51,grid,superset,BER,Luxury Traveler,shopping,False,11,fusion,0.7272727272727273,1.0,1.0,8,4,1.18,9.52
-51,grid,superset,BER,Luxury Traveler,shopping,False,11,hybrid,0.5454545454545454,1.0,1.0,8,5,1.91,8.31
-51,grid,superset,BER,Luxury Traveler,shopping,False,11,standard,0.0,0.5,0.0,8,5,0.52,0.0
-52,grid,subset,BER,Budget Backpacker,food,True,19,fusion,0.15789473684210525,0.625,1.0,8,5,1.13,10.74
-52,grid,subset,BER,Budget Backpacker,food,True,19,hybrid,0.21052631578947367,0.5,1.0,8,4,0.61,10.14
-52,grid,subset,BER,Budget Backpacker,food,True,19,standard,0.0,0.375,0.0,8,5,0.52,0.0
-53,grid,subset,BER,Nightlife Seeker,culture,True,41,fusion,0.0,0.875,1.0,8,3,0.22,9.53
-53,grid,subset,BER,Nightlife Seeker,culture,True,41,hybrid,0.07317073170731707,0.75,1.0,8,5,1.12,9.62
-53,grid,subset,BER,Nightlife Seeker,culture,True,41,standard,0.0,0.25,0.0,8,5,0.52,0.0
-54,grid,independent,BER,Culture Enthusiast,religion,True,25,fusion,0.08,0.75,1.0,8,5,0.3,9.54
-54,grid,independent,BER,Culture Enthusiast,religion,True,25,hybrid,0.08,0.625,1.0,8,6,0.6,10.05
-54,grid,independent,BER,Culture Enthusiast,religion,True,25,standard,0.0,0.75,0.0,8,5,0.52,0.0
+0,handwritten,subset,BER,Culture Enthusiast,landmark,True,57,fusion,0.07017543859649122,1.0,1.0,8,5,0.38,18.48
+0,handwritten,subset,BER,Culture Enthusiast,landmark,True,57,hybrid,0.10526315789473684,1.0,1.0,8,6,0.69,9.74
+0,handwritten,subset,BER,Culture Enthusiast,landmark,True,57,standard,0.0,0.75,0.0,8,6,0.73,0.0
+1,handwritten,subset,PAR,Culture Enthusiast,museum,True,44,fusion,0.13636363636363635,0.875,1.0,8,4,0.51,7.58
+1,handwritten,subset,PAR,Culture Enthusiast,museum,True,44,hybrid,0.09090909090909091,0.75,1.0,8,5,1.29,7.18
+1,handwritten,subset,PAR,Culture Enthusiast,museum,True,44,standard,0.0,0.75,0.0,8,5,0.65,0.0
+2,handwritten,subset,BER,Culture Enthusiast,museum,True,46,fusion,0.15217391304347827,1.0,1.0,8,3,0.17,6.86
+2,handwritten,subset,BER,Culture Enthusiast,museum,True,46,hybrid,0.10869565217391304,1.0,1.0,8,4,0.24,5.84
+2,handwritten,subset,BER,Culture Enthusiast,museum,True,46,standard,0.0,0.75,0.0,8,6,0.73,0.0
+3,handwritten,superset,PAR,Nightlife Seeker,nightlife,False,24,fusion,0.3333333333333333,1.0,1.0,8,2,0.33,13.7
+3,handwritten,superset,PAR,Nightlife Seeker,nightlife,False,24,hybrid,0.3333333333333333,1.0,1.0,8,2,0.33,6.07
+3,handwritten,superset,PAR,Nightlife Seeker,nightlife,False,24,standard,0.0,0.25,0.0,8,5,0.65,0.0
+4,handwritten,subset,BER,Nature & Adventure,nature,True,16,fusion,0.3125,1.0,1.0,8,5,0.99,20.55
+4,handwritten,subset,BER,Nature & Adventure,nature,True,16,hybrid,0.25,0.75,1.0,8,5,0.47,7.02
+4,handwritten,subset,BER,Nature & Adventure,nature,True,16,standard,0.0,0.25,0.0,8,6,0.73,0.0
+5,handwritten,subset,PAR,Budget Backpacker,nightlife,True,17,fusion,0.23529411764705882,1.0,1.0,8,3,0.73,8.47
+5,handwritten,subset,PAR,Budget Backpacker,nightlife,True,17,hybrid,0.17647058823529413,0.875,1.0,8,3,1.04,6.68
+5,handwritten,subset,PAR,Budget Backpacker,nightlife,True,17,standard,0.0,0.375,0.0,8,5,0.65,0.0
+6,handwritten,subset,BER,Luxury Traveler,shopping,True,8,fusion,0.75,1.0,1.0,8,6,0.73,9.43
+6,handwritten,subset,BER,Luxury Traveler,shopping,True,8,hybrid,0.625,1.0,1.0,7,4,1.6,9.31
+6,handwritten,subset,BER,Luxury Traveler,shopping,True,8,standard,0.0,0.5,0.0,8,6,0.73,0.0
+7,handwritten,independent,PAR,Beach & Relax,nature,True,28,fusion,0.17857142857142858,0.75,1.0,8,3,0.59,18.66
+7,handwritten,independent,PAR,Beach & Relax,nature,True,28,hybrid,0.10714285714285714,0.5,1.0,8,4,1.66,11.26
+7,handwritten,independent,PAR,Beach & Relax,nature,True,28,standard,0.0,0.25,0.0,8,5,0.65,0.0
+8,handwritten,independent,BER,Family Traveler,food,True,12,fusion,0.25,1.0,1.0,8,4,2.21,14.65
+8,handwritten,independent,BER,Family Traveler,food,True,12,hybrid,0.3333333333333333,1.0,1.0,8,4,2.37,7.83
+8,handwritten,independent,BER,Family Traveler,food,True,12,standard,0.0,0.625,0.0,8,6,0.73,0.0
+9,handwritten,independent,PAR,Culture Enthusiast,museum+landmark+history+culture,True,152,fusion,0.019736842105263157,0.429,1.0,7,4,0.36,16.82
+9,handwritten,independent,PAR,Culture Enthusiast,museum+landmark+history+culture,True,152,hybrid,0.006578947368421052,0.143,1.0,7,4,0.36,9.61
+9,handwritten,independent,PAR,Culture Enthusiast,museum+landmark+history+culture,True,152,standard,0.0,0.75,0.0,8,5,0.65,0.0
+10,handwritten,independent,BER,Culture Enthusiast,history+landmark,True,82,fusion,0.012195121951219513,0.75,1.0,8,3,0.3,12.54
+10,handwritten,independent,BER,Culture Enthusiast,history+landmark,True,82,hybrid,0.012195121951219513,0.625,1.0,8,4,0.64,7.96
+10,handwritten,independent,BER,Culture Enthusiast,history+landmark,True,82,standard,0.0,0.75,0.0,8,6,0.73,0.0
+11,handwritten,superset,PAR,Nightlife Seeker,nightlife,True,17,fusion,0.23529411764705882,1.0,1.0,8,3,0.73,15.27
+11,handwritten,superset,PAR,Nightlife Seeker,nightlife,True,17,hybrid,0.17647058823529413,0.5,1.0,8,6,0.61,8.27
+11,handwritten,superset,PAR,Nightlife Seeker,nightlife,True,17,standard,0.0,0.25,0.0,8,5,0.65,0.0
+12,handwritten,superset,BER,Luxury Traveler,shopping+food,True,20,fusion,0.2,0.714,1.0,7,3,1.39,12.99
+12,handwritten,superset,BER,Luxury Traveler,shopping+food,True,20,hybrid,0.2,0.714,1.0,7,5,1.71,8.08
+12,handwritten,superset,BER,Luxury Traveler,shopping+food,True,20,standard,0.0,0.5,0.0,8,6,0.73,0.0
+13,handwritten,independent,PAR,Nature & Adventure,nature,True,28,fusion,0.07142857142857142,0.5,1.0,8,5,0.4,13.68
+13,handwritten,independent,PAR,Nature & Adventure,nature,True,28,hybrid,0.03571428571428571,0.375,1.0,8,5,0.69,8.31
+13,handwritten,independent,PAR,Nature & Adventure,nature,True,28,standard,0.0,0.25,0.0,8,5,0.65,0.0
+14,handwritten,independent,BER,Culture Enthusiast,nightlife+food,False,31,fusion,0.0,1.0,1.0,7,4,1.73,15.62
+14,handwritten,independent,BER,Culture Enthusiast,nightlife+food,False,31,hybrid,0.0967741935483871,0.571,1.0,7,4,0.46,8.58
+14,handwritten,independent,BER,Culture Enthusiast,nightlife+food,False,31,standard,0.0,0.75,0.0,8,6,0.73,0.0
+15,handwritten,superset,PAR,Budget Backpacker,landmark,True,52,fusion,0.019230769230769232,0.5,1.0,8,5,1.35,13.44
+15,handwritten,superset,PAR,Budget Backpacker,landmark,True,52,hybrid,0.038461538461538464,0.25,1.0,8,6,0.85,7.84
+15,handwritten,superset,PAR,Budget Backpacker,landmark,True,52,standard,0.0,0.375,0.0,8,5,0.65,0.0
+16,handwritten,independent,BER,Culture Enthusiast,history+landmark+food,False,106,fusion,0.02830188679245283,0.625,1.0,8,3,0.3,14.48
+16,handwritten,independent,BER,Culture Enthusiast,history+landmark+food,False,106,hybrid,0.02830188679245283,0.375,1.0,8,3,0.25,7.94
+16,handwritten,independent,BER,Culture Enthusiast,history+landmark+food,False,106,standard,0.0,0.75,0.0,8,6,0.73,0.0
+17,handwritten,superset,PAR,Culture Enthusiast,museum+shopping,False,75,fusion,0.04,0.429,1.0,7,5,0.8,13.86
+17,handwritten,superset,PAR,Culture Enthusiast,museum+shopping,False,75,hybrid,0.013333333333333334,0.143,1.0,7,4,0.9,7.81
+17,handwritten,superset,PAR,Culture Enthusiast,museum+shopping,False,75,standard,0.0,0.75,0.0,8,5,0.65,0.0
+18,handwritten,independent,BER,Beach & Relax,nature,False,35,fusion,0.11428571428571428,0.5,1.0,8,4,1.8,10.06
+18,handwritten,independent,BER,Beach & Relax,nature,False,35,hybrid,0.05714285714285714,0.25,1.0,8,3,0.65,9.88
+18,handwritten,independent,BER,Beach & Relax,nature,False,35,standard,0.0,0.25,0.0,8,6,0.73,0.0
+19,grid,subset,PAR,Culture Enthusiast,museum,True,44,fusion,0.1590909090909091,1.0,1.0,8,4,0.98,9.83
+19,grid,subset,PAR,Culture Enthusiast,museum,True,44,hybrid,0.11363636363636363,0.875,1.0,8,4,0.87,8.49
+19,grid,subset,PAR,Culture Enthusiast,museum,True,44,standard,0.0,0.75,0.0,8,5,0.65,0.0
+20,grid,subset,PAR,Family Traveler,landmark,True,52,fusion,0.038461538461538464,1.0,1.0,8,4,1.64,8.88
+20,grid,subset,PAR,Family Traveler,landmark,True,52,hybrid,0.057692307692307696,0.875,1.0,8,5,1.23,8.26
+20,grid,subset,PAR,Family Traveler,landmark,True,52,standard,0.0,0.625,0.0,8,5,0.65,0.0
+21,grid,superset,PAR,Culture Enthusiast,history,False,30,fusion,0.03333333333333333,1.0,1.0,8,4,0.99,17.08
+21,grid,superset,PAR,Culture Enthusiast,history,False,30,hybrid,0.03333333333333333,0.75,1.0,8,5,0.41,8.99
+21,grid,superset,PAR,Culture Enthusiast,history,False,30,standard,0.0,0.75,0.0,8,5,0.65,0.0
+22,grid,superset,PAR,Nature & Adventure,nature,False,41,fusion,0.14634146341463414,0.75,1.0,8,4,1.09,9.21
+22,grid,superset,PAR,Nature & Adventure,nature,False,41,hybrid,0.12195121951219512,0.625,1.0,8,4,1.4,10.41
+22,grid,superset,PAR,Nature & Adventure,nature,False,41,standard,0.0,0.25,0.0,8,5,0.65,0.0
+23,grid,superset,PAR,Budget Backpacker,nightlife,False,24,fusion,0.3333333333333333,1.0,1.0,8,1,0.18,10.74
+23,grid,superset,PAR,Budget Backpacker,nightlife,False,24,hybrid,0.20833333333333334,1.0,1.0,8,4,0.85,9.47
+23,grid,superset,PAR,Budget Backpacker,nightlife,False,24,standard,0.0,0.375,0.0,8,5,0.65,0.0
+24,grid,subset,PAR,Luxury Traveler,shopping,True,13,fusion,0.3076923076923077,1.0,1.0,8,5,0.6,9.38
+24,grid,subset,PAR,Luxury Traveler,shopping,True,13,hybrid,0.3076923076923077,1.0,1.0,8,4,0.61,8.02
+24,grid,subset,PAR,Luxury Traveler,shopping,True,13,standard,0.0,0.5,0.0,8,5,0.65,0.0
+25,grid,subset,PAR,Budget Backpacker,food,True,37,fusion,0.02702702702702703,0.875,1.0,8,3,2.41,18.89
+25,grid,subset,PAR,Budget Backpacker,food,True,37,hybrid,0.05405405405405406,0.875,1.0,8,3,2.41,10.66
+25,grid,subset,PAR,Budget Backpacker,food,True,37,standard,0.0,0.375,0.0,8,5,0.65,0.0
+26,grid,superset,PAR,Budget Backpacker,culture,False,57,fusion,0.017543859649122806,1.0,1.0,8,4,2.86,9.54
+26,grid,superset,PAR,Budget Backpacker,culture,False,57,hybrid,0.017543859649122806,0.875,1.0,8,4,0.85,9.04
+26,grid,superset,PAR,Budget Backpacker,culture,False,57,standard,0.0,0.375,0.0,8,5,0.65,0.0
+27,grid,independent,PAR,Culture Enthusiast,religion,False,53,fusion,0.05660377358490566,0.75,1.0,8,5,1.03,9.94
+27,grid,independent,PAR,Culture Enthusiast,religion,False,53,hybrid,0.07547169811320754,0.75,1.0,8,3,1.49,9.82
+27,grid,independent,PAR,Culture Enthusiast,religion,False,53,standard,0.0,0.75,0.0,8,5,0.65,0.0
+28,grid,superset,PAR,Culture Enthusiast,museum,False,57,fusion,0.12280701754385964,0.875,1.0,8,4,0.99,8.7
+28,grid,superset,PAR,Culture Enthusiast,museum,False,57,hybrid,0.08771929824561403,0.75,1.0,8,4,0.38,8.25
+28,grid,superset,PAR,Culture Enthusiast,museum,False,57,standard,0.0,0.75,0.0,8,5,0.65,0.0
+29,grid,superset,PAR,Family Traveler,landmark,False,73,fusion,0.0410958904109589,0.875,1.0,8,6,0.22,9.31
+29,grid,superset,PAR,Family Traveler,landmark,False,73,hybrid,0.0547945205479452,0.875,1.0,8,5,0.51,8.72
+29,grid,superset,PAR,Family Traveler,landmark,False,73,standard,0.0,0.625,0.0,8,5,0.65,0.0
+30,grid,subset,PAR,Nature & Adventure,history,True,15,fusion,0.0,0.25,1.0,8,5,1.59,9.76
+30,grid,subset,PAR,Nature & Adventure,history,True,15,hybrid,0.0,0.0,1.0,8,4,0.74,9.18
+30,grid,subset,PAR,Nature & Adventure,history,True,15,standard,0.0,0.25,0.0,8,5,0.65,0.0
+31,grid,subset,PAR,Beach & Relax,nature,True,28,fusion,0.14285714285714285,0.75,1.0,8,4,0.85,9.21
+31,grid,subset,PAR,Beach & Relax,nature,True,28,hybrid,0.07142857142857142,0.625,1.0,8,5,0.46,9.14
+31,grid,subset,PAR,Beach & Relax,nature,True,28,standard,0.0,0.25,0.0,8,5,0.65,0.0
+32,grid,subset,PAR,Nightlife Seeker,nightlife,True,17,fusion,0.29411764705882354,1.0,1.0,8,2,0.33,10.37
+32,grid,subset,PAR,Nightlife Seeker,nightlife,True,17,hybrid,0.29411764705882354,1.0,1.0,8,2,0.33,9.46
+32,grid,subset,PAR,Nightlife Seeker,nightlife,True,17,standard,0.0,0.25,0.0,8,5,0.65,0.0
+33,grid,superset,PAR,Budget Backpacker,shopping,False,18,fusion,0.3333333333333333,1.0,1.0,8,5,0.68,9.05
+33,grid,superset,PAR,Budget Backpacker,shopping,False,18,hybrid,0.4444444444444444,1.0,1.0,8,5,1.14,8.75
+33,grid,superset,PAR,Budget Backpacker,shopping,False,18,standard,0.0,0.375,0.0,8,5,0.65,0.0
+34,grid,superset,PAR,Beach & Relax,food,False,47,fusion,0.10638297872340426,0.875,1.0,8,3,1.34,10.76
+34,grid,superset,PAR,Beach & Relax,food,False,47,hybrid,0.1276595744680851,0.75,1.0,8,3,2.2,10.32
+34,grid,superset,PAR,Beach & Relax,food,False,47,standard,0.0,0.25,0.0,8,5,0.65,0.0
+35,grid,subset,PAR,Luxury Traveler,culture,True,41,fusion,0.0,0.625,1.0,8,6,0.76,9.53
+35,grid,subset,PAR,Luxury Traveler,culture,True,41,hybrid,0.0,0.5,1.0,8,5,1.83,9.09
+35,grid,subset,PAR,Luxury Traveler,culture,True,41,standard,0.0,0.5,0.0,8,5,0.65,0.0
+36,grid,independent,PAR,Culture Enthusiast,religion,True,44,fusion,0.0,0.625,1.0,8,3,0.5,10.5
+36,grid,independent,PAR,Culture Enthusiast,religion,True,44,hybrid,0.045454545454545456,0.625,1.0,8,6,0.63,9.54
+36,grid,independent,PAR,Culture Enthusiast,religion,True,44,standard,0.0,0.75,0.0,8,5,0.65,0.0
+37,grid,subset,BER,Family Traveler,museum,True,46,fusion,0.10869565217391304,1.0,1.0,8,5,0.43,9.01
+37,grid,subset,BER,Family Traveler,museum,True,46,hybrid,0.10869565217391304,1.0,1.0,8,5,0.43,8.79
+37,grid,subset,BER,Family Traveler,museum,True,46,standard,0.0,0.625,0.0,8,6,0.73,0.0
+38,grid,superset,BER,Luxury Traveler,landmark,False,64,fusion,0.0625,1.0,1.0,8,4,0.98,8.83
+38,grid,superset,BER,Luxury Traveler,landmark,False,64,hybrid,0.09375,0.875,1.0,8,4,1.34,8.51
+38,grid,superset,BER,Luxury Traveler,landmark,False,64,standard,0.0,0.5,0.0,8,6,0.73,0.0
+39,grid,superset,BER,Nature & Adventure,history,False,28,fusion,0.0,0.375,1.0,8,5,0.4,9.37
+39,grid,superset,BER,Nature & Adventure,history,False,28,hybrid,0.0,0.0,1.0,8,4,0.58,8.75
+39,grid,superset,BER,Nature & Adventure,history,False,28,standard,0.0,0.25,0.0,8,6,0.73,0.0
+40,grid,superset,BER,Beach & Relax,nature,False,35,fusion,0.22857142857142856,1.0,1.0,8,3,0.92,9.34
+40,grid,superset,BER,Beach & Relax,nature,False,35,hybrid,0.17142857142857143,0.857,1.0,7,4,1.1,9.07
+40,grid,superset,BER,Beach & Relax,nature,False,35,standard,0.0,0.25,0.0,8,6,0.73,0.0
+41,grid,subset,BER,Nightlife Seeker,nightlife,True,15,fusion,0.5333333333333333,1.0,1.0,8,2,0.26,10.08
+41,grid,subset,BER,Nightlife Seeker,nightlife,True,15,hybrid,0.3333333333333333,0.714,1.0,7,4,0.32,9.7
+41,grid,subset,BER,Nightlife Seeker,nightlife,True,15,standard,0.0,0.25,0.0,8,6,0.73,0.0
+42,grid,subset,BER,Budget Backpacker,shopping,True,8,fusion,0.625,0.875,1.0,8,4,1.02,8.53
+42,grid,subset,BER,Budget Backpacker,shopping,True,8,hybrid,0.625,0.75,1.0,8,5,0.83,8.45
+42,grid,subset,BER,Budget Backpacker,shopping,True,8,standard,0.0,0.375,0.0,8,6,0.73,0.0
+43,grid,superset,BER,Family Traveler,food,False,14,fusion,0.21428571428571427,1.0,1.0,7,4,2.0,10.38
+43,grid,superset,BER,Family Traveler,food,False,14,hybrid,0.2857142857142857,1.0,1.0,7,4,1.69,9.95
+43,grid,superset,BER,Family Traveler,food,False,14,standard,0.0,0.625,0.0,8,6,0.73,0.0
+44,grid,superset,BER,Culture Enthusiast,culture,False,47,fusion,0.0425531914893617,0.625,1.0,8,4,0.94,10.29
+44,grid,superset,BER,Culture Enthusiast,culture,False,47,hybrid,0.0425531914893617,0.429,1.0,7,4,0.94,8.73
+44,grid,superset,BER,Culture Enthusiast,culture,False,47,standard,0.0,0.75,0.0,8,6,0.73,0.0
+45,grid,independent,BER,Culture Enthusiast,religion,False,32,fusion,0.15625,1.0,1.0,8,6,1.26,9.57
+45,grid,independent,BER,Culture Enthusiast,religion,False,32,hybrid,0.21875,1.0,1.0,8,7,1.04,9.39
+45,grid,independent,BER,Culture Enthusiast,religion,False,32,standard,0.0,0.75,0.0,8,6,0.73,0.0
+46,grid,superset,BER,Family Traveler,museum,False,51,fusion,0.09803921568627451,1.0,1.0,8,4,0.4,9.49
+46,grid,superset,BER,Family Traveler,museum,False,51,hybrid,0.13725490196078433,1.0,1.0,8,4,0.52,8.24
+46,grid,superset,BER,Family Traveler,museum,False,51,standard,0.0,0.625,0.0,8,6,0.73,0.0
+47,grid,subset,BER,Luxury Traveler,landmark,True,57,fusion,0.07017543859649122,1.0,1.0,8,5,1.36,8.6
+47,grid,subset,BER,Luxury Traveler,landmark,True,57,hybrid,0.12280701754385964,1.0,1.0,8,6,0.69,8.6
+47,grid,subset,BER,Luxury Traveler,landmark,True,57,standard,0.0,0.5,0.0,8,6,0.73,0.0
+48,grid,subset,BER,Culture Enthusiast,history,True,25,fusion,0.0,1.0,1.0,8,6,0.42,9.09
+48,grid,subset,BER,Culture Enthusiast,history,True,25,hybrid,0.0,1.0,1.0,8,6,0.42,8.6
+48,grid,subset,BER,Culture Enthusiast,history,True,25,standard,0.0,0.75,0.0,8,6,0.73,0.0
+49,grid,subset,BER,Budget Backpacker,nature,True,16,fusion,0.0,0.375,1.0,8,5,0.98,9.99
+49,grid,subset,BER,Budget Backpacker,nature,True,16,hybrid,0.0625,0.375,1.0,8,6,0.4,8.63
+49,grid,subset,BER,Budget Backpacker,nature,True,16,standard,0.0,0.375,0.0,8,6,0.73,0.0
+50,grid,superset,BER,Budget Backpacker,nightlife,False,17,fusion,0.47058823529411764,1.0,1.0,8,2,0.26,9.65
+50,grid,superset,BER,Budget Backpacker,nightlife,False,17,hybrid,0.29411764705882354,0.857,1.0,7,4,0.94,9.57
+50,grid,superset,BER,Budget Backpacker,nightlife,False,17,standard,0.0,0.375,0.0,8,6,0.73,0.0
+51,grid,superset,BER,Luxury Traveler,shopping,False,12,fusion,0.6666666666666666,1.0,1.0,8,5,1.05,8.68
+51,grid,superset,BER,Luxury Traveler,shopping,False,12,hybrid,0.5833333333333334,1.0,1.0,8,5,1.02,8.27
+51,grid,superset,BER,Luxury Traveler,shopping,False,12,standard,0.0,0.5,0.0,8,6,0.73,0.0
+52,grid,subset,BER,Budget Backpacker,food,True,12,fusion,0.25,0.714,1.0,7,3,0.55,10.66
+52,grid,subset,BER,Budget Backpacker,food,True,12,hybrid,0.3333333333333333,0.571,1.0,7,5,1.11,10.13
+52,grid,subset,BER,Budget Backpacker,food,True,12,standard,0.0,0.375,0.0,8,6,0.73,0.0
+53,grid,subset,BER,Nightlife Seeker,culture,True,43,fusion,0.0,1.0,1.0,8,2,0.26,9.01
+53,grid,subset,BER,Nightlife Seeker,culture,True,43,hybrid,0.06976744186046512,0.75,1.0,8,5,0.58,8.53
+53,grid,subset,BER,Nightlife Seeker,culture,True,43,standard,0.0,0.25,0.0,8,6,0.73,0.0
+54,grid,independent,BER,Culture Enthusiast,religion,True,26,fusion,0.07692307692307693,0.75,1.0,8,5,0.3,10.4
+54,grid,independent,BER,Culture Enthusiast,religion,True,26,hybrid,0.07692307692307693,0.625,1.0,8,6,0.6,9.11
+54,grid,independent,BER,Culture Enthusiast,religion,True,26,standard,0.0,0.75,0.0,8,6,0.73,0.0
