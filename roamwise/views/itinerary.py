@@ -78,6 +78,15 @@ def _fit_view(lats: list[float], lons: list[float]) -> tuple[float, float, float
     return min(_MAP_MAX_ZOOM, zoom), center_lat, center_lon
 
 
+# The sidebar used to let travelers pick fusion/hybrid/standard themselves.
+# That was a comparative-analysis knob from the proposal, not a choice anyone
+# planning a trip can make meaningfully -- and only one answer is ever right,
+# since Fusion RAG wins on every metric the evaluation measures. It is pinned
+# here, and the comparison it came from now lives on the System logs screen
+# where it reads as evidence instead of as a question (issue #42).
+RETRIEVAL_CONFIG = "fusion"
+
+
 @st.cache_resource(show_spinner="Loading RoamWise engine...")
 def get_orchestrator(config: str):
     # Without an explicit show_spinner message, Streamlit's default caching
@@ -147,25 +156,13 @@ with st.sidebar:
              "Needs internet; falls back automatically if unreachable.",
     )
 
-    st.header("Retrieval architecture")
-    config = st.radio(
-        "Fusion RAG configuration",
-        ["fusion", "hybrid", "standard"],
-        format_func=lambda c: {
-            "fusion": "Fusion RAG (Semantic + Graph + Keyword)",
-            "hybrid": "Hybrid RAG (Semantic + Keyword only)",
-            "standard": "Standard prompting (no retrieval)",
-        }[c],
-        help="Switch this to see how the comparative-analysis conditions from the proposal change the output.",
-    )
-
     run = st.button("Plan my trip", type="primary", use_container_width=True)
 
 preferences = {"budget": budget, "culture": culture, "nature": nature,
                "nightlife": nightlife, "relax": relax, "adventure": adventure}
 
 if run:
-    orch = get_orchestrator(config)
+    orch = get_orchestrator(RETRIEVAL_CONFIG)
     with st.spinner("Agents at work: segmenting traveler, forecasting demand, retrieving grounded context, routing..."):
         result = orch.plan_trip(preferences, destination_id=destination_id, n_days=n_days, travel_month=travel_month,
                                  daily_minutes_budget=daily_hours * 60,
@@ -270,15 +267,18 @@ if run:
         st.markdown(f"**Forecaster Agent:** {result['forecast']['narrative']}")
 
     with tab3:
-        st.subheader(f"Retrieved context ({config} configuration)")
+        st.subheader("What the plan was grounded in")
+        st.caption("Every stop above was drawn from these retrieved records rather than generated from scratch.")
         if result["fusion_rag"]["results"]:
             for r in result["fusion_rag"]["results"]:
                 via = ", ".join(r.get("retrieved_by", []))
                 st.markdown(f"**{r.get('name', r['doc_id'])}** &nbsp; `via: {via or 'n/a'}`  \n{r['text']}")
                 st.divider()
         else:
-            st.warning("Standard-prompting configuration retrieves nothing -- the itinerary below falls back to "
-                       "an unfiltered, non-personalized list of the city's top-rated POIs.")
+            # Unreachable while retrieval is healthy, but a city with no
+            # matching records must say so rather than render an empty tab.
+            st.warning("Nothing was retrieved for this city, so the itinerary above falls back to an "
+                       "unfiltered list of its top-rated places.")
 
 else:
     st.markdown(

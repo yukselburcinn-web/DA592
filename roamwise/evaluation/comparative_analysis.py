@@ -23,6 +23,10 @@ each retrieval component concrete:
   4. Itinerary coherence -- average per-day walking distance once the
      RouterAgent builds a route from each config's candidate POIs (lower is
      more geographically coherent).
+  5. Retrieval latency -- wall-clock time of the retrieve() call alone. This
+     is what the extra accuracy costs: fusion runs three retrievers and an RRF
+     merge where standard prompting runs nothing, so the comparison is only
+     honest if the price is on the table next to the benefit.
 
 If ANTHROPIC_API_KEY is set, `run_llm_hallucination_probe()` additionally
 runs a real generative hallucination check (see its docstring) -- this part
@@ -31,6 +35,7 @@ is optional and skipped by default.
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 # Run as a script (`python evaluation/comparative_analysis.py`), sys.path[0] is
@@ -49,6 +54,11 @@ from roamwise.retrieval.fusion import FusionRetriever
 
 HERE = Path(__file__).parent
 CONFIGS = ["fusion", "hybrid", "standard"]
+
+# Committed alongside the code so the System logs screen can show the
+# comparison without every viewer paying to recompute it.
+RESULTS_CSV = HERE / "comparative_analysis_results.csv"
+SUMMARY_CSV = HERE / "comparative_analysis_summary.csv"
 
 TEST_QUERIES = [
     # (destination_id, archetype, category, query_text)
@@ -95,7 +105,11 @@ def run_comparative_analysis(top_k: int = 8) -> pd.DataFrame:
         preferred_categories = set(CATEGORY_AFFINITY[archetype])
 
         for config in CONFIGS:
+            # Timed around retrieve() only: routing runs on every config alike
+            # and would bury the difference this table exists to show.
+            started = time.perf_counter()
             results = retriever.retrieve(query, config=config, destination_id=dest_id, archetype=archetype, top_k=top_k)
+            retrieval_ms = (time.perf_counter() - started) * 1000
             poi_results = [r for r in results if r.get("type") == "poi"]
             retrieved_ids = [r["poi_id"] for r in poi_results]
 
@@ -120,6 +134,7 @@ def run_comparative_analysis(top_k: int = 8) -> pd.DataFrame:
                 "config": config, "recall_at_k": recall, "archetype_precision": round(precision, 3),
                 "grounded_entity_rate": grounded_rate, "n_candidate_pois": len(candidate_pois),
                 "n_stops_day1": n_stops, "km_per_stop_day1": round(km_per_stop, 2) if km_per_stop else None,
+                "retrieval_ms": round(retrieval_ms, 2),
             })
 
     return pd.DataFrame(rows)
@@ -133,6 +148,7 @@ def summarize(df: pd.DataFrame) -> pd.DataFrame:
             mean_archetype_precision=("archetype_precision", "mean"),
             mean_grounded_entity_rate=("grounded_entity_rate", "mean"),
             mean_km_per_stop=("km_per_stop_day1", "mean"),
+            mean_retrieval_ms=("retrieval_ms", "mean"),
         )
         .reindex(CONFIGS)
         .round(3)
@@ -164,9 +180,9 @@ def run_llm_hallucination_probe():
 
 if __name__ == "__main__":
     df = run_comparative_analysis()
-    df.to_csv(HERE / "comparative_analysis_results.csv", index=False)
+    df.to_csv(RESULTS_CSV, index=False)
     summary = summarize(df)
-    summary.to_csv(HERE / "comparative_analysis_summary.csv")
+    summary.to_csv(SUMMARY_CSV)
     print(summary.to_string())
 
     probe = run_llm_hallucination_probe()
