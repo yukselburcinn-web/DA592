@@ -1,6 +1,7 @@
 """End-to-end smoke tests covering every module in the pipeline. Run with:
     cd roamwise && ../venv/bin/pytest tests/ -v
 """
+import collections
 import importlib
 import math
 import os
@@ -11,7 +12,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from roamwise.knowledge_graph.build_graph import GraphIndex
+from roamwise.knowledge_graph.build_graph import CATEGORY_AFFINITY, GraphIndex
 from roamwise.models.forecasting import forecast_city, best_months_to_visit
 from roamwise.models.segmentation import TravelerSegmenter, POIZoner
 from roamwise.retrieval.fusion import FusionRetriever
@@ -19,8 +20,10 @@ from roamwise.optimization.routing import build_multi_day_itinerary, optimize_da
 from roamwise.optimization.travel_modes import get_travel_mode
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
 from roamwise.agents.router_agent import RouterAgent
+from roamwise.evaluation import comparative_analysis
 from roamwise.evaluation.comparative_analysis import (
-    paired_significance, run_comparative_analysis, summarize,
+    TEST_QUERIES, dependence_level, gold_for, paired_significance,
+    run_comparative_analysis, summarize,
 )
 
 
@@ -435,6 +438,49 @@ def test_comparative_analysis_shows_fusion_advantage():
     # so it can separate Fusion from standard prompting but never from Hybrid.
     assert verdicts[("grounded_entity_rate", "hybrid")] == "identical"
     assert verdicts[("grounded_entity_rate", "standard")] == "better"
+
+
+def test_every_test_query_has_an_answer():
+    """A query whose gold set is empty scores nothing and silently shrinks the
+    sample. One shipped that way: Lisbon has four beach POIs and none within
+    reach of a hub, so 'beach spots reachable from the airport' was graded
+    against an empty key for every configuration (issue #50)."""
+    idx = GraphIndex()
+    empty = [q.text for q in TEST_QUERIES if not gold_for(idx, q)]
+    assert not empty, f"queries with no possible correct answer: {empty}"
+
+
+def test_query_set_is_powered_and_not_mostly_self_graded():
+    """The comparison was run on 18 queries of which only 11 were not graded
+    against the retriever's own traversal, and at that size a real effect is
+    detected about a third of the time. Both properties are easy to lose again
+    by editing the query list, so they are pinned here."""
+    assert len(TEST_QUERIES) >= 45
+    assert {q.tier for q in TEST_QUERIES} == {"handwritten", "grid"}
+
+    not_self_graded = [q for q in TEST_QUERIES if dependence_level(q) != "subset"]
+    assert len(not_self_graded) >= 30
+
+    # No archetype may own the set the way Culture Enthusiast owned 44% of it.
+    counts = collections.Counter(q.archetype for q in TEST_QUERIES)
+    assert max(counts.values()) / len(TEST_QUERIES) < 0.40
+    assert set(counts) == set(CATEGORY_AFFINITY), "every archetype should be exercised"
+
+
+def test_dependence_level_spots_the_self_graded_queries():
+    query = comparative_analysis.TestQuery
+    # Names the key's category next to a transport word: the graph router
+    # dispatches to the same traversal the key is built from, at 3km inside the
+    # key's 6km, so its results cannot fall outside the key.
+    assert dependence_level(query("IST", "Culture Enthusiast", ("landmark",), True,
+                                  "landmarks near a transport hub")) == "subset"
+    # Same category, no transport constraint -- the router's filter is wider
+    # than the key rather than nested inside it.
+    assert dependence_level(query("IST", "Culture Enthusiast", ("landmark",), False,
+                                  "the best landmarks to visit")) == "superset"
+    # The router never reaches for the key's category at all.
+    assert dependence_level(query("IST", "Culture Enthusiast", ("history",), False,
+                                  "somewhere calm to spend a slow afternoon")) == "independent"
 
 
 def _synthetic_pairs(**per_config_values) -> pd.DataFrame:

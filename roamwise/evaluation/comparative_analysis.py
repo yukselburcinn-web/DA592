@@ -37,6 +37,7 @@ import os
 import sys
 import time
 from pathlib import Path
+from typing import NamedTuple
 
 # Run as a script (`python evaluation/comparative_analysis.py`), sys.path[0] is
 # this file's directory, so the repo root -- where the `roamwise` package lives
@@ -50,8 +51,12 @@ from scipy import stats
 
 from roamwise.agents.llm_client import get_default_llm_client
 from roamwise.agents.router_agent import RouterAgent
-from roamwise.knowledge_graph.build_graph import CATEGORY_AFFINITY, GraphIndex
+from roamwise.knowledge_graph.build_graph import CATEGORY_AFFINITY, GraphIndex, haversine_km
 from roamwise.retrieval.fusion import FusionRetriever
+# The evaluation reaches into the graph retriever's routing keywords on
+# purpose: dependence_level() below exists to measure how often the answer key
+# and the retriever end up walking the same path.
+from roamwise.retrieval.graph_search import CATEGORY_KEYWORDS, TRANSPORT_KEYWORDS
 
 HERE = Path(__file__).parent
 CONFIGS = ["fusion", "hybrid", "standard"]
@@ -62,31 +67,197 @@ RESULTS_CSV = HERE / "comparative_analysis_results.csv"
 SUMMARY_CSV = HERE / "comparative_analysis_summary.csv"
 SIGNIFICANCE_CSV = HERE / "comparative_analysis_significance.csv"
 
-TEST_QUERIES = [
-    # (destination_id, archetype, category, query_text)
-    ("IST", "Culture Enthusiast", "landmark", "landmarks within walking distance of a transport hub"),
-    ("PAR", "Culture Enthusiast", "museum", "museums close to a train station or airport"),
-    ("ROM", "Culture Enthusiast", "museum", "museums near a transport hub for history lovers"),
-    ("BCN", "Nightlife Seeker", "nightlife", "nightlife spots this traveler would enjoy"),
-    ("AMS", "Nature & Adventure", "nature", "parks and nature spots near transport"),
-    ("PRG", "Budget Backpacker", "nightlife", "cheap nightlife near the train station"),
-    ("VIE", "Luxury Traveler", "shopping", "upscale shopping close to transport hubs"),
-    ("LIS", "Beach & Relax", "beach", "relaxing beach spots reachable from the airport"),
-    ("IST", "Family Traveler", "food", "we just arrived at the central station with heavy luggage and are starving, where can we get a quick meal without walking much?"),
-    ("PAR", "Culture Enthusiast", "museum", "suitable places for the first day after a morning arrival"),
-    ("ROM", "Culture Enthusiast", "history", "my elderly parents want to see historical monuments but cannot handle steep hills or long walks from the subway."),
-    ("AMS", "Nightlife Seeker", "nightlife", "traveling on a tight budget and want to experience local nightlife that is safely accessible via late-night public transit."),
-    ("BCN", "Luxury Traveler", "shopping", "we want to do a full day of luxury shopping and fine dining without needing to hail a taxi between locations."),
-    ("LIS", "Nature & Adventure", "nature", "are there any quiet natural escapes in the city that are directly connected to the main train lines?"),
-    ("VIE", "Culture Enthusiast", "culture", "where should we head for a relaxed evening out right after spending the entire afternoon at the main art gallery?"),
-    ("PRG", "Budget Backpacker", "landmark", "we have a short layover in the city, what is the most iconic landmark we can realistically visit and still catch our flight?"),
-    ("IST", "Culture Enthusiast", "history", "which neighborhoods offer the best mix of ancient architecture and modern cafes within a compact walking area?"),
-    ("ROM", "Culture Enthusiast", "museum", "if we start our morning at the central square, what is a logical path to hit a museum and a local market before lunch?")
+class TestQuery(NamedTuple):
+    """One evaluation query and the specification of what counts as a correct answer.
+
+    `categories` is a set, not a single label, because a naturally-phrased
+    question rarely maps onto exactly one taxonomy bucket: "historical
+    monuments" is answered by a landmark just as well as by a history site.
+    Grading those against `category == "history"` alone scored real answers as
+    misses and dragged mean recall on naturally-phrased queries down to 0.10
+    against 0.45 on keyword-shaped ones -- a measurement artefact that looked
+    like a retrieval failure (issue #50).
+
+    `near_transport` is likewise per-query: the gold set only carries the
+    "within reach of a hub" constraint when the question actually asks for it.
+    """
+    destination_id: str
+    archetype: str
+    categories: tuple[str, ...]
+    near_transport: bool
+    text: str
+    tier: str = "handwritten"
+
+
+# How close a POI must be to a transport hub to count, when a query asks for it.
+# Deliberately looser than the 3.0 km the graph retriever traverses with, so a
+# correct answer is not defined as "whatever that one traversal returns".
+GOLD_MAX_KM = 6.0
+
+# Written by hand to read like something a traveler would actually type. These
+# are the realism tier: they keep the evaluation honest about natural phrasing,
+# which the generated grid below cannot test.
+HANDWRITTEN_QUERIES = [
+    TestQuery("IST", "Culture Enthusiast", ("landmark",), True,
+              "landmarks within walking distance of a transport hub"),
+    TestQuery("PAR", "Culture Enthusiast", ("museum",), True,
+              "museums close to a train station or airport"),
+    TestQuery("ROM", "Culture Enthusiast", ("museum",), True,
+              "museums near a transport hub for history lovers"),
+    TestQuery("BCN", "Nightlife Seeker", ("nightlife",), False,
+              "nightlife spots this traveler would enjoy"),
+    TestQuery("AMS", "Nature & Adventure", ("nature",), True,
+              "parks and nature spots near transport"),
+    TestQuery("PRG", "Budget Backpacker", ("nightlife",), True,
+              "cheap nightlife near the train station"),
+    TestQuery("VIE", "Luxury Traveler", ("shopping",), True,
+              "upscale shopping close to transport hubs"),
+    # Moved off Lisbon: it has four beach POIs and none within GOLD_MAX_KM of a
+    # hub, so this query's gold set was empty and it scored nothing at all.
+    TestQuery("BCN", "Beach & Relax", ("beach",), True,
+              "relaxing beach spots reachable from the airport"),
+    TestQuery("IST", "Family Traveler", ("food",), True,
+              "we just arrived at the central station with heavy luggage and are starving, "
+              "where can we get a quick meal without walking much?"),
+    # "suitable places" names no category at all; grading it against museums
+    # alone was arbitrary. The archetype is what narrows it.
+    TestQuery("PAR", "Culture Enthusiast", ("museum", "landmark", "history", "culture"), True,
+              "suitable places for the first day after a morning arrival"),
+    TestQuery("ROM", "Culture Enthusiast", ("history", "landmark"), True,
+              "my elderly parents want to see historical monuments but cannot handle steep "
+              "hills or long walks from the subway."),
+    TestQuery("AMS", "Nightlife Seeker", ("nightlife",), True,
+              "traveling on a tight budget and want to experience local nightlife that is "
+              "safely accessible via late-night public transit."),
+    TestQuery("BCN", "Luxury Traveler", ("shopping", "food"), True,
+              "we want to do a full day of luxury shopping and fine dining without needing "
+              "to hail a taxi between locations."),
+    TestQuery("LIS", "Nature & Adventure", ("nature",), True,
+              "are there any quiet natural escapes in the city that are directly connected "
+              "to the main train lines?"),
+    # Asks where to spend an evening, not where to find culture -- the old
+    # `culture` gold graded a nightlife question against museums.
+    TestQuery("VIE", "Culture Enthusiast", ("nightlife", "food"), False,
+              "where should we head for a relaxed evening out right after spending the "
+              "entire afternoon at the main art gallery?"),
+    TestQuery("PRG", "Budget Backpacker", ("landmark",), True,
+              "we have a short layover in the city, what is the most iconic landmark we can "
+              "realistically visit and still catch our flight?"),
+    TestQuery("IST", "Culture Enthusiast", ("history", "landmark", "food"), False,
+              "which neighborhoods offer the best mix of ancient architecture and modern "
+              "cafes within a compact walking area?"),
+    TestQuery("ROM", "Culture Enthusiast", ("museum", "shopping"), False,
+              "if we start our morning at the central square, what is a logical path to hit "
+              "a museum and a local market before lunch?"),
+    # Lisbon's catalogue is small enough that these gold sets fit inside top_k,
+    # so at least a few queries can actually reach recall 1.0 (issue #49).
+    TestQuery("LIS", "Beach & Relax", ("beach", "nature"), False,
+              "somewhere calm by the water to spend a slow afternoon"),
 ]
 
+# Phrasings for the generated tier. Two families on purpose: one names the
+# category next to a transport word, which is the shape the graph retriever's
+# router recognises, and one does not. Keeping both means the dependence split
+# below stays populated instead of every generated query landing in one bucket.
+_GRID_PHRASE = {
+    "museum": "museums", "landmark": "landmarks", "history": "history sites",
+    "nature": "nature spots", "nightlife": "nightlife venues", "shopping": "shopping",
+    "food": "food markets and restaurants", "beach": "beaches",
+    "culture": "culture venues", "religion": "places of worship",
+}
+_GRID_CITIES = ["IST", "PAR", "ROM", "BCN", "AMS", "PRG", "VIE", "LIS"]
+_GRID_CATEGORIES = ["museum", "landmark", "history", "nature", "nightlife",
+                    "shopping", "food", "culture"]
 
-def _gold_multi_hop(idx: GraphIndex, destination_id: str, category: str, max_km: float = 6.0) -> set:
-    return {r["poi_id"] for r in idx.multi_hop_transport_to_poi(destination_id, category, max_km=max_km)}
+
+# Four categories per city rather than all eight: that lands the combined set
+# near 50 queries, which is where the power curve flattens, without doubling
+# how long a re-run takes for evidence nobody needs.
+_GRID_CATEGORIES_PER_CITY = 4
+
+
+def _eligible_archetypes(category: str) -> list[str]:
+    """Every archetype that has any appetite for this category.
+
+    Assigning each category to its single strongest archetype looks tidy and
+    ruins the balance: Culture Enthusiast tops museum, landmark, history,
+    culture and religion, so it would claim five of the eight categories in
+    every city and end up owning half the set -- the exact skew this grid
+    exists to correct.
+    """
+    return sorted(a for a, affinity in CATEGORY_AFFINITY.items() if affinity.get(category, 0.0) > 0)
+
+
+def build_grid_queries(idx: GraphIndex = None) -> list[TestQuery]:
+    """A balanced sweep of (city, category) cells with non-empty gold sets.
+
+    The hand-written set covers 16 of the 80 city x category cells and leans
+    hard on one archetype, which left the comparison underpowered: the queries
+    whose grading does not lean on the retriever's own traversal numbered 11,
+    and at that size a real effect is only detected about a third of the time.
+    """
+    idx = idx or GraphIndex()
+    queries = []
+    for position, city in enumerate(_GRID_CITIES):
+        for slot in range(_GRID_CATEGORIES_PER_CITY):
+            # Walking the category list with a per-city offset gives every
+            # category the same number of cells instead of front-loading the
+            # first four.
+            category = _GRID_CATEGORIES[(position * _GRID_CATEGORIES_PER_CITY + slot) % len(_GRID_CATEGORIES)]
+            eligible = _eligible_archetypes(category)
+            archetype = eligible[(position + slot) % len(eligible)]
+
+            # Alternate the two phrasings across the grid rather than splitting
+            # by city or category, so neither family clusters in one city.
+            near_transport = (position + slot) % 5 < 2
+            phrase = _GRID_PHRASE[category]
+            text = (f"{phrase} within easy reach of a transport hub" if near_transport
+                    else f"the best {phrase} to visit in this city")
+            query = TestQuery(city, archetype, (category,), near_transport, text, tier="grid")
+            if gold_for(idx, query):  # a cell with no answer cannot be scored
+                queries.append(query)
+    return queries
+
+
+def gold_for(idx: GraphIndex, query: TestQuery) -> set:
+    """POIs that would answer `query`: the union of its accepted categories,
+    narrowed to those near a hub only when the query asked for that."""
+    pois = [poi for category in query.categories
+            for poi in idx.city_pois(query.destination_id, category=category)]
+    if not query.near_transport:
+        return {poi["poi_id"] for poi in pois}
+
+    hubs = idx.city_transport(query.destination_id)
+    return {
+        poi["poi_id"] for poi in pois
+        if min((haversine_km(poi["lat"], poi["lon"], hub["lat"], hub["lon"])
+                for hub in hubs), default=999) <= GOLD_MAX_KM
+    }
+
+
+def dependence_level(query: TestQuery) -> str:
+    """How much of this query's grading leans on the retriever's own traversal.
+
+    The graph retriever routes on literal keywords, so when a query names the
+    gold's category next to a transport word it dispatches to the very
+    traversal the gold set is built from -- at a tighter radius, which makes
+    its results a guaranteed subset of the answer key. That is not evidence
+    that graph traversal finds better answers, only that it agrees with
+    itself. Reported per query so the split is visible rather than assumed
+    (issue #48).
+    """
+    text = query.text.lower()
+    matched = next((c for c in CATEGORY_KEYWORDS if c in text), None)
+    names_transport = any(keyword in text for keyword in TRANSPORT_KEYWORDS)
+
+    if matched not in query.categories:
+        return "independent"          # the router never reaches for the gold's category
+    if names_transport and query.near_transport and len(query.categories) == 1:
+        return "subset"               # retrieval is a strict subset of the gold set
+    return "superset"                 # same category filter, wider than the gold
+
+
+TEST_QUERIES = HANDWRITTEN_QUERIES + build_grid_queries()
 
 
 def recall_at_k(retrieved_ids: list, gold: set) -> float:
@@ -102,8 +273,10 @@ def run_comparative_analysis(top_k: int = 8) -> pd.DataFrame:
     router = RouterAgent(idx)
     rows = []
 
-    for query_id, (dest_id, archetype, category, query) in enumerate(TEST_QUERIES):
-        gold = _gold_multi_hop(idx, dest_id, category)
+    for query_id, test_query in enumerate(TEST_QUERIES):
+        dest_id, archetype, query = test_query.destination_id, test_query.archetype, test_query.text
+        gold = gold_for(idx, test_query)
+        level = dependence_level(test_query)
         preferred_categories = set(CATEGORY_AFFINITY[archetype])
 
         for config in CONFIGS:
@@ -137,7 +310,10 @@ def run_comparative_analysis(top_k: int = 8) -> pd.DataFrame:
                 # category) is not unique -- ROM/Culture Enthusiast/museum
                 # appears three times in TEST_QUERIES.
                 "query_id": query_id,
-                "destination_id": dest_id, "archetype": archetype, "category": category,
+                "tier": test_query.tier, "dependence": level,
+                "destination_id": dest_id, "archetype": archetype,
+                "category": "+".join(test_query.categories),
+                "near_transport": test_query.near_transport, "gold_size": len(gold),
                 "config": config, "recall_at_k": recall, "archetype_precision": round(precision, 3),
                 "grounded_entity_rate": grounded_rate, "n_candidate_pois": len(candidate_pois),
                 "n_stops_day1": n_stops, "km_per_stop_day1": round(km_per_stop, 2) if km_per_stop else None,
