@@ -49,7 +49,7 @@ def test_preference_levels_produce_distinct_archetypes():
     """Issue #23: the sidebar exposes Low/Medium/High instead of raw 0-1
     sliders, so the three tiers must actually separate archetype centroids --
     not just satisfy TravelerSegmenter.classify()'s float contract."""
-    from roamwise.app import PREFERENCE_LEVELS
+    from roamwise.views.itinerary import PREFERENCE_LEVELS
     from roamwise.models.segmentation import FEATURES
 
     seg = TravelerSegmenter()
@@ -446,11 +446,18 @@ def test_langgraph_orchestrator_matches_custom_orchestrator_interface():
     assert pinned["destination_id"] == "PAR"
 
 
-def test_streamlit_app_imports():
+# app.py is only the router since the System logs screen landed (#41); the
+# import chain that reaches the agent/retrieval modules now hangs off the page
+# scripts, so both have to be loaded to prove the app can actually start.
+STREAMLIT_MODULES = ["roamwise.app", "roamwise.views.itinerary", "roamwise.views.system_logs"]
+
+
+@pytest.mark.parametrize("module", STREAMLIT_MODULES)
+def test_streamlit_app_imports(module):
     """Guards the failure mode where the whole suite is green but the app does
-    not start at all: app.py's import chain reaches every agent/retrieval module,
-    so a half-migrated import path breaks here instead of at launch."""
-    importlib.import_module("roamwise.app")
+    not start at all: these modules' import chain reaches every agent/retrieval
+    module, so a half-migrated import path breaks here instead of at launch."""
+    importlib.import_module(module)
 
 
 def test_internal_modules_are_loaded_under_a_single_import_path():
@@ -458,11 +465,12 @@ def test_internal_modules_are_loaded_under_a_single_import_path():
     A bare `<pkg>.<mod>` entry in sys.modules means the same file was loaded
     twice under two names, which silently splits module state and breaks
     isinstance/monkeypatch across the two copies."""
-    importlib.import_module("roamwise.app")
+    for module in STREAMLIT_MODULES:
+        importlib.import_module(module)
 
     internal_packages = {
         "agents", "models", "optimization", "retrieval",
-        "knowledge_graph", "evaluation", "data",
+        "knowledge_graph", "evaluation", "data", "views",
     }
     duplicated = sorted(
         name for name in sys.modules
@@ -539,7 +547,7 @@ def test_map_view_frames_every_stop_without_wasting_the_canvas(city):
     if they were the same unit, so it mis-framed north-south days by the
     Mercator factor 1/cos(lat) and filled roughly a third of the viewport.
     """
-    from roamwise.app import _fit_view, _MAP_ASSUMED_WIDTH_PX, _MAP_HEIGHT_PX
+    from roamwise.views.itinerary import _fit_view, _MAP_ASSUMED_WIDTH_PX, _MAP_HEIGHT_PX
 
     idx = GraphIndex()
     pois = idx.city_pois(city)[:12]
@@ -563,7 +571,7 @@ def test_map_view_frames_every_stop_without_wasting_the_canvas(city):
 def test_map_view_centres_on_the_bounding_box_not_the_mean():
     """One outlying stop used to drag the centre toward the cluster it was
     furthest from, because the old code averaged the coordinates."""
-    from roamwise.app import _fit_view
+    from roamwise.views.itinerary import _fit_view
 
     clustered = [41.900, 41.901, 41.902, 41.903]
     outlier = [41.960]
@@ -579,7 +587,7 @@ def test_map_view_centres_on_the_bounding_box_not_the_mean():
 def test_map_view_survives_a_single_stop():
     """A one-stop day has no extent to fit against; it must clamp rather than
     divide by zero or zoom to infinity."""
-    from roamwise.app import _fit_view, _MAP_MAX_ZOOM
+    from roamwise.views.itinerary import _fit_view, _MAP_MAX_ZOOM
 
     zoom, center_lat, center_lon = _fit_view([41.9], [12.5])
 

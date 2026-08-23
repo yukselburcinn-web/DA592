@@ -23,6 +23,7 @@ Flow for a user request:
 import json
 import pandas as pd
 
+from roamwise.app_logging import get_logger, log_step
 from roamwise.agents.forecaster_agent import ForecasterAgent
 from roamwise.agents.fusion_rag_agent import FusionRAGAgent
 from roamwise.agents.llm_client import LLMClient, get_default_llm_client
@@ -40,6 +41,8 @@ DATA_DIR = Path(__file__).parent.parent / "data"
 # for the ones the router will drop on opening hours or the time budget.
 RETRIEVED_POIS_PER_DAY = 8
 MIN_RETRIEVED_POIS = 12
+
+log = get_logger(__name__)
 
 
 class RoamWiseOrchestrator:
@@ -74,44 +77,83 @@ class RoamWiseOrchestrator:
             top_k_pois = max(MIN_RETRIEVED_POIS, n_days * RETRIEVED_POIS_PER_DAY)
         state: dict = {"preferences": preferences, "n_days": n_days}
 
+        log.info("Planning a %d-day trip", n_days, extra={"roamwise_fields": {
+            "destination": destination_id or "auto",
+            "travel_month": travel_month or "flexible",
+            "travel_mode": travel_mode,
+            "daily_minutes_budget": daily_minutes_budget,
+            "retrieval_config": self.retrieval_config,
+            "top_k_pois": top_k_pois,
+            "real_routing_requested": use_real_routing,
+        }})
+
         # --- Node 1: traveler segmentation ---
-        seg = self.segmenter.classify(preferences)
-        state["archetype"] = seg["archetype"]
-        state["segmentation"] = seg
+        with log_step(log, "Traveler segmentation (KMeans)") as detail:
+            seg = self.segmenter.classify(preferences)
+            state["archetype"] = seg["archetype"]
+            state["segmentation"] = seg
+            detail["archetype"] = seg["archetype"]
 
         # --- Node 2: destination selection (Forecaster Agent as scorer) ---
-        if destination_id is None:
-            destination_id = self._recommend_destination(preferences, travel_month)
-        state["destination_id"] = destination_id
-        state["forecast"] = self.forecaster.run(destination_id, travel_month=travel_month)
+        with log_step(log, "Destination selection") as detail:
+            detail["pinned_by_user"] = destination_id is not None
+            if destination_id is None:
+                destination_id = self._recommend_destination(preferences, travel_month)
+            state["destination_id"] = destination_id
+            detail["destination_id"] = destination_id
+
+        with log_step(log, "Forecaster Agent", destination_id=destination_id) as detail:
+            state["forecast"] = self.forecaster.run(destination_id, travel_month=travel_month)
+            detail["crowding_level"] = state["forecast"].get("crowding_level")
 
         # --- Node 3: Fusion RAG Agent retrieves grounded, archetype-aware POIs ---
-        query = f"best {seg['archetype'].lower()} points of interest and experiences"
-        rag = self.fusion_rag.run(
-            query, destination_id=destination_id, archetype=seg["archetype"], config=self.retrieval_config, top_k=top_k_pois,
-        )
-        state["fusion_rag"] = rag
+        with log_step(log, "Fusion RAG retrieval", config=self.retrieval_config) as detail:
+            query = f"best {seg['archetype'].lower()} points of interest and experiences"
+            rag = self.fusion_rag.run(
+                query, destination_id=destination_id, archetype=seg["archetype"], config=self.retrieval_config, top_k=top_k_pois,
+            )
+            state["fusion_rag"] = rag
+            detail["query"] = query
+            detail["n_results"] = len(rag["results"])
+
         candidate_pois = [
             self.graph.g.nodes[r["poi_id"]] | {"poi_id": r["poi_id"]}
             for r in rag["results"] if r.get("type") == "poi"
         ]
         if not candidate_pois:  # standard-prompting config: no retrieval, fall back to raw city POIs
             candidate_pois = self.graph.city_pois(destination_id)[:top_k_pois]
+            log.warning("No POIs retrieved -- falling back to the city's unfiltered top-rated list",
+                        extra={"roamwise_fields": {"config": self.retrieval_config,
+                                                   "n_fallback_pois": len(candidate_pois)}})
 
         price_filtered = [p for p in candidate_pois if p.get("price_level", 0) <= max_price_level]
         if price_filtered:  # keep the unfiltered set if the budget filter would empty it out
             candidate_pois = price_filtered
+        else:
+            log.warning("Price filter would empty the candidate set -- keeping it unfiltered",
+                        extra={"roamwise_fields": {"max_price_level": max_price_level,
+                                                   "n_candidates": len(candidate_pois)}})
         state["max_price_level"] = max_price_level
 
         # --- Node 4: Router Agent builds the optimized day-by-day route ---
-        routing = self.router.run(destination_id, candidate_pois, n_days=n_days,
-                                   daily_minutes_budget=daily_minutes_budget,
-                                   use_real_routing=use_real_routing, travel_mode=travel_mode)
-        state["routing"] = routing
-        state["travel_mode"] = routing["travel_mode"]
+        with log_step(log, "Router Agent (zoning + 2-opt)",
+                      n_candidate_pois=len(candidate_pois), travel_mode=travel_mode) as detail:
+            routing = self.router.run(destination_id, candidate_pois, n_days=n_days,
+                                       daily_minutes_budget=daily_minutes_budget,
+                                       use_real_routing=use_real_routing, travel_mode=travel_mode)
+            state["routing"] = routing
+            state["travel_mode"] = routing["travel_mode"]
+            got_real_routing = any(d.get("used_real_routing") for d in routing["itinerary"])
+            detail["n_pois_routed"] = sum(len(d["route"]) for d in routing["itinerary"])
+            detail["used_real_routing"] = got_real_routing
+
+        if use_real_routing and not got_real_routing:
+            log.warning("Real street routing was requested but OSRM was unreachable -- "
+                        "distances fall back to the straight-line estimate")
 
         # --- Node 5: final synthesis ---
-        state["final_plan"] = self._synthesize(state)
+        with log_step(log, "Final synthesis (LLM)", llm=type(self.llm).__name__):
+            state["final_plan"] = self._synthesize(state)
         return state
 
     def _recommend_destination(self, preferences: dict, travel_month: str = None) -> str:
