@@ -53,15 +53,17 @@ cd roamwise
 python evaluation/comparative_analysis.py
 ```
 
-Writes `evaluation/comparative_analysis_results.csv` (per-query) and `evaluation/comparative_analysis_summary.csv` (aggregated). It scores 18 queries across 8 cities and 7 archetypes on five metrics: multi-hop recall against a graph-computed gold set, archetype precision, grounded-entity rate, itinerary coherence (km per stop), and retrieval latency. Current summary:
+Writes `evaluation/comparative_analysis_results.csv` (per-query), `evaluation/comparative_analysis_summary.csv` (aggregated) and `evaluation/comparative_analysis_significance.csv` (the pairwise tests below). It scores 51 queries across 8 cities and 7 archetypes on five metrics: multi-hop recall against a graph-computed gold set, archetype precision, grounded-entity rate, itinerary coherence (km per stop), and retrieval latency. Current summary:
 
 | Config | Multi-hop recall | Archetype precision | Grounded | Km/stop | Latency |
 |---|---|---|---|---|---|
-| **Fusion RAG** | **0.314** | **0.886** | 1.000 | 1.14 | 23.98 ms |
-| Hybrid RAG | 0.223 | 0.623 | 1.000 | 1.23 | 9.68 ms |
-| Standard prompting | 0.000 | 0.514 | 0.000 | 1.40 | 0.00 ms |
+| **Fusion RAG** | 0.278 | **0.917** | 1.000 | 1.32 | 22.9 ms |
+| Hybrid RAG | 0.278 | 0.749 | 1.000 | 1.35 | 9.4 ms |
+| Standard prompting | 0.000 | 0.475 | 0.000 | 1.35 | 0.00 ms |
 
-Because a gap between two averages can be noise, each metric is also tested pairwise (Wilcoxon signed-rank across the same queries — see the **Is the lead real?** table in the app). Against Hybrid RAG, Fusion RAG is significantly better on **multi-hop recall** (p=0.012) and **archetype precision** (p=0.0006), *tied by construction* on grounded entities, and **not distinguishable** on km per stop (p=0.46) — so the itinerary-coherence gap in the table above is not a real result. The cost is roughly 14 ms more per retrieval. The two significant wins are why the app pins Fusion rather than asking the traveler to choose.
+Because a gap between two averages can be noise, each metric is also tested pairwise (Wilcoxon signed-rank across the same queries — see the **Is the lead real?** table in the app). Against Hybrid RAG, Fusion RAG is significantly better on **archetype precision** (p<0.0001), *tied by construction* on grounded entities, and **not distinguishable** on multi-hop recall (p=0.91) or km per stop (p=0.54), at roughly 13 ms more per retrieval. Archetype precision is why the app pins Fusion rather than asking the traveler to choose.
+
+The queries come in two tiers, and the split is the point: 19 are hand-written the way a traveler would phrase a question, and 32 are generated to sweep city × category cells evenly. Archetype precision holds in **both** tiers (p=0.001 hand-written, p=0.0003 grid), so it is a property of the architecture. Multi-hop recall does not — it favours Fusion only on the hand-written tier (p=0.044) and slightly favours Hybrid on the grid (p=0.066). An earlier 18-query set reported recall as a clear Fusion win; broadening and balancing the queries removed it. See [`#50`](https://github.com/yukselburcinn-web/DA592/issues/50) for how the query set is built and [`#48`](https://github.com/yukselburcinn-web/DA592/issues/48) for why some queries grade the graph retriever against its own traversal.
 
 ### Optional: real LLM narration
 

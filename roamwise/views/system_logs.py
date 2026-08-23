@@ -177,6 +177,34 @@ VERDICT_TEXT = {
     "identical": "Identical -- cannot separate them",
 }
 
+DEPENDENCE_TEXT = {
+    "subset": "Circular — retrieval is a subset of the answer key",
+    "superset": "Partly circular — same category filter",
+    "independent": "Independent — key never uses the query's routed category",
+}
+
+# Compact cell for the breakdown tables: the verdict is what a reader acts on,
+# the p-value is what lets them check it, and a full sub-table per slice would
+# not fit beside four other metrics.
+_VERDICT_SHORT = {"better": "better", "worse": "worse",
+                  "no difference": "no difference", "identical": "identical"}
+
+
+@st.cache_data
+def _significance_for(subset: pd.DataFrame) -> pd.DataFrame:
+    return ca.paired_significance(subset)
+
+
+def _verdict_cell(significance: pd.DataFrame, results_column: str) -> str:
+    row = significance[(significance.metric == results_column)
+                       & (significance.opponent == "hybrid")]
+    if row.empty:
+        return "—"
+    row = row.iloc[0]
+    if row.verdict == "identical":
+        return "identical"
+    return f"{_VERDICT_SHORT[row.verdict]}  (p={row.p_value:.3f})"
+
 
 @st.cache_data(show_spinner="Running the comparative analysis across all three configurations...")
 def _run_analysis_now():
@@ -222,13 +250,20 @@ with results_tab:
              if vs_hybrid.loc[m, "verdict"] in ("no difference", "identical")]
 
     best = summary_df.set_index("config")
-    headline = (f"**Fusion RAG beats Hybrid RAG on {' and '.join(wins).lower()}** "
-                if wins else "**Fusion RAG shows no measurable advantage over Hybrid RAG** ")
-    headline += (f"(paired Wilcoxon, p < {ca.ALPHA}). It recovers "
-                 f"{best.loc['fusion', 'mean_recall_at_k']:.0%} of the graph-verified answer set "
-                 f"against {best.loc['hybrid', 'mean_recall_at_k']:.0%} for Hybrid and "
-                 f"{best.loc['standard', 'mean_recall_at_k']:.0%} for standard prompting, which "
-                 f"retrieves nothing.")
+    if wins:
+        headline = f"**Fusion RAG beats Hybrid RAG on {' and '.join(wins).lower()}** "
+        headline += f"(paired Wilcoxon, p < {ca.ALPHA})."
+        # Quote the numbers for a metric Fusion actually wins. Quoting a fixed
+        # metric meant that once recall became a draw the headline was still
+        # citing "28% against 28%" as if it were evidence.
+        summary_column = next(column for column, _, label, _, _ in METRICS if label in wins)
+        headline += (f" It scores {best.loc['fusion', summary_column]:.2f} on {wins[0].lower()} "
+                     f"against {best.loc['hybrid', summary_column]:.2f} for Hybrid and "
+                     f"{best.loc['standard', summary_column]:.2f} for standard prompting, which "
+                     f"retrieves nothing.")
+    else:
+        headline = ("**Fusion RAG shows no measurable advantage over Hybrid RAG** on any quality "
+                    f"metric (paired Wilcoxon, p >= {ca.ALPHA}).")
     if draws:
         headline += (f" The two are **not distinguishable** on {' and '.join(draws).lower()}, and "
                      f"Fusion is the slower of the two -- see below.")
@@ -302,6 +337,36 @@ with results_tab:
             "p": st.column_config.TextColumn(width="small"),
         },
     )
+
+    st.markdown("##### Does it replicate?")
+    st.caption("The queries come in two tiers: hand-written ones phrased the way a traveler would "
+               "actually ask, and a generated grid that sweeps city x category cells evenly. A "
+               "claim that only holds in one tier is a property of those queries, not of the "
+               "architecture.")
+    tiers = [t for t in ("handwritten", "grid") if t in set(results_df.tier)]
+    replication = pd.DataFrame([
+        {"Metric": label,
+         **{f"{tier.capitalize()} (n={results_df[results_df.tier == tier].query_id.nunique()})":
+            _verdict_cell(_significance_for(results_df[results_df.tier == tier]), results_column)
+            for tier in tiers}}
+        for _, results_column, label, _, _ in METRICS
+    ])
+    st.dataframe(replication, use_container_width=True, hide_index=True)
+
+    st.markdown("##### How much of this rests on circular grading?")
+    st.caption("The graph retriever routes on literal keywords. When a query names the answer "
+               "key's category next to a transport word it dispatches to the very traversal the "
+               "answer key is built from, at a tighter radius -- so its results are a guaranteed "
+               "subset of the key. Those queries grade Fusion against itself.")
+    dependence = pd.DataFrame([
+        {"Grading": DEPENDENCE_TEXT[level],
+         "Queries": group.query_id.nunique(),
+         **{label: _verdict_cell(_significance_for(group), results_column)
+            for _, results_column, label, _, _ in METRICS
+            if results_column in ("recall_at_k", "archetype_precision")}}
+        for level, group in results_df.groupby("dependence")
+    ])
+    st.dataframe(dependence, use_container_width=True, hide_index=True)
 
     for _, results_column, label, higher_better, description in METRICS:
         arrow = "higher is better" if higher_better else "lower is better"

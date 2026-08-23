@@ -1,11 +1,11 @@
 metric,champion,opponent,n,mean_advantage,wins,losses,ties,p_value,verdict
-recall_at_k,fusion,hybrid,17,0.0903,9,3,5,0.01203,better
-archetype_precision,fusion,hybrid,18,0.2629,15,0,3,0.00062,better
-grounded_entity_rate,fusion,hybrid,18,0.0,0,0,18,,identical
-km_per_stop_day1,fusion,hybrid,18,0.0844,9,6,3,0.4603,no difference
-retrieval_ms,fusion,hybrid,18,-14.3033,1,17,0,2e-05,worse
-recall_at_k,fusion,standard,17,0.3135,14,0,3,0.00097,better
-archetype_precision,fusion,standard,18,0.372,17,1,0,0.0006,better
-grounded_entity_rate,fusion,standard,18,1.0,18,0,0,2e-05,better
-km_per_stop_day1,fusion,standard,18,0.2511,10,8,0,0.34882,no difference
-retrieval_ms,fusion,standard,18,-23.9833,0,18,0,0.0002,worse
+recall_at_k,fusion,hybrid,51,-0.0,16,21,14,0.90976,no difference
+archetype_precision,fusion,hybrid,51,0.1684,32,0,19,0.0,better
+grounded_entity_rate,fusion,hybrid,51,0.0,0,0,51,,identical
+km_per_stop_day1,fusion,hybrid,51,0.029,24,18,9,0.54421,no difference
+retrieval_ms,fusion,hybrid,51,-13.4876,3,48,0,0.0,worse
+recall_at_k,fusion,standard,51,0.2783,45,0,6,0.0,better
+archetype_precision,fusion,standard,51,0.4418,50,1,0,0.0,better
+grounded_entity_rate,fusion,standard,51,1.0,51,0,0,0.0,better
+km_per_stop_day1,fusion,standard,51,0.03,23,27,1,0.82804,no difference
+retrieval_ms,fusion,standard,51,-22.9212,0,51,0,0.0,worse
