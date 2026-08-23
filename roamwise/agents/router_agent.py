@@ -32,7 +32,19 @@ class RouterAgent:
         city_node = self.graph.g.nodes[destination_id]
         start_hub = {"lat": city_node["lat"], "lon": city_node["lon"], "name": city_node["name"]}
 
-        zones = self.zoner.zone(candidate_pois, n_zones=n_days)
+        # Retrieval can itself surface food-category POIs (markets, bazaars --
+        # common for e.g. a Nightlife Seeker query), and those used to flow
+        # into the same geography-only zoning/filling pass as everything
+        # else. That pass has no notion of "these are meals": it can pack a
+        # day with several of them back to back, or -- if a zone's other
+        # candidates don't survive opening hours -- with nothing else at all
+        # (#29). _ensure_daily_meals below is the only place that reasons
+        # about meal spacing and the sightseeing floor, so food POIs are
+        # excluded here and left entirely to it; _food_pois() already reuses
+        # any of these by identity, so nothing retrieval surfaced is lost or
+        # double-booked, just placed through the meal-aware path instead.
+        sightseeing_pois = [p for p in candidate_pois if p.get("category") != FOOD_CATEGORY]
+        zones = self.zoner.zone(sightseeing_pois, n_zones=n_days)
         itinerary = build_multi_day_itinerary(
             zones, start_hub=start_hub, daily_minutes_budget=daily_minutes_budget,
             day_start_hour=day_start_hour, respect_opening_hours=respect_opening_hours,

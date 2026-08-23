@@ -40,11 +40,34 @@ FOOD_CATEGORY = "food"
 MEAL_TRAVEL_ALLOWANCE = 0.25
 # How many sights a meal may bump to fit into a day. The guarantee is "every
 # day has meals", so a meal outranks the marginal last sight -- but only just:
-# past this the day stops being a sightseeing itinerary.
+# past this the day stops being a sightseeing itinerary. See #29: this cap
+# existed to bound the damage, but on a sparse day (few sightseeing stops to
+# begin with, e.g. a Nightlife Seeker's late-opening zone) two meals'
+# worth of displacement can still empty a day out completely -- see
+# MIN_SIGHTSEEING_STOPS below, which is the actual fix for that.
 MAX_MEAL_DISPLACEMENTS = 2
 # How far from its target time a meal may slide to find a venue the traveler
 # is already passing, instead of detouring to one that is on time.
 MEAL_WINDOW_HOURS = 2.0
+# Cheapest-insertion picks whichever open slot costs the least geographic
+# detour, with no separate reward for landing close to its target time --
+# and appending at the very end of the day is nearly always the cheapest
+# detour, so both meals kept gravitating to the same end-of-day slot next to
+# each other (#29). MIN_MEAL_GAP_FRACTION makes that impossible outright: no
+# slot within this fraction of the day's own span of an already-placed meal
+# is eligible, regardless of its detour cost. 0.375 -> 3h apart on a full
+# 8h/480min day (#29's own suggested figure), scaling down on shorter days
+# the same way _meal_target_hours' 0.40/0.85 split already does -- and
+# staying under that split's own 0.45 gap keeps the two constraints from
+# ever being mutually unsatisfiable by construction.
+MIN_MEAL_GAP_FRACTION = 0.375
+# A day must keep at least this many non-food stops beyond its meals, or
+# "2 meals/day" (#20) and "food-only day" can both be technically true of
+# the same result (#29 comment). When keeping this floor and reaching the
+# meal-count guarantee conflict, the floor wins -- a day with a real sight
+# and only one meal is a more plausible travel day than an emptied-out one
+# with two.
+MIN_SIGHTSEEING_STOPS = 1
 
 
 def haversine_km(lat1, lon1, lat2, lon2):
@@ -399,6 +422,7 @@ def _ensure_daily_meals(days: list[dict], food_pois: list[dict], route_day_order
 
     used = {id(p) for day in days for p in day["route"]}
     targets = _meal_target_hours(day_start_hour, daily_minutes_budget, min_per_day)
+    min_gap_hours = MIN_MEAL_GAP_FRACTION * (daily_minutes_budget / 60)
 
     for day in days:
         # Keep going until the day is fed rather than making one pass per
@@ -410,9 +434,13 @@ def _ensure_daily_meals(days: list[dict], food_pois: list[dict], route_day_order
             target = open_targets[0] if open_targets else _least_covered_target(day, targets)
             before = _food_count(day)
             _insert_meal_at(day, food_pois, used, target, distance_fn,
-                            route_day_ordered, start_hub)
+                            route_day_ordered, start_hub, min_gap_hours=min_gap_hours)
             if _food_count(day) == before:
-                break  # nothing placeable is left for this day; don't spin
+                # Nothing placeable is left for this day at the required gap
+                # / sightseeing floor -- don't spin, and don't force it: a day
+                # left on 1 meal is the intended outcome here (#29), not a
+                # bug to route around.
+                break
 
 
 def _food_count(day: dict) -> int:
@@ -435,19 +463,40 @@ def _least_covered_target(day: dict, targets: list[float]) -> float:
 
 
 def _meal_slots(route: list[dict], schedule: list[dict], target_hour: float,
-                 start_hub: dict = None) -> list[int]:
+                 start_hub: dict = None, existing_meal_times: tuple[float, ...] = (),
+                 min_gap_hours: float = 0.0) -> list[int]:
     """Positions in the day where a meal could plausibly go: every seam whose
-    clock is within MEAL_WINDOW_HOURS of the target, plus the end of the day
-    as a last resort so a short day can still be fed."""
-    slots = []
-    for i in range(len(route) + 1):
+    clock is within MEAL_WINDOW_HOURS of the target and at least
+    `min_gap_hours` from every meal already placed in this day, plus the end
+    of the day as a last resort so a short day can still be fed -- but that
+    fallback still has to respect the gap, or it recreates exactly the bug it
+    exists to prevent: with no eligible seam, both meals used to fall back to
+    the same end-of-day slot and land next to each other (#29)."""
+    def clock_at(i: int) -> float:
         if i == 0:
-            clock = schedule[0]["arrival"] if schedule else target_hour
-        else:
-            clock = schedule[i - 1]["finish"]
-        if abs(clock - target_hour) <= MEAL_WINDOW_HOURS:
-            slots.append(i)
-    return slots or [len(route)]
+            return schedule[0]["arrival"] if schedule else target_hour
+        return schedule[i - 1]["finish"]
+
+    def far_enough(i: int) -> bool:
+        clock = clock_at(i)
+        return all(abs(clock - t) >= min_gap_hours for t in existing_meal_times)
+
+    seams = range(len(route) + 1)
+    in_window = [i for i in seams if abs(clock_at(i) - target_hour) <= MEAL_WINDOW_HOURS]
+    slots = [i for i in in_window if far_enough(i)]
+    if slots:
+        return slots
+    last_resort = len(route)
+    return [last_resort] if far_enough(last_resort) else []
+
+
+def _meals_respect_gap(route: list[dict], schedule: list[dict], min_gap_hours: float) -> bool:
+    """True if every pair of meals in the route's *actual, already-timed*
+    schedule is at least min_gap_hours apart. Ground truth for the gap
+    constraint -- see the call site in _insert_meal_at for why the seam
+    estimate _meal_slots picks from isn't enough on its own."""
+    times = sorted(s["arrival"] for p, s in zip(route, schedule) if _is_food(p))
+    return all(times[i + 1] - times[i] >= min_gap_hours - 1e-9 for i in range(len(times) - 1))
 
 
 def _has_meal_near(day: dict, target_hour: float, tolerance_hours: float = 1.25) -> bool:
@@ -462,11 +511,13 @@ def _has_meal_near(day: dict, target_hour: float, tolerance_hours: float = 1.25)
 
 def _insert_meal_at(day: dict, food_pois: list[dict], used: set, target_hour: float,
                      distance_fn, route_day_ordered, start_hub: dict = None,
-                     max_attempts: int = 5) -> None:
+                     max_attempts: int = 5, min_gap_hours: float = 0.0) -> None:
     route, schedule = day["route"], day.get("schedule", [])
     candidates = [f for f in food_pois if id(f) not in used and _open_at(f, target_hour)]
     if not candidates:
         return
+
+    existing_meal_times = tuple(s["arrival"] for p, s in zip(route, schedule) if _is_food(p))
 
     def detour(index, f):
         prev = route[index - 1] if index > 0 else start_hub
@@ -482,8 +533,12 @@ def _insert_meal_at(day: dict, food_pois: list[dict], used: set, target_hour: fl
     # whichever (seam, venue) pair adds the least detour. Eating at 13:30
     # somewhere the traveler already walks past beats eating at 12:15 after a
     # kilometre round trip, and the timing stays plausible either way.
+    # _meal_slots also excludes anything within min_gap_hours of a meal
+    # already in the day, so cheapest-insertion can no longer converge both
+    # meals on the same end-of-day slot (#29).
     options = [(detour(i, f), i, f)
-               for i in _meal_slots(route, schedule, target_hour, start_hub)
+               for i in _meal_slots(route, schedule, target_hour, start_hub,
+                                     existing_meal_times, min_gap_hours)
                for f in candidates]
     if not options:
         return
@@ -499,14 +554,32 @@ def _insert_meal_at(day: dict, food_pois: list[dict], used: set, target_hour: fl
             # and an already-placed evening meal can fall off the end of the
             # budget as it does, which would net out at no gain at all.
             if _food_count_in(attempt["route"]) > meals_before:
-                day.update(attempt)
-                used.add(id(cand))
-                return
+                # _meal_slots picked this seam from the *pre-insertion*
+                # schedule's clock as an estimate; re-timing the actual
+                # sequence (especially after a displacement above drops a
+                # stop ahead of this meal) can pull its real arrival earlier
+                # than that estimate, silently landing inside the gap this
+                # was supposed to keep clear (#29). Check the real timing,
+                # not the estimate that picked the seam.
+                if _meals_respect_gap(attempt["route"], attempt.get("schedule", []), min_gap_hours):
+                    day.update(attempt)
+                    used.add(id(cand))
+                    return
+                break  # fits, but too close once actually timed -- try the
+                       # next (seam, venue) option instead of burning
+                       # displacements on a slot that was never going to work
             # It overran the day. Give up the last sight rather than the meal
             # -- a day that ends an hour early but is fed beats one that
-            # sightsees straight through dinner.
+            # sightsees straight through dinner. But not past
+            # MIN_SIGHTSEEING_STOPS: that trade is only a good one while the
+            # day still has a sight left to give up. Below the floor, this
+            # meal doesn't fit here -- fall through to the next (seam,
+            # venue) option, or leave the day on fewer meals rather than none
+            # of the day at all (#29).
+            non_food_count = sum(1 for p in sequence if not _is_food(p))
             droppable = next((i for i in range(len(sequence) - 1, -1, -1)
-                              if id(sequence[i]) != id(cand) and not _is_food(sequence[i])), None)
+                              if id(sequence[i]) != id(cand) and not _is_food(sequence[i])), None) \
+                if non_food_count > MIN_SIGHTSEEING_STOPS else None
             if droppable is None:
                 break
             sequence = sequence[:droppable] + sequence[droppable + 1:]
