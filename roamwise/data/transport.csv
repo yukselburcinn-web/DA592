@@ -1,17 +1,19 @@
 transport_id,destination_id,name,type,lat,lon
-TR001,IST,Istanbul Airport,airport,41.2753,28.7519
-TR002,IST,Sirkeci Train Station,train_station,41.013,28.977
-TR003,PAR,Charles de Gaulle Airport,airport,49.0097,2.5479
-TR004,PAR,Gare du Nord,train_station,48.8809,2.3553
-TR005,ROM,Fiumicino Airport,airport,41.8003,12.2389
-TR006,ROM,Roma Termini,train_station,41.901,12.5017
-TR007,BCN,Barcelona El Prat Airport,airport,41.2974,2.0833
-TR008,BCN,Barcelona Sants,train_station,41.3792,2.14
-TR009,AMS,Schiphol Airport,airport,52.3105,4.7683
-TR010,AMS,Amsterdam Centraal,train_station,52.3791,4.9003
-TR011,PRG,Vaclav Havel Airport,airport,50.1008,14.26
-TR012,PRG,Praha hlavni nadrazi,train_station,50.083,14.4353
-TR013,VIE,Vienna Intl Airport,airport,48.1103,16.5697
-TR014,VIE,Wien Hauptbahnhof,train_station,48.1853,16.3775
-TR015,LIS,Humberto Delgado Airport,airport,38.7813,-9.1359
-TR016,LIS,Lisboa Oriente,train_station,38.7679,-9.0987
+TR001,PAR,Charles de Gaulle International Airport,airport,49.006896,2.562563
+TR002,PAR,Paris–Orly Airport,airport,48.730057,2.358796
+TR003,PAR,Villejuif-Louis Aragon,bus_station,48.787728,2.367611
+TR004,PAR,Porte d'Auteuil,bus_station,48.84738,2.257592
+TR005,PAR,Paris Gare du Nord,train_station,48.8804,2.354973
+TR006,PAR,Gare de Lyon,train_station,48.844683,2.373774
+TR007,PAR,Gare Montparnasse,train_station,48.840062,2.319109
+TR008,PAR,Paris Gare de l'Est,train_station,48.877098,2.359491
+TR009,PAR,Paris-Saint-Lazare,train_station,48.87653,2.325237
+TR010,PAR,Paris Austerlitz,train_station,48.841244,2.366455
+TR011,BER,"Berlin Brandenburg Airport ""Willy Brandt""",airport,52.365932,13.49691
+TR012,BER,Berlin Central Bus Station,bus_station,52.507749,13.279806
+TR013,BER,Berlin Hauptbahnhof (tief),train_station,52.524636,13.369861
+TR014,BER,Berlin Zoologischer Garten,train_station,52.507434,13.332561
+TR015,BER,Ostbahnhof,train_station,52.510745,13.435171
+TR016,BER,Berlin Friedrichstraße,train_station,52.520174,13.386988
+TR017,BER,Alexanderplatz,train_station,52.521566,13.41128
+TR018,BER,Berlin Südkreuz,train_station,52.476572,13.36604

@@ -1,3 +1,3 @@
 model,mae,rmse
-holt_winters,746115.0,877606.2
-prophet,997181.0,1078920.8
+holt_winters,107846.0,130423.9
+prophet,270197.5,280327.2

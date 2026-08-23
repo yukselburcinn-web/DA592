@@ -27,21 +27,80 @@ from roamwise.evaluation.comparative_analysis import (
 )
 
 
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
+
+
+def _dataset():
+    """Read the city list and counts out of the committed CSVs.
+
+    These were literals -- "ROM", "VIE", City == 8, POI == 1200 -- which pinned
+    the suite to one particular catalogue. Changing the destination list then
+    turned tests red for reasons that had nothing to do with the code under
+    test. Reading the dataset keeps every assertion just as strong while
+    letting the catalogue change underneath it.
+
+    `FULL_CITIES` is the narrower set: a city needs rows in demand_timeseries
+    and transport as well, and those files do not necessarily cover every
+    destination. Tests that need them skip with a clear message rather than
+    failing somewhere confusing.
+    """
+    dests = pd.read_csv(DATA_DIR / "destinations.csv")
+    pois = pd.read_csv(DATA_DIR / "poi.csv")
+    demand = pd.read_csv(DATA_DIR / "demand_timeseries.csv")
+    transport = pd.read_csv(DATA_DIR / "transport.csv")
+
+    counts = pois.destination_id.value_counts()
+    # Deepest catalogue first: several tests slice [:40] or [:24], and a shallow
+    # city would make those assertions vacuous rather than wrong.
+    with_pois = sorted((c for c in dests.destination_id if counts.get(c, 0)),
+                       key=lambda c: -counts[c])
+    full = [c for c in with_pois
+            if c in set(demand.destination_id) and c in set(transport.destination_id)]
+    return with_pois, full, pois
+
+
+CITY_CODES, FULL_CITIES, _POIS = _dataset()
+POI_COUNT = len(_POIS)
+MAIN_CITY = CITY_CODES[0]
+
+# Applied to the tests that index FULL_CITIES[0]: without it an incomplete
+# dataset fails with an IndexError at collection rather than saying why.
+needs_full_city = pytest.mark.skipif(
+    not FULL_CITIES,
+    reason="hicbir sehirde hem demand_timeseries hem transport satiri yok")
+
+
+def city_with_category(category, cities=None):
+    """The deepest city holding POIs in this category, or None.
+
+    The catalogue is not obliged to carry every category in every city -- the
+    two-city set has no `beach` at all -- so a test that needs one asks for it
+    instead of naming a city that happened to have it.
+    """
+    for code in (cities or CITY_CODES):
+        if len(_POIS[(_POIS.destination_id == code) & (_POIS.category == category)]):
+            return code
+    return None
+
+
+@needs_full_city
 def test_knowledge_graph_builds_and_traverses():
     idx = GraphIndex()
     stats = idx.stats()
-    assert stats["by_type"]["City"] == 8
-    assert stats["by_type"]["POI"] == 1200
-    hop = idx.multi_hop_transport_to_poi("IST", "landmark")
+    assert stats["by_type"]["City"] == len(CITY_CODES)
+    assert stats["by_type"]["POI"] == POI_COUNT
+    hop = idx.multi_hop_transport_to_poi(FULL_CITIES[0] if FULL_CITIES else MAIN_CITY,
+                                         "landmark")
     assert len(hop) > 0
     assert all("nearest_hub_km" in r for r in hop)
 
 
+@needs_full_city
 def test_forecasting_produces_crowding_labels():
-    fc = forecast_city("PAR")
+    fc = forecast_city(FULL_CITIES[0])
     assert len(fc) == 12
     assert set(fc.crowding_level.astype(str)) <= {"low", "medium", "high"}
-    months = best_months_to_visit("PAR", top_k=3)
+    months = best_months_to_visit(FULL_CITIES[0], top_k=3)
     assert len(months) == 3
 
 
@@ -68,7 +127,7 @@ def test_preference_levels_produce_distinct_archetypes():
 
 def test_poi_zoning_covers_all_pois():
     idx = GraphIndex()
-    pois = idx.city_pois("AMS")
+    pois = idx.city_pois(MAIN_CITY)
     zones = POIZoner().zone(pois, n_zones=3)
     total = sum(len(v) for v in zones.values())
     assert total == len(pois)
@@ -77,24 +136,31 @@ def test_poi_zoning_covers_all_pois():
 def test_fusion_retrieval_all_configs_run():
     fr = FusionRetriever()
     for config in ["fusion", "hybrid", "standard"]:
-        results = fr.retrieve("museums near a transport hub", config=config, destination_id="ROM", top_k=5)
+        results = fr.retrieve("museums near a transport hub", config=config,
+                              destination_id=MAIN_CITY, top_k=5)
         if config == "standard":
             assert results == []
         else:
             assert len(results) > 0
-            assert all(r["destination_id"] == "ROM" for r in results)
+            assert all(r["destination_id"] == MAIN_CITY for r in results)
 
 
 def test_fusion_beats_hybrid_on_archetype_grounding():
     fr = FusionRetriever()
-    fusion_results = fr.retrieve("things to do", config="fusion", destination_id="ROM", archetype="Nightlife Seeker", top_k=8)
+    city = city_with_category("nightlife") or MAIN_CITY
+    fusion_results = fr.retrieve("things to do", config="fusion", destination_id=city,
+                                 archetype="Nightlife Seeker", top_k=8)
     fusion_categories = {r.get("text", "") for r in fusion_results}
-    assert any("nightlife" in t.lower() or "trastevere" in t.lower() for t in fusion_categories)
+    # The old assertion also accepted "trastevere", a Rome neighbourhood -- a
+    # content literal that cannot survive a change of destination. What this
+    # test measures is archetype grounding, and that lives in the first half.
+    assert any("nightlife" in t.lower() for t in fusion_categories), \
+        f"Nightlife Seeker retrieval for {city} surfaced no nightlife text"
 
 
 def test_routing_respects_time_budget():
     idx = GraphIndex()
-    pois = idx.city_pois("VIE")
+    pois = idx.city_pois(MAIN_CITY)
     result = optimize_day_route(pois, daily_minutes_budget=300)
     assert result["total_minutes"] <= 300 + 1e-6
 
@@ -122,7 +188,7 @@ def test_routing_falls_back_when_osrm_unreachable(monkeypatch):
                         lambda points, profile="foot": None)
 
     idx = GraphIndex()
-    pois = idx.city_pois("VIE")[:4]
+    pois = idx.city_pois(MAIN_CITY)[:4]
     result = optimize_day_route(pois, use_real_routing=True)
     assert result["used_real_routing"] is False
     assert len(result["route"]) > 0  # still produced a usable route via the haversine fallback
@@ -141,7 +207,7 @@ def test_routing_uses_injected_real_routing_matrix(monkeypatch):
     monkeypatch.setattr(routing_module, "fetch_distance_duration_matrix", fake_matrix)
 
     idx = GraphIndex()
-    pois = idx.city_pois("VIE")[:2]
+    pois = idx.city_pois(MAIN_CITY)[:2]
     result = optimize_day_route(pois, use_real_routing=True, daily_minutes_budget=1440,
                                  respect_opening_hours=False)
     assert result["used_real_routing"] is True
@@ -166,7 +232,7 @@ def test_balanced_zoning_evens_out_day_zones():
     real data turned the single-city version of this test red without anything
     in the zoner changing."""
     idx = GraphIndex()
-    cities = ["IST", "PAR", "ROM", "BCN", "AMS", "PRG", "VIE", "LIS"]
+    cities = CITY_CODES
 
     def spread(pois, balanced):
         sizes = [len(v) for v in POIZoner().zone(pois, n_zones=5, balanced=balanced).values()]
@@ -183,7 +249,10 @@ def test_balanced_zoning_evens_out_day_zones():
         assert balanced_spread <= plain_spread, f"{city}: balancing made the spread worse"
         strictly_better += balanced_spread < plain_spread
 
-    assert strictly_better >= len(cities) // 2, \
+    # max(1, ...) keeps the claim meaningful on a small destination list: with
+    # two cities, len//2 == 1 anyway, but a one-city catalogue must still show
+    # the improvement somewhere rather than passing on an empty requirement.
+    assert strictly_better >= max(1, len(cities) // 2), \
         "balancing should visibly help in most cities, not merely never hurt"
 
 
@@ -192,7 +261,7 @@ def test_multi_day_itinerary_fills_every_day_near_its_budget():
     others held a two-hour route. Every day must now come back non-empty and
     reasonably full."""
     idx = GraphIndex()
-    pois = idx.city_pois("VIE")[:40]
+    pois = idx.city_pois(MAIN_CITY)[:40]
     zones = POIZoner().zone(pois, n_zones=5)
     days = build_multi_day_itinerary(zones, daily_minutes_budget=480)
 
@@ -400,9 +469,9 @@ def test_the_same_restaurant_is_not_booked_twice_in_one_trip():
 def test_router_agent_feeds_every_day_from_the_citys_own_restaurants():
     idx = GraphIndex()
     agent = RouterAgent(idx)
-    pois = [p for p in idx.city_pois("VIE") if p.get("category") != "food"][:24]
+    pois = [p for p in idx.city_pois(MAIN_CITY) if p.get("category") != "food"][:24]
 
-    result = agent.run("VIE", pois, n_days=3, daily_minutes_budget=480)
+    result = agent.run(MAIN_CITY, pois, n_days=3, daily_minutes_budget=480)
 
     assert len(result["itinerary"]) == 3
     for day in result["itinerary"]:
@@ -472,14 +541,14 @@ def test_dependence_level_spots_the_self_graded_queries():
     # Names the key's category next to a transport word: the graph router
     # dispatches to the same traversal the key is built from, at 3km inside the
     # key's 6km, so its results cannot fall outside the key.
-    assert dependence_level(query("IST", "Culture Enthusiast", ("landmark",), True,
+    assert dependence_level(query(MAIN_CITY, "Culture Enthusiast", ("landmark",), True,
                                   "landmarks near a transport hub")) == "subset"
     # Same category, no transport constraint -- the router's filter is wider
     # than the key rather than nested inside it.
-    assert dependence_level(query("IST", "Culture Enthusiast", ("landmark",), False,
+    assert dependence_level(query(MAIN_CITY, "Culture Enthusiast", ("landmark",), False,
                                   "the best landmarks to visit")) == "superset"
     # The router never reaches for the key's category at all.
-    assert dependence_level(query("IST", "Culture Enthusiast", ("history",), False,
+    assert dependence_level(query(MAIN_CITY, "Culture Enthusiast", ("history",), False,
                                   "somewhere calm to spend a slow afternoon")) == "independent"
 
 
@@ -545,8 +614,8 @@ def test_langgraph_orchestrator_matches_custom_orchestrator_interface():
     assert len(result["routing"]["itinerary"]) == 2
     assert result["final_plan"]
 
-    pinned = orch.plan_trip(prefs, destination_id="PAR", n_days=2)
-    assert pinned["destination_id"] == "PAR"
+    pinned = orch.plan_trip(prefs, destination_id=MAIN_CITY, n_days=2)
+    assert pinned["destination_id"] == MAIN_CITY
 
 
 # app.py is only the router since the System logs screen landed (#41); the
@@ -641,7 +710,7 @@ def _visible_spans(zoom: float, center_lat: float, width_px: int, height_px: int
             width_px * 360.0 / world)
 
 
-@pytest.mark.parametrize("city", ["IST", "PAR", "ROM", "BCN", "AMS", "PRG", "VIE", "LIS"])
+@pytest.mark.parametrize("city", CITY_CODES)
 def test_map_view_frames_every_stop_without_wasting_the_canvas(city):
     """Both halves of the framing criterion at once: no stop may fall off the
     map, and the itinerary may not sit in a small island of empty canvas.
