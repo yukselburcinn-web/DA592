@@ -26,6 +26,8 @@ streamlit run app.py
 
 Open the URL Streamlit prints (default `http://localhost:8501`). Set your preferences in the sidebar, optionally pin a destination, choose how you're getting around and a Fusion RAG configuration, and click **Plan my trip**. The router balances the trip so every day is filled close to your daily sightseeing budget rather than leaving some days empty, gives every day at least two meal stops timed for lunch and dinner, and costs travel between stops according to the selected mode -- on foot, by car, or walking short hops and driving between neighbourhoods. It respects each POI's opening hours by default, and can optionally fetch real OSRM street-network distances/times ("Use real street routing" checkbox) instead of the straight-line estimate -- see [`REPORT.md` §5](REPORT.md#5-known-limitations--honest-gaps-vs-the-proposal) for why that's opt-in rather than the default.
 
+The sidebar's **System logs** page is the operator-facing view: every agent step the pipeline runs is logged there with its duration, filterable by level and text and downloadable as a `.log` file. It replaced the old "Agent trace" tab, which put a raw JSON dump of orchestrator internals in the middle of the traveler's itinerary.
+
 ### Run with Docker
 
 ```bash
@@ -96,7 +98,9 @@ roamwise/
   agents/                ForecasterAgent, FusionRAGAgent, RouterAgent, orchestrator.py
   evaluation/            comparative_analysis.py + saved results
   tests/                 pytest smoke tests covering every module
-  app.py                 Streamlit interactive prototype
+  app.py                 Streamlit entry point (declares the pages, routes between them)
+  views/                 the pages themselves: itinerary.py (traveler-facing), system_logs.py
+  app_logging.py         in-process log buffer the System logs page reads
 ```
 
 ## Architecture at a glance
