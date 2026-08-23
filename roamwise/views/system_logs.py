@@ -149,36 +149,47 @@ CONFIG_LABELS = {
 # right edge. Short names there, since the legend above already defined them.
 SHORT_LABELS = {"fusion": "Fusion RAG", "hybrid": "Hybrid RAG", "standard": "Standard prompting"}
 
-# (summary column, label, higher_is_better, what it means)
+# (summary column, per-query column, label, higher_is_better, what it means)
+# The per-query column is what the significance test pairs on, so both names
+# have to travel together or the two tables cannot be joined.
 METRICS = [
-    ("mean_recall_at_k", "Multi-hop recall", True,
+    ("mean_recall_at_k", "recall_at_k", "Multi-hop recall", True,
      "Share of the graph-verified answer set the retriever actually surfaced. This is the metric "
      "graph traversal exists for, so it is where Fusion should separate from Hybrid."),
-    ("mean_archetype_precision", "Archetype precision", True,
+    ("mean_archetype_precision", "archetype_precision", "Archetype precision", True,
      "Fraction of surfaced places that match the traveler archetype's preferred categories."),
-    ("mean_grounded_entity_rate", "Grounded entities", True,
+    ("mean_grounded_entity_rate", "grounded_entity_rate", "Grounded entities", True,
      "Fraction of surfaced content traceable to a real knowledge-base node -- the structural "
-     "stand-in for hallucination risk."),
-    ("mean_km_per_stop", "Km per stop", False,
+     "stand-in for hallucination risk. It is 1.0 by construction for anything that retrieves at "
+     "all, so it separates retrieval from no-retrieval and cannot rank Fusion against Hybrid."),
+    ("mean_km_per_stop", "km_per_stop_day1", "Km per stop", False,
      "Average walking distance per stop once the router builds a day from each config's "
      "candidates. Lower means a more geographically coherent day."),
-    ("mean_retrieval_ms", "Retrieval latency", False,
+    ("mean_retrieval_ms", "retrieval_ms", "Retrieval latency", False,
      "Wall-clock time of the retrieval call alone. This is what the extra accuracy costs."),
 ]
+METRIC_LABELS = {results_column: label for _, results_column, label, _, _ in METRICS}
+
+VERDICT_TEXT = {
+    "better": "Fusion is better",
+    "worse": "Fusion is worse",
+    "no difference": "No measurable difference",
+    "identical": "Identical -- cannot separate them",
+}
 
 
 @st.cache_data(show_spinner="Running the comparative analysis across all three configurations...")
 def _run_analysis_now():
     results = ca.run_comparative_analysis()
-    return results, ca.summarize(results).reset_index()
+    return results, ca.summarize(results).reset_index(), ca.paired_significance(results)
 
 
 @st.cache_data
 def _load_saved_analysis():
     if not ca.RESULTS_CSV.exists():
-        return None, None
+        return None, None, None
     results = pd.read_csv(ca.RESULTS_CSV)
-    return results, ca.summarize(results).reset_index()
+    return results, ca.summarize(results).reset_index(), ca.paired_significance(results)
 
 
 with results_tab:
@@ -187,10 +198,10 @@ with results_tab:
 
     if st.button("Re-run the analysis now", help="Recomputes every metric against the current index "
                                                  "and knowledge graph instead of the committed results."):
-        results_df, summary_df = _run_analysis_now()
+        results_df, summary_df, significance_df = _run_analysis_now()
         st.caption("Recomputed just now.")
     else:
-        results_df, summary_df = _load_saved_analysis()
+        results_df, summary_df, significance_df = _load_saved_analysis()
 
     if results_df is None:
         st.info("No saved comparison found. Run `python evaluation/comparative_analysis.py`, "
@@ -200,21 +211,34 @@ with results_tab:
     n_queries = results_df.groupby("config").size().max()
     st.caption(f"{n_queries} test queries across 8 cities and 7 traveler archetypes.")
 
-    # Headline first: the tab exists to answer "which one, and by how much".
-    best = summary_df.set_index("config")
-    lead = best.loc["fusion", "mean_recall_at_k"] - best.loc["hybrid", "mean_recall_at_k"]
-    st.success(
-        f"**Fusion RAG leads on every quality metric.** It recovers "
-        f"{best.loc['fusion', 'mean_recall_at_k']:.0%} of the graph-verified answer set against "
-        f"{best.loc['hybrid', 'mean_recall_at_k']:.0%} for Hybrid RAG (a {lead:.0%} point lead) and "
-        f"{best.loc['standard', 'mean_recall_at_k']:.0%} for standard prompting, which retrieves nothing."
-    )
+    # The headline is derived from the significance test rather than written by
+    # hand. The hand-written version claimed Fusion "leads on every quality
+    # metric" while it was in fact tied with Hybrid on grounding and
+    # indistinguishable on itinerary coherence -- a claim that drifted from the
+    # data and stayed wrong (issue #46). Generating it means it cannot.
+    vs_hybrid = significance_df[significance_df.opponent == "hybrid"].set_index("metric")
+    wins = [METRIC_LABELS[m] for m in vs_hybrid.index if vs_hybrid.loc[m, "verdict"] == "better"]
+    draws = [METRIC_LABELS[m] for m in vs_hybrid.index
+             if vs_hybrid.loc[m, "verdict"] in ("no difference", "identical")]
 
-    quality = [m for m in METRICS if m[2]]
+    best = summary_df.set_index("config")
+    headline = (f"**Fusion RAG beats Hybrid RAG on {' and '.join(wins).lower()}** "
+                if wins else "**Fusion RAG shows no measurable advantage over Hybrid RAG** ")
+    headline += (f"(paired Wilcoxon, p < {ca.ALPHA}). It recovers "
+                 f"{best.loc['fusion', 'mean_recall_at_k']:.0%} of the graph-verified answer set "
+                 f"against {best.loc['hybrid', 'mean_recall_at_k']:.0%} for Hybrid and "
+                 f"{best.loc['standard', 'mean_recall_at_k']:.0%} for standard prompting, which "
+                 f"retrieves nothing.")
+    if draws:
+        headline += (f" The two are **not distinguishable** on {' and '.join(draws).lower()}, and "
+                     f"Fusion is the slower of the two -- see below.")
+    st.success(headline)
+
+    quality = [m for m in METRICS if m[3]]
     long = pd.DataFrame([
         {"Configuration": CONFIG_LABELS[row.config], "Metric": label, "Score": getattr(row, column)}
         for row in summary_df.itertuples()
-        for column, label, _, _ in quality
+        for column, _, label, _, _ in quality
     ])
     fig = px.bar(long, x="Metric", y="Score", color="Configuration", barmode="group",
                  range_y=[0, 1], color_discrete_sequence=["#2E7D32", "#FFA000", "#C62828"],
@@ -228,7 +252,7 @@ with results_tab:
     # them on one axis would make a 40 ms bar dwarf a 0.9 precision bar.
     st.markdown("##### What it costs")
     cost_cols = st.columns(2)
-    for col, (column, label, _, _) in zip(cost_cols, [m for m in METRICS if not m[2]]):
+    for col, (column, _, label, _, _) in zip(cost_cols, [m for m in METRICS if not m[3]]):
         with col:
             unit = "km" if "km" in column else "ms"
             cost = summary_df.assign(Configuration=summary_df.config.map(CONFIG_LABELS))
@@ -243,8 +267,8 @@ with results_tab:
 
     st.markdown("##### Summary")
     table = summary_df.assign(Configuration=summary_df.config.map(SHORT_LABELS))[
-        ["Configuration"] + [column for column, _, _, _ in METRICS]
-    ].rename(columns={column: label for column, label, _, _ in METRICS})
+        ["Configuration"] + [column for column, _, _, _, _ in METRICS]
+    ].rename(columns={column: label for column, _, label, _, _ in METRICS})
     st.dataframe(
         table, use_container_width=True, hide_index=True,
         column_config={
@@ -252,14 +276,40 @@ with results_tab:
             **{
                 label: (st.column_config.ProgressColumn(label, min_value=0.0, max_value=1.0, format="%.3f")
                         if higher_better else st.column_config.NumberColumn(label, format="%.2f"))
-                for _, label, higher_better, _ in METRICS
+                for _, _, label, higher_better, _ in METRICS
             },
         },
     )
 
-    for _, label, higher_better, description in METRICS:
+    st.markdown("##### Is the lead real?")
+    st.caption("A gap between two averages can be noise. Every configuration answers the same "
+               "queries, so each metric is tested pairwise with a Wilcoxon signed-rank test. "
+               "\"Wins\" counts the queries where Fusion came out ahead on that metric.")
+    verdicts = significance_df.assign(
+        Metric=significance_df.metric.map(METRIC_LABELS),
+        Against=significance_df.opponent.map(SHORT_LABELS),
+        Record=significance_df.apply(lambda r: f"{r.wins}W / {r.losses}L / {r.ties}T", axis=1),
+        p=significance_df.p_value.map(lambda v: "n/a" if pd.isna(v) else f"{v:.4f}"),
+        Verdict=significance_df.verdict.map(VERDICT_TEXT),
+    )[["Metric", "Against", "mean_advantage", "Record", "p", "Verdict"]].rename(
+        columns={"mean_advantage": "Mean advantage"})
+    st.dataframe(
+        verdicts, use_container_width=True, hide_index=True,
+        column_config={
+            "Mean advantage": st.column_config.NumberColumn(format="%.3f",
+                                                            help="Fusion minus the opponent, signed so "
+                                                                 "positive always means Fusion is better."),
+            "p": st.column_config.TextColumn(width="small"),
+        },
+    )
+
+    for _, results_column, label, higher_better, description in METRICS:
         arrow = "higher is better" if higher_better else "lower is better"
-        st.markdown(f"**{label}** _({arrow})_ — {description}")
+        verdict = vs_hybrid.loc[results_column, "verdict"] if results_column in vs_hybrid.index else None
+        flag = ""
+        if verdict in ("no difference", "identical"):
+            flag = f" &nbsp;`{VERDICT_TEXT[verdict].lower()} vs Hybrid`"
+        st.markdown(f"**{label}** _({arrow})_{flag} — {description}")
 
     with st.expander("Per-query results"):
         st.dataframe(results_df, use_container_width=True, hide_index=True)

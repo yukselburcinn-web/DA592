@@ -57,11 +57,11 @@ Writes `evaluation/comparative_analysis_results.csv` (per-query) and `evaluation
 
 | Config | Multi-hop recall | Archetype precision | Grounded | Km/stop | Latency |
 |---|---|---|---|---|---|
-| **Fusion RAG** | **0.314** | **0.886** | **1.000** | **1.14** | 23.98 ms |
+| **Fusion RAG** | **0.314** | **0.886** | 1.000 | 1.14 | 23.98 ms |
 | Hybrid RAG | 0.223 | 0.623 | 1.000 | 1.23 | 9.68 ms |
 | Standard prompting | 0.000 | 0.514 | 0.000 | 1.40 | 0.00 ms |
 
-Fusion RAG leads on every quality metric — graph traversal is what separates it from Hybrid on multi-hop recall — at roughly 14 ms more per retrieval. That is why the app pins it rather than asking the traveler to choose.
+Because a gap between two averages can be noise, each metric is also tested pairwise (Wilcoxon signed-rank across the same queries — see the **Is the lead real?** table in the app). Against Hybrid RAG, Fusion RAG is significantly better on **multi-hop recall** (p=0.012) and **archetype precision** (p=0.0006), *tied by construction* on grounded entities, and **not distinguishable** on km per stop (p=0.46) — so the itinerary-coherence gap in the table above is not a real result. The cost is roughly 14 ms more per retrieval. The two significant wins are why the app pins Fusion rather than asking the traveler to choose.
 
 ### Optional: real LLM narration
 

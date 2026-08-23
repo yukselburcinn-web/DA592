@@ -8,6 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from roamwise.knowledge_graph.build_graph import GraphIndex
@@ -18,7 +19,9 @@ from roamwise.optimization.routing import build_multi_day_itinerary, optimize_da
 from roamwise.optimization.travel_modes import get_travel_mode
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
 from roamwise.agents.router_agent import RouterAgent
-from roamwise.evaluation.comparative_analysis import run_comparative_analysis, summarize
+from roamwise.evaluation.comparative_analysis import (
+    paired_significance, run_comparative_analysis, summarize,
+)
 
 
 def test_knowledge_graph_builds_and_traverses():
@@ -423,6 +426,60 @@ def test_comparative_analysis_shows_fusion_advantage():
     assert summary.loc["fusion", "mean_archetype_precision"] >= summary.loc["standard", "mean_archetype_precision"]
     assert summary.loc["fusion", "mean_grounded_entity_rate"] == 1.0
     assert summary.loc["standard", "mean_grounded_entity_rate"] == 0.0
+
+    # The headline on the Results tab is generated from these verdicts, so a
+    # metric silently changing category would rewrite a user-facing claim.
+    verdicts = paired_significance(df).set_index(["metric", "opponent"]).verdict
+    assert verdicts[("archetype_precision", "hybrid")] == "better"
+    # Grounded-entity rate is 1.0 by construction for anything that retrieves,
+    # so it can separate Fusion from standard prompting but never from Hybrid.
+    assert verdicts[("grounded_entity_rate", "hybrid")] == "identical"
+    assert verdicts[("grounded_entity_rate", "standard")] == "better"
+
+
+def _synthetic_pairs(**per_config_values) -> pd.DataFrame:
+    """Long-form results frame with one row per (query, config)."""
+    rows = []
+    for config, columns in per_config_values.items():
+        for query_id in range(10):
+            rows.append({"query_id": query_id, "config": config,
+                         **{column: values[query_id] for column, values in columns.items()}})
+    return pd.DataFrame(rows)
+
+
+def test_paired_significance_reads_direction_and_ties():
+    """Wilcoxon cannot rank an all-zero difference vector, and half the metrics
+    are better when *lower*. Both used to be latent ways to either crash the
+    Results tab or print a backwards verdict (issue #46)."""
+    df = _synthetic_pairs(
+        fusion={"archetype_precision": [0.9] * 10, "retrieval_ms": [20.0] * 10,
+                "grounded_entity_rate": [1.0] * 10, "km_per_stop_day1": [1.0] * 10,
+                "recall_at_k": [0.5] * 10},
+        hybrid={"archetype_precision": [0.5] * 10, "retrieval_ms": [5.0] * 10,
+                "grounded_entity_rate": [1.0] * 10, "km_per_stop_day1": [1.0] * 10,
+                "recall_at_k": [0.5] * 10},
+    )
+    verdicts = paired_significance(df, champion="fusion").set_index("metric")
+
+    assert verdicts.loc["archetype_precision", "verdict"] == "better"
+    # Higher latency is worse even though the number went up -- the sign has to
+    # be flipped for lower-is-better metrics or this reads as a win.
+    assert verdicts.loc["retrieval_ms", "verdict"] == "worse"
+    assert verdicts.loc["retrieval_ms", "mean_advantage"] < 0
+    # Identical columns: no test is possible, and it must not raise.
+    assert verdicts.loc["grounded_entity_rate", "verdict"] == "identical"
+    assert pd.isna(verdicts.loc["grounded_entity_rate", "p_value"])
+
+
+def test_paired_significance_calls_a_coin_flip_no_difference():
+    """A metric that trades wins back and forth must not be reported as a lead
+    just because its mean happens to land higher."""
+    df = _synthetic_pairs(
+        fusion={"km_per_stop_day1": [1.0, 2.0, 1.0, 2.0, 1.0, 2.0, 1.0, 2.0, 1.0, 2.0]},
+        hybrid={"km_per_stop_day1": [2.0, 1.0, 2.0, 1.0, 2.0, 1.0, 2.0, 1.0, 2.0, 1.1]},
+    )
+    verdict = paired_significance(df, champion="fusion").set_index("metric")
+    assert verdict.loc["km_per_stop_day1", "verdict"] == "no difference"
 
 
 def test_langgraph_orchestrator_matches_custom_orchestrator_interface():
