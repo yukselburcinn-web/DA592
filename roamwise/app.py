@@ -96,14 +96,31 @@ def get_orchestrator(config: str):
 st.title("\U0001f9ed RoamWise")
 st.caption("Agentic AI framework for personalized tourism forecasting and itinerary optimization -- DA592 prototype")
 
+# The archetype match is a KMeans over six 0-1 survey features (see
+# TravelerSegmenter), which needs real numbers -- but a 0.35 vs. 0.40 choice
+# on a raw slider is not a meaningful distinction to a user and doesn't
+# correspond to anything they can feel. Three named levels are plenty to
+# separate archetype centroids (see roamwise/tests/test_pipeline.py) and are
+# actually legible; the float mapping below is presentation-only and never
+# changes the segmentation contract or user_survey.csv.
+PREFERENCE_LEVELS = {"Low": 0.2, "Medium": 0.5, "High": 0.8}
+_LEVEL_NAMES = list(PREFERENCE_LEVELS)
+
+
+def _level_slider(label: str, default: str, **kwargs) -> float:
+    choice = st.select_slider(label, options=_LEVEL_NAMES, value=default, **kwargs)
+    return PREFERENCE_LEVELS[choice]
+
+
 with st.sidebar:
     st.header("Traveler preferences")
-    budget = st.slider("Budget (0 = shoestring, 1 = luxury)", 0.0, 1.0, 0.4, 0.05)
-    culture = st.slider("Culture / history interest", 0.0, 1.0, 0.6, 0.05)
-    nature = st.slider("Nature / outdoors interest", 0.0, 1.0, 0.4, 0.05)
-    nightlife = st.slider("Nightlife interest", 0.0, 1.0, 0.3, 0.05)
-    relax = st.slider("Relaxation / beach interest", 0.0, 1.0, 0.3, 0.05)
-    adventure = st.slider("Adventure interest", 0.0, 1.0, 0.3, 0.05)
+    budget = _level_slider("Budget", "Medium",
+                            help="Economical / Medium / Luxury")
+    culture = _level_slider("Culture / history interest", "High")
+    nature = _level_slider("Nature / outdoors interest", "Medium")
+    nightlife = _level_slider("Nightlife interest", "Low")
+    relax = _level_slider("Relaxation / beach interest", "Low")
+    adventure = _level_slider("Adventure interest", "Low")
 
     st.header("Trip constraints")
     dest_options = {"Let RoamWise choose": None, "Istanbul": "IST", "Paris": "PAR", "Rome": "ROM",
@@ -115,11 +132,6 @@ with st.sidebar:
         "Travel month (optional)",
         [None] + [f"2026-{m:02d}" for m in range(9, 13)] + [f"2027-{m:02d}" for m in range(1, 9)],
         format_func=lambda x: "Flexible / let RoamWise recommend" if x is None else x,
-    )
-    max_price_level = st.select_slider(
-        "Max price level per stop", options=[1, 2, 3], value=3,
-        format_func=lambda p: {1: "$ Budget only", 2: "$$ Budget + mid-range", 3: "$$$ No limit"}[p],
-        help="Drops POIs pricier than this before routing (falls back to the unfiltered list if nothing survives).",
     )
     daily_hours = st.slider("Daily sightseeing time (hours)", 3, 12, 8,
                              help="How many hours per day to spend travelling/visiting -- feeds the router's time budget.")
@@ -159,7 +171,7 @@ if run:
     orch = get_orchestrator(config)
     with st.spinner("Agents at work: segmenting traveler, forecasting demand, retrieving grounded context, routing..."):
         result = orch.plan_trip(preferences, destination_id=destination_id, n_days=n_days, travel_month=travel_month,
-                                 max_price_level=max_price_level, daily_minutes_budget=daily_hours * 60,
+                                 daily_minutes_budget=daily_hours * 60,
                                  use_real_routing=use_real_routing, travel_mode=travel_mode)
 
     city_name = orch.destinations.set_index("destination_id").loc[result["destination_id"], "city"]
