@@ -8,6 +8,7 @@ has already fixed sys.path and called st.set_page_config by the time this
 executes. Run the app with: streamlit run roamwise/app.py
 """
 import math
+from pathlib import Path
 
 import pandas as pd
 import plotly.express as px
@@ -17,6 +18,8 @@ import streamlit as st
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
 from roamwise.models.forecasting import forecast_city
 from roamwise.optimization.travel_modes import TRAVEL_MODES
+
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 
 
 def _clock(hour: float) -> str:
@@ -95,6 +98,20 @@ def get_orchestrator(config: str):
     return RoamWiseOrchestrator(retrieval_config=config)
 
 
+@st.cache_data
+def _destination_options() -> dict:
+    """City label -> destination_id, read from the catalogue.
+
+    This was a hard-coded literal of eight cities, which meant the picker
+    outlived the dataset: after the catalogue moved to Paris and Berlin it
+    still offered Istanbul and Rome, and choosing one returned an itinerary
+    with no stops. The dropdown has to be whatever `destinations.csv` holds.
+    """
+    dests = pd.read_csv(DATA_DIR / "destinations.csv")
+    return {"Let RoamWise choose": None,
+            **{row.city: row.destination_id for row in dests.itertuples()}}
+
+
 def _humanize_category(category: str) -> str:
     return category.replace("_", " ").title() if category else ""
 
@@ -129,8 +146,7 @@ with st.sidebar:
     adventure = _level_slider("Adventure interest", "Low")
 
     st.header("Trip constraints")
-    dest_options = {"Let RoamWise choose": None, "Istanbul": "IST", "Paris": "PAR", "Rome": "ROM",
-                     "Barcelona": "BCN", "Amsterdam": "AMS", "Prague": "PRG", "Vienna": "VIE", "Lisbon": "LIS"}
+    dest_options = _destination_options()
     dest_label = st.selectbox("Destination", list(dest_options.keys()))
     destination_id = dest_options[dest_label]
     n_days = st.slider("Trip length (days)", 1, 5, 3)

@@ -104,8 +104,17 @@ class ForecasterAgent:
         return self.llm.complete(system="You are a concise travel-demand analyst.", prompt=prompt)
 
 
+# Demo blocks below take their city from the catalogue rather than naming one:
+# a hardcoded code prints nothing at all once that city stops shipping.
+def _demo_city():
+    import pandas as pd
+    from pathlib import Path as _P
+    d = _P(__file__).resolve().parents[1] / "data" / "destinations.csv"
+    return pd.read_csv(d).destination_id.iloc[0]
+
+
 if __name__ == "__main__":
     agent = ForecasterAgent()
-    result = agent.run("BCN")
+    result = agent.run(_demo_city())
     print(result["narrative"])
     print(result)

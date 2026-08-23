@@ -88,7 +88,16 @@ class GraphSearchIndex:
         }
 
 
+# Demo blocks below take their city from the catalogue rather than naming one:
+# a hardcoded code prints nothing at all once that city stops shipping.
+def _demo_city():
+    import pandas as pd
+    from pathlib import Path as _P
+    d = _P(__file__).resolve().parents[1] / "data" / "destinations.csv"
+    return pd.read_csv(d).destination_id.iloc[0]
+
+
 if __name__ == "__main__":
     idx = GraphSearchIndex()
-    for r in idx.search("museums within walking distance of a transport hub", destination_id="ROM", top_k=5):
+    for r in idx.search("museums within walking distance of a transport hub", destination_id=_demo_city(), top_k=5):
         print(f"{r['score']:.2f}  {r['doc_id']}  {r['text'][:90]}")

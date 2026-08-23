@@ -678,13 +678,22 @@ def _rebalance_days(days: list[dict], route_day, distance_fn, start_hub: dict = 
                 break
 
 
+# Demo blocks below take their city from the catalogue rather than naming one:
+# a hardcoded code prints nothing at all once that city stops shipping.
+def _demo_city():
+    import pandas as pd
+    from pathlib import Path as _P
+    d = _P(__file__).resolve().parents[1] / "data" / "destinations.csv"
+    return pd.read_csv(d).destination_id.iloc[0]
+
+
 if __name__ == "__main__":
     # Run from the repo root with: python -m roamwise.optimization.routing
     from roamwise.knowledge_graph.build_graph import GraphIndex
     from roamwise.models.segmentation import POIZoner
 
     idx = GraphIndex()
-    pois = idx.city_pois("ROM")
+    pois = idx.city_pois(_demo_city())
     zoner = POIZoner()
     zones = zoner.zone(pois, n_zones=3)
     itinerary = build_multi_day_itinerary(zones, use_real_routing=True)
