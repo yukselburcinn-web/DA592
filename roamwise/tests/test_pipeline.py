@@ -16,7 +16,8 @@ from roamwise.knowledge_graph.build_graph import CATEGORY_AFFINITY, GraphIndex
 from roamwise.models.forecasting import forecast_city, best_months_to_visit
 from roamwise.models.segmentation import TravelerSegmenter, POIZoner
 from roamwise.retrieval.fusion import FusionRetriever
-from roamwise.optimization.routing import build_multi_day_itinerary, optimize_day_route
+from roamwise.optimization.routing import (
+    NIGHTLIFE_EARLIEST_HOUR, build_multi_day_itinerary, optimize_day_route)
 from roamwise.optimization.travel_modes import get_travel_mode
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
 from roamwise.agents.router_agent import RouterAgent
@@ -180,6 +181,97 @@ def test_routing_waits_for_poi_to_open():
     # 9:00 -> waits until 14:00 -> 60min visit -> finishes 15:00 = 360 elapsed minutes,
     # not just the 60-minute visit duration, proving the wait is accounted for.
     assert result["total_minutes"] == 360
+
+
+# --- issue #59: the day's time model (start hour, length, category timing) ---
+
+def _nightlife_poi(name, lat, lon, open_hour=18, close_hour=2):
+    """Defaults mirror the catalogue's well-sourced venues (18:00-02:00)."""
+    return {"name": name, "lat": lat, "lon": lon, "avg_visit_minutes": 60,
+            "category": "nightlife", "open_hour": open_hour, "close_hour": close_hour}
+
+
+def test_nightlife_is_not_the_first_stop_of_the_day():
+    """Issue #59: 2-opt orders on geography alone, so a bar whose OSM hours
+    start early (Bijou Bar opens at 07:00) was legitimately "open" at 09:00
+    and won the opening slot. Measured over 32 days, 6 began with one."""
+    # The bar sits right next to the hub, so pure geography would open with it.
+    bar = _nightlife_poi("Corner Bar", 48.2005, 16.370, open_hour=7, close_hour=23)
+    sights = _sights_along_a_line(3, lat=48.21, minutes=60)
+    hub = {"lat": 48.20, "lon": 16.37, "name": "hub"}
+
+    result = optimize_day_route([bar] + sights, start_hub=hub,
+                                 daily_minutes_budget=13 * 60, day_start_hour=9.0)
+
+    names = [p["name"] for p in result["route"]]
+    assert names, "the day should not come back empty"
+    assert names[0] != "Corner Bar", f"day opened with a bar: {names}"
+
+
+def test_nightlife_is_never_scheduled_before_the_evening():
+    """Reordering alone is not enough: on a short day the bar would simply be
+    last among early stops, still at 15:00. The category carries its own
+    earliest sensible hour."""
+    bar = _nightlife_poi("Corner Bar", 48.2005, 16.370, open_hour=7, close_hour=23)
+    sights = _sights_along_a_line(2, lat=48.21, minutes=60)
+    hub = {"lat": 48.20, "lon": 16.37, "name": "hub"}
+
+    result = optimize_day_route([bar] + sights, start_hub=hub,
+                                 daily_minutes_budget=13 * 60, day_start_hour=9.0)
+
+    for poi, slot in zip(result["route"], result["schedule"]):
+        if poi.get("category") == "nightlife":
+            assert slot["arrival"] >= NIGHTLIFE_EARLIEST_HOUR, \
+                f"{poi['name']} scheduled at {slot['arrival']:.2f}"
+
+
+def test_a_day_too_short_to_reach_the_evening_gets_no_nightlife():
+    """The honest consequence of the rule above: an 8-hour day from 09:00 ends
+    at 17:00, so it drops the bar rather than scheduling a 15:00 club visit."""
+    bar = _nightlife_poi("Corner Bar", 48.2005, 16.370, open_hour=7, close_hour=23)
+    hub = {"lat": 48.20, "lon": 16.37, "name": "hub"}
+
+    result = optimize_day_route([bar], start_hub=hub,
+                                 daily_minutes_budget=8 * 60, day_start_hour=9.0)
+
+    assert result["route"] == []
+
+
+def test_a_long_day_still_gets_its_evening_stop():
+    """Regression guard for the fix's own side effect. The fill passes route
+    against the day minus the meal reserve, which on a 12-hour day from 09:00
+    stops right where NIGHTLIFE_EARLIEST_HOUR begins -- so once bars could no
+    longer be scheduled in the morning, they stopped being scheduled at all
+    and a nightlife-heavy day collapsed. _ensure_evening_stops gives them the
+    same full-budget pass meals get."""
+    zones = {0: _sights_along_a_line(3, minutes=60)}
+    bars = [_nightlife_poi(f"Bar {i}", 48.201 + i * 0.002, 16.371) for i in range(3)]
+    hub = {"lat": 48.20, "lon": 16.37, "name": "hub"}
+
+    day = build_multi_day_itinerary(
+        {0: zones[0] + bars}, start_hub=hub, daily_minutes_budget=12 * 60,
+        day_start_hour=9.0, food_pois=[], min_food_per_day=0)[0]
+
+    evening = [(p, s) for p, s in zip(day["route"], day["schedule"])
+               if p.get("category") == "nightlife"]
+    assert evening, f"a 12h day reaching past 18:00 should fit a bar: {[p['name'] for p in day['route']]}"
+    assert all(s["arrival"] >= NIGHTLIFE_EARLIEST_HOUR for _, s in evening)
+    assert day["route"][-1].get("category") == "nightlife", "the bar should close the day"
+
+
+def test_day_start_hour_reaches_the_router_from_plan_trip():
+    """day_start_hour sat only on RouterAgent.run()'s signature with nothing
+    able to pass it, so every itinerary began at 09:00 (issue #59)."""
+    orch = RoamWiseOrchestrator()
+    prefs = {"budget": 0.6, "culture": 0.9, "nature": 0.2, "nightlife": 0.2, "relax": 0.3, "adventure": 0.2}
+
+    late = orch.plan_trip(prefs, destination_id=MAIN_CITY, n_days=2,
+                          day_start_hour=11.0, daily_minutes_budget=12 * 60)
+
+    first_arrivals = [d["schedule"][0]["arrival"] for d in late["routing"]["itinerary"] if d["schedule"]]
+    assert first_arrivals, "expected at least one scheduled stop"
+    assert all(a >= 11.0 for a in first_arrivals), \
+        f"a day started before the requested 11:00: {first_arrivals}"
 
 
 def test_routing_falls_back_when_osrm_unreachable(monkeypatch):

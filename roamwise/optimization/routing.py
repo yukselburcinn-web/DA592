@@ -36,6 +36,10 @@ from roamwise.optimization.osrm_client import fetch_distance_duration_matrix
 from roamwise.optimization.travel_modes import DEFAULT_MODE, HybridTravelMode, get_travel_mode
 
 FOOD_CATEGORY = "food"
+# When a day begins, unless the traveler says otherwise. A default, not a
+# constraint -- it was effectively the latter until issue #59, because nothing
+# above RouterAgent.run() could pass a different one.
+DEFAULT_DAY_START_HOUR = 9.0
 # Fraction of a meal's sit-down time to also set aside for getting to it.
 MEAL_TRAVEL_ALLOWANCE = 0.25
 # How many sights a meal may bump to fit into a day. The guarantee is "every
@@ -68,6 +72,21 @@ MIN_MEAL_GAP_FRACTION = 0.375
 # and only one meal is a more plausible travel day than an emptied-out one
 # with two.
 MIN_SIGHTSEEING_STOPS = 1
+# A bar or club belongs at the end of a day, and that is a property of the
+# *category*, not of the venue's stated hours: the 2-opt pass orders purely on
+# geography, so a nightlife venue whose OSM hours happen to start early (Bijou
+# Bar opens at 07:00, Le Select at 07:00, Kilkenny at 10:00) was legitimately
+# "open" at 09:00 and got picked as the day's opening stop. Measured over 32
+# days, 6 began with a bar and all 12 scheduled nightlife stops fell before
+# 17:00 (issue #59). Reordering by category is the fix; correcting the hours
+# is not, because a venue being open in the morning does not make a morning
+# visit to it a plan.
+NIGHTLIFE_CATEGORY = "nightlife"
+# Earliest hour a nightlife stop may be scheduled at, whatever its stated
+# opening time. 18:00 is where the catalogue's own well-sourced venues sit
+# (17 of 41 are 18:00-02:00), so this makes the mis-sourced ones behave like
+# the correctly-sourced majority rather than inventing a threshold.
+NIGHTLIFE_EARLIEST_HOUR = 18.0
 
 
 def haversine_km(lat1, lon1, lat2, lon2):
@@ -202,6 +221,24 @@ def _two_opt(route: list[dict], distance_fn, start_hub: dict = None) -> list[dic
     return best[1:] if start_hub else best
 
 
+def _is_nightlife(poi: dict) -> bool:
+    return poi.get("category") == NIGHTLIFE_CATEGORY
+
+
+def _nightlife_last(route: list[dict]) -> list[dict]:
+    """Move nightlife stops to the end of the day, keeping relative order.
+
+    Applied after 2-opt rather than inside it: the geographic solve stays a
+    clean TSP, and this expresses the one thing geography cannot know -- that
+    a bar is where a day ends. It does cost distance, and that trade is the
+    right way round; nobody saves a detour by going clubbing before breakfast.
+    """
+    evening = [p for p in route if _is_nightlife(p)]
+    if not evening:
+        return route
+    return [p for p in route if not _is_nightlife(p)] + evening
+
+
 def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_budget: int = 480,
                         day_start_hour: float = 9.0, respect_opening_hours: bool = True,
                         use_real_routing: bool = False, distance_fn=None, duration_fn=None,
@@ -240,6 +277,7 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
     else:
         ordered = _nearest_neighbor(pois, distance_fn, start=start_hub)
         ordered = _two_opt(ordered, distance_fn, start_hub=start_hub)
+        ordered = _nightlife_last(ordered)
 
     kept, schedule, total_km, clock, prev = [], [], 0.0, day_start_hour, start_hub
     for poi in ordered:
@@ -250,12 +288,25 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
         if respect_opening_hours:
             open_h = poi.get("open_hour", 0)
             close_h = poi.get("close_hour", 24)
+            # A nightlife venue is not worth visiting the moment its doors
+            # unlock. Several carry early OSM hours (07:00 for a bar), which
+            # made them legitimately schedulable at breakfast time; the
+            # category has an earliest *sensible* hour of its own, and it
+            # overrides the stated one where that is earlier (issue #59). A
+            # day too short to reach it simply doesn't get a nightlife stop,
+            # which is the right answer rather than a 15:00 club visit.
+            if _is_nightlife(poi):
+                open_h = max(open_h, NIGHTLIFE_EARLIEST_HOUR)
             # Venues open past midnight (close_h < open_h, e.g. nightlife
-            # 18:00-02:00) are treated as open through the end of the
-            # itinerary's day window -- days here never run past ~23:00, so
-            # the wraparound to the next calendar day never matters in
-            # practice and modeling it exactly would need a real time-window
-            # TSP.
+            # 18:00-02:00) are treated as open up to midnight and no further.
+            # This used to be justified by days never running past ~23:00,
+            # which issue #59 made untrue: an 18-hour day from 12:00 reaches
+            # 06:00. The clamp is now a real limitation rather than a
+            # non-issue -- a bar open until 02:00 will not be scheduled at
+            # 01:00 even on a day still running -- but it fails safe, dropping
+            # a legal stop rather than inventing one. Modelling it properly
+            # means giving the schedule a real calendar instead of a float
+            # hour, which is the same time-window rework §5 already names.
             effective_close = 24.0 if close_h < open_h else close_h
             if arrival >= effective_close:
                 continue  # closed for the rest of the day -- skip this stop
@@ -337,9 +388,22 @@ def build_multi_day_itinerary(pois_by_zone: dict[int, list[dict]], start_hub: di
         days.append({"day": zone_id + 1, "_assigned": list(pois_by_zone[zone_id]),
                      **route_day(pois_by_zone[zone_id])})
 
+    pool = []
     if fill_days:
         pool = _fill_days_to_budget(days, route_day, sightseeing_budget, distance_fn, start_hub)
         _rebalance_days(days, route_day, distance_fn, start_hub, pool)
+
+    # Evening venues cannot be placed by the passes above, and not because the
+    # day is full: those route against `sightseeing_budget`, which is the day
+    # minus the meal reserve, so on a 12-hour day from 09:00 they stop at
+    # ~18:30 -- the exact moment NIGHTLIFE_EARLIEST_HOUR lets a bar open. The
+    # stop is squeezed out by time reserved for a meal it would sit after, and
+    # a Nightlife Seeker's day (whose candidates are mostly bars) collapsed to
+    # 32% utilisation with zero nightlife stops. So they get the same
+    # treatment meals already get: a pass of their own, against the full
+    # budget, over an order that is already settled.
+    _ensure_evening_stops(days, pool, make_router(daily_minutes_budget, preserve_order=True),
+                          distance_fn, start_hub)
 
     if meal_pois:
         # Meals are timed into an order that is already settled, so this pass
@@ -352,6 +416,35 @@ def build_multi_day_itinerary(pois_by_zone: dict[int, list[dict]], start_hub: di
     for day in days:
         day.pop("_assigned", None)
     return days
+
+
+def _ensure_evening_stops(days: list[dict], pool: list[dict], route_day_ordered,
+                           distance_fn, start_hub: dict = None) -> None:
+    """Give each day one nightlife stop from the leftover pool, at the end.
+
+    Only ever appends, and only from POIs no day used -- so a day that already
+    ends at a bar is left alone, and nothing is taken away from another day to
+    supply one. A day that cannot reach NIGHTLIFE_EARLIEST_HOUR within its
+    budget simply keeps none, which is the honest answer rather than a 15:00
+    club visit (see optimize_day_route's opening-hours branch).
+    """
+    available = [p for p in pool if _is_nightlife(p)]
+    if not available:
+        return
+
+    for day in days:
+        if any(_is_nightlife(p) for p in day["route"]):
+            continue
+        anchor = day["route"][-1] if day["route"] else start_hub
+        candidates = (sorted(available, key=lambda p: distance_fn(anchor, p))
+                      if anchor else list(available))
+        for cand in candidates:
+            attempt = route_day_ordered(day["route"] + [cand])
+            if not any(_is_nightlife(p) for p in attempt["route"]):
+                continue  # didn't fit the budget -- the day ends too early
+            day.update(attempt)
+            available = [p for p in available if id(p) != id(cand)]
+            break
 
 
 def _meal_time_reserve(food_pois: list[dict], min_food_per_day: int, daily_minutes_budget: int) -> int:

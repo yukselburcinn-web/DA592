@@ -41,6 +41,7 @@ from roamwise.agents.orchestrator import MIN_RETRIEVED_POIS, RETRIEVED_POIS_PER_
 from roamwise.agents.router_agent import RouterAgent
 from roamwise.knowledge_graph.build_graph import GraphIndex
 from roamwise.models.segmentation import TravelerSegmenter
+from roamwise.optimization.routing import DEFAULT_DAY_START_HOUR
 from roamwise.optimization.travel_modes import DEFAULT_MODE
 
 DATA_DIR = Path(__file__).parent.parent / "data"
@@ -60,6 +61,7 @@ class PlanState(TypedDict, total=False):
     top_k_pois: int
     max_price_level: int
     daily_minutes_budget: int
+    day_start_hour: float
     use_real_routing: bool
     travel_mode: str
     destination_id: Optional[str]
@@ -111,7 +113,8 @@ class RoamWiseLangGraphOrchestrator:
     def plan_trip(self, preferences: dict, destination_id: str = None, n_days: int = 3,
                   travel_month: str = None, top_k_pois: int = None, max_price_level: int = 3,
                   daily_minutes_budget: int = 480, use_real_routing: bool = False,
-                  travel_mode: str = DEFAULT_MODE) -> dict:
+                  travel_mode: str = DEFAULT_MODE,
+                  day_start_hour: float = DEFAULT_DAY_START_HOUR) -> dict:
         """Same signature/return shape as RoamWiseOrchestrator.plan_trip()."""
         if top_k_pois is None:
             top_k_pois = max(MIN_RETRIEVED_POIS, n_days * RETRIEVED_POIS_PER_DAY)
@@ -119,6 +122,7 @@ class RoamWiseLangGraphOrchestrator:
             "preferences": preferences, "n_days": n_days, "travel_month": travel_month,
             "top_k_pois": top_k_pois, "max_price_level": max_price_level,
             "daily_minutes_budget": daily_minutes_budget, "use_real_routing": use_real_routing,
+            "day_start_hour": day_start_hour,
             "travel_mode": travel_mode, "destination_id": destination_id,
         }
         return self._compiled.invoke(init_state)
@@ -165,6 +169,7 @@ class RoamWiseLangGraphOrchestrator:
         routing = self.router.run(
             state["destination_id"], candidate_pois, n_days=state["n_days"],
             daily_minutes_budget=state.get("daily_minutes_budget", 480),
+            day_start_hour=state.get("day_start_hour", DEFAULT_DAY_START_HOUR),
             use_real_routing=state.get("use_real_routing", False),
             travel_mode=state.get("travel_mode", DEFAULT_MODE),
             narrate=False,
