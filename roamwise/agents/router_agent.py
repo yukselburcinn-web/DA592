@@ -5,7 +5,8 @@ using graph-enriched POI context, then narrates the resulting itinerary."""
 from roamwise.agents.llm_client import LLMClient, get_default_llm_client
 from roamwise.knowledge_graph.build_graph import GraphIndex
 from roamwise.models.segmentation import POIZoner
-from roamwise.optimization.routing import FOOD_CATEGORY, build_multi_day_itinerary
+from roamwise.optimization.routing import (
+    DEFAULT_DAY_START_HOUR, FOOD_CATEGORY, build_multi_day_itinerary)
 from roamwise.optimization.travel_modes import DEFAULT_MODE, get_travel_mode
 
 # Lunch and dinner: the itinerary should read like a day a person could
@@ -50,7 +51,7 @@ class RouterAgent:
         self.llm = llm or get_default_llm_client()
 
     def run(self, destination_id: str, candidate_pois: list[dict], n_days: int,
-            daily_minutes_budget: int = 480, day_start_hour: float = 9.0,
+            daily_minutes_budget: int = 480, day_start_hour: float = DEFAULT_DAY_START_HOUR,
             respect_opening_hours: bool = True, use_real_routing: bool = False,
             travel_mode=DEFAULT_MODE, min_food_per_day: int = MIN_FOOD_PER_DAY,
             narrate: bool = True) -> dict:

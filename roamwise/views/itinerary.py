@@ -17,6 +17,7 @@ import streamlit as st
 
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
 from roamwise.models.forecasting import forecast_city
+from roamwise.optimization.routing import DEFAULT_DAY_START_HOUR
 from roamwise.optimization.travel_modes import TRAVEL_MODES
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
@@ -155,8 +156,19 @@ with st.sidebar:
         [None] + [f"2026-{m:02d}" for m in range(9, 13)] + [f"2027-{m:02d}" for m in range(1, 9)],
         format_func=lambda x: "Flexible / let RoamWise recommend" if x is None else x,
     )
-    daily_hours = st.slider("Daily sightseeing time (hours)", 3, 12, 8,
-                             help="How many hours per day to spend travelling/visiting -- feeds the router's time budget.")
+    day_start_hour = st.slider(
+        "Day starts at", 7, 12, int(DEFAULT_DAY_START_HOUR),
+        format="%d:00",
+        help="What time each day begins. A later start shifts the whole day, so evening "
+             "venues stay reachable within the same number of hours.",
+    )
+    daily_hours = st.slider(
+        "Time out per day (hours)", 12, 18, 12, step=3,
+        help="The whole active day, not just museums -- travel, visits, meals and any "
+             "evening stop all come out of it. Nightlife venues open at 18:00, so a day "
+             "has to be long enough to still be out then for one to be scheduled at all.",
+    )
+    st.caption(f"Your day runs {day_start_hour:02d}:00 – {(day_start_hour + daily_hours) % 24:02d}:00.")
     travel_mode = st.radio(
         "How are you getting around?",
         list(TRAVEL_MODES),
@@ -182,6 +194,7 @@ if run:
     with st.spinner("Agents at work: segmenting traveler, forecasting demand, retrieving grounded context, routing..."):
         result = orch.plan_trip(preferences, destination_id=destination_id, n_days=n_days, travel_month=travel_month,
                                  daily_minutes_budget=daily_hours * 60,
+                                 day_start_hour=float(day_start_hour),
                                  use_real_routing=use_real_routing, travel_mode=travel_mode)
 
     city_name = orch.destinations.set_index("destination_id").loc[result["destination_id"], "city"]
