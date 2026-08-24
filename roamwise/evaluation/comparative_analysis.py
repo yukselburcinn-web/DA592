@@ -380,7 +380,11 @@ def run_comparative_analysis(top_k: int = 8) -> pd.DataFrame:
 
             grounded_rate = 1.0 if poi_results else 0.0
 
-            routing = router.run(dest_id, candidate_pois, n_days=1)
+            # narrate=False: only the day's geometry is scored below, never
+            # the prose. Left on, this fires one generation per query per
+            # config -- free under TemplateLLMClient, but hours of model time
+            # once a real LLM is configured (same waste as issue #57).
+            routing = router.run(dest_id, candidate_pois, n_days=1, narrate=False)
             day = routing["itinerary"][0]
             n_stops = len(day["route"])
             km_per_stop = day["distance_km"] / n_stops if n_stops else None

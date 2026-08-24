@@ -23,19 +23,32 @@ class FusionRAGAgent:
         self.llm = llm or get_default_llm_client()
 
     def run(self, query: str, destination_id: str, archetype: str = None,
-            config: str = "fusion", top_k: int = 8) -> dict:
+            config: str = "fusion", top_k: int = 8, narrate: bool = True) -> dict:
+        """narrate=False skips the LLM paraphrase and returns only `facts`.
+
+        The orchestrator passes narrate=False because it feeds this straight
+        into another LLM prompt: paraphrasing structured facts with one
+        generation just to hand the result to a second generation costs a
+        full model pass and loses information twice over (issue #57).
+        """
         results = self.retriever.retrieve(
             query, config=config, destination_id=destination_id, archetype=archetype, top_k=top_k,
         )
-        narrative = self._narrate(query, results)
+        facts = self._facts(query, results)
         return {
             "query": query,
             "config": config,
             "results": results,
-            "narrative": narrative,
+            "facts": facts,
+            "narrative": self._narrate(facts) if narrate else None,
         }
 
-    def _narrate(self, query: str, results: list[dict]) -> str:
+    def _facts(self, query: str, results: list[dict]) -> str:
+        """The grounded, deterministic summary of what retrieval returned.
+
+        This is the honest input to any downstream reasoning step: every line
+        is a retrieved snippet verbatim, so nothing here can be an invention.
+        """
         if not results:
             return "No retrieval context available (standard-prompting configuration)."
         bullets = "\n".join(f"- {_SOURCE_TAG_RE.sub('', r['text'])}" for r in results[:6])
@@ -43,14 +56,16 @@ class FusionRAGAgent:
         # reason as orchestrator._synthesize: bullets is already flush-left,
         # so splicing it into an indented template defeats dedent and the
         # template lines render as a Markdown code block.
-        prompt = "\n".join([
+        return "\n".join([
             f"Query: {query}",
             "Grounded context retrieved from the knowledge base:",
             bullets,
         ])
+
+    def _narrate(self, facts: str) -> str:
         return self.llm.complete(
             system="Summarize only the facts present in the retrieved context. Do not invent places.",
-            prompt=prompt,
+            prompt=facts,
         )
 
 

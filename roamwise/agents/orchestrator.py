@@ -109,8 +109,12 @@ class RoamWiseOrchestrator:
         # --- Node 3: Fusion RAG Agent retrieves grounded, archetype-aware POIs ---
         with log_step(log, "Fusion RAG retrieval", config=self.retrieval_config) as detail:
             query = f"best {seg['archetype'].lower()} points of interest and experiences"
+            # narrate=False: nothing downstream reads this agent's prose --
+            # the UI shows the retrieved documents themselves, and _synthesize
+            # narrates from the itinerary (issues #56, #57).
             rag = self.fusion_rag.run(
                 query, destination_id=destination_id, archetype=seg["archetype"], config=self.retrieval_config, top_k=top_k_pois,
+                narrate=False,
             )
             state["fusion_rag"] = rag
             detail["query"] = query
@@ -138,9 +142,13 @@ class RoamWiseOrchestrator:
         # --- Node 4: Router Agent builds the optimized day-by-day route ---
         with log_step(log, "Router Agent (zoning + 2-opt)",
                       n_candidate_pois=len(candidate_pois), travel_mode=travel_mode) as detail:
+            # narrate=False for the same reason as the retrieval node above:
+            # _synthesize narrates from this agent's `facts` directly, so an
+            # LLM paraphrase here would only be read by another LLM (#57).
             routing = self.router.run(destination_id, candidate_pois, n_days=n_days,
                                        daily_minutes_budget=daily_minutes_budget,
-                                       use_real_routing=use_real_routing, travel_mode=travel_mode)
+                                       use_real_routing=use_real_routing, travel_mode=travel_mode,
+                                       narrate=False)
             state["routing"] = routing
             state["travel_mode"] = routing["travel_mode"]
             got_real_routing = any(d.get("used_real_routing") for d in routing["itinerary"])
@@ -180,23 +188,37 @@ class RoamWiseOrchestrator:
         return sum(vals) / len(vals) if vals else 0.3
 
     def _synthesize(self, state: dict) -> str:
+        """Narrate the plan from the itinerary alone.
+
+        This deliberately does *not* include the Fusion RAG context. Retrieval
+        returns candidates; the router then drops most of them on opening
+        hours, travel time and the day budget -- on a measured 3-day Berlin
+        plan, 4 of the 6 retrieved POIs handed to this prompt were not in the
+        itinerary at all. Presented with two lists of places and no statement
+        of which one was the plan, the model recommended from both, so the
+        narrative sent users to stops the route never contained (issue #56).
+        The itinerary is the only authoritative list of places, and it now
+        carries each stop's own description (RouterAgent._facts), so nothing
+        is lost by leaving the candidate set out.
+
+        Built as a join, not an indented triple-quoted f-string: the injected
+        facts are already flush-left, so splicing them into a further-indented
+        template leaves the template's own lines indented and
+        TemplateLLMClient's dedent can't undo that -- which renders as a
+        Markdown code block in the UI instead of prose (issue #22).
+        """
         city = self.destinations.set_index("destination_id").loc[state["destination_id"], "city"]
-        # Built as a join, not an indented triple-quoted f-string: the
-        # sub-agent narratives are already dedented, so splicing them into a
-        # further-indented template leaves the template's own lines indented
-        # (their common-whitespace no longer matches the flush-left injected
-        # text) and TemplateLLMClient's dedent can't undo that. Under the
-        # default no-API-key LLM, that indentation renders as a Markdown code
-        # block in the UI instead of prose.
         prompt = "\n\n".join([
             f"Trip plan for a {state['archetype']} traveler visiting {city} ({state['destination_id']}).",
             f"Forecast: {state['forecast']['narrative']}",
-            f"Retrieved context ({state['fusion_rag']['config']} configuration): {state['fusion_rag']['narrative']}",
-            f"Itinerary: {state['routing']['narrative']}",
+            state["routing"]["facts"],
         ])
         return self.llm.complete(
-            system="You are RoamWise, an agentic travel-planning assistant. Combine the forecast, "
-                   "retrieved context, and itinerary into one coherent recommendation.",
+            system="You are RoamWise, an agentic travel-planning assistant. Write a coherent "
+                   "recommendation for the itinerary below, describing its stops in the order "
+                   "given and working in the forecast's timing advice. The itinerary is the "
+                   "complete plan: describe only the stops it lists, and never mention or "
+                   "suggest any other place, attraction or venue.",
             prompt=prompt,
         )
 

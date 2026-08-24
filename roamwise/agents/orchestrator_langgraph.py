@@ -144,6 +144,7 @@ class RoamWiseLangGraphOrchestrator:
         rag = self.fusion_rag.run(
             query, destination_id=state["destination_id"], archetype=state["archetype"],
             config=self.retrieval_config, top_k=state.get("top_k_pois", 12),
+            narrate=False,
         )
         return {"fusion_rag": rag}
 
@@ -166,23 +167,26 @@ class RoamWiseLangGraphOrchestrator:
             daily_minutes_budget=state.get("daily_minutes_budget", 480),
             use_real_routing=state.get("use_real_routing", False),
             travel_mode=state.get("travel_mode", DEFAULT_MODE),
+            narrate=False,
         )
         return {"routing": routing, "travel_mode": routing["travel_mode"]}
 
     def _synthesize(self, state: PlanState) -> dict:
+        """Kept deliberately identical to orchestrator._synthesize -- see that
+        method's docstring for why the retrieval context is excluded (#56) and
+        why this is a join rather than an indented f-string (#22)."""
         city = self.destinations.set_index("destination_id").loc[state["destination_id"], "city"]
-        prompt = f"""
-        Trip plan for a {state['archetype']} traveler visiting {city} ({state['destination_id']}).
-
-        Forecast: {state['forecast']['narrative']}
-
-        Retrieved context ({state['fusion_rag']['config']} configuration): {state['fusion_rag']['narrative']}
-
-        Itinerary: {state['routing']['narrative']}
-        """
+        prompt = "\n\n".join([
+            f"Trip plan for a {state['archetype']} traveler visiting {city} ({state['destination_id']}).",
+            f"Forecast: {state['forecast']['narrative']}",
+            state["routing"]["facts"],
+        ])
         final_plan = self.llm.complete(
-            system="You are RoamWise, an agentic travel-planning assistant. Combine the forecast, "
-                   "retrieved context, and itinerary into one coherent recommendation.",
+            system="You are RoamWise, an agentic travel-planning assistant. Write a coherent "
+                   "recommendation for the itinerary below, describing its stops in the order "
+                   "given and working in the forecast's timing advice. The itinerary is the "
+                   "complete plan: describe only the stops it lists, and never mention or "
+                   "suggest any other place, attraction or venue.",
             prompt=prompt,
         )
         return {"final_plan": final_plan}

@@ -12,6 +12,36 @@ from roamwise.optimization.travel_modes import DEFAULT_MODE, get_travel_mode
 # actually live, not a march between museums (issue #20).
 MIN_FOOD_PER_DAY = 2
 
+# POI descriptions are full Wikipedia lead paragraphs -- several hundred words
+# each. A dozen of them verbatim would dominate the synthesis prompt and, under
+# a local model, cost real generation time for context the narrator only needs
+# the gist of (issue #57). One sentence is enough to say what a place is.
+_DESCRIPTION_CHARS = 200
+# Cutting at the *first* ". " splits on abbreviations rather than sentences:
+# "F. W. Borchardt" became "F." and "Pariser Platz (transl. ..." became
+# "Pariser Platz (transl.". Real first sentences in this corpus run far longer
+# than any abbreviation, so a boundary only counts once past this length.
+_MIN_SENTENCE_CHARS = 60
+
+
+def _clock(hour: float) -> str:
+    """Fractional hour (13.5) -> wall clock ("13:30")."""
+    hours, minutes = divmod(int(round(hour * 60)), 60)
+    return f"{hours % 24:02d}:{minutes:02d}"
+
+
+def _summarize(description) -> str:
+    """First sentence of a POI description, bounded, as an inline clause."""
+    if not description or not isinstance(description, str):
+        return ""
+    text = " ".join(description.split())  # collapse newlines so lines stay one-per-stop
+    cutoff = text.find(". ", _MIN_SENTENCE_CHARS)
+    if cutoff != -1 and cutoff <= _DESCRIPTION_CHARS:
+        return f" -- {text[:cutoff + 1]}"
+    if len(text) <= _DESCRIPTION_CHARS:
+        return f" -- {text}"
+    return f" -- {text[:_DESCRIPTION_CHARS].rstrip()}..."
+
 
 class RouterAgent:
     def __init__(self, graph_index: GraphIndex = None, llm: LLMClient = None):
@@ -22,7 +52,10 @@ class RouterAgent:
     def run(self, destination_id: str, candidate_pois: list[dict], n_days: int,
             daily_minutes_budget: int = 480, day_start_hour: float = 9.0,
             respect_opening_hours: bool = True, use_real_routing: bool = False,
-            travel_mode=DEFAULT_MODE, min_food_per_day: int = MIN_FOOD_PER_DAY) -> dict:
+            travel_mode=DEFAULT_MODE, min_food_per_day: int = MIN_FOOD_PER_DAY,
+            narrate: bool = True) -> dict:
+        """narrate=False skips the LLM paraphrase and returns only `facts` --
+        see FusionRAGAgent.run()'s docstring and issue #57."""
         n_days = max(1, min(n_days, len(candidate_pois))) if candidate_pois else 1
         mode = get_travel_mode(travel_mode)
         # Days start from the city's own center (proxy for a centrally booked
@@ -52,9 +85,10 @@ class RouterAgent:
             food_pois=self._food_pois(destination_id, candidate_pois),
             min_food_per_day=min_food_per_day,
         )
-        narrative = self._narrate(destination_id, itinerary, mode)
+        facts = self._facts(destination_id, itinerary, mode)
         return {"destination_id": destination_id, "itinerary": itinerary,
-                "travel_mode": mode.key, "narrative": narrative}
+                "travel_mode": mode.key, "facts": facts,
+                "narrative": self._narrate(facts) if narrate else None}
 
     def _food_pois(self, destination_id: str, candidate_pois: list[dict]) -> list[dict]:
         """Meal candidates come straight from the knowledge graph rather than
@@ -71,16 +105,36 @@ class RouterAgent:
         pois = self.graph.city_pois(destination_id, category=FOOD_CATEGORY)
         return [already.get(p.get("poi_id"), p) for p in pois]
 
-    def _narrate(self, destination_id: str, itinerary: list[dict], mode) -> str:
-        lines = []
+    def _facts(self, destination_id: str, itinerary: list[dict], mode) -> str:
+        """The itinerary as grounded, deterministic text -- one line per stop.
+
+        Each stop carries its own description rather than leaving downstream
+        text to source those separately: the final synthesis used to be handed
+        the *retrieval* context alongside this, which is a different and wider
+        set of places (most retrieved candidates never survive the router's
+        time/opening-hour constraints), and the model treated both lists as
+        things to recommend (issue #56). Everything a narrator needs to
+        describe this plan is therefore here, tied to a stop that is actually
+        in it.
+        """
+        lines = [f"Optimized itinerary for {destination_id} ({mode.label.lower()}):"]
         for day in itinerary:
-            stops = " -> ".join(p["name"] for p in day["route"]) or "no stops fit the time budget"
             routing_note = "real street routing" if day.get("used_real_routing") else "straight-line estimate"
             hours, minutes = divmod(day["total_minutes"], 60)
-            lines.append(f"Day {day['day']}: {stops} ({day['distance_km']}km, {hours}h {minutes}m, {routing_note})")
-        prompt = (f"Optimized itinerary for {destination_id} ({mode.label.lower()}):\n"
-                  + "\n".join(lines))
-        return self.llm.complete(system="Present the itinerary clearly, day by day.", prompt=prompt)
+            lines.append(f"\nDay {day['day']} ({day['distance_km']}km, {hours}h {minutes}m, {routing_note}):")
+            if not day["route"]:
+                lines.append("  (no stops fit the time budget)")
+                continue
+            schedule = day.get("schedule", [])
+            for i, poi in enumerate(day["route"], 1):
+                slot = schedule[i - 1] if i <= len(schedule) else None
+                when = f"{_clock(slot['arrival'])} " if slot else ""
+                lines.append(f"  {i}. {when}{poi['name']} ({poi.get('category', 'stop')})"
+                             f"{_summarize(poi.get('description'))}")
+        return "\n".join(lines)
+
+    def _narrate(self, facts: str) -> str:
+        return self.llm.complete(system="Present the itinerary clearly, day by day.", prompt=facts)
 
 
 if __name__ == "__main__":
