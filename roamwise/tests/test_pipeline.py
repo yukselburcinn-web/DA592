@@ -492,6 +492,108 @@ def test_orchestrator_end_to_end():
     assert result["final_plan"]
 
 
+# --- issues #56 / #57: the final narrative must describe the itinerary and
+# nothing else, and must not cost a generation per intermediate agent ---
+
+def _routed_names(result):
+    return {p["name"] for day in result["routing"]["itinerary"] for p in day["route"]}
+
+
+def _retrieved_names(result):
+    return {r["name"] for r in result["fusion_rag"]["results"] if r.get("name")}
+
+
+def ungrounded_places(result) -> list[str]:
+    """Retrieved-but-unrouted places the narrative names without cover.
+
+    "Without cover" is the operative part. A stop's own grounded description
+    may legitimately name a neighbour -- the Humboldt Forum's says it sits on
+    Museum Island, so a narrative describing that stop says "Museum Island"
+    while recommending nothing off-route. Flagging that would make the check
+    fire on correct output. What must never happen is a place appearing that
+    the model was never shown: that is either an invention or a leak from the
+    candidate list issue #56 removed.
+    """
+    off_route = _retrieved_names(result) - _routed_names(result)
+    shown = result["routing"]["facts"]
+    return sorted(name for name in off_route
+                  if name in result["final_plan"] and name not in shown)
+
+
+@pytest.mark.parametrize("city", CITY_CODES)
+def test_synthesis_prompt_offers_no_place_outside_the_itinerary(city):
+    """Issue #56: retrieval returns candidates, and the router drops most of
+    them on opening hours and the time budget. Handing both lists to the
+    narrator made it recommend stops the route never contained.
+
+    Under TemplateLLMClient `final_plan` is the prompt verbatim, so asserting
+    on it asserts on exactly what a real model would be shown -- the property
+    that actually has to hold, and one no local-model download is needed to
+    check. Every city is swept because whether a candidate survives routing
+    is a per-city accident of geography and opening hours.
+    """
+    orch = RoamWiseOrchestrator()
+    prefs = {"budget": 0.6, "culture": 0.9, "nature": 0.2, "nightlife": 0.2, "relax": 0.3, "adventure": 0.2}
+    result = orch.plan_trip(prefs, destination_id=city, n_days=3)
+
+    off_route = _retrieved_names(result) - _routed_names(result)
+    assert off_route, f"{city}: retrieval should surface candidates the router drops -- else this proves nothing"
+    assert not ungrounded_places(result), \
+        f"{city}: places not in the itinerary were offered to the narrator: {ungrounded_places(result)}"
+
+
+def test_planning_spends_one_generation_per_user_visible_narrative():
+    """Issue #57: a trip used to cost four sequential generations, two of
+    which produced text no user ever sees -- the retrieval and routing
+    paraphrases existed only to be pasted into the synthesis prompt. Only the
+    forecast blurb and the final plan are rendered, so only those two may
+    cost a model pass."""
+    from roamwise.agents.llm_client import LLMClient
+
+    class CountingLLM(LLMClient):
+        def __init__(self):
+            self.calls = []
+
+        def complete(self, system: str, prompt: str) -> str:
+            self.calls.append(system)
+            return prompt
+
+    llm = CountingLLM()
+    orch = RoamWiseOrchestrator(llm=llm)
+    prefs = {"budget": 0.6, "culture": 0.9, "nature": 0.2, "nightlife": 0.2, "relax": 0.3, "adventure": 0.2}
+    orch.plan_trip(prefs, destination_id=MAIN_CITY, n_days=3)
+
+    assert len(llm.calls) == 2, f"expected forecast + synthesis only, got {len(llm.calls)}: {llm.calls}"
+
+
+def test_stop_descriptions_are_not_cut_at_an_abbreviation():
+    """Splitting on the first ". " turned "F. W. Borchardt" into "F." and
+    "Pariser Platz (transl. ..." into "Pariser Platz (transl.", so a stop's
+    one-line description said nothing about it."""
+    from roamwise.agents.router_agent import _summarize
+
+    assert _summarize("F. W. Borchardt is a restaurant in Berlin, open since 1853. It moved twice.") \
+        .startswith(" -- F. W. Borchardt is a restaurant")
+    assert "Paris Square" in _summarize(
+        "Pariser Platz (transl. Paris Square) is a square in central Berlin, by the "
+        "Brandenburg Gate. It is named after the French capital.")
+    assert _summarize(None) == ""
+    assert _summarize("") == ""
+
+
+def test_itinerary_facts_describe_every_routed_stop():
+    """The narrator can only describe stops from what it is given, so dropping
+    the retrieval context (#56) is only safe if the itinerary carries each
+    stop's own description."""
+    orch = RoamWiseOrchestrator()
+    prefs = {"budget": 0.6, "culture": 0.9, "nature": 0.2, "nightlife": 0.2, "relax": 0.3, "adventure": 0.2}
+    result = orch.plan_trip(prefs, destination_id=MAIN_CITY, n_days=2)
+
+    facts = result["routing"]["facts"]
+    for name in _routed_names(result):
+        assert name in facts, f"{name} is routed but missing from the itinerary facts"
+
+
 def test_comparative_analysis_shows_fusion_advantage():
     df = run_comparative_analysis(top_k=8)
     summary = summarize(df)

@@ -112,29 +112,30 @@ The orchestrator's `plan_trip()` runs all five nodes in sequence: segmentation �
 
 **Takeaway:** at this project's current scope — a fixed five-step pipeline with one conditional branch — the custom orchestrator is genuinely simpler with no behavioral downside, which is why it stayed the default. LangGraph's value only shows up once the orchestration needs something the custom version doesn't have: retries/backoff on a failing tool call, a human-approval step before booking, parallel exploration of multiple candidate destinations, or resumable/checkpointed runs across a multi-turn conversation. None of those are currently implemented in either orchestrator; if the project grows toward them, `orchestrator_langgraph.py` is the better foundation to extend.
 
-#### 3.4.2 A live, non-template LLM run (issue #54)
+#### 3.4.2 A live, non-template LLM run (issues #54, #56, #57)
 
 The Anthropic path (§3.4, issue #7) needs a paid, provisioned API key that no build environment so far has had, which is why every prior report used the deterministic `TemplateLLMClient`. `LocalHuggingFaceLLMClient` closes that gap for free: `mlx-community/Qwen3-4B-Instruct-2507-4bit` (Qwen3, Apache-2.0, 4-bit quantized for Apple's MLX runtime — Apple Silicon only) runs entirely on-device, downloading once (~2.1GB) to the user's own Hugging Face cache rather than being bundled with the repo (see `requirements-local-llm.txt` for why committing the weights isn't practical: GitHub blocks any single file over 100MB outright, and recommends whole repos stay under 1–5GB).
 
-Run with `ROAMWISE_LOCAL_LLM=1`, a 2-day Culture Enthusiast trip to Berlin took **99 seconds end to end** (four chained `complete()` calls — Forecaster, FusionRAG, Router, and the final synthesis — each running its own generation pass on an M-series MacBook), versus low-single-digit milliseconds for the same run under `TemplateLLMClient`. That is the honest cost of a real generative pass: two orders of magnitude slower, in exchange for actual open-ended narration instead of templated fact composition.
+Running it exposed two problems that the deterministic default had been hiding for the entire life of the project, both fixed in issues #56 and #57.
 
-**Grounding check, not just a quality read.** Every venue name the model's final narrative mentions was cross-checked against `result["routing"]["itinerary"]`'s actual routed stops:
+**The narrative recommended places that were not in the itinerary (#56).** `_synthesize()` used to hand the model two lists of places — the Fusion RAG *candidates* and the routed *itinerary* — with nothing saying which was the plan. Those are very different sets: retrieval returns candidates, and the router then drops most of them on opening hours, travel time and the day budget. On a measured 3-day Berlin plan, **4 of the 6** retrieved POIs pasted into that prompt were not in the itinerary at all, so the model blended both and sent the reader to stops the route never contained. Under `TemplateLLMClient` the prompt is echoed back verbatim, so no amount of offline testing could surface this: it is a prompt-design bug that only a real generative model can express. The fix removes the candidate list from the prompt entirely and moves each stop's description onto the stop itself (`RouterAgent._facts`), so the itinerary is the only list of places the narrator ever sees.
 
-```
-Ground truth (router's output):        Mentioned in the LLM narrative:
-Day 1: Pariser Platz            [landmark]    ✓ "Pariser Platz"
-Day 1: Deutsche Kinemathek      [culture]     ✓ "Deutsche Kinemathek"
-Day 1: F. W. Borchardt          [food]        ✓ "F. W. Borchardt (Borchardt House)"
-Day 1: International Theatre Institute [culture] ✓ "International Theatre Institute (ITI)"
-Day 1: Café Moskau              [food]        ✓ "Café Moskau"
-Day 2: Bijou Bar                [nightlife]   ✓ "Bijou Bar"
-Day 2: Kiraku                   [food]        ✓ "Kiraku Café"
-Day 2: Museum Island            [culture]     ✓ "Museum Island (Humboldt Forum, Pergamon, ...)"
-```
+**A trip cost four generations, two of which nobody read (#57).** `plan_trip()` ran `ForecasterAgent._narrate`, `FusionRAGAgent._narrate`, `RouterAgent._narrate` and `_synthesize` in sequence. Only the first and last are rendered — `views/itinerary.py` reads `forecast["narrative"]` and `final_plan` and nothing else. The middle two existed solely to paraphrase structured data into prose that was then pasted into another model's prompt, which costs a full generation pass and paraphrases the same facts twice. Both agents now expose deterministic `facts` alongside their optional `narrate()`, and the orchestrator consumes `facts`.
 
-Every one of the eight routed stops appears, and the model introduced no extra venues — the ordering and identity of *what to visit* stayed fully grounded in the retrieved/routed data it was given. What it did add, unprompted, was specific-sounding elaboration on top of that scaffold: claimed exhibition contents at the Deutsche Kinemathek ("1950s East German cinema," "African film archives"), a themed sub-collection breakdown at the Humboldt Forum, and a categorical description of Kiraku as "Japanese-inspired." None of that is present in the retrieved context or the knowledge graph, and none of it is checked by anything in the pipeline — it is the model's own world knowledge (or invention) layered on top of grounded facts, which is a materially different and harder-to-catch failure mode than inventing a venue outright. The full raw output is preserved in `evaluation/local_llm_sample_run.md` in this repository.
+The two fixes compound, because the second one also removes a stage of paraphrase drift feeding the first.
 
-This is a small, single-run qualitative check, not the systematic hallucination measurement `run_llm_hallucination_probe()` performs (§3.5) — that function is written against `AnthropicLLMClient` specifically and issue #54 did not extend it to the local client. Doing so, and running it across more than one trip, is the natural next step (§7).
+| | Before | After |
+|---|---|---|
+| LLM generations per trip | 4 | **2** (forecast + final plan — the two a user actually reads) |
+| Berlin, 3-day, wall clock | **>400s** (measurement timed out) | **22.5s** |
+| Paris, 3-day, wall clock | not measured (see above) | **48.1s** |
+| Retrieved-but-unrouted places offered to the narrator | 17 candidates in-prompt | **0** — not in the prompt at all |
+
+**Grounding check.** Over BER and PAR 3-day plans, all **11 of 11** routed stops are named in each narrative, and **0** places appear that the model was not shown. That last criterion needs stating precisely, because the obvious version of it is wrong: an off-route name appearing in the text is *not* by itself evidence of invention. The Humboldt Forum's own grounded description says it sits on Museum Island, so a narrative correctly describing that stop says "Museum Island" while recommending nothing off-route. The check that actually distinguishes a fault is whether a named place appears **nowhere in what the model was given** — `tests/test_pipeline.py::ungrounded_places` implements exactly that, and `test_synthesis_prompt_offers_no_place_outside_the_itinerary` enforces it per city under the template client, where the prompt *is* the output and no model download is needed.
+
+What this does **not** fix is the subtler failure documented when #54 landed: the model still layers unverified elaboration on top of correctly-grounded stops (claimed exhibition contents, atmosphere descriptions). Nothing in the pipeline checks those, and the grounding criterion above deliberately does not claim to — it constrains *which places* appear, not *what is said about them*. The full raw output of a post-fix run is preserved in `evaluation/local_llm_sample_run.md`.
+
+This remains a per-run structural check, not the systematic hallucination measurement `run_llm_hallucination_probe()` performs (§3.5) — that function is written against `AnthropicLLMClient` specifically and was not extended to the local client (§7).
 
 ### 3.5 Comparative analysis
 
