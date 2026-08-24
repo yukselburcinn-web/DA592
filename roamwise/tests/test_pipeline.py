@@ -618,6 +618,31 @@ def test_langgraph_orchestrator_matches_custom_orchestrator_interface():
     assert pinned["destination_id"] == MAIN_CITY
 
 
+def test_local_llm_is_opt_in_and_falls_back_safely(monkeypatch):
+    """Issue #54: constructing LocalHuggingFaceLLMClient can trigger a
+    multi-gigabyte model download, so get_default_llm_client() must never
+    reach for it just because mlx-lm happens to be importable -- only on the
+    explicit ROAMWISE_LOCAL_LLM opt-in. Runs regardless of whether mlx-lm is
+    actually installed, unlike the test below."""
+    from roamwise.agents.llm_client import TemplateLLMClient, get_default_llm_client
+
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("ROAMWISE_LOCAL_LLM", raising=False)
+    assert isinstance(get_default_llm_client(), TemplateLLMClient)
+
+
+def test_local_llm_client_produces_real_generation():
+    """Optional: skipped unless mlx-lm is installed (see
+    requirements-local-llm.txt) -- this actually loads the model and runs
+    generation, so it also downloads several GB on first run."""
+    pytest.importorskip("mlx_lm")
+    from roamwise.agents.llm_client import LocalHuggingFaceLLMClient
+
+    client = LocalHuggingFaceLLMClient()
+    out = client.complete(system="Reply with one short sentence.", prompt="Name a city in France.")
+    assert out.strip()
+
+
 # app.py is only the router since the System logs screen landed (#41); the
 # import chain that reaches the agent/retrieval modules now hangs off the page
 # scripts, so both have to be loaded to prove the app can actually start.
