@@ -1,0 +1,14 @@
+# Optional extra for agents/llm_client.py::LocalHuggingFaceLLMClient (issue
+# #54 -- a free, no-API-key alternative to AnthropicLLMClient / issue #7).
+#
+# Not installed by default / not part of requirements.txt: mlx-lm only runs
+# on Apple Silicon (it's built on Apple's own MLX array framework, with no
+# equivalent runtime elsewhere), and even there it triggers a multi-gigabyte
+# model download to the user's Hugging Face cache on first use -- neither of
+# which the rest of this project assumes. Install this, then set
+# ROAMWISE_LOCAL_LLM=1, to opt in.
+#
+#   pip install -r requirements-local-llm.txt
+#   export ROAMWISE_LOCAL_LLM=1
+
+mlx-lm==0.31.3

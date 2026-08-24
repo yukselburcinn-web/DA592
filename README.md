@@ -78,6 +78,17 @@ export ANTHROPIC_API_KEY=sk-...
 
 No code changes needed — `get_default_llm_client()` detects the key automatically. This also unlocks a real generative-hallucination probe in `evaluation/comparative_analysis.py::run_llm_hallucination_probe`.
 
+### Optional: local LLM narration (no API key, Apple Silicon only)
+
+A free alternative to the Anthropic path above ([`#54`](https://github.com/yukselburcinn-web/DA592/issues/54)): a small open-weight model (Qwen3-4B-Instruct, Apache-2.0) running entirely on-device via MLX, no key, no per-call cost.
+
+```bash
+pip install -r requirements-local-llm.txt
+export ROAMWISE_LOCAL_LLM=1
+```
+
+The model (~2.1GB) downloads to your own Hugging Face cache on first use, not to this repo — see `requirements-local-llm.txt` for why. Generation is much slower than the template default (roughly two orders of magnitude; see [`REPORT.md` §3.4.2](REPORT.md#342-a-live-non-template-llm-run-issue-54) for a worked example and a grounding check against the routed itinerary). If `ANTHROPIC_API_KEY` is also set, Anthropic takes priority.
+
 ### Optional: LangGraph orchestrator
 
 `agents/orchestrator.py` (the default) is a hand-rolled state machine. `agents/orchestrator_langgraph.py` is an alternative implementation of the exact same flow on `langgraph.graph.StateGraph`, with an identical `plan_trip()` interface. See [`REPORT.md` §3.4.1](REPORT.md#341-custom-orchestrator-vs-langgraph--a-direct-comparison) for a direct comparison. To use it:
