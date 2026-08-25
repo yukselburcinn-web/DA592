@@ -13,9 +13,11 @@ import pandas as pd
 import pytest
 
 from roamwise.knowledge_graph.build_graph import CATEGORY_AFFINITY, GraphIndex
+from roamwise.pipeline.common import NOT_A_SIGHT_TYPES
 from roamwise.models.forecasting import forecast_city, best_months_to_visit
 from roamwise.models.segmentation import TravelerSegmenter, POIZoner
 from roamwise.retrieval.fusion import FusionRetriever
+from roamwise.retrieval.graph_search import GraphSearchIndex
 from roamwise.optimization.routing import (
     NIGHTLIFE_EARLIEST_HOUR, build_multi_day_itinerary, optimize_day_route)
 from roamwise.optimization.travel_modes import get_travel_mode
@@ -144,6 +146,175 @@ def test_fusion_retrieval_all_configs_run():
         else:
             assert len(results) > 0
             assert all(r["destination_id"] == MAIN_CITY for r in results)
+
+
+def test_a_crowded_category_does_not_starve_a_more_famous_one():
+    """Ordering archetype preferences lexicographically on (weight, popularity)
+    let one category bury every lower-weighted one outright. Culture Enthusiast
+    weights `museum` 1.0 and `landmark` 0.9, and the deepest city holds far
+    more museums than retrieval asks for, so every rank up to the museum count
+    was a museum and the catalogue's single most popular POI -- a landmark --
+    sat behind the city's *last* museum, past the depth anything reads (#63).
+
+    Asserted as a property rather than against a POI name: what must hold is
+    that the top-weighted category cannot monopolise the ranking while a
+    better-known place in a nearly-as-preferred category waits behind it.
+    """
+    idx = GraphIndex()
+    city = city_with_category("landmark")
+    if city is None or not city_with_category("museum", [city]):
+        pytest.skip("needs a city holding both museums and landmarks")
+
+    ranked = idx.archetype_preferred_pois("Culture Enthusiast", city, top_k=200)
+    assert ranked, "the archetype should prefer something in this city"
+
+    # The most popular POI in any category this archetype prefers at all.
+    most_popular = max(ranked, key=lambda p: p["popularity_score"])
+    rank = next(i for i, p in enumerate(ranked, 1) if p["poi_id"] == most_popular["poi_id"])
+
+    top_category = max(CATEGORY_AFFINITY["Culture Enthusiast"].items(), key=lambda kv: kv[1])[0]
+    n_top_category = sum(1 for p in ranked if p.get("category") == top_category)
+    if most_popular.get("category") == top_category:
+        pytest.skip("the most popular POI is already in the top-weighted category")
+
+    assert rank < n_top_category, (
+        f"{most_popular['name']} ({most_popular['category']}, "
+        f"popularity {most_popular['popularity_score']}) ranks {rank}, behind all "
+        f"{n_top_category} {top_category} POIs -- the starvation of #63")
+    # And it has to survive the depth retrieval actually reads.
+    assert rank <= 48
+
+
+def test_retrieval_query_describes_what_the_traveler_wants_not_the_label():
+    """The query was built by interpolating the archetype's name, which made
+    BM25 match the literal label word: "culture" surfaced a television channel
+    whose description happens to use it (#63). The query has to name
+    categories, not the archetype."""
+    from roamwise.retrieval.query import CATEGORY_PHRASE, archetype_query
+
+    for archetype, affinities in CATEGORY_AFFINITY.items():
+        query = archetype_query(archetype).lower()
+        assert archetype.lower() not in query, \
+            f"{archetype!r} query still contains the archetype label: {query!r}"
+        strongest = max(affinities.items(), key=lambda kv: kv[1])[0]
+        assert CATEGORY_PHRASE[strongest] in query, \
+            f"{archetype!r} query omits its strongest category {strongest!r}: {query!r}"
+
+
+def test_the_graph_router_understands_words_travelers_actually_use():
+    """It matched only the catalogue's taxonomy words, so "places of worship" --
+    the phrasing both the evaluation grid and the orchestrator emit -- routed as
+    naming no category at all (#63). Matching is on whole words: "pub" inside
+    "public transit" must not make a nightlife query."""
+    from roamwise.retrieval.graph_search import categories_in
+
+    assert categories_in("places of worship") == ["religion"]
+    assert categories_in("quiet gardens away from the crowds") == ["nature"]
+    assert "nightlife" not in categories_in("accessible via late-night public transit")
+    assert "nature" not in categories_in("is there parking nearby")
+    assert "food" not in categories_in("a great theatre")
+    # A profile query names several; a constrained one names exactly one. The
+    # retriever routes on that difference.
+    assert len(categories_in("museums close to a train station")) == 1
+    assert len(categories_in(
+        "the best museums, landmarks, history sites, culture venues "
+        "and places of worship to visit in this city")) > 1
+
+
+def test_zoning_returns_every_day_it_was_asked_for():
+    """`zone` returned one zone per POI when candidates ran short, so a 5-day
+    trip with 3 sightseeing POIs quietly became a 3-day itinerary, and an empty
+    pool returned no zones at all -- which `_rebalance_days` crashed on with
+    "min() iterable argument is empty" once a query surfaced nothing but food
+    (#63)."""
+    zoner = POIZoner()
+    pois = [{"lat": 48.85 + i / 100, "lon": 2.35 + i / 100} for i in range(3)]
+
+    assert sorted(zoner.zone(pois, n_zones=5)) == [0, 1, 2, 3, 4]
+    assert sum(len(z) for z in zoner.zone(pois, n_zones=5).values()) == len(pois)
+    assert zoner.zone([], n_zones=1) == {0: []}
+
+    # The crash this guards: every candidate is food, so the sightseeing pool
+    # the zoner is handed is empty.
+    idx = GraphIndex()
+    city = city_with_category("food")
+    if city is None:
+        pytest.skip("no city holds food POIs")
+    food = idx.city_pois(city, category="food")[:8]
+    itinerary = RouterAgent(idx).run(city, food, n_days=3, narrate=False)["itinerary"]
+    assert len(itinerary) == 3
+
+
+def test_the_catalogue_holds_only_places_a_traveller_can_visit():
+    """46 of 700 catalogue rows were entities documented like a landmark that
+    nobody can visit -- 25 universities and a hospital filed as `culture`, 15
+    metro and mainline stations filed as `landmark`, a television channel, a
+    radio station and the 2019 fire at Notre-Dame. They reached itineraries:
+    5 of 14 city x archetype plans contained at least one, and a Budget
+    Backpacker's Paris culture day opened Sorbonne University -> Sciences Po
+    (#65).
+
+    `data/dropped_pois.csv` records each removal with its Wikidata types, so
+    the decision stays auditable without a network call.
+    """
+    catalogue = pd.read_csv(DATA_DIR / "poi.csv")
+    dropped = pd.read_csv(DATA_DIR / "dropped_pois.csv")
+
+    assert not set(catalogue.poi_id) & set(dropped.poi_id), \
+        "a row recorded as dropped is still in the catalogue"
+    assert dropped.drop_reason.notna().all(), "every drop must record its reason"
+    assert set(dropped.drop_reason) <= set(NOT_A_SIGHT_TYPES), \
+        f"unknown drop reason: {set(dropped.drop_reason) - set(NOT_A_SIGHT_TYPES)}"
+
+    # poi_id is the join key the graph and every retriever use; a rebuild that
+    # renumbered the survivors would silently invalidate dropped_pois.csv.
+    assert catalogue.poi_id.is_unique
+
+
+def test_a_disqualifying_type_only_counts_when_it_is_the_whole_story():
+    """The rule has to remove an institution without taking a real place that
+    merely carries an administrative second type, and REPORT.md section 5's
+    argument applies: an entity ending is not its site being gone (#65)."""
+    from roamwise.pipeline.common import not_a_sight
+
+    # Removed: the disqualifying type is all there is.
+    assert not_a_sight(["comprehensive university", "public research university"])
+    assert not_a_sight(["university hospital", "medical school"])
+    assert not_a_sight(["multi-level interchange railway station", "central station"])
+    assert not_a_sight(["structure fire"])
+    # "television station" is not a railway; it must not rescue itself either.
+    assert not_a_sight(["television channel", "television station"])
+    assert not_a_sight(["broadcaster", "radio station"])
+
+    # Kept: a real place type survives the disqualifying one.
+    assert not_a_sight(["art museum", "nonprofit organization"]) is None
+    assert not_a_sight(["museum", "event venue"]) is None
+    assert not_a_sight(["urban park", "event venue", "public garden"]) is None
+    assert not_a_sight(["flea market", "business", "shopping center"]) is None
+    assert not_a_sight(["railway station", "palace"]) is None
+
+    # Kept: a heritage listing overrules any disqualifying type at all.
+    assert not_a_sight(["cordon", "destroyed building or structure"],
+                       has_heritage_listing=True) is None
+    assert not_a_sight(["gallows", "destroyed building or structure"]) == "demolished"
+
+
+def test_the_city_guide_counts_match_the_catalogue_it_describes():
+    """The guides are generated from poi.csv and state exact counts, and they
+    enter the retrieval corpus as the `guide::<CITY>` document -- so a stale
+    guide is a retrievable false statement about the catalogue. Berlin's said
+    "300 stops" and anchored the city's central cluster on a university (#65).
+    """
+    catalogue = pd.read_csv(DATA_DIR / "poi.csv")
+    for code in CITY_CODES:
+        guide = DATA_DIR / "city_guides" / f"{code}.txt"
+        if not guide.exists():
+            continue
+        text = guide.read_text()
+        n = len(catalogue[catalogue.destination_id == code])
+        assert f"{n} stops" in text, \
+            f"{code} guide does not state the catalogue's real size ({n}); regenerate " \
+            f"it with `cd roamwise/pipeline && python city_guide.py --write`"
 
 
 def test_fusion_beats_hybrid_on_archetype_grounding():
@@ -805,16 +976,23 @@ def test_every_test_query_has_an_answer():
     assert not empty, f"queries with no possible correct answer: {empty}"
 
 
-def test_query_set_is_powered_and_not_mostly_self_graded():
-    """The comparison was run on 18 queries of which only 11 were not graded
-    against the retriever's own traversal, and at that size a real effect is
-    detected about a third of the time. Both properties are easy to lose again
-    by editing the query list, so they are pinned here."""
+def test_query_set_is_powered_and_balanced_by_difficulty():
+    """The comparison was run on 18 queries and at that size a real effect is
+    detected about a third of the time, so the set has a floor.
+
+    The second half used to be about circularity -- the answer key was the
+    retriever's own traversal, so a query naming its category graded the
+    retriever against itself. That is fixed at the source (see
+    `test_the_answer_key_is_not_one_the_retriever_can_produce`), and what the
+    split now guards is difficulty: a query that names its category tells the
+    router where to look, and a headline number must not be carried entirely
+    by that easy half (#48).
+    """
     assert len(TEST_QUERIES) >= 45
     assert {q.tier for q in TEST_QUERIES} == {"handwritten", "grid"}
 
-    not_self_graded = [q for q in TEST_QUERIES if dependence_level(q) != "subset"]
-    assert len(not_self_graded) >= 30
+    name_no_category = [q for q in TEST_QUERIES if dependence_level(q) != "subset"]
+    assert len(name_no_category) >= 30
 
     # No archetype may own the set the way Culture Enthusiast owned 44% of it.
     counts = collections.Counter(q.archetype for q in TEST_QUERIES)
@@ -822,11 +1000,10 @@ def test_query_set_is_powered_and_not_mostly_self_graded():
     assert set(counts) == set(CATEGORY_AFFINITY), "every archetype should be exercised"
 
 
-def test_dependence_level_spots_the_self_graded_queries():
+def test_dependence_level_spots_the_queries_that_name_their_own_category():
     query = comparative_analysis.TestQuery
-    # Names the key's category next to a transport word: the graph router
-    # dispatches to the same traversal the key is built from, at 3km inside the
-    # key's 6km, so its results cannot fall outside the key.
+    # Names the key's category next to a transport word, so the graph router
+    # dispatches straight at it -- the easiest shape of query there is.
     assert dependence_level(query(MAIN_CITY, "Culture Enthusiast", ("landmark",), True,
                                   "landmarks near a transport hub")) == "subset"
     # Same category, no transport constraint -- the router's filter is wider
@@ -836,6 +1013,56 @@ def test_dependence_level_spots_the_self_graded_queries():
     # The router never reaches for the key's category at all.
     assert dependence_level(query(MAIN_CITY, "Culture Enthusiast", ("history",), False,
                                   "somewhere calm to spend a slow afternoon")) == "independent"
+
+
+def test_the_answer_key_is_not_one_the_retriever_can_produce():
+    """`recall_at_k`'s answer key used to be every catalogue POI of the queried
+    category -- `GraphIndex.city_pois`, which is the traversal the graph
+    retriever dispatches to. On a query naming its category, retrieval was a
+    subset of the key by construction, so its recall measured that it agrees
+    with itself rather than that it finds good answers (#48).
+
+    The key is now gated on Wikivoyage, which is written by travellers and owes
+    nothing to Wikidata sitelinks, OSM tagging or this project's graph. The
+    property that matters is that neither set contains the other: the retriever
+    can return plenty of category matches and still score zero.
+    """
+    idx = GraphIndex()
+    graph = GraphSearchIndex(idx)
+    city = city_with_category("museum")
+    if city is None:
+        pytest.skip("no city holds museums")
+
+    query = comparative_analysis.TestQuery(
+        city, "Culture Enthusiast", ("museum",), True,
+        "museums within easy reach of a transport hub")
+    assert dependence_level(query) == "subset", "this test needs the easiest query shape"
+
+    gold = gold_for(idx, query)
+    assert gold, "the key must not be empty"
+
+    # The key is a strict subset of the category, so something outside this
+    # project decided which members are in it.
+    every_museum = {p["poi_id"] for p in idx.city_pois(city, category="museum")}
+    assert gold < every_museum, \
+        "the key is every POI of the category again -- the circularity is back"
+
+    # And the retriever's own traversal is not contained in it.
+    retrieved = {r["poi_id"] for r in graph.search(query.text, top_k=40,
+                                                   destination_id=city,
+                                                   archetype=query.archetype)}
+    assert retrieved - gold, \
+        "graph retrieval falls entirely inside the key -- it is grading itself"
+
+
+def test_every_recommended_poi_is_a_poi_the_catalogue_still_holds():
+    """The key is committed rather than recomputed, so it can go stale against
+    a catalogue that dropped rows -- which #65 did, by 46."""
+    catalogue = set(pd.read_csv(DATA_DIR / "poi.csv").poi_id)
+    orphans = comparative_analysis.RECOMMENDED_POIS - catalogue
+    assert not orphans, (
+        f"{len(orphans)} POIs in retrieval_gold.csv are no longer in the catalogue; "
+        "rebuild with `cd roamwise/pipeline && python retrieval_gold.py --write`")
 
 
 def _synthetic_pairs(**per_config_values) -> pd.DataFrame:

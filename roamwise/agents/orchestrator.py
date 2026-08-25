@@ -30,6 +30,7 @@ from roamwise.agents.llm_client import LLMClient, get_default_llm_client
 from roamwise.agents.router_agent import RouterAgent
 from roamwise.knowledge_graph.build_graph import GraphIndex
 from roamwise.models.segmentation import TravelerSegmenter
+from roamwise.retrieval.query import archetype_query
 from roamwise.optimization.travel_modes import DEFAULT_MODE
 from pathlib import Path
 
@@ -45,6 +46,17 @@ MIN_RETRIEVED_POIS = 12
 log = get_logger(__name__)
 
 
+
+def _free_entry_share(itinerary: list[dict]) -> float | None:
+    """Fraction of the plan's stops that cost nothing to enter, or None if the
+    plan has no stops. `price_level` is a free/paid flag rather than a tier --
+    see `plan_trip`."""
+    stops = [poi for day in itinerary for poi in day["route"]]
+    if not stops:
+        return None
+    return sum(1 for poi in stops if poi.get("price_level", 0) == 0) / len(stops)
+
+
 class RoamWiseOrchestrator:
     def __init__(self, llm: LLMClient = None, retrieval_config: str = "fusion"):
         self.llm = llm or get_default_llm_client()
@@ -58,7 +70,7 @@ class RoamWiseOrchestrator:
         self.destinations["tags"] = self.destinations.tags.apply(json.loads)
 
     def plan_trip(self, preferences: dict, destination_id: str = None, n_days: int = 3,
-                  travel_month: str = None, top_k_pois: int = None, max_price_level: int = 3,
+                  travel_month: str = None, top_k_pois: int = None,
                   daily_minutes_budget: int = 480, use_real_routing: bool = False,
                   travel_mode: str = DEFAULT_MODE, day_start_hour: float = None) -> dict:
         """preferences: {budget, culture, nature, nightlife, relax, adventure} in [0,1].
@@ -66,7 +78,6 @@ class RoamWiseOrchestrator:
         top_k_pois: how many POIs to retrieve; defaults to scaling with trip length
         (see RETRIEVED_POIS_PER_DAY) so a longer trip actually has enough candidates
         to fill its days.
-        max_price_level: drop POIs pricier than this (1=budget, 3=splurge) before routing.
         daily_minutes_budget: sightseeing time available per day, fed to the 2-opt router.
         day_start_hour: what time each day begins. Used to sit only on
         RouterAgent.run()'s signature with nothing able to reach it, so every
@@ -114,7 +125,11 @@ class RoamWiseOrchestrator:
 
         # --- Node 3: Fusion RAG Agent retrieves grounded, archetype-aware POIs ---
         with log_step(log, "Fusion RAG retrieval", config=self.retrieval_config) as detail:
-            query = f"best {seg['archetype'].lower()} points of interest and experiences"
+            # Built from the archetype's preferred categories, not its label:
+            # interpolating the label produced "best culture enthusiast points of
+            # interest and experiences", which BM25 answered with a television
+            # channel whose description says "culture" (#63).
+            query = archetype_query(seg["archetype"])
             # narrate=False: nothing downstream reads this agent's prose --
             # the UI shows the retrieved documents themselves, and _synthesize
             # narrates from the itinerary (issues #56, #57).
@@ -136,14 +151,12 @@ class RoamWiseOrchestrator:
                         extra={"roamwise_fields": {"config": self.retrieval_config,
                                                    "n_fallback_pois": len(candidate_pois)}})
 
-        price_filtered = [p for p in candidate_pois if p.get("price_level", 0) <= max_price_level]
-        if price_filtered:  # keep the unfiltered set if the budget filter would empty it out
-            candidate_pois = price_filtered
-        else:
-            log.warning("Price filter would empty the candidate set -- keeping it unfiltered",
-                        extra={"roamwise_fields": {"max_price_level": max_price_level,
-                                                   "n_candidates": len(candidate_pois)}})
-        state["max_price_level"] = max_price_level
+        # There was a price filter here, dropping POIs above `max_price_level`
+        # (documented "1=budget, 3=splurge"). It never removed a single POI and
+        # could not: `price_level` only ever holds 0 or 1, and the threshold
+        # defaulted to 3, so the condition was true for every row. It is gone
+        # rather than repaired because there is nothing to repair it against --
+        # see `free_entry_share` below and REPORT.md section 5 (#67).
 
         # --- Node 4: Router Agent builds the optimized day-by-day route ---
         with log_step(log, "Router Agent (zoning + 2-opt)",
@@ -159,6 +172,13 @@ class RoamWiseOrchestrator:
                                        narrate=False)
             state["routing"] = routing
             state["travel_mode"] = routing["travel_mode"]
+            # The honest remainder of what the catalogue knows about cost.
+            # `price_level` is OSM's `fee` tag, so it says free or paid and
+            # nothing finer -- it cannot separate a three-star restaurant from
+            # a bistro, and all 61 food POIs carry the same value. Reported
+            # rather than filtered on: a share the traveller can see is worth
+            # more than a threshold that silently matched everything (#67).
+            state["free_entry_share"] = _free_entry_share(routing["itinerary"])
             got_real_routing = any(d.get("used_real_routing") for d in routing["itinerary"])
             detail["n_pois_routed"] = sum(len(d["route"]) for d in routing["itinerary"])
             detail["day_start_hour"] = routing["day_start_hour"]

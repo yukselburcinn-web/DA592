@@ -57,7 +57,7 @@ from roamwise.retrieval.fusion import FusionRetriever
 # The evaluation reaches into the graph retriever's routing keywords on
 # purpose: dependence_level() below exists to measure how often the answer key
 # and the retriever end up walking the same path.
-from roamwise.retrieval.graph_search import CATEGORY_KEYWORDS, TRANSPORT_KEYWORDS
+from roamwise.retrieval.graph_search import TRANSPORT_KEYWORDS, categories_in
 
 HERE = Path(__file__).parent
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
@@ -168,6 +168,36 @@ HANDWRITTEN_QUERIES = [
     # answer it from the river and lake shores already in `nature`.
     TestQuery("BER", "Beach & Relax", ("nature",), False,
               "somewhere calm by the water to spend a slow afternoon"),
+
+    # --- Independently-graded realism queries -------------------------------
+    # Every one of these describes an intent without naming its answer key's
+    # category or any synonym of it, so `dependence_level` scores them
+    # `independent` and the graph retriever cannot reach the key by routing on
+    # the query's own words. They were added because teaching that router the
+    # synonyms travelers actually use (`places of worship` -> religion, #63)
+    # correctly moved four queries the other way, into `subset`, and dropped
+    # the independently-graded count to 29 -- below the floor this file's
+    # `_GRID_TARGET` comment and `test_query_set_is_powered_and_not_mostly_
+    # self_graded` both defend. The grid cannot make up the difference: nine
+    # categories x two phrasings x two cities is 36 cells and it already emits
+    # all of them, and every grid phrasing names its category by construction.
+    # So the shortfall has to be answered where the independent queries live,
+    # which is the hand-written tier.
+    TestQuery("PAR", "Culture Enthusiast", ("museum",), False,
+              "we have one rainy afternoon and want to see the city's most famous "
+              "art collection"),
+    TestQuery("PAR", "Culture Enthusiast", ("religion",), False,
+              "we would like to hear an organ recital beneath a vaulted ceiling"),
+    TestQuery("BER", "Nightlife Seeker", ("nightlife",), False,
+              "where does this city stay awake until sunrise?"),
+    TestQuery("PAR", "Luxury Traveler", ("shopping",), False,
+              "my partner would like to bring home something from a famous "
+              "Parisian department store"),
+    TestQuery("BER", "Family Traveler", ("nature",), False,
+              "somewhere the children can run around outdoors for an afternoon"),
+    TestQuery("BER", "Nature & Adventure", ("history",), False,
+              "we want to understand what daily life was like here before the wall "
+              "came down"),
 ]
 
 # Phrasings for the generated tier. Two families on purpose: one names the
@@ -281,11 +311,41 @@ def build_grid_queries(idx: GraphIndex = None) -> list[TestQuery]:
     return queries
 
 
+# The answer key's membership test, built by `pipeline/retrieval_gold.py` from
+# Wikivoyage listings and committed so the evaluation runs offline.
+#
+# This is what stops the key being circular. It used to be "every catalogue POI
+# of the queried category", which is `GraphIndex.city_pois` -- the same
+# traversal the graph retriever dispatches to -- so on a query naming its
+# category the retriever's results were a subset of the key by construction,
+# and its recall measured agreement with itself (issue #48). Wikivoyage is
+# written by travellers listing what is worth going to and owes nothing to
+# Wikidata sitelinks, OSM tagging or this project's graph, so being on it is an
+# independent statement that a place is worth recommending. Retrieval can now
+# return plenty of category matches and still score zero, which is the point.
+_GOLD_CSV = HERE / "retrieval_gold.csv"
+
+
+def _recommended_pois() -> set:
+    if not _GOLD_CSV.exists():
+        raise FileNotFoundError(
+            f"{_GOLD_CSV.name} is missing -- rebuild it with "
+            "`cd roamwise/pipeline && python retrieval_gold.py --write`")
+    return set(pd.read_csv(_GOLD_CSV).poi_id)
+
+
+RECOMMENDED_POIS = _recommended_pois()
+
+
 def gold_for(idx: GraphIndex, query: TestQuery) -> set:
-    """POIs that would answer `query`: the union of its accepted categories,
-    narrowed to those near a hub only when the query asked for that."""
+    """POIs that would answer `query`.
+
+    The union of its accepted categories, kept to those Wikivoyage recommends,
+    and narrowed to those near a hub only when the query asked for that.
+    """
     pois = [poi for category in query.categories
-            for poi in idx.city_pois(query.destination_id, category=category)]
+            for poi in idx.city_pois(query.destination_id, category=category)
+            if poi["poi_id"] in RECOMMENDED_POIS]
     if not query.near_transport:
         return {poi["poi_id"] for poi in pois}
 
@@ -298,18 +358,27 @@ def gold_for(idx: GraphIndex, query: TestQuery) -> set:
 
 
 def dependence_level(query: TestQuery) -> str:
-    """How much of this query's grading leans on the retriever's own traversal.
+    """Whether this query hands the graph retriever its answer key's category.
 
-    The graph retriever routes on literal keywords, so when a query names the
-    gold's category next to a transport word it dispatches to the very
-    traversal the gold set is built from -- at a tighter radius, which makes
-    its results a guaranteed subset of the answer key. That is not evidence
-    that graph traversal finds better answers, only that it agrees with
-    itself. Reported per query so the split is visible rather than assumed
-    (issue #48).
+    This used to measure circularity: the key was every catalogue POI of the
+    queried category, which is the traversal the retriever dispatches to, so a
+    query naming its category made retrieval a subset of the key by
+    construction. That is fixed at the source -- the key is now gated on
+    Wikivoyage (see RECOMMENDED_POIS), which no traversal here can reach, so a
+    retriever cannot satisfy it by agreeing with itself.
+
+    What the split still measures is *difficulty*. A query that names its
+    category tells the router where to look; one that describes an intent
+    ("somewhere calm by the water") does not, and answering it needs the
+    semantic layer to carry its weight. Reported per query so a headline number
+    cannot be carried entirely by the easy half (issue #48).
     """
     text = query.text.lower()
-    matched = next((c for c in CATEGORY_KEYWORDS if c in text), None)
+    # The same router the retriever runs, synonyms included -- classifying with
+    # a stricter rule than the code under test reported queries as
+    # independently graded when the retriever did reach for the key's category
+    # (#63).
+    matched = next(iter(categories_in(text)), None)
     names_transport = any(keyword in text for keyword in TRANSPORT_KEYWORDS)
 
     if matched not in query.categories:

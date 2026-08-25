@@ -30,6 +30,7 @@ Reads nothing from the repo.
     python build_catalogue.py PAR BER
 """
 import argparse
+import collections
 import math
 import re
 import sys
@@ -38,7 +39,7 @@ from collections import defaultdict
 
 import pandas as pd
 
-from common import (CITIES, DATA, NETWORK_ERRORS, OVERPASS, QLEVER, WD_API,
+from common import (CATEGORY_RULES, not_a_sight, CITIES, DATA, NETWORK_ERRORS, OVERPASS, QLEVER, WD_API,
                     WP_API, WP_REST, bbox_for, haversine_km, http, normalize_qid)
 
 # ---------------------------------------------------------------------------
@@ -84,34 +85,6 @@ DIST_BETA = 0.0
 
 QUARTER_SITELINK_FLOOR = 22  # a neighbourhood must be this documented to count
 QUARTER_SLOTS = 8            # and no more than this many per city
-
-# The fixed 10-category vocabulary CATEGORY_AFFINITY keys off. Order matters:
-# the first rule matching any Wikidata type label wins.
-CATEGORY_RULES = [
-    ("beach", ["beach", "lido"]),
-    ("religion", ["mosque", "church", "synagogue", "place of worship", "cathedral",
-                  "basilica", "monastery", "chapel", "shrine", "tomb", "mausoleum",
-                  "abbey", "temple"]),
-    ("museum", ["museum", "art gallery", "gallery", "kunsthalle"]),
-    # "archaeological site", not bare "archaeological": the loose form matched
-    # "archaeological artifact" and pulled museum pieces (the Venus de Milo)
-    # into the catalogue as though they were places.
-    ("history", ["archaeological site", "ruin", "ancient", "cistern", "defensive wall",
-                 "city wall", "fortification", "citadel", "aqueduct", "historic site",
-                 "necropolis", "memorial", "cemetery", "bunker", "catacomb"]),
-    ("shopping", ["bazaar", "market", "shopping", "mall", "department store", "arcade"]),
-    ("nightlife", ["nightclub", "bar", "pub", "cabaret", "discotheque"]),
-    ("food", ["restaurant", "cafe", "café", "food", "brasserie", "brewery"]),
-    ("nature", ["park", "garden", "forest", "island", "hill", "grove", "bay", "lake",
-                "nature reserve", "arboretum", "botanical", "canal", "zoo"]),
-    ("culture", ["theatre", "theater", "opera", "concert", "cultural", "stadium",
-                 "aquarium", "library", "university", "arena", "cinema", "philharmonic",
-                 "planetarium"]),
-    ("landmark", ["palace", "tower", "bridge", "gate", "fountain", "lighthouse",
-                  "monument", "obelisk", "square", "architectural", "building",
-                  "structure", "pavilion", "villa", "mansion", "station", "column",
-                  "castle", "hôtel particulier", "observation"]),
-]
 
 # Types that name a concept or an administrative unit, not a place you visit.
 # `neighborhood`/`quarter` are here so the ordinary ones stay out; the famous
@@ -208,6 +181,10 @@ SELECT ?item ?label ?llang ?sitelinks ?typeLabel ?article ?desc ?coord ?dissolve
   # acted on for the venue categories -- see SERVICE_CATEGORIES below.
   OPTIONAL {{ ?item wdt:P576 ?dissolved }}
   OPTIONAL {{ ?item wdt:P3999 ?closed }}
+  # P1435 heritage designation. `not_a_sight` treats a state listing as proof
+  # that people go and look at the thing, and lets it overrule a type that
+  # would otherwise disqualify the row (#65).
+  OPTIONAL {{ ?item wdt:P1435 ?heritage }}
 }}
 """
 
@@ -243,6 +220,7 @@ def fetch_spine_qlever(city):
             "wikipedia_title": "",
             "wd_description": "",
             "ended": "",
+            "heritage": False,
             "source": "qlever",
         })
         # Prefer the English label; the local one is only a fallback for items
@@ -258,6 +236,7 @@ def fetch_spine_qlever(city):
         for key in ("dissolved", "closed"):
             if key in b and not rec["ended"]:
                 rec["ended"] = b[key]["value"][:10].lstrip("+")
+        rec["heritage"] = rec["heritage"] or "heritage" in b
     return by_item
 
 
@@ -404,12 +383,23 @@ def classify_spine(by_item, city):
     """
     sights, quarters = [], []
     dropped_concept = dropped_uncat = dropped_closed = 0
+    dropped_not_a_sight = collections.Counter()
 
     for rec in by_item.values():
         if re.fullmatch(r"Q\d+", rec["name"]):       # unlabelled entity
             continue
         rec["km"] = haversine_km(city["lat"], city["lon"], rec["lat"], rec["lon"])
         if rec["km"] > city["radius_km"]:
+            continue
+
+        # Entities documented like a landmark that are not places to visit --
+        # universities, a hospital, metro stations, a television channel, a
+        # fire. Applied here rather than to the finished catalogue so a rebuild
+        # is correct at source; `pipeline/sight_filter.py` runs the same rule
+        # over the already-committed poi.csv (#65).
+        reason = not_a_sight(rec["types"], rec.get("heritage"))
+        if reason:
+            dropped_not_a_sight[reason] += 1
             continue
 
         blacklisted = [t for t in rec["types"] if BLACKLIST_RE.search(t)]
@@ -443,6 +433,8 @@ def classify_spine(by_item, city):
         rec["is_quarter"] = False
         sights.append(rec)
 
+    if dropped_not_a_sight:
+        print(f"   gezilebilir yer degil: {dict(dropped_not_a_sight)}")
     return sights, quarters, dropped_concept, dropped_uncat, dropped_closed
 
 

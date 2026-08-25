@@ -1,0 +1,410 @@
+poi_id,destination_id,poi_name,category,wikivoyage_name,wikivoyage_type,matched_by
+POI0401,BER,Berlin Wall,landmark,Basketball,do,koordinat
+POI0403,BER,Führerbunker,history,Johnny's Bar - Karibisches Restaurant,eat,koordinat
+POI0404,BER,Pergamon Museum,museum,Pergamon Museum,see,qid
+POI0405,BER,Berlin Cathedral,religion,Berliner Dom,see,qid
+POI0406,BER,Brandenburg Gate,landmark,Brandenburg Gate,see,qid
+POI0407,BER,Berlin Zoological Garden,nature,Berlin Zoo,see,qid
+POI0408,BER,Berghain,nightlife,Berghain/Panorama Bar,drink,qid
+POI0409,BER,Fernsehturm Berlin,history,Fernsehturm,see,qid
+POI0410,BER,Museum Island,culture,Museumsinsel,see,qid
+POI0411,BER,Reichstag,landmark,Reichstagsgebäude,see,qid
+POI0412,BER,Kaufhaus des Westens,shopping,KaDeWe,buy,qid
+POI0413,BER,Kaiser-Wilhelm-Gedächtniskirche,religion,Kaiser Wilhelm Memorial Church,see,qid
+POI0414,BER,Neues Museum,museum,Neues Museum,see,qid
+POI0415,BER,Großer Tiergarten,nature,Großer Tiergarten,do,qid
+POI0416,BER,Memorial to the Murdered Jews of Europe,history,Memorial to the Murdered Jews of Europe,see,qid
+POI0418,BER,Altes Museum,museum,Altes Museum,see,qid
+POI0419,BER,St. Hedwig's Cathedral,religion,St.-Hedwigs-Kathedrale,see,qid
+POI0420,BER,Berlin Palace,landmark,Berlin Palace / Humboldt Forum,see,qid
+POI0421,BER,Siegessäule,history,Siegessäule,see,qid
+POI0422,BER,Tresor,nightlife,Tresor,drink,qid
+POI0424,BER,Bode Museum,museum,Bode-Museum,see,qid
+POI0426,BER,Potsdamer Platz,landmark,Midtown Grill,eat,koordinat
+POI0427,BER,Marienkirche (Berlin-Mitte),religion,Marienkirche,see,qid
+POI0429,BER,Alte Nationalgalerie,museum,Alte Nationalgalerie,see,qid
+POI0431,BER,Alexanderplatz,landmark,Weltzeituhr,see,koordinat
+POI0432,BER,Treptower Park,nature,Treptower Park,do,qid
+POI0433,BER,New Synagogue Berlin,religion,Neue Synagoge,see,qid
+POI0434,BER,Berlin-Mitte,culture,Rotes Rathaus,see,koordinat
+POI0435,BER,Gemäldegalerie Berlin,museum,Gemäldegalerie,see,qid
+POI0437,BER,So36,nightlife,SO36,drink,koordinat
+POI0438,BER,Schöneberg,culture,Rathaus Schöneberg,see,isim
+POI0439,BER,Landwehr Canal,nature,Landwehrkanal,see,qid
+POI0440,BER,Egyptian Museum of Berlin,museum,Egyptian Museum and Papyrus Collection,see,qid
+POI0441,BER,Neue Wache,history,Neue Wache,see,qid
+POI0442,BER,Alexa,shopping,Alexa Centre,buy,qid
+POI0443,BER,Nikolaikirche (Berlin),religion,Nikolaikirche,see,qid
+POI0444,BER,Jewish Museum Berlin,museum,Jewish Museum Berlin,see,qid
+POI0445,BER,Uber Arena,culture,Uber Arena,do,qid
+POI0448,BER,French Cathedral,religion,Französischer Dom,see,qid
+POI0449,BER,Tempelhofer Feld,nature,Tempelhof Airport,see,koordinat
+POI0450,BER,Bellevue Palace,landmark,Schloss Bellevue,see,qid
+POI0451,BER,Berlin State Opera,culture,Staatsoper Unter den Linden,do,qid
+POI0452,BER,East Side Gallery,museum,East Side Gallery,see,qid
+POI0453,BER,Mall of Berlin,shopping,LP12 - Mall Of Berlin,buy,qid
+POI0454,BER,Deutscher Dom,religion,Neue Kirche,see,qid
+POI0455,BER,Friedrichshain,culture,Historischer Weichnatsmarkt Friedrichshain,buy,isim
+POI0456,BER,Hotel Adlon,landmark,Adlon Day Spa,do,koordinat
+POI0457,BER,Matrix,nightlife,Matrix,drink,qid
+POI0458,BER,Marx-Engels Forum,history,Zille Museum,see,koordinat
+POI0459,BER,Museum für Naturkunde - Leibniz Institute for Evolution and Biodiversity Science,museum,Museum für Naturkunde,see,qid
+POI0460,BER,Spreepark,nature,Spreepark,see,qid
+POI0461,BER,Volkshalle,landmark,Regierungsviertel/Spreebogen,see,koordinat
+POI0462,BER,Prenzlauer Berg,culture,Wasserturm,see,koordinat
+POI0465,BER,Memorial to Homosexuals Persecuted Under Nazism in Berlin,history,Memorial to Homosexuals Persecuted Under Nazism,see,qid
+POI0466,BER,Gendarmenmarkt,landmark,Young Euro Classic,do,koordinat
+POI0467,BER,Berlin State Library,culture,Neue Staatsbibliothek - Haus Potsdamer Straße,see,koordinat
+POI0468,BER,Metropol,nightlife,Green Door,drink,koordinat
+POI0469,BER,Viktoriapark,nature,Viktoriapark,see,qid
+POI0470,BER,Topography of Terror,museum,Topography of Terror,see,qid
+POI0471,BER,Pariser Platz,landmark,Pariser Platz,see,qid
+POI0472,BER,Tiergarten,culture,Tiergartenquelle,eat,isim
+POI0474,BER,Neue Nationalgalerie,museum,Neue Nationalgalerie,see,qid
+POI0475,BER,Friedrichswerder Church,religion,Friedrichswerdersche Kirche,see,qid
+POI0476,BER,Konnopke’s Imbiss,food,Konnopke's Imbiß,eat,koordinat
+POI0477,BER,Mauerpark,nature,Mauerpark,do,qid
+POI0480,BER,Oberbaum Bridge,landmark,Oberbaum Bridge,see,qid
+POI0481,BER,Plötzensee Prison,museum,Plötzensee Memorial Center,see,koordinat
+POI0484,BER,Volkspark Friedrichshain,nature,Schoenbrunn Restaurant,eat,koordinat
+POI0486,BER,Berlin Zoologischer Garten railway station,landmark,Berlin Tour by public bus line 100 and 200,do,koordinat
+POI0487,BER,Deutsches Historisches Museum,museum,Deutsches Historisches Museum,see,qid
+POI0488,BER,Weißensee Cemetery,history,Weißensee cemetery,see,qid
+POI0490,BER,Soviet War Memorial,museum,Soviet War Memorial,see,qid
+POI0491,BER,Konzerthaus Berlin,culture,Konzerthaus Berlin,do,qid
+POI0493,BER,East Side Mall,shopping,Ice hockey,do,koordinat
+POI0494,BER,German Museum of Technology,museum,German Museum of Technology,see,qid
+POI0495,BER,Berliner Philharmonie,culture,Berliner Philharmonie,do,qid
+POI0496,BER,Rykestrasse Synagogue,religion,Synagoge Rykestraße,see,qid
+POI0497,BER,Berlin-Friedrichstraße railway station,landmark,Witty's Currywurst,eat,koordinat
+POI0498,BER,Dorotheenstadt Cemetery,history,Brecht Keller,eat,koordinat
+POI0499,BER,Görlitzer Park,nature,Görlitzer Park,see,qid
+POI0500,BER,Bebelplatz,landmark,The Bebelplatz,see,qid
+POI0501,BER,Deutsche Oper Berlin,culture,Deutsche Oper Berlin,do,qid
+POI0503,BER,Kunsthaus Tacheles,museum,Amrit,eat,koordinat
+POI0504,BER,Berlin Anhalter Bahnhof,landmark,Stadtklause,eat,koordinat
+POI0505,BER,Spreeinsel,nature,Hochschule für Musik Hanns Eisler (HfM),do,koordinat
+POI0507,BER,Berliner Ensemble,culture,Berliner Ensemble,do,qid
+POI0508,BER,Haus der Kulturen der Welt,museum,Kongresshalle – Haus der Kulturen der Welt,see,koordinat
+POI0509,BER,Bendlerblock,landmark,Bendlerblock,see,qid
+POI0512,BER,Schwerbelastungskörper,landmark,Schwerbelastungskörper,see,qid
+POI0516,BER,Plötzensee,nature,Freibad Plötzensee,do,isim
+POI0517,BER,"Academy of Arts, Berlin",museum,Ma,eat,koordinat
+POI0518,BER,German Chancellery in Berlin,landmark,Bundeskanzleramt,see,koordinat
+POI0519,BER,Friedrichstadt-Palast,culture,Friedrichstadt-Palast,do,qid
+POI0520,BER,Sony Center,landmark,Sony Center,see,qid
+POI0521,BER,Hamburger Bahnhof,museum,Hamburger Bahnhof – Museum für Gegenwart,see,qid
+POI0523,BER,Bunker,history,Pizzeria Marienkäfer,eat,koordinat
+POI0526,BER,Berlin Alexanderplatz station,landmark,Park Inn,see,koordinat
+POI0528,BER,Volksbühne,culture,Volksbühne am Rosa-Luxemburg-Platz,do,qid
+POI0530,BER,Humboldthain,nature,Humboldthain,see,qid
+POI0532,BER,Berlin-Hohenschönhausen Memorial,museum,Gedenkstätte Hohenschönhausen,see,qid
+POI0533,BER,Komische Oper Berlin,culture,Komische Oper Berlin,do,qid
+POI0534,BER,Breitscheidplatz,landmark,Daitokai,eat,koordinat
+POI0536,BER,Sophienkirche,religion,Barcomi's Deli,drink,koordinat
+POI0540,BER,Nollendorfplatz,landmark,Nollendorfplatz,see,koordinat
+POI0541,BER,DDR Museum,museum,DDR Museum,see,qid
+POI0543,BER,Friedrich-Ludwig-Jahn-Sportpark,culture,Friedrich Ludwig Jahn Sportpark,do,qid
+POI0546,BER,Bauhaus-Archiv,museum,Bauhaus-Archiv / Museum für Gestaltung,see,qid
+POI0547,BER,Curry 36,food,Curry 36,eat,koordinat
+POI0548,BER,White Crosses,history,Dachgartenrestaurant Käfer,drink,koordinat
+POI0550,BER,Chapel of Reconciliation,religion,Kapelle der Versöhnung,see,qid
+POI0555,BER,Monbijou Palace,landmark,Ramones Museum Berlin,see,koordinat
+POI0556,BER,Berlinische Galerie,museum,Berlinische Galerie,see,qid
+POI0558,BER,Deutsches Theater,culture,Deutsches Theater,do,qid
+POI0559,BER,Berlin Potsdamer Platz station,landmark,Kollhoff Tower,see,koordinat
+POI0560,BER,Gedenkstätte Berliner Mauer,museum,Berlin Wall Memorial,see,qid
+POI0561,BER,Parochialkirche,religion,Zur letzten Instanz,eat,koordinat
+POI0562,BER,BahnTower,landmark,Brasserie Desbrosses,eat,koordinat
+POI0564,BER,The Playce,shopping,Potsdamer Platz Arkaden,buy,qid
+POI0565,BER,Märchenbrunnen,nature,Märchenbrunnen,see,qid
+POI0566,BER,F. W. Borchardt,food,Borchardt,eat,koordinat
+POI0568,BER,Wall Museum,museum,Checkpoint Charlie,see,koordinat
+POI0569,BER,Hackesche Höfe,landmark,Hackesche Höfe,see,qid
+POI0570,BER,Holy Trinity Church,religion,Museum für Kommunikation,see,koordinat
+POI0571,BER,Berlin-Gesundbrunnen station,landmark,Berlin from below,see,koordinat
+POI0572,BER,Großes Schauspielhaus,culture,Art Center Berlin Friedrichstraße,see,koordinat
+POI0574,BER,Gethsemane Church,religion,Gethsemanekirche,see,qid
+POI0575,BER,Neptunbrunnen,landmark,Neptunbrunnen,see,qid
+POI0577,BER,Martin-Gropius-Bau,museum,Martin-Gropius-Bau,see,qid
+POI0578,BER,"Markthalle X (Berlin), Moabiter Markthalle",shopping,Arminiusmarkthalle,buy,koordinat
+POI0579,BER,Kulturforum,landmark,Kulturforum,see,qid
+POI0580,BER,Theater des Westens,culture,Theater des Westens,do,qid
+POI0581,BER,Stasi Museum,museum,Stasi Museum,see,qid
+POI0582,BER,Freedom Memorial,history,Restaurant Tim Raue,eat,koordinat
+POI0583,BER,Hackescher Markt,landmark,Chamäleon Theater Berlin,do,koordinat
+POI0584,BER,Admiralspalast,culture,Admiralspalast,do,qid
+POI0590,BER,Karl-Liebknecht-Haus,landmark,Leila M,buy,koordinat
+POI0593,BER,Rosa-Luxemburg-Platz,landmark,Susuru,eat,koordinat
+POI0597,BER,Orte des Erinnerns (Berlin-Schöneberg),history,Bayerischer Platz,see,koordinat
+POI0598,BER,Leipziger Platz,landmark,Leipziger Platz,see,qid
+POI0599,BER,Vorderasiatisches Museum Berlin,museum,Museum für Vor- und Frühgeschichte,see,koordinat
+POI0602,BER,Europa-Center,landmark,Berlin sculpture,see,koordinat
+POI0604,BER,Memorial for the Victims of National Socialist Euthanasia Killings,history,Legoland Discovery Centre,do,koordinat
+POI0605,BER,National Gallery Berlin,museum,Flea Market at Bode-Museum,buy,koordinat
+POI0606,BER,Volkspark am Weinbergsweg,nature,Volkspark am Weinberg,see,qid
+POI0607,BER,Deutsche Guggenheim,museum,KunstHalle,see,koordinat
+POI0609,BER,Gesundbrunnen-Center,shopping,Gesundbrunnen Center,buy,qid
+POI0610,BER,Maxim Gorki Theatre,culture,Maxim Gorki Theater,do,qid
+POI0611,BER,Hermannplatz,landmark,Karstadt Hermannplatz,buy,koordinat
+POI0613,BER,Museum of Decorative Arts,museum,Kunstgewerbemuseum,see,qid
+POI0614,BER,Berliner Kabarett Anstalt,nightlife,Mustafas Gemüse Kebap,eat,koordinat
+POI0615,BER,Berlin Brandenburger Tor station,landmark,Russische Botschaft,see,koordinat
+POI0616,BER,Berlin Musical Instrument Museum,museum,Berlin Musical Instrument Museum,see,qid
+POI0617,BER,Aquarium Berlin,culture,Aquarium,see,qid
+POI0619,BER,Nollendorfplatz metro station,landmark,Miss Honeypenny,eat,koordinat
+POI0621,BER,Alte Bibliothek,culture,Fischers Fritz,eat,koordinat
+POI0622,BER,Kupferstichkabinett Berlin,museum,Kupferstichkabinettt,see,qid
+POI0625,BER,Kottbusser Tor station,landmark,Babylon Kreuzberg,do,koordinat
+POI0627,BER,Theater am Schiffbauerdamm,culture,Brasserie Ganymed,eat,koordinat
+POI0634,BER,Schiller Theater,culture,Schiller Theater,do,qid
+POI0637,BER,Beate Uhse Erotic Museum,museum,Curry 36 (Bahnhof Zoo),eat,koordinat
+POI0638,BER,Ostkreuz railway station,landmark,About Blank,drink,koordinat
+POI0639,BER,Computerspielemuseum Berlin,museum,Computerspielemuseum,see,qid
+POI0640,BER,Zeiss Major Planetarium,culture,Zeiss-Großplanetarium,see,qid
+POI0642,BER,Church of the Sacred Heart,religion,Museum for Architectural Drawing,see,koordinat
+POI0644,BER,Rudolph-Wilde-Park,nature,Ratskeller Schöneberg,eat,koordinat
+POI0645,BER,The Parliament of Trees,history,Berlinale – Berlin Film Festival,do,koordinat
+POI0646,BER,Berlin Jannowitzbrücke station,landmark,Golden Gate,drink,koordinat
+POI0650,BER,Quartier 206,shopping,Quartier 206,buy,qid
+POI0653,BER,Berlin Warschauer Straße station,landmark,Lokschuppen Berlin,drink,koordinat
+POI0654,BER,Germany Spy Museum,museum,Deutschlandmuseum,see,koordinat
+POI0655,BER,"St. Matthias, Berlin",religion,Winterfeldplatz,see,koordinat
+POI0656,BER,Uhlandstraße,landmark,Café im Literaturhaus,eat,koordinat
+POI0657,BER,Ufa-Palast am Zoo,culture,Risa Chicken,eat,koordinat
+POI0658,BER,Stadtmitte station,landmark,Rausch – Chocolatiers am Gendarmenmarkt,buy,koordinat
+POI0660,BER,Tränenpalast,museum,Tränenpalast,see,qid
+POI0662,BER,Quartier 205,shopping,Galeries Lafayette,buy,koordinat
+POI0664,BER,Deutsche Kinemathek,culture,CineStar Original,do,koordinat
+POI0665,BER,Anne Frank Zentrum,museum,Kino Central,do,koordinat
+POI0670,BER,Capernaum Church,religion,Vagabund Brauerei,drink,koordinat
+POI0672,BER,Schlesisches Tor,landmark,Burgermeister,eat,koordinat
+POI0674,BER,Neukölln Arcaden,shopping,Neukölln Arkaden,buy,qid
+POI0676,BER,Kino Babylon,culture,Babylon,do,qid
+POI0678,BER,Rosenthaler Platz station,landmark,Curry Mitte,eat,koordinat
+POI0679,BER,Museum of Photography,museum,Museum of Photography,see,qid
+POI0680,BER,Anton-Wilhelm-Amo-Straße metro station,landmark,loop—raum fur aktuelle kunst,see,koordinat
+POI0695,BER,M-BIA,nightlife,M-BIA,drink,koordinat
+POI0698,BER,ZOE Bar,nightlife,Curry 61,eat,koordinat
+POI0700,BER,Bijou Bar,nightlife,Old Jewish Cemetery,see,koordinat
+POI0001,PAR,Eiffel Tower,landmark,Eiffel Tower,see,qid
+POI0002,PAR,Louvre Museum,museum,The Louvre,see,koordinat
+POI0003,PAR,Notre-Dame de Paris,religion,Notre Dame Cathedral,see,koordinat
+POI0005,PAR,Père Lachaise Cemetery,history,Père-Lachaise Cemetery,see,koordinat
+POI0007,PAR,Moulin Rouge,nightlife,Le Moulin Rouge,do,qid
+POI0008,PAR,Musée d'Orsay,museum,Musée d'Orsay,see,koordinat
+POI0009,PAR,Bastille,landmark,Brasserie Bofinger,eat,koordinat
+POI0010,PAR,Bibliothèque nationale de France,culture,La Bibliothèque Nationale de France,see,qid
+POI0011,PAR,Panthéon,religion,Panthéon,see,koordinat
+POI0012,PAR,Le Bon Marché,shopping,Le Bon Marché,buy,koordinat
+POI0014,PAR,Les Deux Magots,food,Les Deux Magots,drink,qid
+POI0015,PAR,Montparnasse Cemetery,history,Cimetière de Montparnasse,see,qid
+POI0017,PAR,Sacré-Cœur,religion,Sacré Coeur,see,koordinat
+POI0020,PAR,Catacombs of Paris,museum,Catacombes de Paris,see,koordinat
+POI0022,PAR,La Samaritaine,shopping,La Samaritaine,see,qid
+POI0024,PAR,Café de Flore,food,Café de Flore,drink,qid
+POI0025,PAR,place de la Concorde,landmark,Place de la Concorde,see,qid
+POI0026,PAR,Palais Garnier,culture,Opera Garnier,see,koordinat
+POI0027,PAR,Sainte Chapelle,religion,Sainte-Chapelle,see,koordinat
+POI0028,PAR,Centre Georges Pompidou,museum,Le Georges,eat,koordinat
+POI0030,PAR,Les Invalides,landmark,Les Invalides,see,koordinat
+POI0031,PAR,Palais des congrès de Paris,shopping,Le Palais des Congrès de Paris,do,qid
+POI0032,PAR,Montmartre Cemetery,history,Cimetière de Montmartre,see,qid
+POI0033,PAR,Collège de France,culture,Le Petit Prince de Paris,eat,koordinat
+POI0034,PAR,Café Procope,food,Malongo Café,buy,koordinat
+POI0035,PAR,Tuileries Garden,nature,Jardin des Tuileries,see,qid
+POI0036,PAR,La Madeleine,religion,Église de la Madeleine,see,qid
+POI0038,PAR,Petit Palais,museum,Musée du Petit Palais,see,qid
+POI0039,PAR,Au Lapin Agile,nightlife,Vigne du Clos Montmartre,see,koordinat
+POI0041,PAR,Maxim's,food,W.H. Smith,buy,koordinat
+POI0042,PAR,Grand Mosque of Paris,religion,Grande Mosquée de Paris,see,qid
+POI0043,PAR,rue du Faubourg-Saint-Honoré,shopping,Élysée Palace,see,koordinat
+POI0044,PAR,Musée des Arts et Métiers,museum,Musée des Arts et Métiers,see,qid
+POI0045,PAR,Montparnasse Tower,landmark,Tour Montparnasse,see,qid
+POI0046,PAR,Bois de Vincennes,nature,Bois de Vincennes,see,qid
+POI0048,PAR,Passy Cemetery,history,Carette,eat,koordinat
+POI0049,PAR,Le Lido,nightlife,Lido de Paris,do,qid
+POI0050,PAR,place des Vosges,nature,Place des Vosges,see,qid
+POI0051,PAR,Luxembourg Palace,landmark,Palais du Luxembourg,see,qid
+POI0052,PAR,Galeries Lafayette Haussmann,shopping,Galeries Lafayette,buy,koordinat
+POI0053,PAR,Church of Saint-Sulpice,religion,Eglise de Saint Sulpice,see,qid
+POI0054,PAR,Musée Marmottan Monet,museum,Musée Marmottan-Monet,see,koordinat
+POI0057,PAR,Canal Saint-Martin,nature,Promenade Canal St. Martin,do,qid
+POI0058,PAR,Palais-Royal,landmark,Le Palais Royal,see,qid
+POI0059,PAR,Louis Vuitton Foundation,museum,Fondation Louis Vuitton,see,qid
+POI0060,PAR,Bataclan,culture,Bataclan,drink,koordinat
+POI0061,PAR,Royal abbey of Saint-Germain-des-Prés,religion,Eglise Saint-Germain-des-Prés,see,qid
+POI0062,PAR,Buddha Bar,nightlife,Buddha Bar,drink,koordinat
+POI0064,PAR,île Saint-Louis,nature,Île Saint-Louis,see,qid
+POI0067,PAR,Musée Rodin,museum,Rodin Museum,see,koordinat
+POI0068,PAR,Montparnasse,culture,Le Ciel de Paris,eat,koordinat
+POI0069,PAR,Tomb of the Unknown Soldier in Paris,religion,Arc de Triomphe de l'Étoile,see,koordinat
+POI0070,PAR,galerie Vivienne,shopping,La Gallerie Vivienne,buy,qid
+POI0071,PAR,Picpus Cemetery,history,Picpus Cemetery,see,qid
+POI0072,PAR,Gare de Paris-Nord,landmark,Saravanaa Bhavan,eat,koordinat
+POI0073,PAR,Musée de l'Orangerie,museum,Musée de l'Orangerie,see,koordinat
+POI0075,PAR,Church of Saint Eustache,religion,Église Saint-Eustache,see,qid
+POI0076,PAR,parc Monceau,nature,Parc Monceau,see,qid
+POI0080,PAR,Café de la Paix,food,Théâtre Édouard VII,do,koordinat
+POI0081,PAR,Jardin des plantes,nature,Jardin des Plantes,see,qid
+POI0082,PAR,Bourse de commerce,shopping,Bourse de commerce - Pinault Collection,see,qid
+POI0083,PAR,place Vendôme,landmark,Colonne Vendôme,see,koordinat
+POI0085,PAR,Beaux-Arts de Paris,museum,Magasin Sennelier,buy,koordinat
+POI0086,PAR,Communards' Wall,history,Flèche d'Or,drink,koordinat
+POI0087,PAR,Saint-Étienne-du-Mont,religion,Eglise Saint-Étienne-du-Mont,see,qid
+POI0089,PAR,Place de la Bastille,landmark,Place de la Bastille,see,qid
+POI0091,PAR,Le Marais,culture,Le Marais,see,qid
+POI0092,PAR,Musée National d'Art Moderne,museum,Centre Georges Pompidou,see,koordinat
+POI0094,PAR,Saint-Germain l'Auxerrois,religion,Saint-Germain l'Auxerrois,see,qid
+POI0095,PAR,Harry's New York Bar,nightlife,Harry's New York Bar,drink,koordinat
+POI0097,PAR,Comédie-Française,culture,Comédie Francaise,do,koordinat
+POI0098,PAR,Café de la Rotonde,food,Monument to Balzac,see,koordinat
+POI0099,PAR,"Wall of Philip II Augustus, Paris",history,Minuit Moins 7,buy,koordinat
+POI0100,PAR,Musée du quai Branly,museum,Musée du quai Branly,see,qid
+POI0101,PAR,Pont Alexandre III,landmark,Pont Alexandre III,see,qid
+POI0103,PAR,Accor Arena,culture,AccorHotels Arena,see,qid
+POI0104,PAR,Musée de Cluny,museum,Musée national du Moyen Âge,see,koordinat
+POI0105,PAR,Château de Vincennes,landmark,Château de Vincennes,see,qid
+POI0106,PAR,Jardin d'Acclimatation,nature,Jardin d'Acclimatation,see,qid
+POI0108,PAR,Café des 2 Moulins,food,Thibault van der Straete,buy,koordinat
+POI0109,PAR,Saint-Vincent Cemetery,history,Buste de Dalida,see,koordinat
+POI0110,PAR,Opéra Bastille,culture,Opéra Bastille,see,qid
+POI0111,PAR,Hôtel Ritz Paris,landmark,Lorenz Bäumer,buy,koordinat
+POI0112,PAR,Musée d'art moderne de Paris,museum,Musée d'Art Moderne de la Ville de Paris,see,qid
+POI0113,PAR,Madame Arthur,nightlife,Place Pigalle,see,koordinat
+POI0114,PAR,île aux Cygnes,nature,Île aux Cygnes,see,qid
+POI0118,PAR,Cité des Sciences et de l'Industrie,museum,Cité des sciences et de l’industrie - La Villette,see,koordinat
+POI0122,PAR,Musée Carnavalet,museum,Carnavalet,see,koordinat
+POI0123,PAR,Palais Bourbon,landmark,l'Assemblée Nationale,see,koordinat
+POI0125,PAR,Coulée verte René-Dumont,nature,Promenade Plantée,see,qid
+POI0127,PAR,Chaillot Palace,culture,Palais de Chaillot,see,qid
+POI0128,PAR,palais de Tokyo,museum,Palais de Tokyo,see,qid
+POI0131,PAR,Saint-Nicolas-du-Chardonnet,religion,Eglise Saint Nicolas du Chardonnet,see,qid
+POI0132,PAR,Westfield Forum des Halles,shopping,Forum les Halles,buy,koordinat
+POI0133,PAR,Lipp,food,Cafe Philo in English,do,koordinat
+POI0134,PAR,jardins du Trocadéro,nature,Jardins du Trocadéro,see,qid
+POI0136,PAR,Saint-Germain-des-Prés,culture,Citypharma Du Four Bonaparte,buy,koordinat
+POI0137,PAR,Musée Picasso,museum,Picasso Museum,see,koordinat
+POI0138,PAR,"Alexander Nevsky Cathedral, Paris",religion,Saint-Alexandre-Nevsky Cathedral,see,qid
+POI0139,PAR,parc Montsouris,nature,Parc Montsouris,see,qid
+POI0143,PAR,Guimet Museum,museum,Guimet Museum,see,koordinat
+POI0145,PAR,"Saint-Augustin, Paris",religion,Saint-Augustin,see,qid
+POI0150,PAR,Mémorial des Martyrs de la Déportation,history,Amorino,eat,koordinat
+POI0151,PAR,Musée de l'Armée,museum,Musée de l'Armée,see,qid
+POI0153,PAR,Gare de Paris-Est,landmark,Restaurant La Strasbourgeoise,eat,koordinat
+POI0155,PAR,Canal de l'Ourcq,nature,Canal de l'Ourcq,see,qid
+POI0156,PAR,Queen Elizabeth II Flower Market,shopping,Marché aux fleurs Reine-Elizabeth-II,buy,qid
+POI0159,PAR,Musée Grévin,museum,Musée Grévin,see,qid
+POI0160,PAR,"Saint-Roch, Paris",religion,Carrefour Express Paris Saint Honoré,buy,koordinat
+POI0161,PAR,Les Bains-Douches,nightlife,The Frog & Rosbif,drink,koordinat
+POI0162,PAR,Le Grand Véfour,food,Macéo,eat,koordinat
+POI0165,PAR,Arab World Institute,museum,Musée de l'Institut du Monde Arabe,see,qid
+POI0168,PAR,Saint-Ouen flea market,shopping,Marché aux Puces de St-Ouen,buy,koordinat
+POI0169,PAR,Olympia,culture,Olympia,do,qid
+POI0170,PAR,Musée Jacquemart-André,museum,Jacquemart-Andre Museum,see,koordinat
+POI0173,PAR,Saint-Merri,religion,Creperie Beaubourg,eat,koordinat
+POI0174,PAR,parc de Bercy,nature,Parc de Bercy,see,qid
+POI0175,PAR,Musée de l'Homme,museum,Musée de l'Homme,see,qid
+POI0179,PAR,Saint-Julien-le-Pauvre,religion,Eglise Saint-Julien-le-Pauvre,see,qid
+POI0181,PAR,Parc André Citroën,nature,Parc André Citroën,see,qid
+POI0183,PAR,Cinémathèque Française,museum,Cinema Museum,see,koordinat
+POI0184,PAR,Angelina,food,Librairie Galignani,buy,koordinat
+POI0188,PAR,Bazar de l'Hôtel de Ville,shopping,BHV,buy,qid
+POI0189,PAR,Galerie nationale du Jeu de Paume,museum,Jeu de Paume,see,qid
+POI0190,PAR,Théâtre des Champs-Élysées,culture,Champs-Élysées,see,isim
+POI0193,PAR,Bouillon Chartier Grands Boulevards,food,Bouillon Chartier,eat,isim
+POI0194,PAR,Chapelle expiatoire,religion,Chapelle Expiatoire,see,koordinat
+POI0195,PAR,Errancis Cemetery,history,Marché de Lévis,buy,koordinat
+POI0198,PAR,Saint-Jacques Tower,landmark,Tour St Jacques,see,qid
+POI0199,PAR,Église du Val-de-Grâce,religion,Val-de-Grâce,see,qid
+POI0205,PAR,Drouant,food,Drouant,eat,koordinat
+POI0207,PAR,Musée des Arts Décoratifs,museum,Musée des Arts Décoratifs,see,koordinat
+POI0208,PAR,pont de Bir-Hakeim,landmark,Pont de Bir-Hakeim,see,qid
+POI0209,PAR,Notre-Dame-des-Victoires,religion,Notre Dame des Victoires,see,qid
+POI0212,PAR,Le Jules Verne,food,58 Tour Eiffel,eat,koordinat
+POI0213,PAR,Opéra-Comique,culture,Théâtre national de l'Opéra-Comique,do,qid
+POI0215,PAR,Musée d'Art et d'Histoire du Judaïsme,museum,Musée d'Art et d'Histoire du Judaïsme,see,qid
+POI0216,PAR,church Saint-Paul-Saint-Louis of Paris,religion,Hôtel de Sully,see,koordinat
+POI0217,PAR,place du Tertre,landmark,Artists' Square,see,qid
+POI0222,PAR,Odéon-Théâtre de l'Europe,culture,La Chambre Claire,buy,koordinat
+POI0225,PAR,Beaugrenelle shopping mall,shopping,Beaugrenelle Shopping Center,buy,qid
+POI0228,PAR,Notre-Dame-de-Lorette (Paris),religion,Juste,eat,koordinat
+POI0230,PAR,Maison de Balzac,museum,Passy Plaza,buy,koordinat
+POI0234,PAR,place de l'Hôtel-de-Ville - Esplanade de la Libération,landmark,Hôtel de Ville,see,koordinat
+POI0235,PAR,BnF Museum,museum,Hokkaido,eat,koordinat
+POI0237,PAR,Rive Droite,culture,les Grands Boulevards,do,koordinat
+POI0241,PAR,Musée de Montmartre,museum,Musée de Montmartre,see,koordinat
+POI0242,PAR,Auteuil,culture,Hôtel Guimard,see,koordinat
+POI0243,PAR,Triangle,landmark,Parc des Expositions,see,koordinat
+POI0244,PAR,Palais de l'Industrie,nature,Le Grand Palais,see,koordinat
+POI0245,PAR,Cimetière Sainte-Marguerite,history,Bluebird,drink,koordinat
+POI0247,PAR,Musée Nissim de Camondo,museum,Musée Nissim de Camondo,see,qid
+POI0250,PAR,Fouquet's,food,Louis Vuitton Building,buy,koordinat
+POI0251,PAR,Le Grand Rex,culture,Au fût et à mesure,drink,koordinat
+POI0254,PAR,Saint-Jean-de-Montmartre,religion,"""I love you"" wall",see,koordinat
+POI0255,PAR,Crazy Horse,culture,Chez Francis,eat,koordinat
+POI0257,PAR,Café du Croissant,food,Passage des Panoramas,buy,koordinat
+POI0259,PAR,Musée Gustave Moreau,museum,Musée Gustave Moreau,see,qid
+POI0261,PAR,Place du Carrousel,landmark,Le Carrousel du Louvre,buy,koordinat
+POI0262,PAR,square des Batignolles,nature,A Jean Bart,eat,koordinat
+POI0263,PAR,American Cathedral in Paris,religion,American Cathedral,see,qid
+POI0265,PAR,Maison de Victor Hugo,museum,Maison de Victor Hugo,see,qid
+POI0267,PAR,place des Victoires,landmark,Place des Victoires,see,qid
+POI0269,PAR,Square René-Viviani,nature,Shakespeare and Co.,buy,koordinat
+POI0272,PAR,Musée Bourdelle,museum,Musée Bourdelle,see,qid
+POI0273,PAR,Le Bœuf sur le toit,food,Villa Spicy,eat,koordinat
+POI0274,PAR,Hôtel de Crillon,landmark,Hermes flagship store,buy,koordinat
+POI0275,PAR,Stade Charléty,culture,Stade Charléty,see,qid
+POI0276,PAR,Georges-Brassens Park,nature,Parc Georges-Brassens,see,qid
+POI0279,PAR,Nation,landmark,Les Archives Nationales,see,isim
+POI0281,PAR,Cimetière de Grenelle,history,Galerie Michèle Broutta,see,koordinat
+POI0282,PAR,Parc Clichy-Batignolles,nature,Parc Clichy Batignolles Martin Luther King,see,qid
+POI0283,PAR,Eugène-Delacroix National Museum,museum,Musée Delacroix,see,koordinat
+POI0285,PAR,Le Cinq,food,Diep,eat,koordinat
+POI0289,PAR,Fondation Cartier pour l'art contemporain,museum,Cartier Foundation for Contemporary Art,see,qid
+POI0295,PAR,Lasserre,food,Hanawa,eat,koordinat
+POI0297,PAR,Palais de la Découverte,museum,Palais de la decouverte,see,qid
+POI0298,PAR,Temple du Marais,religion,Opéra BD,buy,koordinat
+POI0301,PAR,Musée Cognacq-Jay,museum,Musée Cognacq-Jay,see,qid
+POI0304,PAR,L'Ambroisie,food,L'Ambroisie,eat,qid
+POI0306,PAR,Dalí Paris,museum,Espace Dali,see,qid
+POI0318,PAR,pont Saint-Michel,landmark,Magasin Variantes,buy,koordinat
+POI0319,PAR,Salle Le Peletier,culture,Passages des Princes,buy,koordinat
+POI0320,PAR,Musée Cernuschi,museum,Musée Cernuschi,see,qid
+POI0321,PAR,Place des Émeutes-de-Stonewall,history,O Corcovado Marais,eat,koordinat
+POI0322,PAR,Palais Royal - Musée du Louvre,landmark,Café Marly,eat,koordinat
+POI0323,PAR,Église Saint-Médard,religion,Eglise Saint-Médard,see,qid
+POI0325,PAR,Villa La Roche,museum,Villa La Roche,see,qid
+POI0327,PAR,Abbesses,landmark,Abbesses métro station,see,koordinat
+POI0328,PAR,jardin Atlantique,nature,Jardin atlantique,see,qid
+POI0329,PAR,Notre-Dame-de-l'Assomption,religion,Pizza Nelly.,eat,koordinat
+POI0331,PAR,Musée de la Vie romantique,museum,Colorful basketball court,see,koordinat
+POI0332,PAR,Palais de la Cité,landmark,La Conciergerie,see,koordinat
+POI0333,PAR,Vélodrome d'Hiver,culture,Maison de la culture du Japon,do,koordinat
+POI0334,PAR,Le Bateau-Lavoir,landmark,Au Marché de la Butte,buy,koordinat
+POI0336,PAR,Le Rocher de Cancale,food,Rue Montorgueil pedestrian area,buy,koordinat
+POI0339,PAR,Saint-Louis en l'Île,religion,Glacier Berthillon,eat,koordinat
+POI0340,PAR,Mémorial de la Shoah,museum,Mémorial de la Shoah,see,koordinat
+POI0345,PAR,St. Stephen's Greek Orthodox Cathedral,religion,Musée Yves Saint Laurent,see,koordinat
+POI0346,PAR,Paris Sewer Museum,museum,Musée des Égouts de Paris,see,qid
+POI0347,PAR,Balajo,nightlife,Les Petits Crus,eat,koordinat
+POI0348,PAR,Brasserie Julien,food,Julien,eat,koordinat
+POI0353,PAR,Palais du Trocadéro,landmark,Café de l'Homme,drink,koordinat
+POI0354,PAR,Musée Curie,museum,Musée Curie,see,qid
+POI0355,PAR,Pont Mirabeau,landmark,Pont Mirabeau,see,qid
+POI0357,PAR,Église Saint-Leu-Saint-Gilles de Paris,religion,La Tour Jean-sans-Peur,see,koordinat
+POI0359,PAR,La Mère Catherine,food,Le Passe-Muraille,see,koordinat
+POI0361,PAR,Port-Royal Abbey,religion,Port-Royal Abbey,see,qid
+POI0372,PAR,Cité internationale universitaire de Paris,landmark,Cité Internationale Universitaire de Paris,see,qid
+POI0373,PAR,Saint-Joseph-des-Carmes,religion,Pâtisserie Sadaharu Aoki,buy,koordinat
+POI0379,PAR,Le Trumilou,food,Caféothèque de Paris,drink,koordinat
+POI0381,PAR,Bocamexa,food,Pozetto,eat,koordinat
+POI0384,PAR,La Perla,food,La Perla,eat,koordinat
+POI0385,PAR,Pizzou,food,Mariage Frères,buy,koordinat
+POI0387,PAR,Le perchoir Marais,nightlife,Le Perchoir,drink,isim
+POI0389,PAR,Café Cox,nightlife,Queen Ann,drink,koordinat
+POI0390,PAR,Le Lizard,nightlife,Le Colimaçon,eat,koordinat
+POI0391,PAR,Stolly's,nightlife,Maison Européene de la Photographie,do,koordinat
+POI0393,PAR,Tiki playa,nightlife,Café Oz,drink,koordinat
+POI0394,PAR,Le Dernier Bar avant la Fin du Monde,nightlife,La Robe et le Palais,eat,koordinat
+POI0397,PAR,The Auld Alliance,nightlife,Le Loir dans la Théière,eat,koordinat
