@@ -33,17 +33,16 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 
 | Alan | Açık | Kapalı |
 |---|---|---|
-| A — Veri & Modeller | 4 (#30, #33, #70, #71) | 6 (#1, #2, #3, #27, #65, #67) |
-| B — Retrieval & Bilgi Grafiği | 1 (#49) | 6 (#4, #5, #6, #48, #50, #63) |
-| C — Ajanlar, Orkestrasyon & UI | 2 (#7, #72) | 12 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #54, #56, #57, #59, #61) |
+| A — Veri & Modeller | 4 (#30, #33, #70, #71) | 5 (#1, #2, #3, #27, #65) |
+| B — Retrieval & Bilgi Grafiği | 1 (#49) | 8 (#4, #5, #6, #42, #46, #48, #50, #63) |
+| C — Ajanlar, Orkestrasyon & UI | 2 (#7, #72) | 16 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67) |
 | D — Altyapı | 1 (#32) | 4 (#11, #12, #26, #31) |
 
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-> **Not:** bu dosya bir dönem GitHub'ın gerisinde kaldı. Yukarıdaki sayılar 2026-08-26 itibarıyla
-> `gh issue list` ile doğrulandı, ama #41–#48, #50, #54, #56, #57, #59, #63, #65, #67 için ayrıntılı
-> girdi hâlâ yok — sadece sayımda görünüyorlar.
+Toplam 41 issue: **8 açık, 33 kapalı.** Sayılar ve durumlar 2026-08-26 itibarıyla `gh issue list`
+ile doğrulandı.
 
 ---
 
@@ -71,6 +70,14 @@ doğrulanabilir bir Wikidata QID taşıyor, köken sütunları (`*_source`) hang
 hangisinin varsayım olduğunu kaydediyor. Yan bulgu: OSM'nin `wikidata` etiketi bazen yere değil
 kavrama işaret ediyor (Prag Hayvanat Bahçesi'ndeki panda çiti → tür maddesi) — koordinat
 kapısıyla 1.685 böyle kayıt elendi. [#27](https://github.com/yukselburcinn-web/DA592/issues/27)
+
+### #65. Katalogdaki POI'lerin %10'u gezilebilir bir yer değil — ✅ Kapalı
+*(bug, `priority:high`)* 700 POI'nin **71'i (%10.1)** bir gezginin uğrayabileceği yer değildi:
+üniversiteler, bir hastane, metro istasyonları, yıkılmış binalar, bir televizyon kanalı, bir yangın.
+Teorik değil — gerçekten plana giriyorlardı (Sorbonne → Sciences Po → … → Bataclan bir "kültür günü"
+olarak dönüyordu). `pipeline/sight_filter.py` ile ayıklandı, elenenler `data/dropped_pois.csv`'ye
+kaydedildi, katalog 700 → 654'e indi ve REPORT'taki sayılar buna göre güncellendi.
+[#65](https://github.com/yukselburcinn-web/DA592/issues/65)
 
 ### #30. POI kataloğunda hâlâ eksik olan 5 ikonik yer — 🔓 Açık
 *(Etiket: `area:agents`, içerik: veri/kategori kotası — etiket içerikle örtüşmüyor.)*
@@ -118,6 +125,17 @@ veri zaten elimizde. #70 sonrası Google'ın gerçek marjinal katkısı ölçül
 
 [#71](https://github.com/yukselburcinn-web/DA592/issues/71)
 
+### #33. Talep tahminine ve fiyat sinyaline şehir düzeyinde granülerlik ekle — 🔓 Açık
+*(enhancement, `priority:medium`)* Talep verisi Eurostat `tour_occ_nim`'den geliyor: gerçek, aylık,
+COVID çöküşünü içeren bir seri — ama granülerliği **ülke düzeyinde**. Yani Paris'in talep tahmini
+tüm Fransa'nın turist sayısını proxy alıyor. REPORT §5'in kendi ifadesiyle "tek dürüst kalan boşluk".
+Eurostat'ın şehir serisi (`urb_ctour`) var ama **yıllık**, aylık mevsimsellik varsayan Holt-Winters'ı
+besleyemiyor.
+
+İkinci yarısı fiyat: `price_level` ile crowding tahmini hiçbir yerde birbirine bağlanmıyor, yani
+proposal'ın "bütçeyi mevsimsel talebe göre hizala" çerçevesinin sadece crowding tarafı gerçek veriyle
+karşılanıyor. Önerilen kaynak: Inside Airbnb. [#33](https://github.com/yukselburcinn-web/DA592/issues/33)
+
 ---
 
 ## Alan B — Retrieval & Bilgi Grafiği
@@ -134,6 +152,41 @@ TF-IDF+LSA → `sentence-transformers` (`all-MiniLM-L6-v2`) + FAISS.
 ### #6. Multi-hop sorgu seti genişlet — ✅ Kapalı
 `evaluation/comparative_analysis.py::TEST_QUERIES` genişletildi.
 [#6](https://github.com/yukselburcinn-web/DA592/issues/6)
+
+### #42. Retrieval config seçicisini ön yüzden kaldır, karşılaştırma sekmesi ekle — ✅ Kapalı
+Sidebar'daki fusion/hybrid/standard radio'su bir deney knob'uydu, gezginin anlamlı seçim
+yapabileceği bir şey değil. Fusion sabitlendi; karşılaştırma **System logs → Results** sekmesine
+taşındı, orada soru değil kanıt olarak duruyor. [#42](https://github.com/yukselburcinn-web/DA592/issues/42)
+
+### #46. Karşılaştırmalı analize istatistiksel anlamlılık testi ekle — ✅ Kapalı
+Ortalamalar tek başına hangi farkın gerçek, hangisinin gürültü olduğunu söylemiyordu. Sonuçlar eşli
+(her config aynı sorguları görüyor), dolayısıyla Wilcoxon signed-rank uygulandı — `scipy` zaten
+bağımlılıktı. Sonuç: Fusion, Hybrid'e karşı **arketip kesinliğinde** anlamlı, multi-hop recall ve
+km/durak'ta **ayırt edilemez**. [#46](https://github.com/yukselburcinn-web/DA592/issues/46)
+
+### #48. recall_at_k kısmen döngüseldi: gold set Fusion'ın kendi retriever'ından üretiliyordu — ✅ Kapalı
+Gold set, Fusion'ın graph retriever'ıyla aynı fonksiyondan geliyordu; metrik kısmen kendi kendini
+not veriyordu. Değerlendirme bağımsız bir kaynağa (Wikivoyage) taşındı.
+[#48](https://github.com/yukselburcinn-web/DA592/issues/48)
+
+### #50. Test sorgu setini genişlet ve bağımlılık seviyesini raporla — ✅ Kapalı
+Set çok dar ve dengesizdi (56 hücrenin 14'ü dolu). 55 sorguya çıkarıldı: 19'u elle yazılmış, 36'sı
+şehir × kategori hücrelerini düzgün tarayan üretilmiş sorgu. Genişletmenin bedeli dürüstçe
+raporlandı — **eski setin gösterdiği multi-hop recall üstünlüğü kayboldu**, arketip kesinliği ise
+iki katmanda da tuttu. [#50](https://github.com/yukselburcinn-web/DA592/issues/50)
+
+### #63. Öneriler alakasız: Louvre yerine 'France 3' (TV kanalı) — ✅ Kapalı
+Kültür gezgini Paris sorgusunda 24 adayın 7. sırasında bir televizyon kanalı vardı; Louvre 17.,
+Eyfel/Notre-Dame/Sacré-Cœur/Père Lachaise listede hiç yoktu. Sıralama gezginin görmek isteyeceğine
+göre yeniden kuruldu ve ünlülük eş-değer bir faktör değil **çarpan** hâline getirildi.
+[#63](https://github.com/yukselburcinn-web/DA592/issues/63)
+
+### #49. recall_at_k yapısal olarak tavanlı, ama 1.0 üzerinden okunuyor — 🔓 Açık
+*(enhancement, `priority:medium`)* #46'daki değerlendirmenin ikinci bulgusu (ilki #48). `recall_at_k`
+k=8'de ölçülüyor ama medyan sorgunun gold set'i çok daha büyük, dolayısıyla **kusursuz sıralayan bir
+retriever bile 1.0'a ulaşamaz** — ulaşılabilir tavan ~0.573. Sayı bugün 1.0 üzerinden okunuyor ve
+Fusion'ın skoru olduğundan kötü görünüyor. Metrik ya tavanına göre normalize edilmeli ya da tavan
+raporda açıkça yazılmalı. [#49](https://github.com/yukselburcinn-web/DA592/issues/49)
 
 ---
 
@@ -164,17 +217,17 @@ Gün başına dengesiz süre dağılımı + seyahat modu (yürüme/araç/hibrit)
 Her güne en az 2 "food" durağı garantisi (`_ensure_daily_meals`).
 [#20](https://github.com/yukselburcinn-web/DA592/issues/20) — takibi: **#29** (zamanlama kümelenmesi).
 
-### #21. Harita görünümünü ve ölçeklemesini güncelle — 🔓 Açık
+### #21. Harita görünümünü ve ölçeklemesini güncelle — ✅ Kapalı
 `app.py::_fit_zoom` ve plotly harita bileşenleri; zoom itinerary alanına göre düzgün
 ayarlanmıyor. [#21](https://github.com/yukselburcinn-web/DA592/issues/21)
 
-### #22. Kullanıcıya gösterilmemesi gereken UI/debug bilgilerini temizle — 🔓 Açık
+### #22. Kullanıcıya gösterilmemesi gereken UI/debug bilgilerini temizle — ✅ Kapalı
 [#22](https://github.com/yukselburcinn-web/DA592/issues/22)
 
-### #23. Budget ve Max price level slider'larını kaldır — 🔓 Açık
+### #23. Tercihleri Düşük/Orta/Yüksek seçimine çevir + Max price level filtresini kaldır — ✅ Kapalı
 `good first issue`. [#23](https://github.com/yukselburcinn-web/DA592/issues/23)
 
-### #29. Öğün durakları zamanda kümeleniyor — 🔓 Açık
+### #29. Öğün durakları zamanda kümeleniyor — ✅ Kapalı
 #20/#25 ile öğün *sayısı* garantiye bağlandı ama 256 ölçülen günün 153'ünde (%60) iki öğün
 2 saatten yakın (medyan ara 1.53 saat) — cheapest-insertion yerleşimi `MEAL_WINDOW_HOURS`
 kadar kayınca iki öğün aynı boşluğa düşebiliyor. Ayrıca 1 günde (PRG/Nature/3 gün) tek öğünle
@@ -185,6 +238,39 @@ kalma kaçağı var.
 - [ ] Coğrafi maliyet #25 seviyesinde kalıyor (öğünler gidiş-dönüş sapması yaratmıyor)
 
 [#29](https://github.com/yukselburcinn-web/DA592/issues/29)
+
+### #41. "Agent trace" sekmesini kaldır, ayrı bir log ekranı ekle — ✅ Kapalı
+Orkestrasyonun ham `st.json` çıktısı gezginin itinerary'sinin ortasında duruyordu. Yerine
+operatöre dönük **System logs** ekranı geldi: her ajan adımı süresiyle, seviye/metin filtreli ve
+`.log` olarak indirilebilir. [#41](https://github.com/yukselburcinn-web/DA592/issues/41)
+
+### #54. API anahtarı gerektirmeyen yerel LLM yolu ekle — ✅ Kapalı
+Gerçek jeneratif çıktının tek yolu ücretli bir API anahtarıydı (#7'nin takıldığı yer). MLX üzerinden
+yerel/açık ağırlıklı bir yol eklendi (`ROAMWISE_LOCAL_LLM=1`), böylece maliyet ödemeden gerçek —
+template olmayan — LLM çıktısı görülebiliyor. [#54](https://github.com/yukselburcinn-web/DA592/issues/54)
+
+### #56. Agent narrative rotada olmayan mekanları öneriyor — ✅ Kapalı
+Gerçek LLM ile çalıştırıldığında anlatı, router'ın ürettiği rotayla uyuşmayan yerlerden bahsediyordu.
+Model zayıflığı değil **prompt tasarımı hatası**ydı; `TemplateLLMClient` promptu aynen yankıladığı
+için bugüne kadar görünmemişti. Anlatı artık yalnızca itinerary'den üretiliyor.
+[#56](https://github.com/yukselburcinn-web/DA592/issues/56)
+
+### #57. Gerçek LLM ile yanıt süresi çok uzun — ✅ Kapalı
+Tek bir "Plan my trip" isteği 2 günlük gezide ~99 sn, 3 günlükte 400 sn'yi aşıp timeout'a düşüyordu:
+istek başına 4 generation üretiliyor, **2'si hiç gösterilmiyordu**. Okunmayan generation'lar
+kaldırıldı. #56 ile aynı PR'da çözüldü. [#57](https://github.com/yukselburcinn-web/DA592/issues/57)
+
+### #59. Günün zaman modeli gerçekçi değil — ✅ Kapalı
+Üç belirti, tek kök: gün sabit 09:00'da başlıyor, süre aralığı dar, ve kategorilerin günün hangi
+saatine ait olduğu hiç modellenmemiş. Başlangıç saati UI'a çıkarıldı ve orchestrator üzerinden
+geçirildi, süre 12–18 saate alındı, nightlife `NIGHTLIFE_EARLIEST_HOUR` ile günün sonuna taşındı.
+Gece yarısı kırpması bilinçli olarak açık bırakıldı — takibi **#61**. [#59](https://github.com/yukselburcinn-web/DA592/issues/59)
+
+### #67. Bütçe fiyat filtresi ölü koddu — ✅ Kapalı
+`max_price_level=3` "1=budget, 3=splurge" diye belgelenmişti ama `price_level` OSM'in `fee` etiketi,
+yani kademe değil ücretsiz/ücretli bayrağı ([0, 1]); eşik 3 olduğu için filtre **bugüne kadar tek bir
+POI'yi bile elemedi**. Filtre silindi; katalogun fiyat hakkında bildiği dürüst kalıntı (ücretsiz
+giriş oranı) filtrelenmek yerine raporlanıyor. [#67](https://github.com/yukselburcinn-web/DA592/issues/67)
 
 ### #61. Gece yarısını aşan kapanış saatleri ve günün başlangıcı — ✅ Kapalı
 *(bug, `priority:high`, #59'un takibi)* İki ayrı kalıntı, tek semptom: nightlife ilgisi yüksek
@@ -254,7 +340,7 @@ gerçek veriye dayanması için.
 ### #12. Dockerfile / deploy hazırlığı — ✅ Kapalı
 [#12](https://github.com/yukselburcinn-web/DA592/issues/12)
 
-### #26. Aynı modüller iki farklı import yolundan iki kez yükleniyor — 🔓 Açık
+### #26. Aynı modüller iki farklı import yolundan iki kez yükleniyor — ✅ Kapalı
 *(bug)* #6'daki `roamwise.*` mutlak import geçişi yarım kalmış: 7 dosya mutlak, 8 dosya göreli
 import kullanıyor. Her iki yol da `sys.path`'te olduğundan aynı dosya **iki ayrı modül
 nesnesi** olarak yükleniyor — `isinstance()` çapraz yollarda sessizce `False` dönüyor,
@@ -268,7 +354,7 @@ açmıyor (henüz buna bağlı bir dal yok) ama teşhisi zor bir tuzak; **#31 il
 
 [#26](https://github.com/yukselburcinn-web/DA592/issues/26)
 
-### #31. Uygulama dokümante edilen hiçbir komutla açılmıyor (`ModuleNotFoundError`) — 🔓 Açık
+### #31. Uygulama dokümante edilen hiçbir komutla açılmıyor (`ModuleNotFoundError`) — ✅ Kapalı
 *(Etiket: `area:agents`, içerik: import/altyapı sorunu — etiket içerikle örtüşmüyor.
 **#26 ile aynı kök sebep**, farklı belirti: bu issue somut hatayı ve üç dokümante edilmiş
 çalıştırma yolunun üçünün de kırık olduğunu gösteriyor.)*
