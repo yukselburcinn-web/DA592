@@ -12,3 +12,9 @@ roamwise/.cache/
 # Per-city intermediates from roamwise/pipeline/build_catalogue.py;
 # poi.csv is their union and is the file the app reads.
 roamwise/data/*_poi.csv
+
+# Per-city outputs of roamwise/pipeline/gold_list.py. Regenerated from
+# Wikivoyage on demand, and the measurement they support is reported in
+# REPORT.md rather than read from these files by anything.
+roamwise/data/gold_*.csv
+roamwise/data/missed_*.csv

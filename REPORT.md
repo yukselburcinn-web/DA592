@@ -17,7 +17,7 @@ All claims below are backed by code in this repository and a passing automated t
 |---|---|---|
 | Interactive Prototype (web UI) | **Built & verified in-browser** | `roamwise/app.py` (Streamlit) |
 | Agentic Architecture Codebase | **Built** | `roamwise/agents/`, `roamwise/models/`, `roamwise/retrieval/`, `roamwise/optimization/` |
-| Knowledge Graph | **Built** | `roamwise/knowledge_graph/build_graph.py` — 727 nodes (2 City, 700 POI, 18 Transport, 7 ArchetypeProfile), 109097 edges |
+| Knowledge Graph | **Built** | `roamwise/knowledge_graph/build_graph.py` — 681 nodes (2 City, 654 POI, 18 Transport, 7 ArchetypeProfile), 95845 edges |
 | Final Technical Report | **This document + `evaluation/comparative_analysis_*.csv`** | |
 
 ## 3. Methodology → implementation mapping
@@ -30,7 +30,9 @@ The proposal names Kaggle, TripAdvisor, OpenStreetMap, and Wikidata. Every datas
 - **18 transport hubs** (10 Paris, 8 Berlin), found in OpenStreetMap and ranked by Wikidata sitelink count rather than hand-picked. The previous two-per-city set was wrong at both ends: CDG sits 23 km outside the catalogue, so its 3 km circle was empty, while "all stations" would have put 365 rows in Paris alone and made proximity meaningless
 - **2 city guides**, derived from the catalogue by `city_guide.py` (cluster structure, walkability, observed closing hours) plus one hand-written editorial sentence per city, kept separate so its provenance is visible. They form part of the semantic/keyword corpus
 
-**Why two cities rather than eight.** The previous catalogue held 150 POIs per city; this one holds 400 and 300. Per-city depth is what the retrieval comparison and the itinerary optimiser actually exercise, and coverage against an independent Wikivoyage reference list roughly doubled as a result — Paris 38% → 75%, Berlin to 67%, measured with one-to-one matching so a single catalogue entry cannot claim several reference entries. §5 records what the narrower list costs.
+**Why two cities rather than eight.** The previous catalogue held 150 POIs per city; this one holds 371 and 283. Per-city depth is what the retrieval comparison and the itinerary optimiser actually exercise, and coverage against an independent Wikivoyage reference list roughly doubled as a result — Paris 38% → 74.4%, Berlin to 67.2%, measured with one-to-one matching so a single catalogue entry cannot claim several reference entries. §5 records what the narrower list costs.
+
+Those coverage figures survived the removal of 46 rows that were not places to visit (issue #65), which is itself the cleanest evidence that they were not: Paris held 186/250 of the reference list before and after, Berlin 156/232, while the share of the catalogue that *is* on the reference list rose from 46.5% to 50.1% in Paris and 52.0% to 55.1% in Berlin. Dropping universities, metro stations and a television channel cost no coverage and bought precision, because Wikivoyage never listed them either.
 - A 420-row synthetic user-preference survey across 7 named traveler archetypes, used to fit the segmentation model
 
 POIs and tourism-demand data are now **real**, fetched live from public APIs rather than generated:
