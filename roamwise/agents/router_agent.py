@@ -82,12 +82,17 @@ class RouterAgent:
             archetype: str = None,
             respect_opening_hours: bool = True, use_real_routing: bool = False,
             travel_mode=DEFAULT_MODE, min_food_per_day: int = MIN_FOOD_PER_DAY,
-            narrate: bool = True) -> dict:
+            narrate: bool = True, start_date=None) -> dict:
         """narrate=False skips the LLM paraphrase and returns only `facts` --
         see FusionRAGAgent.run()'s docstring and issue #57.
 
         day_start_hour=None lets the archetype pick it (see start_hour_for);
-        pass a number to override that with the traveler's own choice."""
+        pass a number to override that with the traveler's own choice.
+
+        start_date is the trip's first day. It is what makes opening hours
+        answerable -- a POI's hours are a rule over days of the week, and
+        without a date the router can only read the coarse open/close pair and
+        will happily schedule a Monday-closed museum on a Monday (issue #70)."""
         n_days = max(1, min(n_days, len(candidate_pois))) if candidate_pois else 1
         mode = get_travel_mode(travel_mode)
         day_start_hour = start_hour_for(archetype, day_start_hour)
@@ -116,11 +121,12 @@ class RouterAgent:
             day_start_hour=day_start_hour, respect_opening_hours=respect_opening_hours,
             use_real_routing=use_real_routing, travel_mode=mode,
             food_pois=self._food_pois(destination_id, candidate_pois),
-            min_food_per_day=min_food_per_day,
+            min_food_per_day=min_food_per_day, start_date=start_date,
         )
         facts = self._facts(destination_id, itinerary, mode)
         return {"destination_id": destination_id, "itinerary": itinerary,
                 "travel_mode": mode.key, "day_start_hour": day_start_hour, "facts": facts,
+                "start_date": start_date,
                 "narrative": self._narrate(facts) if narrate else None}
 
     def _food_pois(self, destination_id: str, candidate_pois: list[dict]) -> list[dict]:

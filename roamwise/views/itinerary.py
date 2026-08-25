@@ -7,6 +7,7 @@ A page, not an entry point: `roamwise/app.py` is what Streamlit runs, and it
 has already fixed sys.path and called st.set_page_config by the time this
 executes. Run the app with: streamlit run roamwise/app.py
 """
+import datetime
 import math
 from pathlib import Path
 
@@ -150,10 +151,18 @@ with st.sidebar:
     dest_label = st.selectbox("Destination", list(dest_options.keys()))
     destination_id = dest_options[dest_label]
     n_days = st.slider("Trip length (days)", 1, 5, 3)
-    travel_month = st.selectbox(
-        "Travel month (optional)",
-        [None] + [f"2026-{m:02d}" for m in range(9, 13)] + [f"2027-{m:02d}" for m in range(1, 9)],
-        format_func=lambda x: "Flexible / let RoamWise recommend" if x is None else x,
+    # A date, not a month. The forecaster only ever needed the month and still
+    # reads it from here, but opening hours are a rule over days of the week --
+    # without a date the router cannot tell a Monday from a Tuesday and will
+    # schedule a Monday-closed museum on a Monday (issue #70). One control still,
+    # answering both questions.
+    start_date = st.date_input(
+        "Trip starts on",
+        value=datetime.date.today() + datetime.timedelta(days=30),
+        min_value=datetime.date.today(),
+        help="Day 1 falls on this date. It sets the crowding forecast's month, and "
+             "lets each stop be checked against the hours it actually keeps that "
+             "day -- plenty of museums close on Mondays.",
     )
     # The cap used to be 12:00, which put an evening-shaped day out of reach:
     # nightlife is never scheduled before 18:00, so a day opening at 09:00
@@ -209,7 +218,8 @@ preferences = {"budget": budget, "culture": culture, "nature": nature,
 if run:
     orch = get_orchestrator(RETRIEVAL_CONFIG)
     with st.spinner("Agents at work: segmenting traveler, forecasting demand, retrieving grounded context, routing..."):
-        result = orch.plan_trip(preferences, destination_id=destination_id, n_days=n_days, travel_month=travel_month,
+        result = orch.plan_trip(preferences, destination_id=destination_id, n_days=n_days,
+                                 start_date=start_date,
                                  daily_minutes_budget=daily_hours * 60,
                                  day_start_hour=(None if day_start_hour is None
                                                  else float(day_start_hour)),
@@ -240,8 +250,12 @@ if run:
             for day in result["routing"]["itinerary"]:
                 with st.container(border=True):
                     used = day["total_minutes"]
-                    st.markdown(f"**Day {day['day']}** &mdash; {used // 60}h {used % 60:02d}m "
-                                f"of your {daily_hours}h &middot; {day['distance_km']} km")
+                    # The weekday is worth showing, not just carrying: it is the
+                    # reason a stop is or isn't in this day at all (issue #70).
+                    when = f" &middot; {day['date']:%a %d %b}" if day.get("date") else ""
+                    st.markdown(f"**Day {day['day']}**{when} &mdash; {used // 60}h "
+                                f"{used % 60:02d}m of your {daily_hours}h "
+                                f"&middot; {day['distance_km']} km")
                     st.progress(min(1.0, used / budget_minutes) if budget_minutes else 0.0)
                     if day["route"]:
                         schedule = day.get("schedule", [])

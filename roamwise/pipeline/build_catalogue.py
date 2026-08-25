@@ -775,7 +775,17 @@ COLUMNS = ["poi_id", "destination_id", "name", "category", "lat", "lon",
            "avg_visit_minutes", "price_level", "popularity_score", "description",
            "open_hour", "close_hour", "wikidata_qid", "wikipedia_title",
            "sitelink_count", "monthly_pageviews", "description_source",
-           "hours_source", "price_source"]
+           "hours_source", "price_source",
+           # OSM's opening_hours tag, verbatim (issue #70). open_hour/close_hour
+           # above are a single pair and cannot express the 94% of tags that
+           # carry a day of the week, the 17% with a lunch closure, or the 11%
+           # with an explicit "off" rule -- so a museum shut on Mondays was
+           # schedulable on a Monday. The pair is kept as the coarse fallback
+           # for rows with no tag; consumers that can read the grammar should
+           # prefer this column. Added rather than replacing anything: the
+           # nineteen columns before it are unchanged, so every downstream
+           # module keeps working untouched.
+           "opening_hours_raw"]
 
 
 def build_rows(city, chosen, osm_by_qid, descriptions, start_id):
@@ -835,6 +845,7 @@ def build_rows(city, chosen, osm_by_qid, descriptions, start_id):
             "description_source": description_source,
             "hours_source": hours_source,
             "price_source": price_source,
+            "opening_hours_raw": tags.get("opening_hours") or "",
         })
     return rows
 

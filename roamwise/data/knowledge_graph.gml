@@ -44,6 +44,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 23
+    opening_hours_raw "09:30-23:45; Jun 21-Sep 02: 09:00-00:45; Jul 14,Jul 15 off"
   ]
   node [
     id 3
@@ -60,6 +61,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw "Mo,Th,Sa-Su 09:00-18:00; Tu off; We,Fr 09:00-21:00; Jan 01,May 01,Dec 25 off"
   ]
   node [
     id 4
@@ -76,6 +78,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw "Mo,Tu,We,Fr 07:50-19:00; Th 07:50-22:00; Sa,Su 08:15-19:30"
   ]
   node [
     id 5
@@ -92,6 +95,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 17
+    opening_hours_raw "Mo-Fr 08:00-17:30; Sa 08:30-17:30; Su 09:00-17:30"
   ]
   node [
     id 6
@@ -108,6 +112,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 7
@@ -124,6 +129,7 @@ graph [
     destination_id "PAR"
     open_hour 18
     close_hour 2
+    opening_hours_raw ""
   ]
   node [
     id 8
@@ -140,6 +146,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw "Tu-Su 09:30-18:00; Th 09:30-21:45"
   ]
   node [
     id 9
@@ -156,6 +163,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 10
@@ -172,6 +180,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 11
@@ -188,6 +197,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo-Su 10:00-18:00; Apr 1-Sep 30: Mo-Su 10:00-18:30; Jan 1,May 1,Dec 25: off"
   ]
   node [
     id 12
@@ -204,6 +214,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 20
+    opening_hours_raw "Mo-We, Fr-Sa 10:00-20:00; Th 10:00-20:45; Su 11:00-20:00"
   ]
   node [
     id 13
@@ -220,6 +231,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 14
@@ -236,6 +248,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 1
+    opening_hours_raw "Mo-Su 07:30-01:00"
   ]
   node [
     id 15
@@ -252,6 +265,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 17
+    opening_hours_raw "Nov 06-Mar 15 Mo-Fr 08:00-17:30; Nov 06-Mar 15 Sa 08:30-17:30; Nov 06-Mar 15 PH Su 09:00-17:30; Mar 16-Nov 05 Mo-Fr 08:00-18:00; Mar 16-Nov 05 Sa 08:30-18:00; Mar 16-Nov 05 PH Su 09:00-18:00"
   ]
   node [
     id 16
@@ -268,6 +282,7 @@ graph [
     destination_id "PAR"
     open_hour 6
     close_hour 22
+    opening_hours_raw "06:00-22:30"
   ]
   node [
     id 17
@@ -284,6 +299,7 @@ graph [
     destination_id "PAR"
     open_hour 18
     close_hour 2
+    opening_hours_raw ""
   ]
   node [
     id 18
@@ -300,6 +316,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw "Tu-Su 09:45-20:30"
   ]
   node [
     id 19
@@ -316,6 +333,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw "24/7"
   ]
   node [
     id 20
@@ -332,6 +350,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 20
+    opening_hours_raw "Mo-Su 10:00-20:00"
   ]
   node [
     id 21
@@ -348,6 +367,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 22
@@ -364,6 +384,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 1
+    opening_hours_raw "Mo-Su 07:30-01:30"
   ]
   node [
     id 23
@@ -380,6 +401,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 24
@@ -396,6 +418,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 17
+    opening_hours_raw "10:00-17:00"
   ]
   node [
     id 25
@@ -412,6 +435,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 17
+    opening_hours_raw "Jan-Mar 09:00-17:00; Apr-Sep 09:00-19:00; Oct-Dec 09:00-17:00"
   ]
   node [
     id 26
@@ -428,6 +452,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw "closed"
   ]
   node [
     id 27
@@ -444,6 +469,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw "open &#34;check website https://www.senat.fr/visite/jardin/horaires.html&#34;; (sunset-00:30)-(sunrise-00:15) closed; Mar01-Sep30 (sunset-00:30)-07:30 closed"
   ]
   node [
     id 28
@@ -460,6 +486,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 29
@@ -476,6 +503,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 30
@@ -492,6 +520,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 31
@@ -508,6 +537,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 32
@@ -524,6 +554,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 24
+    opening_hours_raw "12:00-24:00"
   ]
   node [
     id 33
@@ -540,6 +571,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 21
+    opening_hours_raw "Mo-Su 07:30-21:00"
   ]
   node [
     id 34
@@ -556,6 +588,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 35
@@ -572,6 +605,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 36
@@ -588,6 +622,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Su 10:00-18:00"
   ]
   node [
     id 37
@@ -604,6 +639,7 @@ graph [
     destination_id "PAR"
     open_hour 21
     close_hour 1
+    opening_hours_raw "Tu,Th-Sa 21:00-01:00"
   ]
   node [
     id 38
@@ -620,6 +656,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 23
+    opening_hours_raw ""
   ]
   node [
     id 39
@@ -636,6 +673,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw "Sa-Th 09:00-18:00"
   ]
   node [
     id 40
@@ -652,6 +690,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 41
@@ -668,6 +707,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Th 10:00-18:00; Fr 10:00-21:00; Sa-Su 10:00-18:00"
   ]
   node [
     id 42
@@ -684,6 +724,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 23
+    opening_hours_raw "Mo-Su 09:30-23:30"
   ]
   node [
     id 43
@@ -700,6 +741,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 44
@@ -716,6 +758,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 45
@@ -732,6 +775,7 @@ graph [
     destination_id "PAR"
     open_hour 18
     close_hour 2
+    opening_hours_raw ""
   ]
   node [
     id 46
@@ -748,6 +792,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 47
@@ -764,6 +809,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 48
@@ -780,6 +826,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw "Mo-Sa 09:30-20:30; Su 11:00-19:00"
   ]
   node [
     id 49
@@ -796,6 +843,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw "08:00-19:45"
   ]
   node [
     id 50
@@ -812,6 +860,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-We 10:00-18:00; Th 10:00-21:00; Fr-Su 10:00-18:00"
   ]
   node [
     id 51
@@ -828,6 +877,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 13
+    opening_hours_raw "Tu-Sa 12:00-13:15, 19:00-21:15"
   ]
   node [
     id 52
@@ -844,6 +894,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 53
@@ -860,6 +911,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 54
@@ -876,6 +928,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 19
+    opening_hours_raw "Mo-Th 12:00-19:00; Tu off; Fr 12:00-21:00; Sa,Su 11:00-20:00"
   ]
   node [
     id 55
@@ -892,6 +945,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 56
@@ -908,6 +962,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 57
@@ -924,6 +979,7 @@ graph [
     destination_id "PAR"
     open_hour 18
     close_hour 2
+    opening_hours_raw ""
   ]
   node [
     id 58
@@ -940,6 +996,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 59
@@ -956,6 +1013,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 60
@@ -972,6 +1030,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 15
+    opening_hours_raw "Mo-Su 12:00-15:00,19:00-23:00"
   ]
   node [
     id 61
@@ -988,6 +1047,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 62
@@ -1004,6 +1064,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Su 10:00-18:30"
   ]
   node [
     id 63
@@ -1020,6 +1081,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 64
@@ -1036,6 +1098,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 65
@@ -1052,6 +1115,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw "Mo-Sa 08:30-20:30"
   ]
   node [
     id 66
@@ -1068,6 +1132,7 @@ graph [
     destination_id "PAR"
     open_hour 14
     close_hour 17
+    opening_hours_raw "Mo-Sa 14:00-17:00; PH off"
   ]
   node [
     id 67
@@ -1084,6 +1149,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 68
@@ -1100,6 +1166,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw "Mo-Su 09:00-18:00; Tu off"
   ]
   node [
     id 69
@@ -1116,6 +1183,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 70
@@ -1132,6 +1200,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 19
+    opening_hours_raw "Mo-Fr 09:30-19:00; Sa 10:00-19:00; Su 09:00-19:00"
   ]
   node [
     id 71
@@ -1148,6 +1217,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 20
+    opening_hours_raw "Oct-Apr 07:00-20:00; May-Aug 07:00-22:00; Sep 07:00-21:00"
   ]
   node [
     id 72
@@ -1164,6 +1234,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 73
@@ -1180,6 +1251,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 74
@@ -1196,6 +1268,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 23
+    opening_hours_raw ""
   ]
   node [
     id 75
@@ -1212,6 +1285,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 18
+    opening_hours_raw "Mar 01-Mar 30 08:00-18:30; Mar 31-Sep 30 07:30-20:00; Oct 01-Oct 26 08:00-18:30; Oct 27-Feb 28 08:00-17:30"
   ]
   node [
     id 76
@@ -1228,6 +1302,7 @@ graph [
     destination_id "PAR"
     open_hour 11
     close_hour 19
+    opening_hours_raw "11:00-19:00; Tu off; Fr 11:00-21:00; May 01 off"
   ]
   node [
     id 77
@@ -1244,6 +1319,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 78
@@ -1260,6 +1336,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 79
@@ -1276,6 +1353,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 80
@@ -1292,6 +1370,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 81
@@ -1308,6 +1387,7 @@ graph [
     destination_id "PAR"
     open_hour 6
     close_hour 19
+    opening_hours_raw "Mo 06:30-19:30; Tu-Fr 08:45-19:45; We 08:45-22:00; Sa 08:45-12:00,14:00-19:45; Su 08:45-12:15,14:30-19:45"
   ]
   node [
     id 82
@@ -1324,6 +1404,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 83
@@ -1340,6 +1421,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 84
@@ -1356,6 +1438,7 @@ graph [
     destination_id "PAR"
     open_hour 11
     close_hour 14
+    opening_hours_raw "Mo-Su 11:15-14:30, 19:00-22:30"
   ]
   node [
     id 85
@@ -1372,6 +1455,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 86
@@ -1388,6 +1472,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw "closed"
   ]
   node [
     id 87
@@ -1404,6 +1489,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 88
@@ -1420,6 +1506,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 89
@@ -1436,6 +1523,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 2
+    opening_hours_raw "Mo-Sa 12:00-02:00; Su 17:00-01:00"
   ]
   node [
     id 90
@@ -1452,6 +1540,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 91
@@ -1468,6 +1557,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 92
@@ -1484,6 +1574,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 24
+    opening_hours_raw "Mo-Su 07:30-24:00"
   ]
   node [
     id 93
@@ -1500,6 +1591,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 94
@@ -1516,6 +1608,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 19
+    opening_hours_raw "Tu-We, Fr-Su 10:30-19:00; Th 10:30-22:00"
   ]
   node [
     id 95
@@ -1532,6 +1625,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 96
@@ -1548,6 +1642,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 21
+    opening_hours_raw "Apr,Sep 07:00-21:00; Oct-Mar 07:00-20:00; May-Aug 07:00-22:00"
   ]
   node [
     id 97
@@ -1564,6 +1659,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 98
@@ -1580,6 +1676,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw "Tu off; Jan 1 off; May 1 off; Dec 25 off; Tu-Su 09:30-18:15"
   ]
   node [
     id 99
@@ -1596,6 +1693,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 100
@@ -1612,6 +1710,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 19
+    opening_hours_raw "Apr-Sep: 10:00-19:00; Oct-Mar: 10:00-18:00"
   ]
   node [
     id 101
@@ -1628,6 +1727,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 102
@@ -1644,6 +1744,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 2
+    opening_hours_raw "Mo-Fr 07:30-02:00; Sa-Su 08:00-02:00"
   ]
   node [
     id 103
@@ -1660,6 +1761,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 104
@@ -1676,6 +1778,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 105
@@ -1692,6 +1795,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 106
@@ -1708,6 +1812,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Su 10:00-18:00"
   ]
   node [
     id 107
@@ -1724,6 +1829,7 @@ graph [
     destination_id "PAR"
     open_hour 18
     close_hour 2
+    opening_hours_raw ""
   ]
   node [
     id 108
@@ -1740,6 +1846,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 109
@@ -1756,6 +1863,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 110
@@ -1772,6 +1880,7 @@ graph [
     destination_id "PAR"
     open_hour 4
     close_hour 1
+    opening_hours_raw "Mo-Su 04:45-01:30"
   ]
   node [
     id 111
@@ -1788,6 +1897,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Sa 10:00-18:00; Su 10:00-19:00"
   ]
   node [
     id 112
@@ -1804,6 +1914,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 24
+    opening_hours_raw "08:00-24:00; Su-Mo 08:00-23:00"
   ]
   node [
     id 113
@@ -1820,6 +1931,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 114
@@ -1836,6 +1948,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Su 10:00-18:00 &#34;Final admission 17:15&#34;"
   ]
   node [
     id 115
@@ -1852,6 +1965,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 116
@@ -1868,6 +1982,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 117
@@ -1884,6 +1999,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 21
+    opening_hours_raw "May 1-Aug: 31 07:00-21:30; Sep 1-Sep 30: 07:00-20:30; Oct 1-Oct 31: Mo-Fr 08:19:30; Sa-Di 09:00-19:30"
   ]
   node [
     id 118
@@ -1900,6 +2016,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 119
@@ -1916,6 +2033,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 120
@@ -1932,6 +2050,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 24
+    opening_hours_raw "Mo-Su 12:00-24:00; Tu off; Jan 01 off; May 01 off; Dec 25 off; Dec 24 12:00- 18:00; Dec 31 12:00- 18:00"
   ]
   node [
     id 121
@@ -1948,6 +2067,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 2
+    opening_hours_raw "Su-Th 07:00-02:00; Fr-Sa 07:00-03:00"
   ]
   node [
     id 122
@@ -1964,6 +2084,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 123
@@ -1980,6 +2101,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 21
+    opening_hours_raw "Mo-Su 09:00-21:00"
   ]
   node [
     id 124
@@ -1996,6 +2118,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 2
+    opening_hours_raw "Mo-Su 09:00-02:00"
   ]
   node [
     id 125
@@ -2012,6 +2135,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 126
@@ -2028,6 +2152,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 127
@@ -2044,6 +2169,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 128
@@ -2060,6 +2186,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Fr 10:30-18:00; Sa,Su 09:30-18:00"
   ]
   node [
     id 129
@@ -2076,6 +2203,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 130
@@ -2092,6 +2220,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 20
+    opening_hours_raw "Sep PH,Mo-Su 07:00-20:30; Oct 01-Oct Su[-1] PH,Mo-Su 07:00-19:30; Oct Su[-1]-Oct 31,Nov-Feb PH,Mo-Su 07:00-17:45; Mar 01-Mar Su[-1] PH,Mo-Su 07:00-19:00; Mar Su[-1]-Apr 30 PH,Mo-Su 07:00-20:30; May-Jun PH,Mo-Su 07:00-20:30; Jul-Aug PH,Mo-Su 07:00-24:00"
   ]
   node [
     id 131
@@ -2108,6 +2237,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 132
@@ -2124,6 +2254,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo-Su 10:00-18:00; Tu off; Dec 25 off; Jan 01 off; May 01 off; Dec 24 10:00-16:45; Dec 31 10:00-16:45; easter -1 day 10:00-16:45; easter +49 days 10:00-16:45"
   ]
   node [
     id 133
@@ -2140,6 +2271,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 14
+    opening_hours_raw "Mo-Su 12:00-14:30,19:00-22:30"
   ]
   node [
     id 134
@@ -2156,6 +2288,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 135
@@ -2172,6 +2305,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw "Tu-Sa 08:30-20:30; Th 08:30-21:30; Su 08:30-17:00"
   ]
   node [
     id 136
@@ -2188,6 +2322,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 137
@@ -2204,6 +2339,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 138
@@ -2220,6 +2356,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 139
@@ -2236,6 +2373,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 17
+    opening_hours_raw "Oct - Mar, Mar-Dim 10:00-17:00; Avr - Sep, Mar-Dim 10:00-19:00"
   ]
   node [
     id 140
@@ -2252,6 +2390,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 17
+    opening_hours_raw "Nov-Mar: Mo-Su 10:00-17:00; Apr-Oct: Mo-Su 10:00-18:00; Apr-Sep: Tu 21:00+; Jan 1 off; May 1 off; Dec 25 off"
   ]
   node [
     id 141
@@ -2268,6 +2407,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 142
@@ -2284,6 +2424,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 13
+    opening_hours_raw "Mo-Sa 09:30-13:00,14:00-19:30; Su 09:00-13:00,15:00-20:00"
   ]
   node [
     id 143
@@ -2300,6 +2441,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 144
@@ -2316,6 +2458,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw "Mo-Su 08:00-19:30"
   ]
   node [
     id 145
@@ -2332,6 +2475,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 146
@@ -2348,6 +2492,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw "Mo-Fr 09:30-18:30; Sa,Su 09:30-19:00"
   ]
   node [
     id 147
@@ -2364,6 +2509,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 148
@@ -2380,6 +2526,7 @@ graph [
     destination_id "PAR"
     open_hour 18
     close_hour 2
+    opening_hours_raw ""
   ]
   node [
     id 149
@@ -2396,6 +2543,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 13
+    opening_hours_raw "Tu-Sa 12:00-13:45,19:00-21:30"
   ]
   node [
     id 150
@@ -2412,6 +2560,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 151
@@ -2428,6 +2577,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo off; Tu-Fr 10:00-18:00; Sa-Su,PH 10:00-19:00"
   ]
   node [
     id 152
@@ -2444,6 +2594,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 153
@@ -2460,6 +2611,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 154
@@ -2476,6 +2628,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 12
+    opening_hours_raw "Fr 08:00-12:00, Sa-Su 10:00-18:00,Mo 11:00-17:00"
   ]
   node [
     id 155
@@ -2492,6 +2645,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 156
@@ -2508,6 +2662,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 157
@@ -2524,6 +2679,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 158
@@ -2540,6 +2696,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 14
+    opening_hours_raw "Mo-Fr 12:00-14:30, 19:30-22:30"
   ]
   node [
     id 159
@@ -2556,6 +2713,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw "09:00-18:00"
   ]
   node [
     id 160
@@ -2572,6 +2730,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 161
@@ -2588,6 +2747,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "We-Mo,PH 10:00-18:00"
   ]
   node [
     id 162
@@ -2604,6 +2764,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 163
@@ -2620,6 +2781,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 164
@@ -2636,6 +2798,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 18
+    opening_hours_raw "Mo-Fr 08:00-18:00; Sa 08:30-18:00; Su,PH 09:00-18:00; Nov 6-Mar 15 Mo-Fr 08:00-17:30; Nov 6-Mar 15 Sa 08:30-17:30; Nov 6-Mar 15 Su,PH 09:00-17:30"
   ]
   node [
     id 165
@@ -2652,6 +2815,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 13
+    opening_hours_raw "Mo-Fr 10:30-13:00,14:30-17:00; Sa 10:30-14:00; Su 09:45-13:00"
   ]
   node [
     id 166
@@ -2668,6 +2832,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 167
@@ -2684,6 +2849,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 21
+    opening_hours_raw "May-Aug Mo-Fr 08:00-21:30; May-Aug Sa,Su 09:00-21:30; Sep Mo-Fr 08:00-20:30; Sep Sa,Su 09:00-20:30; Oct Mo-Fr 08:00-19:30; Oct Sa 09:00-19:30; Oct Su 09:15-19:30; Nov-Apr Mo-Fr 08:00-17:45; Nov-Apr Sa,Su 09:00-17:45"
   ]
   node [
     id 168
@@ -2700,6 +2866,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 169
@@ -2716,6 +2883,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 170
@@ -2732,6 +2900,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw "Mo-Th 07:30-19:00; Fr 07:30-19:30; Sa-Su, PH 08:00-19:30"
   ]
   node [
     id 171
@@ -2748,6 +2917,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 172
@@ -2764,6 +2934,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 173
@@ -2780,6 +2951,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 174
@@ -2796,6 +2968,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 20
+    opening_hours_raw "Mo-Sa 10:00-20:00; Su 11:00-19:00"
   ]
   node [
     id 175
@@ -2812,6 +2985,7 @@ graph [
     destination_id "PAR"
     open_hour 11
     close_hour 21
+    opening_hours_raw "Tu 11:00-21:00; We-Su 11:00-19:00"
   ]
   node [
     id 176
@@ -2828,6 +3002,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 177
@@ -2844,6 +3019,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 178
@@ -2860,6 +3036,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw "Mo-Fr 08:00-19:00; Sa-Su 09:00-19:00; Mar 27-Apr 30 Mo-Su 09:00-20:30"
   ]
   node [
     id 179
@@ -2876,6 +3053,7 @@ graph [
     destination_id "PAR"
     open_hour 11
     close_hour 0
+    opening_hours_raw "Mo-Su 11:30-00:00"
   ]
   node [
     id 180
@@ -2892,6 +3070,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 181
@@ -2908,6 +3087,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 182
@@ -2924,6 +3104,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 183
@@ -2940,6 +3121,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "May 15-Nov 15: We-Su 10:00-18:00"
   ]
   node [
     id 184
@@ -2956,6 +3138,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 185
@@ -2972,6 +3155,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 186
@@ -2988,6 +3172,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 19
+    opening_hours_raw "Mo-Su 10:00-19:00; Mo, Fr 10:00-21:30; Dec 24 10:00-18:00; Dec 31 10:00-18:00; Jan 01 10:00-18:00; Dec 25 off"
   ]
   node [
     id 187
@@ -3004,6 +3189,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 188
@@ -3020,6 +3206,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 189
@@ -3036,6 +3223,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 190
@@ -3052,6 +3240,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 23
+    opening_hours_raw "PH,Mo-Su 08:00-23:00"
   ]
   node [
     id 191
@@ -3068,6 +3257,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 192
@@ -3084,6 +3274,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 193
@@ -3100,6 +3291,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 194
@@ -3116,6 +3308,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 195
@@ -3132,6 +3325,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 196
@@ -3148,6 +3342,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 23
+    opening_hours_raw ""
   ]
   node [
     id 197
@@ -3164,6 +3359,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 198
@@ -3180,6 +3376,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw "Mo-Sa 09:35-20:00; Th 09:35-20:45; Su 11:00-19:00"
   ]
   node [
     id 199
@@ -3196,6 +3393,7 @@ graph [
     destination_id "PAR"
     open_hour 11
     close_hour 18
+    opening_hours_raw "Tu-Fr 11:00-18:00; Sa-Su 10:00-18:00"
   ]
   node [
     id 200
@@ -3212,6 +3410,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 201
@@ -3228,6 +3427,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 202
@@ -3244,6 +3444,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 203
@@ -3260,6 +3461,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 204
@@ -3276,6 +3478,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 205
@@ -3292,6 +3495,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 206
@@ -3308,6 +3512,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 16
+    opening_hours_raw "Mo-Sa 08:30-16:45; PH,Su 09:00-16:45; Jun 21-Sep 24 Mo-Sa 08:30-17:45; Jun 21-Sep 24 PH,Su 09:00-17:45"
   ]
   node [
     id 207
@@ -3324,6 +3529,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 23
+    opening_hours_raw ""
   ]
   node [
     id 208
@@ -3340,6 +3546,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 20
+    opening_hours_raw "Mo-Sa 10:00-20:30; Su 11:00-19:00"
   ]
   node [
     id 209
@@ -3356,6 +3563,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 210
@@ -3372,6 +3580,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 211
@@ -3388,6 +3597,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 212
@@ -3404,6 +3614,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 213
@@ -3420,6 +3631,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Su 10:00-18:00"
   ]
   node [
     id 214
@@ -3436,6 +3648,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 215
@@ -3452,6 +3665,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 216
@@ -3468,6 +3682,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 217
@@ -3484,6 +3699,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 218
@@ -3500,6 +3716,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 219
@@ -3516,6 +3733,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw "Mo-Su 09:00-18:00"
   ]
   node [
     id 220
@@ -3532,6 +3750,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 221
@@ -3548,6 +3767,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 22
+    opening_hours_raw "Mo-Su 12:00-22:30"
   ]
   node [
     id 222
@@ -3564,6 +3784,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 223
@@ -3580,6 +3801,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 224
@@ -3596,6 +3818,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 19
+    opening_hours_raw "10:00-19:00"
   ]
   node [
     id 225
@@ -3612,6 +3835,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 226
@@ -3628,6 +3852,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 227
@@ -3644,6 +3869,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 228
@@ -3660,6 +3886,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 229
@@ -3676,6 +3903,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 230
@@ -3692,6 +3920,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 17
+    opening_hours_raw "We-Su 10:00-17:30"
   ]
   node [
     id 231
@@ -3708,6 +3937,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 232
@@ -3724,6 +3954,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 233
@@ -3740,6 +3971,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 23
+    opening_hours_raw ""
   ]
   node [
     id 234
@@ -3756,6 +3988,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 235
@@ -3772,6 +4005,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 236
@@ -3788,6 +4022,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 237
@@ -3804,6 +4039,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 238
@@ -3820,6 +4056,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 239
@@ -3836,6 +4073,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 240
@@ -3852,6 +4090,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 2
+    opening_hours_raw "Mo-Sa 10:00-02:00"
   ]
   node [
     id 241
@@ -3868,6 +4107,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 242
@@ -3884,6 +4124,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 22
+    opening_hours_raw "Mo-Sa 10:00-22:00 ; Jul28 - Aug16 off"
   ]
   node [
     id 243
@@ -3900,6 +4141,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 244
@@ -3916,6 +4158,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 245
@@ -3932,6 +4175,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 246
@@ -3948,6 +4192,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 247
@@ -3964,6 +4209,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Su 10:00-18:00"
   ]
   node [
     id 248
@@ -3980,6 +4226,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 23
+    opening_hours_raw ""
   ]
   node [
     id 249
@@ -3996,6 +4243,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 250
@@ -4012,6 +4260,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 251
@@ -4028,6 +4277,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 252
@@ -4044,6 +4294,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Aug 01-15 off; Jul-Aug Mo-Fr 10:00-18:00; Mo-Sa 10:00-18:00"
   ]
   node [
     id 253
@@ -4060,6 +4311,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 254
@@ -4076,6 +4328,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Su 10:00-18:00"
   ]
   node [
     id 255
@@ -4092,6 +4345,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 23
+    opening_hours_raw ""
   ]
   node [
     id 256
@@ -4108,6 +4362,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 257
@@ -4124,6 +4379,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 258
@@ -4140,6 +4396,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 17
+    opening_hours_raw "08:00-17:45, Sa,Su,PH 08:00-09:00 off, Mar 01-Mar Su[-1] 17:45-19:00, Mar Su[-1]-Apr 30 17:45-20:30, May 01-Aug 31 17:45-21:30, Sep 01-Sep 30 17:45-20:30, Oct 01-Oct Su[-1] 17:45-19:30"
   ]
   node [
     id 259
@@ -4156,6 +4413,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 260
@@ -4172,6 +4430,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 261
@@ -4188,6 +4447,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 262
@@ -4204,6 +4464,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 263
@@ -4220,6 +4481,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 17
+    opening_hours_raw "Nov 06-Mar 15 Mo-Fr 08:00-17:30; Nov 06-Mar 15 Sa 08:30-17:30; Nov 06-Mar 15 Su 09:00-17:30; Mar 16-Nov 05 Mo-Fr 08:00-18:00; Mar 16-Nov 05 Sa 08:30-18:00; Mar 16-Nov 05 Su 09:00-18:00"
   ]
   node [
     id 264
@@ -4236,6 +4498,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 21
+    opening_hours_raw "May-Aug Mo-Fr 07:00-21:30; May-Aug Sa,Su 08:00-21:30; Sep Mo-Fr 07:00-20:30; Sep Sa,Su 08:00-20:30; Oct Mo-Fr 07:00-19:30; Oct Sa,Su 08:00-19:30; Nov-Apr Mo-Fr 07:00-17:45; Nov-Apr Sa,Su 08:00-17:45"
   ]
   node [
     id 265
@@ -4252,6 +4515,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 17
+    opening_hours_raw "Mo-Su 09:30-17:30; Tu off; Jan 01 off; May 01 off; Dec 25 off"
   ]
   node [
     id 266
@@ -4268,6 +4532,7 @@ graph [
     destination_id "PAR"
     open_hour 19
     close_hour 22
+    opening_hours_raw "Tu-Sa 19:00-22:00"
   ]
   node [
     id 267
@@ -4284,6 +4549,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 268
@@ -4300,6 +4566,7 @@ graph [
     destination_id "PAR"
     open_hour 14
     close_hour 19
+    opening_hours_raw "Mo-Fr 14:00-19:00; Sa, Su 10:00-12:00, 14:00-19:00"
   ]
   node [
     id 269
@@ -4316,6 +4583,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 270
@@ -4332,6 +4600,7 @@ graph [
     destination_id "PAR"
     open_hour 11
     close_hour 22
+    opening_hours_raw "Mo off; Tu 11:00-22:00; We-Su 11:00-20:00; May 01 off"
   ]
   node [
     id 271
@@ -4348,6 +4617,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 17
+    opening_hours_raw "Mo-Fr 08:00-17:30; Sa 08:30-17:30; Su 09:00-17:30"
   ]
   node [
     id 272
@@ -4364,6 +4634,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 273
@@ -4380,6 +4651,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 20
+    opening_hours_raw "Mo-Sa 10:00-20:00; Su 11:00-19:00"
   ]
   node [
     id 274
@@ -4396,6 +4668,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 275
@@ -4412,6 +4685,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 276
@@ -4428,6 +4702,7 @@ graph [
     destination_id "PAR"
     open_hour 19
     close_hour 22
+    opening_hours_raw "Tu-We, Sa 19:00-22:00; Th-Fr 12:00-22:00"
   ]
   node [
     id 277
@@ -4444,6 +4719,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw "Tu-Sa 09:30-18:00; Su,PH 10:00-19:00; Jan 01,May 01,Dec 25 off"
   ]
   node [
     id 278
@@ -4460,6 +4736,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 279
@@ -4476,6 +4753,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw "24/7"
   ]
   node [
     id 280
@@ -4492,6 +4770,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Su 10:00-18:00"
   ]
   node [
     id 281
@@ -4508,6 +4787,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 282
@@ -4524,6 +4804,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 283
@@ -4540,6 +4821,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 23
+    opening_hours_raw ""
   ]
   node [
     id 284
@@ -4556,6 +4838,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo-Su 10:00-18:00"
   ]
   node [
     id 285
@@ -4572,6 +4855,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw "sunrise-sunset"
   ]
   node [
     id 286
@@ -4588,6 +4872,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 287
@@ -4604,6 +4889,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Th, Sa-Su 10:00-18:00; Fr 10:00-21:00"
   ]
   node [
     id 288
@@ -4620,6 +4906,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 2
+    opening_hours_raw "Mo-Su 08:00-02:00"
   ]
   node [
     id 289
@@ -4636,6 +4923,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 290
@@ -4652,6 +4940,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 291
@@ -4668,6 +4957,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 292
@@ -4684,6 +4974,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 293
@@ -4700,6 +4991,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 294
@@ -4716,6 +5008,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 295
@@ -4732,6 +5025,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 296
@@ -4748,6 +5042,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 297
@@ -4764,6 +5059,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Su 10:00-18:00"
   ]
   node [
     id 298
@@ -4780,6 +5076,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 299
@@ -4796,6 +5093,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 300
@@ -4812,6 +5110,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 19
+    opening_hours_raw "Tu-Sa 09:00-19:30; Su 09:00-20:00"
   ]
   node [
     id 301
@@ -4828,6 +5127,7 @@ graph [
     destination_id "PAR"
     open_hour 14
     close_hour 19
+    opening_hours_raw "Mo 14:00-19:00; Tu-Fr 10:00-19:00; Sa 10:00-18:00; PH closed"
   ]
   node [
     id 302
@@ -4844,6 +5144,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 303
@@ -4860,6 +5161,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 23
+    opening_hours_raw ""
   ]
   node [
     id 304
@@ -4876,6 +5178,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 305
@@ -4892,6 +5195,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw "Oct 01-Oct Su[-1] 08:00-19:30; Oct Su[-1]-Feb 29 08:00-17:45; Mar 01-Mar Su[-1] 08:00-19:00; Mar Su[-1]-Apr 30,Sep 08:00-20:30; May 1-Aug 31 08:00-21:30; Sa,Su,PH 08:00-09:00 closed"
   ]
   node [
     id 306
@@ -4908,6 +5212,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 307
@@ -4924,6 +5229,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 308
@@ -4940,6 +5246,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Su 10:00-18:00, Mo off"
   ]
   node [
     id 309
@@ -4956,6 +5263,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 310
@@ -4972,6 +5280,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 311
@@ -4988,6 +5297,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 312
@@ -5004,6 +5314,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 313
@@ -5020,6 +5331,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 23
+    opening_hours_raw ""
   ]
   node [
     id 314
@@ -5036,6 +5348,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 315
@@ -5052,6 +5365,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 316
@@ -5068,6 +5382,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 317
@@ -5084,6 +5399,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 318
@@ -5100,6 +5416,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 319
@@ -5116,6 +5433,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 320
@@ -5132,6 +5450,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 321
@@ -5148,6 +5467,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 17
+    opening_hours_raw "Tu-Su 10:00-17:00; Dec 25,Jan 01-Jan 15 closed"
   ]
   node [
     id 322
@@ -5164,6 +5484,7 @@ graph [
     destination_id "PAR"
     open_hour 18
     close_hour 2
+    opening_hours_raw ""
   ]
   node [
     id 323
@@ -5180,6 +5501,7 @@ graph [
     destination_id "PAR"
     open_hour 11
     close_hour 24
+    opening_hours_raw "Mo-Su 11:45-24:00"
   ]
   node [
     id 324
@@ -5196,6 +5518,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw "Mo-Fr 09:30-18:30, Sa 14:00-18:00"
   ]
   node [
     id 325
@@ -5212,6 +5535,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 326
@@ -5228,6 +5552,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 327
@@ -5244,6 +5569,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 21
+    opening_hours_raw "Mo-Su 07:15-21:00"
   ]
   node [
     id 328
@@ -5260,6 +5586,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 329
@@ -5276,6 +5603,7 @@ graph [
     destination_id "PAR"
     open_hour 13
     close_hour 17
+    opening_hours_raw "We-Sa 13:00-17:00"
   ]
   node [
     id 330
@@ -5292,6 +5620,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 331
@@ -5308,6 +5637,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 332
@@ -5324,6 +5654,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 19
+    opening_hours_raw "Mo-Sa 09:45-19:00; Su 09:00-12:00"
   ]
   node [
     id 333
@@ -5340,6 +5671,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 334
@@ -5356,6 +5688,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 2
+    opening_hours_raw "Mo-Su 00:00-02:00, 07:00-23:59"
   ]
   node [
     id 335
@@ -5372,6 +5705,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 336
@@ -5388,6 +5722,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 337
@@ -5404,6 +5739,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 338
@@ -5420,6 +5756,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 23
+    opening_hours_raw ""
   ]
   node [
     id 339
@@ -5436,6 +5773,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 340
@@ -5452,6 +5790,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 12
+    opening_hours_raw "Tu-Fr 10:00-12:30,14:00-18:00; Sa 10:00-13:00,14:00-19:00; Su 10:00-12:30,14:00-18:00"
   ]
   node [
     id 341
@@ -5468,6 +5807,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 342
@@ -5484,6 +5824,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 343
@@ -5500,6 +5841,7 @@ graph [
     destination_id "PAR"
     open_hour 10
     close_hour 17
+    opening_hours_raw "Oct-Mar: Mo-Su 10:00-17:00; Apr-Sep: Mo-Su 10:00-18:00; Mo[1] off; Jan 1 off; May 1 off; Nov 1 off; Dec 25 off"
   ]
   node [
     id 344
@@ -5516,6 +5858,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 345
@@ -5532,6 +5875,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 346
@@ -5548,6 +5892,7 @@ graph [
     destination_id "PAR"
     open_hour 11
     close_hour 15
+    opening_hours_raw "Tu-Sa 11:30-15:00,18:00-23:00; Su 11:00-15:00,18:00-23:00"
   ]
   node [
     id 347
@@ -5564,6 +5909,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 14
+    opening_hours_raw "Tu-Su 12:00-14:00,19:00-22:00"
   ]
   node [
     id 348
@@ -5580,6 +5926,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 2
+    opening_hours_raw "08:00-02:00"
   ]
   node [
     id 349
@@ -5596,6 +5943,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 15
+    opening_hours_raw "12:00-15:00,19:00-23:30"
   ]
   node [
     id 350
@@ -5612,6 +5960,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 2
+    opening_hours_raw "Mo-Su 07:00-02:00"
   ]
   node [
     id 351
@@ -5628,6 +5977,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 15
+    opening_hours_raw "Mo-Su 12:00-15:00,19:00-23:00"
   ]
   node [
     id 352
@@ -5644,6 +5994,7 @@ graph [
     destination_id "PAR"
     open_hour 9
     close_hour 2
+    opening_hours_raw "Mo-Su 09:00-02:00"
   ]
   node [
     id 353
@@ -5660,6 +6011,7 @@ graph [
     destination_id "PAR"
     open_hour 11
     close_hour 22
+    opening_hours_raw "Su-Th 11:30-22:00; Fr-Sa 11:30-23:00"
   ]
   node [
     id 354
@@ -5676,6 +6028,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 14
+    opening_hours_raw "12:00-14:00,18:30-21:30"
   ]
   node [
     id 355
@@ -5692,6 +6045,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 2
+    opening_hours_raw "Mo-Su 00:00-02:00, 07:00-23:59"
   ]
   node [
     id 356
@@ -5708,6 +6062,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 24
+    opening_hours_raw "Su-Tu 12:00-24:00; Th-Sa 12:00-01:00"
   ]
   node [
     id 357
@@ -5724,6 +6079,7 @@ graph [
     destination_id "PAR"
     open_hour 12
     close_hour 14
+    opening_hours_raw "Mo-Th 12:00-14:15, 19:00-22:30; Fr 12:00-14:15, 19:00-23:00; Sa 12:00-23:00; Su 12:00-22:30; PH closed"
   ]
   node [
     id 358
@@ -5740,6 +6096,7 @@ graph [
     destination_id "PAR"
     open_hour 11
     close_hour 21
+    opening_hours_raw "Mo-Su 11:00-21:00"
   ]
   node [
     id 359
@@ -5756,6 +6113,7 @@ graph [
     destination_id "PAR"
     open_hour 20
     close_hour 2
+    opening_hours_raw "Mo-Sa 20:00-02:00; Su 19:00-02:00"
   ]
   node [
     id 360
@@ -5772,6 +6130,7 @@ graph [
     destination_id "PAR"
     open_hour 16
     close_hour 2
+    opening_hours_raw "Mo-Su 16:00-02:00"
   ]
   node [
     id 361
@@ -5788,6 +6147,7 @@ graph [
     destination_id "PAR"
     open_hour 17
     close_hour 2
+    opening_hours_raw "Mo-Su 17:00-02:00"
   ]
   node [
     id 362
@@ -5804,6 +6164,7 @@ graph [
     destination_id "PAR"
     open_hour 17
     close_hour 2
+    opening_hours_raw "Mo-Su 17:09-02:00"
   ]
   node [
     id 363
@@ -5820,6 +6181,7 @@ graph [
     destination_id "PAR"
     open_hour 16
     close_hour 1
+    opening_hours_raw "Mo-Fr 16:30-01:30; Sa-Su 14:30-01:30"
   ]
   node [
     id 364
@@ -5836,6 +6198,7 @@ graph [
     destination_id "PAR"
     open_hour 16
     close_hour 24
+    opening_hours_raw "Mo, Su 16:30-24:00; Tu-Fr 16:30-02:00; Sa 14:30-02:00"
   ]
   node [
     id 365
@@ -5852,6 +6215,7 @@ graph [
     destination_id "PAR"
     open_hour 15
     close_hour 2
+    opening_hours_raw "Mo-Fr 15:00-02:00"
   ]
   node [
     id 366
@@ -5868,6 +6232,7 @@ graph [
     destination_id "PAR"
     open_hour 15
     close_hour 0
+    opening_hours_raw "Mo-Th 15:00-00:00; Sa 11:30-02:00; Su 11:30-00:00; Fr 15:00-02:00"
   ]
   node [
     id 367
@@ -5884,6 +6249,7 @@ graph [
     destination_id "PAR"
     open_hour 7
     close_hour 2
+    opening_hours_raw "Tu-Sa 07:00-02:00"
   ]
   node [
     id 368
@@ -5900,6 +6266,7 @@ graph [
     destination_id "PAR"
     open_hour 8
     close_hour 2
+    opening_hours_raw "Mo-Su 08:00-02:00"
   ]
   node [
     id 369
@@ -5916,6 +6283,7 @@ graph [
     destination_id "PAR"
     open_hour 15
     close_hour 2
+    opening_hours_raw "Mo-Fr 15:00-02:00; Sa-Su 12:00-02:00"
   ]
   node [
     id 370
@@ -5932,6 +6300,7 @@ graph [
     destination_id "PAR"
     open_hour 0
     close_hour 2
+    opening_hours_raw "Mo-Fr 00:00-02:00, 16:00-23:59; Sa-Su 00:00-04:00, 16:00-23:59"
   ]
   node [
     id 371
@@ -5948,6 +6317,7 @@ graph [
     destination_id "PAR"
     open_hour 14
     close_hour 2
+    opening_hours_raw "14:00-02:00"
   ]
   node [
     id 372
@@ -5964,6 +6334,7 @@ graph [
     destination_id "PAR"
     open_hour 17
     close_hour 2
+    opening_hours_raw "17:00-02:00"
   ]
   node [
     id 373
@@ -5980,6 +6351,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 374
@@ -5996,6 +6368,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 375
@@ -6012,6 +6385,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw "off"
   ]
   node [
     id 376
@@ -6028,6 +6402,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw "Mo-Fr 09:00-18:00; Sa 09:00-17:00; Su,PH 12:00-17:00; Jun-Aug Mo-Sa 09:00-19:00; Jun-Aug Su,PH 12:00-19:00"
   ]
   node [
     id 377
@@ -6044,6 +6419,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw "24/7"
   ]
   node [
     id 378
@@ -6060,6 +6436,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 16
+    opening_hours_raw "Oct 28-Feb 25 Mo-Su,PH 09:00-16:30; Feb 26-Mar 24 Mo-Su,PH 09:00-18:00; Mar 26-Sep 22 Mo-Su,PH 09:00-18:30; Sep 23-Oct 27 Mo-Su,PH 09:00-18:00"
   ]
   node [
     id 379
@@ -6076,6 +6453,7 @@ graph [
     destination_id "BER"
     open_hour 18
     close_hour 2
+    opening_hours_raw ""
   ]
   node [
     id 380
@@ -6092,6 +6470,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 381
@@ -6108,6 +6487,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 382
@@ -6124,6 +6504,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 24
+    opening_hours_raw "Mo-Su 08:00-24:00"
   ]
   node [
     id 383
@@ -6140,6 +6521,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 20
+    opening_hours_raw "Mo-Th 10:00-20:00; Fr 10:00-21:00; Sa 09:30-20:00"
   ]
   node [
     id 384
@@ -6156,6 +6538,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 19
+    opening_hours_raw "09:00-19:00"
   ]
   node [
     id 385
@@ -6172,6 +6555,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo off; Tu-Su 10:00-18:00; PH 10:00-18:00; Dec 24 off; Dec 31 off"
   ]
   node [
     id 386
@@ -6188,6 +6572,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw "24/7"
   ]
   node [
     id 387
@@ -6204,6 +6589,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw "24/7"
   ]
   node [
     id 388
@@ -6220,6 +6606,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 17
+    opening_hours_raw "Mo off; Tu-Fr 10:00-17:00; Sa-Su 10:00-18:00; PH 10:00-18:00; Dec 24 off; Dec 31 off"
   ]
   node [
     id 389
@@ -6236,6 +6623,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 17
+    opening_hours_raw "Mo-Sa 10:00-17:00; Su 13:00-17:00; PH off"
   ]
   node [
     id 390
@@ -6252,6 +6640,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 391
@@ -6268,6 +6657,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 17
+    opening_hours_raw "Nov-Mar: Mo-Fr 10:00-17:00; Sa,Su 10:00-17:30; Apr-Oct: Mo-Fr 09:30-18:30; Sa,Su 09:30-19:00"
   ]
   node [
     id 392
@@ -6284,6 +6674,7 @@ graph [
     destination_id "BER"
     open_hour 18
     close_hour 2
+    opening_hours_raw ""
   ]
   node [
     id 393
@@ -6300,6 +6691,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 17
+    opening_hours_raw "Mo off; Tu-Fr 10:00-17:00; Sa-Su 10:00-18:00; PH 10:00-18:00; Dec 24 off; Dec 31 off"
   ]
   node [
     id 394
@@ -6316,6 +6708,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 395
@@ -6332,6 +6725,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 396
@@ -6348,6 +6742,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo-Su 10:00-18:00"
   ]
   node [
     id 397
@@ -6364,6 +6759,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 398
@@ -6380,6 +6776,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo off; Tu-Su 10:00-18:00; PH 10:00-18:00; Dec 24 off; Dec 31 off"
   ]
   node [
     id 399
@@ -6396,6 +6793,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 400
@@ -6412,6 +6810,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 401
@@ -6428,6 +6827,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 402
@@ -6444,6 +6844,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Apr-Sep: Mo-Fr 10:00-18:00; Su 10:00-19:00; Oct-Mar: Su-Th 10:00-18:00; Fr 10:00-15:00"
   ]
   node [
     id 403
@@ -6460,6 +6861,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 404
@@ -6476,6 +6878,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo off; Tu-Su 10:00-18:00"
   ]
   node [
     id 405
@@ -6492,6 +6895,7 @@ graph [
     destination_id "BER"
     open_hour 18
     close_hour 2
+    opening_hours_raw "&#34;Je nach Programm&#34;"
   ]
   node [
     id 406
@@ -6508,6 +6912,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 407
@@ -6524,6 +6929,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 408
@@ -6540,6 +6946,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 409
@@ -6556,6 +6963,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 410
@@ -6572,6 +6980,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 21
+    opening_hours_raw "Mo-Sa 10:00-21:00"
   ]
   node [
     id 411
@@ -6588,6 +6997,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo-Su 10:00-18:00"
   ]
   node [
     id 412
@@ -6604,6 +7014,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo-Su 10:00-18:00"
   ]
   node [
     id 413
@@ -6620,6 +7031,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 414
@@ -6636,6 +7048,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 415
@@ -6652,6 +7065,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 18
+    opening_hours_raw "Oct-Mar PH,Mo-Su 07:00-18:30, Mar-Sep PH,Mo-Su 07:00-21:30"
   ]
   node [
     id 416
@@ -6668,6 +7082,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 417
@@ -6684,6 +7099,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 17
+    opening_hours_raw "Jan,Dec 07:30-17:00; Feb,Nov 07:00-18:00; Mar 06:00-19:00; Apr 06:00-20:30; May 01-15 06:00-21:30; May 16-31 06:00-22:00; Jun,Jul 06:00-23:00; Aug 06:00-22:30; Sep 06:30-21:30; Oct 07:00-19:00"
   ]
   node [
     id 418
@@ -6700,6 +7116,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw "24/7"
   ]
   node [
     id 419
@@ -6716,6 +7133,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 420
@@ -6732,6 +7150,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw "24/7"
   ]
   node [
     id 421
@@ -6748,6 +7167,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 21
+    opening_hours_raw "Mo-Sa 10:00-21:00"
   ]
   node [
     id 422
@@ -6764,6 +7184,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 423
@@ -6780,6 +7201,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 424
@@ -6796,6 +7218,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 425
@@ -6812,6 +7235,7 @@ graph [
     destination_id "BER"
     open_hour 22
     close_hour 7
+    opening_hours_raw "Mo-Su 22:00-07:00"
   ]
   node [
     id 426
@@ -6828,6 +7252,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 427
@@ -6844,6 +7269,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw "Tu-Fr 09:30-18:00; Sa,Su 10:00-18:00"
   ]
   node [
     id 428
@@ -6860,6 +7286,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 429
@@ -6876,6 +7303,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 430
@@ -6892,6 +7320,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 431
@@ -6908,6 +7337,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 432
@@ -6924,6 +7354,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo,We-Su 10:30-18:30; Tu off"
   ]
   node [
     id 433
@@ -6940,6 +7371,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 434
@@ -6956,6 +7388,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 435
@@ -6972,6 +7405,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 436
@@ -6988,6 +7422,7 @@ graph [
     destination_id "BER"
     open_hour 18
     close_hour 2
+    opening_hours_raw "&#34;zu Veranstaltungen&#34;"
   ]
   node [
     id 437
@@ -7004,6 +7439,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 438
@@ -7020,6 +7456,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 20
+    opening_hours_raw "Mo-Su,PH 10:00-20:00; Jan 01,Dec 24,Dec 31 off"
   ]
   node [
     id 439
@@ -7036,6 +7473,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 440
@@ -7052,6 +7490,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 441
@@ -7068,6 +7507,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 442
@@ -7084,6 +7524,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu,We,Fr-Su 10:00-18:00; Th 10:00-20:00"
   ]
   node [
     id 443
@@ -7100,6 +7541,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 17
+    opening_hours_raw "Mo-Tu off; We-Fr 10:00-17:00; Sa-Su 10:00-18:00; PH 10:00-18:00; Dec 24 off; Dec 31 off"
   ]
   node [
     id 444
@@ -7116,6 +7558,7 @@ graph [
     destination_id "BER"
     open_hour 11
     close_hour 18
+    opening_hours_raw "Tu-Fr 11:00-18:00; Sa 12:00-19:00; PH off"
   ]
   node [
     id 445
@@ -7132,6 +7575,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw "24/7"
   ]
   node [
     id 446
@@ -7148,6 +7592,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 447
@@ -7164,6 +7609,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 448
@@ -7180,6 +7626,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 449
@@ -7196,6 +7643,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 450
@@ -7212,6 +7660,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 451
@@ -7228,6 +7677,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 452
@@ -7244,6 +7694,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 453
@@ -7260,6 +7711,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 454
@@ -7276,6 +7728,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo-Su 10:00-18:00; Dec 24 off"
   ]
   node [
     id 455
@@ -7292,6 +7745,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 17
+    opening_hours_raw "Apr-Sep Mo-Th 07:30-17:00; Fr 07:30-14:30; Su 08:00-17:00; Oct-Mar Mo-Th 07:30-16:00; Fr 07:30-14:30; Su 08:00-16:00; Sa,PH off"
   ]
   node [
     id 456
@@ -7308,6 +7762,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 457
@@ -7324,6 +7779,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 458
@@ -7340,6 +7796,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 459
@@ -7356,6 +7813,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 21
+    opening_hours_raw "Mo-Sa 10:00-21:00"
   ]
   node [
     id 460
@@ -7372,6 +7830,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 17
+    opening_hours_raw "Tu-Fr 09:00-17:30; Sa-Su 10:00-18:00; PH 10:00-18:00"
   ]
   node [
     id 461
@@ -7388,6 +7847,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 462
@@ -7404,6 +7864,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 463
@@ -7420,6 +7881,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 464
@@ -7436,6 +7898,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 16
+    opening_hours_raw "Jan 08:00-16:00; Feb 08:00-17:00; Mar 08:00-18:00; Apr 08:00-19:00; May-Aug 08:00-20:00; Sep 08:00-19:00; Oct 08:00-18:00; Nov 08:00-17:00; Dec 08:00-16:00"
   ]
   node [
     id 465
@@ -7452,6 +7915,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 466
@@ -7468,6 +7932,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 467
@@ -7484,6 +7949,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 468
@@ -7500,6 +7966,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 469
@@ -7516,6 +7983,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 470
@@ -7532,6 +8000,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 471
@@ -7548,6 +8017,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 472
@@ -7564,6 +8034,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 473
@@ -7580,6 +8051,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 474
@@ -7596,6 +8068,7 @@ graph [
     destination_id "BER"
     open_hour 11
     close_hour 19
+    opening_hours_raw "We-Mo 11:00-19:00"
   ]
   node [
     id 475
@@ -7612,6 +8085,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 476
@@ -7628,6 +8102,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 477
@@ -7644,6 +8119,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 478
@@ -7660,6 +8136,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 479
@@ -7676,6 +8153,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 480
@@ -7692,6 +8170,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 481
@@ -7708,6 +8187,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 482
@@ -7724,6 +8204,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 483
@@ -7740,6 +8221,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 484
@@ -7756,6 +8238,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 485
@@ -7772,6 +8255,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 486
@@ -7788,6 +8272,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 487
@@ -7804,6 +8289,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-We,Fr 10:00-18:00; Th 10:00-20:00; Sa-Su 11:00-18:00"
   ]
   node [
     id 488
@@ -7820,6 +8306,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 489
@@ -7836,6 +8323,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 490
@@ -7852,6 +8340,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 23
+    opening_hours_raw ""
   ]
   node [
     id 491
@@ -7868,6 +8357,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw "24/7"
   ]
   node [
     id 492
@@ -7884,6 +8374,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 493
@@ -7900,6 +8391,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 494
@@ -7916,6 +8408,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 495
@@ -7932,6 +8425,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 496
@@ -7948,6 +8442,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 497
@@ -7964,6 +8459,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw "Mo-Su 09:00-18:00"
   ]
   node [
     id 498
@@ -7980,6 +8476,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 499
@@ -7996,6 +8493,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 500
@@ -8012,6 +8510,7 @@ graph [
     destination_id "BER"
     open_hour 12
     close_hour 18
+    opening_hours_raw "Mo, We, Fr 12:00-18:00; Th 12:00-20:00; Sa 14:00-19:00; Su 14:00-18:00"
   ]
   node [
     id 501
@@ -8028,6 +8527,7 @@ graph [
     destination_id "BER"
     open_hour 13
     close_hour 18
+    opening_hours_raw "13:00-18:00"
   ]
   node [
     id 502
@@ -8044,6 +8544,7 @@ graph [
     destination_id "BER"
     open_hour 18
     close_hour 2
+    opening_hours_raw ""
   ]
   node [
     id 503
@@ -8060,6 +8561,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 504
@@ -8076,6 +8578,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 505
@@ -8092,6 +8595,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 506
@@ -8108,6 +8612,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 21
+    opening_hours_raw "Mo-Su 09:00-21:00"
   ]
   node [
     id 507
@@ -8124,6 +8629,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 508
@@ -8140,6 +8646,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 509
@@ -8156,6 +8663,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 510
@@ -8172,6 +8680,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw "off"
   ]
   node [
     id 511
@@ -8188,6 +8697,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 5
+    opening_hours_raw "Mo-Su,PH 09:00-05:00"
   ]
   node [
     id 512
@@ -8204,6 +8714,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 513
@@ -8220,6 +8731,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 514
@@ -8236,6 +8748,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 515
@@ -8252,6 +8765,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 516
@@ -8268,6 +8782,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 517
@@ -8284,6 +8799,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 518
@@ -8300,6 +8816,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 519
@@ -8316,6 +8833,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 520
@@ -8332,6 +8850,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo, We-Su 10:00-18:00"
   ]
   node [
     id 521
@@ -8348,6 +8867,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 522
@@ -8364,6 +8884,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 523
@@ -8380,6 +8901,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 524
@@ -8396,6 +8918,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 525
@@ -8412,6 +8935,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 526
@@ -8428,6 +8952,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 527
@@ -8444,6 +8969,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 23
+    opening_hours_raw "Mo-Su,PH 07:00-23:00"
   ]
   node [
     id 528
@@ -8460,6 +8986,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 22
+    opening_hours_raw "Mo-Fr 08:00-22:00; Sa,Su,PH 09:00-22:00"
   ]
   node [
     id 529
@@ -8476,6 +9003,7 @@ graph [
     destination_id "BER"
     open_hour 11
     close_hour 24
+    opening_hours_raw "11:30-24:00"
   ]
   node [
     id 530
@@ -8492,6 +9020,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 531
@@ -8508,6 +9037,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo-Su 10:00-18:00"
   ]
   node [
     id 532
@@ -8524,6 +9054,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 533
@@ -8540,6 +9071,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 534
@@ -8556,6 +9088,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 535
@@ -8572,6 +9105,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 536
@@ -8588,6 +9122,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 537
@@ -8604,6 +9139,7 @@ graph [
     destination_id "BER"
     open_hour 11
     close_hour 18
+    opening_hours_raw "Mo-Fr 11:00-18:00"
   ]
   node [
     id 538
@@ -8620,6 +9156,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 539
@@ -8636,6 +9173,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 540
@@ -8652,6 +9190,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 19
+    opening_hours_raw "Sa-Su 10:00-19:00; Mo, We-Fr 12:00-19:00"
   ]
   node [
     id 541
@@ -8668,6 +9207,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 22
+    opening_hours_raw "Mo-Sa 08:00-22:00; Su,PH off"
   ]
   node [
     id 542
@@ -8684,6 +9224,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 543
@@ -8700,6 +9241,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 544
@@ -8716,6 +9258,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo-Fr 10:00-18:00; Sa-Su,PH 11:00-18:00"
   ]
   node [
     id 545
@@ -8732,6 +9275,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 546
@@ -8748,6 +9292,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 547
@@ -8764,6 +9309,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 548
@@ -8780,6 +9326,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Mo off; Tu-Su 10:00-18:00"
   ]
   node [
     id 549
@@ -8796,6 +9343,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 550
@@ -8812,6 +9360,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 551
@@ -8828,6 +9377,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 552
@@ -8844,6 +9394,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 553
@@ -8860,6 +9411,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 554
@@ -8876,6 +9428,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 555
@@ -8892,6 +9445,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 556
@@ -8908,6 +9462,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Su 10:00-18:00; We 12:00-20:00"
   ]
   node [
     id 557
@@ -8924,6 +9479,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 558
@@ -8940,6 +9496,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 559
@@ -8956,6 +9513,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 560
@@ -8972,6 +9530,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 561
@@ -8988,6 +9547,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 562
@@ -9004,6 +9564,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw "24/7"
   ]
   node [
     id 563
@@ -9020,6 +9581,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 20
+    opening_hours_raw "Mo-Sa 10:00-20:00"
   ]
   node [
     id 564
@@ -9036,6 +9598,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 14
+    opening_hours_raw "Mo,We,Th,Fr 10:00-14:00; Tu 10:00-13:00"
   ]
   node [
     id 565
@@ -9052,6 +9615,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 566
@@ -9068,6 +9632,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 567
@@ -9084,6 +9649,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw "24/7"
   ]
   node [
     id 568
@@ -9100,6 +9666,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 569
@@ -9116,6 +9683,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 570
@@ -9132,6 +9700,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 21
+    opening_hours_raw "Mo-Sa 08:00-21:00"
   ]
   node [
     id 571
@@ -9148,6 +9717,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 572
@@ -9164,6 +9734,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 573
@@ -9180,6 +9751,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 574
@@ -9196,6 +9768,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 17
+    opening_hours_raw "Mo-Tu off; We-Fr 10:00-17:00; Sa-Su 11:00-18:00"
   ]
   node [
     id 575
@@ -9212,6 +9785,7 @@ graph [
     destination_id "BER"
     open_hour 18
     close_hour 2
+    opening_hours_raw ""
   ]
   node [
     id 576
@@ -9228,6 +9802,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 577
@@ -9244,6 +9819,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 17
+    opening_hours_raw "Tu,We,Fr 09:00-17:00; Th 09:00-22:00; Sa,Su 10:00-17:00"
   ]
   node [
     id 578
@@ -9260,6 +9836,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw "Mo-Su,PH 09:00-18:00; Dec 24 09:00-14:00"
   ]
   node [
     id 579
@@ -9276,6 +9853,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 580
@@ -9292,6 +9870,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 581
@@ -9308,6 +9887,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 582
@@ -9324,6 +9904,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 583
@@ -9340,6 +9921,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 17
+    opening_hours_raw "Mo-Tu off; We-Fr 10:00-17:00; Sa-Su,PH 11:00-18:00; Jan 01 12:00-18:00; Dec 24,Dec 31 off"
   ]
   node [
     id 584
@@ -9356,6 +9938,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 585
@@ -9372,6 +9955,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 586
@@ -9388,6 +9972,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 587
@@ -9404,6 +9989,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw "Mo-Fr 09:00-18:00; Sa,Su,PH 10:00-18:00"
   ]
   node [
     id 588
@@ -9420,6 +10006,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 589
@@ -9436,6 +10023,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 590
@@ -9452,6 +10040,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 591
@@ -9468,6 +10057,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 592
@@ -9484,6 +10074,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 593
@@ -9500,6 +10091,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 594
@@ -9516,6 +10108,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 595
@@ -9532,6 +10125,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 596
@@ -9548,6 +10142,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 597
@@ -9564,6 +10159,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 598
@@ -9580,6 +10176,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 599
@@ -9596,6 +10193,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 20
+    opening_hours_raw "Mo-Su 10:00-20:00"
   ]
   node [
     id 600
@@ -9612,6 +10210,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 14
+    opening_hours_raw "Tu 09:00-14:00; We,Th 09:00-14:00,15:00-20:00; Fr 09:00-12:30,15:00-22:00; Sa 11:30-22:00; Su 10:00-20:00"
   ]
   node [
     id 601
@@ -9628,6 +10227,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 602
@@ -9644,6 +10244,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 603
@@ -9660,6 +10261,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw "&#34;event space&#34;"
   ]
   node [
     id 604
@@ -9676,6 +10278,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 605
@@ -9692,6 +10295,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 606
@@ -9708,6 +10312,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 607
@@ -9724,6 +10329,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 608
@@ -9740,6 +10346,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 609
@@ -9756,6 +10363,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 610
@@ -9772,6 +10380,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 611
@@ -9788,6 +10397,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 612
@@ -9804,6 +10414,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 613
@@ -9820,6 +10431,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 20
+    opening_hours_raw "10:00-20:00"
   ]
   node [
     id 614
@@ -9836,6 +10448,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 615
@@ -9852,6 +10465,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 616
@@ -9868,6 +10482,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 617
@@ -9884,6 +10499,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 618
@@ -9900,6 +10516,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 619
@@ -9916,6 +10533,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 18
+    opening_hours_raw ""
   ]
   node [
     id 620
@@ -9932,6 +10550,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 621
@@ -9948,6 +10567,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw "Mo-Sa 08:00-20:00"
   ]
   node [
     id 622
@@ -9964,6 +10584,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 623
@@ -9980,6 +10601,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 18
+    opening_hours_raw "Tu-Su 10:00-18:00"
   ]
   node [
     id 624
@@ -9996,6 +10618,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 625
@@ -10012,6 +10635,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 16
+    opening_hours_raw "Jan 08:00-16:00; Feb 08:00-17:00; Mar 08:00-18:00; Apr 08:00-19:00; May-Aug 08:00-20:00; Sep 08:00-19:00; Oct 08:00-18:00; Nov 08:00-17:00; Dec 08:00-16:00"
   ]
   node [
     id 626
@@ -10028,6 +10652,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 19
+    opening_hours_raw ""
   ]
   node [
     id 627
@@ -10044,6 +10669,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 628
@@ -10060,6 +10686,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 629
@@ -10076,6 +10703,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw "&#34;30 minutes before first screening&#34;"
   ]
   node [
     id 630
@@ -10092,6 +10720,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 21
+    opening_hours_raw "Mo-Sa 10:00-21:00"
   ]
   node [
     id 631
@@ -10108,6 +10737,7 @@ graph [
     destination_id "BER"
     open_hour 9
     close_hour 20
+    opening_hours_raw "Mo-Fr 17:00+; Sa,Su &#34;eine halbe Stunde vor der ersten Vorstellung&#34;"
   ]
   node [
     id 632
@@ -10124,6 +10754,7 @@ graph [
     destination_id "BER"
     open_hour 0
     close_hour 24
+    opening_hours_raw ""
   ]
   node [
     id 633
@@ -10140,6 +10771,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 634
@@ -10156,6 +10788,7 @@ graph [
     destination_id "BER"
     open_hour 11
     close_hour 19
+    opening_hours_raw "Tu-We,Fr-Su 11:00-19:00; Th 11:00-20:00"
   ]
   node [
     id 635
@@ -10172,6 +10805,7 @@ graph [
     destination_id "BER"
     open_hour 8
     close_hour 20
+    opening_hours_raw ""
   ]
   node [
     id 636
@@ -10188,6 +10822,7 @@ graph [
     destination_id "BER"
     open_hour 12
     close_hour 23
+    opening_hours_raw "Mo-Sa 12:00-23:00; Su 12:00-22:00"
   ]
   node [
     id 637
@@ -10204,6 +10839,7 @@ graph [
     destination_id "BER"
     open_hour 11
     close_hour 21
+    opening_hours_raw "Mo-Fr 11:00-21:00; Sa,PH 12:00-21:00; Su off"
   ]
   node [
     id 638
@@ -10220,6 +10856,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 20
+    opening_hours_raw "Mo-Fr 07:30-20:00; Sa,Su 08:30-21:00"
   ]
   node [
     id 639
@@ -10236,6 +10873,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 19
+    opening_hours_raw "10:00-19:00"
   ]
   node [
     id 640
@@ -10252,6 +10890,7 @@ graph [
     destination_id "BER"
     open_hour 11
     close_hour 23
+    opening_hours_raw "11:30-23:00"
   ]
   node [
     id 641
@@ -10268,6 +10907,7 @@ graph [
     destination_id "BER"
     open_hour 17
     close_hour 21
+    opening_hours_raw "Tu 17:00-21:00; We-Fr 12:00-21:00; Sa 12:00-21:30; Su 12:00-21:00"
   ]
   node [
     id 642
@@ -10284,6 +10924,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 22
+    opening_hours_raw "Mo-Su 10:00-22:00"
   ]
   node [
     id 643
@@ -10300,6 +10941,7 @@ graph [
     destination_id "BER"
     open_hour 12
     close_hour 23
+    opening_hours_raw "Mo-Fr 12:00-23:00; Sa 13:00-23:00; Su 17:00-23:00"
   ]
   node [
     id 644
@@ -10316,6 +10958,7 @@ graph [
     destination_id "BER"
     open_hour 12
     close_hour 21
+    opening_hours_raw "Mo-Sa 12:00-21:00; Su,PH off"
   ]
   node [
     id 645
@@ -10332,6 +10975,7 @@ graph [
     destination_id "BER"
     open_hour 14
     close_hour 22
+    opening_hours_raw "Tu-Sa 14:00-22:30"
   ]
   node [
     id 646
@@ -10348,6 +10992,7 @@ graph [
     destination_id "BER"
     open_hour 18
     close_hour 2
+    opening_hours_raw "13:00+"
   ]
   node [
     id 647
@@ -10364,6 +11009,7 @@ graph [
     destination_id "BER"
     open_hour 21
     close_hour 5
+    opening_hours_raw "Fr-Sa 21:00-05:00"
   ]
   node [
     id 648
@@ -10380,6 +11026,7 @@ graph [
     destination_id "BER"
     open_hour 18
     close_hour 2
+    opening_hours_raw "zurzeit geschlossen"
   ]
   node [
     id 649
@@ -10396,6 +11043,7 @@ graph [
     destination_id "BER"
     open_hour 10
     close_hour 24
+    opening_hours_raw "Su-Th 10:00-24:00, Fr,Sa 10:00-02:00"
   ]
   node [
     id 650
@@ -10412,6 +11060,7 @@ graph [
     destination_id "BER"
     open_hour 23
     close_hour 7
+    opening_hours_raw "We 23:00-07:00; Fr-Sa 23:00-09:00"
   ]
   node [
     id 651
@@ -10428,6 +11077,7 @@ graph [
     destination_id "BER"
     open_hour 20
     close_hour 1
+    opening_hours_raw "Mo-Su 20:00-01:00"
   ]
   node [
     id 652
@@ -10444,6 +11094,7 @@ graph [
     destination_id "BER"
     open_hour 18
     close_hour 1
+    opening_hours_raw "We 18:00-01:00; Th-Sa 19:00-02:00"
   ]
   node [
     id 653
@@ -10460,6 +11111,7 @@ graph [
     destination_id "BER"
     open_hour 18
     close_hour 2
+    opening_hours_raw "Tu-Sa 18:00+; Oct-Apr off"
   ]
   node [
     id 654
@@ -10476,6 +11128,7 @@ graph [
     destination_id "BER"
     open_hour 17
     close_hour 1
+    opening_hours_raw "Tu-Sa 17:00-01:00"
   ]
   node [
     id 655
@@ -10492,6 +11145,7 @@ graph [
     destination_id "BER"
     open_hour 7
     close_hour 0
+    opening_hours_raw "Mo-Su 07:00-00:00"
   ]
   node [
     id 656

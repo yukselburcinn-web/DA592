@@ -2,6 +2,7 @@
     cd roamwise && ../venv/bin/pytest tests/ -v
 """
 import collections
+import datetime
 import importlib
 import math
 import os
@@ -743,6 +744,103 @@ def test_router_agent_feeds_every_day_from_the_citys_own_restaurants():
         # meal away on a short day. The invariant this test actually guards
         # -- meals are sourced from the graph at all -- only needs >= 1.
         assert len(_meals_in(day)) >= 1, f"day {day['day']} has no meals"
+
+
+# --- issue #70: opening hours are a rule over days, not one open/close pair ---
+
+MONDAY = datetime.date(2026, 9, 7)
+TUESDAY = datetime.date(2026, 9, 8)
+
+
+def _tagged_poi(name, tag, lat=48.20, lon=16.37, minutes=60):
+    """A POI carrying a real OSM opening_hours tag. open_hour/close_hour are
+    deliberately wide and wrong-for-some-days: that is exactly the coarse pair
+    the tag has to override, and leaving them permissive proves the tag is what
+    the decision is being made on."""
+    return {"name": name, "lat": lat, "lon": lon, "avg_visit_minutes": minutes,
+            "open_hour": 0, "close_hour": 24, "opening_hours_raw": tag}
+
+
+def test_a_poi_shut_on_mondays_is_not_scheduled_on_a_monday():
+    """The reported shape of #70. `Tu-Su 10:00-18:00; Mo off` collapsed to the
+    pair (10, 18), which is indistinguishable from "open 10-18 every day" -- so
+    57 POIs in the shipped catalogue, the Musée d'Orsay and the Catacombs among
+    them, were schedulable on a day they are shut."""
+    museum = _tagged_poi("Closed Mondays", "Tu-Su 10:00-18:00; Mo off")
+
+    monday = optimize_day_route([museum], daily_minutes_budget=600,
+                                 day_start_hour=9.0, day_date=MONDAY)
+    tuesday = optimize_day_route([museum], daily_minutes_budget=600,
+                                  day_start_hour=9.0, day_date=TUESDAY)
+
+    assert monday["route"] == []
+    assert [p["name"] for p in tuesday["route"]] == ["Closed Mondays"]
+    assert tuesday["schedule"][0]["arrival"] == 10.0
+
+
+def test_without_a_date_the_coarse_pair_still_decides():
+    """The fallback has to stay intact: callers that pass no date -- and rows
+    OSM never described -- keep the pre-#70 behaviour rather than losing their
+    hours entirely."""
+    museum = _tagged_poi("Closed Mondays", "Tu-Su 10:00-18:00; Mo off")
+    museum["open_hour"], museum["close_hour"] = 10, 18
+
+    result = optimize_day_route([museum], daily_minutes_budget=600, day_start_hour=9.0)
+
+    assert [p["name"] for p in result["route"]] == ["Closed Mondays"]
+
+
+def test_an_unparseable_tag_falls_back_instead_of_dropping_the_stop():
+    """27 of the catalogue's 4,404 distinct tags are malformed OSM. A tag we
+    cannot read is not evidence that the place is shut."""
+    poi = _tagged_poi("Bad Tag", "Mar-Dim 10:00-17:00")     # French day names
+    poi["open_hour"], poi["close_hour"] = 10, 17
+
+    result = optimize_day_route([poi], daily_minutes_budget=600,
+                                 day_start_hour=9.0, day_date=MONDAY)
+
+    assert [p["name"] for p in result["route"]] == ["Bad Tag"]
+
+
+def test_a_lunch_closure_is_respected_rather_than_averaged_over():
+    """17% of the catalogue's tags close for lunch. The pair kept the first
+    stretch and dropped the second, so an afternoon visit was priced against
+    morning hours."""
+    poi = _tagged_poi("Lunch Closer", "Mo-Su 09:00-12:00,14:00-18:00", minutes=60)
+
+    result = optimize_day_route([poi], daily_minutes_budget=600,
+                                 day_start_hour=12.5, day_date=MONDAY)
+
+    # 12:30 is inside the closure, so the visit waits for the afternoon session
+    # rather than starting immediately or being dropped.
+    assert result["schedule"][0]["arrival"] == 14.0
+
+
+def test_each_day_of_a_trip_is_resolved_against_its_own_date():
+    """Day 2 is a different weekday from day 1, and the router has to know it."""
+    zones = {0: [_tagged_poi("Mon only", "Mo 10:00-18:00")],
+             1: [_tagged_poi("Tue only", "Tu 10:00-18:00", lat=48.24)]}
+
+    days = build_multi_day_itinerary(zones, daily_minutes_budget=600, day_start_hour=9.0,
+                                      start_date=MONDAY, fill_days=False)
+
+    assert [p["name"] for p in days[0]["route"]] == ["Mon only"]
+    assert [p["name"] for p in days[1]["route"]] == ["Tue only"]
+    assert days[0]["date"] == MONDAY and days[1]["date"] == TUESDAY
+
+
+def test_the_catalogue_carries_its_opening_hours_tags_through_the_graph():
+    """The column has to survive into the graph the router actually reads --
+    build_graph copies an explicit column list, so a new column is invisible
+    until it is named there."""
+    idx = GraphIndex()
+    pois = [p for city in CITY_CODES for p in idx.city_pois(city)]
+    tagged = [p for p in pois if (p.get("opening_hours_raw") or "").strip()]
+
+    assert len(tagged) > 100, "the graph should carry OSM's opening_hours verbatim"
+    # And the tags are the grammar, not a re-rendered pair.
+    assert any(";" in p["opening_hours_raw"] or "," in p["opening_hours_raw"]
+               for p in tagged)
 
 
 # --- issue #61: closing times past midnight, and when a day should begin ---
