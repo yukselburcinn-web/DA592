@@ -17,7 +17,6 @@ import streamlit as st
 
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
 from roamwise.models.forecasting import forecast_city
-from roamwise.optimization.routing import DEFAULT_DAY_START_HOUR
 from roamwise.optimization.travel_modes import TRAVEL_MODES
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
@@ -156,19 +155,37 @@ with st.sidebar:
         [None] + [f"2026-{m:02d}" for m in range(9, 13)] + [f"2027-{m:02d}" for m in range(1, 9)],
         format_func=lambda x: "Flexible / let RoamWise recommend" if x is None else x,
     )
-    day_start_hour = st.slider(
-        "Day starts at", 7, 12, int(DEFAULT_DAY_START_HOUR),
-        format="%d:00",
-        help="What time each day begins. A later start shifts the whole day, so evening "
-             "venues stay reachable within the same number of hours.",
-    )
+    # The cap used to be 12:00, which put an evening-shaped day out of reach:
+    # nightlife is never scheduled before 18:00, so a day opening at 09:00
+    # spends its first nine hours with nothing schedulable in them and comes
+    # back holding one bar. Measured over Paris and Berlin, a 3-day 12-hour
+    # trip returns [1, 1, 1] stops from 09:00 and [4, 4, 3] from 14:00 (#61).
+    # Auto is the default because the archetype is only known after planning
+    # runs -- the checkbox is how a traveler overrides it up front.
+    auto_start = st.checkbox(
+        "Start the day to suit my traveler type", value=True,
+        help="A Nightlife Seeker's day opens at 15:00, a Culture Enthusiast's at 09:00. "
+             "Uncheck to pick the hour yourself.")
+    day_start_hour = None
+    if not auto_start:
+        day_start_hour = st.slider(
+            "Day starts at", 7, 18, 9,
+            format="%d:00",
+            help="What time each day begins. A later start shifts the whole day, so evening "
+                 "venues stay reachable within the same number of hours.",
+        )
     daily_hours = st.slider(
         "Time out per day (hours)", 12, 18, 12, step=3,
         help="The whole active day, not just museums -- travel, visits, meals and any "
              "evening stop all come out of it. Nightlife venues open at 18:00, so a day "
              "has to be long enough to still be out then for one to be scheduled at all.",
     )
-    st.caption(f"Your day runs {day_start_hour:02d}:00 – {(day_start_hour + daily_hours) % 24:02d}:00.")
+    if day_start_hour is not None:
+        st.caption(f"Your day runs {day_start_hour:02d}:00 – "
+                   f"{(day_start_hour + daily_hours) % 24:02d}:00.")
+    else:
+        st.caption(f"Each day will run {daily_hours} hours from whatever start your "
+                   "traveler type calls for.")
     travel_mode = st.radio(
         "How are you getting around?",
         list(TRAVEL_MODES),
@@ -194,7 +211,8 @@ if run:
     with st.spinner("Agents at work: segmenting traveler, forecasting demand, retrieving grounded context, routing..."):
         result = orch.plan_trip(preferences, destination_id=destination_id, n_days=n_days, travel_month=travel_month,
                                  daily_minutes_budget=daily_hours * 60,
-                                 day_start_hour=float(day_start_hour),
+                                 day_start_hour=(None if day_start_hour is None
+                                                 else float(day_start_hour)),
                                  use_real_routing=use_real_routing, travel_mode=travel_mode)
 
     city_name = orch.destinations.set_index("destination_id").loc[result["destination_id"], "city"]
@@ -204,6 +222,11 @@ if run:
 
     with tab1:
         st.subheader(f"{n_days}-day route in {city_name}")
+        chosen_start = result["routing"]["day_start_hour"]
+        st.caption(
+            f"Days run {_clock(chosen_start)}–{_clock(chosen_start + daily_hours)}"
+            + (f", set from your **{result['archetype']}** profile." if auto_start
+               else ", as you set them."))
         if use_real_routing:
             any_real = any(d.get("used_real_routing") for d in result["routing"]["itinerary"])
             if any_real:

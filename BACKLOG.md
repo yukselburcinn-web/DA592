@@ -151,6 +151,41 @@ kalma kaçağı var.
 
 [#29](https://github.com/yukselburcinn-web/DA592/issues/29)
 
+### #61. Gece yarısını aşan kapanış saatleri ve günün başlangıcı — 🛠️ PR #62
+*(bug, `priority:high`, #59'un takibi)* İki ayrı kalıntı, tek semptom: nightlife ilgisi yüksek
+seçilince günler tek bir mekânla dönüyordu.
+
+1. **Gece yarısı kırpması.** `effective_close = 24.0 if close_h < open_h else close_h` — #59 bunu
+   bilinçli olarak açık bırakıp REPORT.md'ye not düşmüştü. 02:00'ye kadar açık bir bar, 06:00'ya
+   kadar süren bir günde bile 01:00'de "kapalı" sayılıyordu. Ölçüldü: 12:00 başlangıçlı 15 ve 18
+   saatlik günler birebir aynı planı veriyordu, ikisi de 23:49'da duruyordu.
+2. **Günün varsayılan başlangıcı.** #59 başlangıç saatini ayarlanabilir yaptı ama 7–12 ile
+   sınırladı ve varsayılanı 09:00 bıraktı. Nightlife 18:00'den önce planlanmadığı için
+   (#59'un doğru kuralı) 09:00'da açılan günün ilk dokuz saati yapısal olarak boş kalıyor.
+
+**Çözüm:** kapanış saati günün kendi saatinde 24'ü aşabiliyor (`_opening_intervals`,
+`_next_open_hour`); başlangıç saati arketipten geliyor (`router_agent.DAY_START_HOURS`,
+Nightlife Seeker → 15:00), UI'da "otomatik" varsayılan + 7–18 arası elle seçim. Ayrıca gün
+doluluğu geçen saatle değil gerçekten meşgul geçen süreyle ölçülüyor (`active_minutes` /
+`idle_minutes`).
+
+**Ölçüm (36 gün, 2 şehir × 2 profil × {12,15,18} saat; #60'ın 09:00 varsayılanına karşı):**
+
+| | #60 | #61 |
+|---|---|---|
+| Tek duraklık gün (nightlife=High) | 5/18 | **0/18** |
+| Durak/gün (High) | 2.33 | **4.56** |
+| Programlanan nightlife durağı | 21 | **56** |
+| 12 saatlik günler (High) | 1,1,1,1,2,1 | **5,5,5,4,4,3** |
+| 24:00 sonrası durak | 0 | **8** (en geç 03:53) |
+| Culture Enthusiast (regresyon kontrolü) | 5.44 | 5.44 |
+
+Kapsam dışı bırakıldı: genel zaman-pencereli sıralama. #59'un kategori kuralı + bekle/atla geçişi
+korundu; geç açılan bir müze hâlâ aynı muameleyi görmüyor. Gerçek çözüm OR-Tools CP-SAT tipi bir
+TSPTW formülasyonu — REPORT §5'te açık bırakıldı.
+
+[#61](https://github.com/yukselburcinn-web/DA592/issues/61) · [PR #62](https://github.com/yukselburcinn-web/DA592/pull/62)
+
 ---
 
 ## Alan D — Altyapı

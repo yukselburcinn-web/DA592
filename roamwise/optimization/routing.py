@@ -87,6 +87,51 @@ NIGHTLIFE_CATEGORY = "nightlife"
 # (17 of 41 are 18:00-02:00), so this makes the mis-sourced ones behave like
 # the correctly-sourced majority rather than inventing a threshold.
 NIGHTLIFE_EARLIEST_HOUR = 18.0
+# Calendar days of opening intervals _next_open_hour searches. One, deliberately:
+# a venue's *closing* time may run into tomorrow (a bar shutting at 02:00), but
+# its *opening* time may not. Allowing tomorrow's opening too let the scheduler
+# wait out the night to be first through the door -- a measured 18-hour day from
+# 15:00 put a 22:18 stop and then a 07:00 one nine hours later, which is not an
+# itinerary. A venue that has closed for the night is simply gone for this day.
+_OPENING_HORIZON_DAYS = 1
+
+
+def _opening_intervals(poi: dict, earliest_hour: float = None) -> list[tuple[float, float]]:
+    """The hours a POI is open, on the itinerary day's own clock, where 26.0
+    means 02:00 the following morning.
+
+    A venue whose close_hour is below its open_hour spans midnight, so its
+    interval has to *end* past 24 rather than being clamped to it. Issue #59
+    flagged that clamp as a real limitation once days could run to 06:00 and
+    left it documented; this is that follow-up (#61). Measured on the #59 day
+    model, it is what made a 15-hour and an 18-hour day from 12:00 return
+    identical plans -- both stop at 23:49, because the next venue would arrive
+    after midnight and every 18:00-02:00 bar was considered shut by then.
+
+    `earliest_hour` is NIGHTLIFE_EARLIEST_HOUR's category floor from #59,
+    applied per calendar day so it still holds for tomorrow's opening."""
+    open_h = poi.get("open_hour", 0)
+    close_h = poi.get("close_hour", 24)
+    if close_h < open_h:
+        close_h += 24
+    intervals = []
+    for day in range(_OPENING_HORIZON_DAYS):
+        start, end = open_h + 24 * day, close_h + 24 * day
+        if earliest_hour is not None:
+            start = max(start, earliest_hour + 24 * day)
+        if start < end:
+            intervals.append((start, end))
+    return intervals
+
+
+def _next_open_hour(poi: dict, arrival: float, earliest_hour: float = None) -> float | None:
+    """When the traveler can actually walk in, having arrived at `arrival`:
+    `arrival` itself if the doors are open, the next opening if they are not
+    open yet, or None if the venue does not open again within the horizon."""
+    for start, end in _opening_intervals(poi, earliest_hour):
+        if arrival < end:
+            return max(arrival, start)
+    return None
 
 
 def haversine_km(lat1, lon1, lat2, lon2):
@@ -264,8 +309,8 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
     (e.g. calling this function standalone), one is built just for this
     day's points."""
     if not pois:
-        return {"route": [], "distance_km": 0.0, "total_minutes": 0,
-                "schedule": [], "used_real_routing": False}
+        return {"route": [], "distance_km": 0.0, "total_minutes": 0, "active_minutes": 0,
+                "idle_minutes": 0, "schedule": [], "used_real_routing": False}
 
     if distance_fn is None or duration_fn is None:
         all_points = ([start_hub] if start_hub else []) + pois
@@ -280,14 +325,18 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
         ordered = _nightlife_last(ordered)
 
     kept, schedule, total_km, clock, prev = [], [], 0.0, day_start_hour, start_hub
+    # Time actually spent travelling and inside venues, tracked alongside the
+    # elapsed clock. The budget still means wall-clock day length (#59's "Time
+    # out per day"), but "how full is this day?" is a different question from
+    # "how late is it?", and answering it with the clock is what starved
+    # evening days: see _fill_days_to_budget (#61).
+    active = 0.0
     for poi in ordered:
         leg_km = distance_fn(prev, poi) if prev else 0.0
         leg_minutes = duration_fn(prev, poi) if prev else 0.0
         arrival = clock + leg_minutes / 60
 
         if respect_opening_hours:
-            open_h = poi.get("open_hour", 0)
-            close_h = poi.get("close_hour", 24)
             # A nightlife venue is not worth visiting the moment its doors
             # unlock. Several carry early OSM hours (07:00 for a bar), which
             # made them legitimately schedulable at breakfast time; the
@@ -295,23 +344,13 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
             # overrides the stated one where that is earlier (issue #59). A
             # day too short to reach it simply doesn't get a nightlife stop,
             # which is the right answer rather than a 15:00 club visit.
-            if _is_nightlife(poi):
-                open_h = max(open_h, NIGHTLIFE_EARLIEST_HOUR)
-            # Venues open past midnight (close_h < open_h, e.g. nightlife
-            # 18:00-02:00) are treated as open up to midnight and no further.
-            # This used to be justified by days never running past ~23:00,
-            # which issue #59 made untrue: an 18-hour day from 12:00 reaches
-            # 06:00. The clamp is now a real limitation rather than a
-            # non-issue -- a bar open until 02:00 will not be scheduled at
-            # 01:00 even on a day still running -- but it fails safe, dropping
-            # a legal stop rather than inventing one. Modelling it properly
-            # means giving the schedule a real calendar instead of a float
-            # hour, which is the same time-window rework §5 already names.
-            effective_close = 24.0 if close_h < open_h else close_h
-            if arrival >= effective_close:
-                continue  # closed for the rest of the day -- skip this stop
-            if arrival < open_h:
-                arrival = open_h  # wait for opening
+            earliest = NIGHTLIFE_EARLIEST_HOUR if _is_nightlife(poi) else None
+            # _next_open_hour keeps past-midnight closing times past midnight
+            # instead of clamping them to 24:00 (#61); it returns None only
+            # when the venue genuinely does not open again in reach.
+            arrival = _next_open_hour(poi, arrival, earliest)
+            if arrival is None:
+                continue  # never open again in reach -- skip this stop
 
         visit_minutes = poi.get("avg_visit_minutes", 60)
         finish = arrival + visit_minutes / 60
@@ -320,15 +359,22 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
             continue
 
         clock = finish
+        active += leg_minutes + visit_minutes
         total_km += leg_km
         kept.append(poi)
         schedule.append({"arrival": arrival, "finish": finish})
         prev = poi
 
+    # Derived from each other rather than rounded independently, so the three
+    # always reconcile and no caller can show a breakdown that doesn't add up.
+    span_minutes = int(round((clock - day_start_hour) * 60))
+    active_minutes = min(int(round(active)), span_minutes)
     return {
         "route": kept,
         "distance_km": round(total_km, 2),
-        "total_minutes": int((clock - day_start_hour) * 60),
+        "total_minutes": span_minutes,
+        "active_minutes": active_minutes,
+        "idle_minutes": span_minutes - active_minutes,
         "schedule": schedule,
         "used_real_routing": used_real_routing,
     }
@@ -486,10 +532,10 @@ def _is_food(poi: dict) -> bool:
 
 
 def _open_at(poi: dict, hour: float) -> bool:
-    open_h = poi.get("open_hour", 0)
-    close_h = poi.get("close_hour", 24)
-    effective_close = 24.0 if close_h < open_h else close_h
-    return open_h <= hour < effective_close
+    """Whether the doors are open at exactly `hour`, on the same past-midnight
+    clock the rest of the module uses -- so a 25.0 (01:00) meal target asks a
+    kitchen that closes at 23:00 the right question."""
+    return any(start <= hour < end for start, end in _opening_intervals(poi))
 
 
 def _ensure_daily_meals(days: list[dict], food_pois: list[dict], route_day_ordered,
@@ -689,7 +735,15 @@ def _fill_days_to_budget(days: list[dict], route_day, daily_minutes_budget: int,
     hub while the day is empty) so filling a day doesn't wreck its geography,
     and a candidate is only kept if re-routing the day actually places it --
     which is what enforces opening hours and the time budget here, rather
-    than duplicating that logic."""
+    than duplicating that logic.
+
+    "Emptiest" is how much of the day the traveler is actually busy, not how
+    much of the clock has passed. A day holding one 18:00 bar spans nine hours
+    of which two are the visit, and ranking it by elapsed clock made it look
+    like the fullest day in the trip -- so it was served last and stayed on one
+    stop, which is the shape #61 reported. #59's _ensure_evening_stops worked
+    around this for nightlife specifically; measuring the right thing fixes it
+    for every category."""
     # POI dicts are compared by identity throughout: two different POIs can
     # hold equal values, and `list.remove`/`in` would silently confuse them.
     pool = []
@@ -701,8 +755,8 @@ def _fill_days_to_budget(days: list[dict], route_day, daily_minutes_budget: int,
     while pool and progress:
         progress = False
         # Emptiest day first; ties broken by day number so the result is stable.
-        for day in sorted(days, key=lambda d: (d["total_minutes"], d["day"])):
-            if day["total_minutes"] >= daily_minutes_budget:
+        for day in sorted(days, key=lambda d: (d["active_minutes"], d["day"])):
+            if day["active_minutes"] >= daily_minutes_budget:
                 continue
             anchor = day["route"][-1] if day["route"] else start_hub
             candidates = sorted(pool, key=lambda p: distance_fn(anchor, p)) if anchor else list(pool)
@@ -733,8 +787,9 @@ def _rebalance_days(days: list[dict], route_day, distance_fn, start_hub: dict = 
     nothing routable while every other POI already fit elsewhere -- the pool
     is empty and the day stays blank next to a neighbour carrying five stops.
     So stops move between days too, accepted only when the move genuinely
-    evens the pair out: the sum of the two days' squared durations must
-    strictly drop. That sum is bounded below and strictly decreases on every
+    evens the pair out: the sum of the two days' squared *active* durations
+    must strictly drop -- active for the same reason as the fill pass above,
+    since waiting for a venue to open is not a full day. That sum is bounded below and strictly decreases on every
     accepted move, so this terminates rather than shuffling one stop back and
     forth forever."""
     pool = pool if pool is not None else []
@@ -742,12 +797,12 @@ def _rebalance_days(days: list[dict], route_day, distance_fn, start_hub: dict = 
     progress = True
     while progress:
         progress = False
-        receiver = min(days, key=lambda d: (d["total_minutes"], d["day"]))
+        receiver = min(days, key=lambda d: (d["active_minutes"], d["day"]))
         donors = sorted((d for d in days if len(d["route"]) > 1 and d is not receiver),
-                        key=lambda d: (-d["total_minutes"], d["day"]))
+                        key=lambda d: (-d["active_minutes"], d["day"]))
 
         for donor in donors:
-            before = donor["total_minutes"] ** 2 + receiver["total_minutes"] ** 2
+            before = donor["active_minutes"] ** 2 + receiver["active_minutes"] ** 2
             anchor = receiver["route"][-1] if receiver["route"] else start_hub
             candidates = (sorted(donor["route"], key=lambda p: distance_fn(anchor, p))
                           if anchor else list(donor["route"]))
@@ -757,7 +812,7 @@ def _rebalance_days(days: list[dict], route_day, distance_fn, start_hub: dict = 
                 if len(grown["route"]) <= len(receiver["route"]):
                     continue  # the receiver can't actually host it (hours, budget)
                 shrunk = route_day([p for p in donor["route"] if id(p) != id(cand)])
-                if shrunk["total_minutes"] ** 2 + grown["total_minutes"] ** 2 >= before:
+                if shrunk["active_minutes"] ** 2 + grown["active_minutes"] ** 2 >= before:
                     continue  # doesn't even the two days out; leave them alone
 
                 kept_ids = {id(p) for p in grown["route"]} | {id(p) for p in shrunk["route"]}
@@ -792,5 +847,6 @@ if __name__ == "__main__":
     itinerary = build_multi_day_itinerary(zones, use_real_routing=True)
     for day in itinerary:
         names = [p["name"] for p in day["route"]]
-        print(f"Day {day['day']}: {names}  ({day['distance_km']}km, {day['total_minutes']}min, "
+        print(f"Day {day['day']}: {names}  ({day['distance_km']}km, "
+              f"{day['active_minutes']}min busy of {day['total_minutes']}min out, "
               f"real_routing={day['used_real_routing']})")

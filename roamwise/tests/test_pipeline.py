@@ -22,7 +22,7 @@ from roamwise.optimization.routing import (
     NIGHTLIFE_EARLIEST_HOUR, build_multi_day_itinerary, optimize_day_route)
 from roamwise.optimization.travel_modes import get_travel_mode
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
-from roamwise.agents.router_agent import RouterAgent
+from roamwise.agents.router_agent import DAY_START_HOURS, RouterAgent, start_hour_for
 from roamwise.evaluation import comparative_analysis
 from roamwise.evaluation.comparative_analysis import (
     TEST_QUERIES, dependence_level, gold_for, paired_significance,
@@ -744,6 +744,90 @@ def test_router_agent_feeds_every_day_from_the_citys_own_restaurants():
         # -- meals are sourced from the graph at all -- only needs >= 1.
         assert len(_meals_in(day)) >= 1, f"day {day['day']} has no meals"
 
+
+# --- issue #61: closing times past midnight, and when a day should begin ---
+
+def test_a_venue_open_past_midnight_is_not_treated_as_shutting_at_midnight():
+    """close_hour < open_hour means the venue spans midnight. Clamping it to
+    24.0 was documented as a known limitation when #59 made days long enough
+    to reach 06:00; this is the follow-up. Without it a 01:00 arrival at a bar
+    open until 02:00 is 'closed'."""
+    club = {"name": "Matrix", "lat": 41.0, "lon": 29.0, "avg_visit_minutes": 60,
+            "open_hour": 22, "close_hour": 7}
+
+    # A day running 12:00-06:00, arriving well after midnight.
+    result = optimize_day_route([club], day_start_hour=12.0, daily_minutes_budget=18 * 60)
+
+    assert [p["name"] for p in result["route"]] == ["Matrix"]
+    assert result["schedule"][0]["arrival"] == 22.0
+
+
+def test_a_long_day_reaches_stops_a_shorter_one_cannot():
+    """The clamp made extra hours worthless past midnight: a 15-hour and an
+    18-hour day from 12:00 both stopped at 23:49, because anything later was
+    considered shut whatever its stated closing time."""
+    hub = {"name": "hub", "lat": 41.0, "lon": 29.0}
+    bars = [{"name": f"Bar {i}", "lat": 41.0 + i * 0.002, "lon": 29.0,
+             "avg_visit_minutes": 120, "open_hour": 18, "close_hour": 2,
+             "category": "nightlife"} for i in range(5)]
+
+    shorter = optimize_day_route(bars, start_hub=hub, day_start_hour=12.0,
+                                  daily_minutes_budget=10 * 60)
+    longer = optimize_day_route(bars, start_hub=hub, day_start_hour=12.0,
+                                daily_minutes_budget=16 * 60)
+
+    assert len(longer["route"]) > len(shorter["route"])
+    assert max(s["arrival"] for s in longer["schedule"]) >= 24.0, \
+        "the extra hours have to actually reach past midnight"
+
+
+def test_day_start_defaults_to_the_archetypes_own_hour():
+    assert start_hour_for("Nightlife Seeker") == DAY_START_HOURS["Nightlife Seeker"]
+    assert start_hour_for("Nightlife Seeker") > start_hour_for("Culture Enthusiast"), \
+        "a night out starts later than a museum day"
+    # An unknown archetype must not crash; it gets the ordinary morning.
+    assert 6.0 <= start_hour_for("Something New") <= 12.0
+    # The traveler's own choice always wins.
+    assert start_hour_for("Nightlife Seeker", override=8.0) == 8.0
+
+
+def test_a_nightlife_trip_does_not_come_back_holding_one_bar():
+    """The reported symptom. Nightlife is never scheduled before 18:00 (#59),
+    so a day opening at 09:00 has nine hours with nothing schedulable in them
+    and returns a single stop. Letting the archetype set the start is what
+    makes the day usable, not more retrieval or longer days."""
+    idx = GraphIndex()
+    agent = RouterAgent(idx)
+    pois = [p for p in idx.city_pois(MAIN_CITY) if p.get("category") == "nightlife"]
+    if len(pois) < 6:
+        pytest.skip(f"{MAIN_CITY} has too few nightlife POIs to test the shape")
+
+    morning = agent.run(MAIN_CITY, pois, n_days=3, daily_minutes_budget=12 * 60,
+                        day_start_hour=9.0, narrate=False)
+    archetype_led = agent.run(MAIN_CITY, pois, n_days=3, daily_minutes_budget=12 * 60,
+                              archetype="Nightlife Seeker", narrate=False)
+
+    morning_stops = sum(len(d["route"]) for d in morning["itinerary"])
+    led_stops = sum(len(d["route"]) for d in archetype_led["itinerary"])
+    assert led_stops > morning_stops, \
+        f"archetype start should beat a 09:00 one ({led_stops} vs {morning_stops})"
+    assert all(len(d["route"]) >= 2 for d in archetype_led["itinerary"]), \
+        "no day should come back holding a single stop"
+
+
+def test_every_day_reports_where_its_time_went():
+    idx = GraphIndex()
+    agent = RouterAgent(idx)
+    pois = idx.city_pois(MAIN_CITY)[:24]
+
+    result = agent.run(MAIN_CITY, pois, n_days=2, daily_minutes_budget=12 * 60, narrate=False)
+
+    for day in result["itinerary"]:
+        # The span is what the clock did; active is what the traveler did with
+        # it. The fill/rebalance passes rank days on active, so a breakdown
+        # that didn't reconcile would mean they were ranking on nothing real.
+        assert day["active_minutes"] + day["idle_minutes"] == day["total_minutes"]
+        assert day["active_minutes"] <= day["total_minutes"]
 
 def test_orchestrator_end_to_end():
     orch = RoamWiseOrchestrator()

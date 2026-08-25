@@ -13,6 +13,33 @@ from roamwise.optimization.travel_modes import DEFAULT_MODE, get_travel_mode
 # actually live, not a march between museums (issue #20).
 MIN_FOOD_PER_DAY = 2
 
+# What time of day a traveler's day begins, by archetype. #59 made the start
+# hour settable and plumbed it through; this decides what it should *default*
+# to, which is what the reported symptom turned on (#61). Nightlife is never
+# scheduled before NIGHTLIFE_EARLIEST_HOUR, so a Nightlife Seeker whose day
+# opens at 09:00 spends its first nine hours with nothing schedulable in them
+# and comes back holding one bar: measured over Paris and Berlin, a 3-day
+# 12-hour trip returned [1, 1, 1] stops from 09:00 and [4, 4, 3] from 14:00.
+# The archetype already knows this; the traveler should not have to work it out
+# from a slider.
+DAY_START_HOURS = {
+    "Nightlife Seeker": 15.0,
+    "Culture Enthusiast": 9.0,
+    "Beach & Relax": 10.0,
+    "Budget Backpacker": 8.0,
+    "Luxury Traveler": 10.0,
+    "Nature & Adventure": 7.0,
+    "Family Traveler": 9.0,
+}
+
+
+def start_hour_for(archetype: str = None, override: float = None) -> float:
+    """The hour a day begins: the traveler's own choice if they made one,
+    otherwise their archetype's, otherwise the ordinary morning default."""
+    if override is not None:
+        return float(override)
+    return DAY_START_HOURS.get(archetype, DEFAULT_DAY_START_HOUR)
+
 # POI descriptions are full Wikipedia lead paragraphs -- several hundred words
 # each. A dozen of them verbatim would dominate the synthesis prompt and, under
 # a local model, cost real generation time for context the narrator only needs
@@ -51,14 +78,19 @@ class RouterAgent:
         self.llm = llm or get_default_llm_client()
 
     def run(self, destination_id: str, candidate_pois: list[dict], n_days: int,
-            daily_minutes_budget: int = 480, day_start_hour: float = DEFAULT_DAY_START_HOUR,
+            daily_minutes_budget: int = 480, day_start_hour: float = None,
+            archetype: str = None,
             respect_opening_hours: bool = True, use_real_routing: bool = False,
             travel_mode=DEFAULT_MODE, min_food_per_day: int = MIN_FOOD_PER_DAY,
             narrate: bool = True) -> dict:
         """narrate=False skips the LLM paraphrase and returns only `facts` --
-        see FusionRAGAgent.run()'s docstring and issue #57."""
+        see FusionRAGAgent.run()'s docstring and issue #57.
+
+        day_start_hour=None lets the archetype pick it (see start_hour_for);
+        pass a number to override that with the traveler's own choice."""
         n_days = max(1, min(n_days, len(candidate_pois))) if candidate_pois else 1
         mode = get_travel_mode(travel_mode)
+        day_start_hour = start_hour_for(archetype, day_start_hour)
         # Days start from the city's own center (proxy for a centrally booked
         # hotel), not the airport -- the airport hub only matters for the
         # single arrival leg, and anchoring every day there would make the
@@ -88,7 +120,7 @@ class RouterAgent:
         )
         facts = self._facts(destination_id, itinerary, mode)
         return {"destination_id": destination_id, "itinerary": itinerary,
-                "travel_mode": mode.key, "facts": facts,
+                "travel_mode": mode.key, "day_start_hour": day_start_hour, "facts": facts,
                 "narrative": self._narrate(facts) if narrate else None}
 
     def _food_pois(self, destination_id: str, candidate_pois: list[dict]) -> list[dict]:
