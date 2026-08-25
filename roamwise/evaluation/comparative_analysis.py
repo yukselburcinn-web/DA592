@@ -57,7 +57,7 @@ from roamwise.retrieval.fusion import FusionRetriever
 # The evaluation reaches into the graph retriever's routing keywords on
 # purpose: dependence_level() below exists to measure how often the answer key
 # and the retriever end up walking the same path.
-from roamwise.retrieval.graph_search import CATEGORY_KEYWORDS, TRANSPORT_KEYWORDS
+from roamwise.retrieval.graph_search import TRANSPORT_KEYWORDS, categories_in
 
 HERE = Path(__file__).parent
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
@@ -168,6 +168,36 @@ HANDWRITTEN_QUERIES = [
     # answer it from the river and lake shores already in `nature`.
     TestQuery("BER", "Beach & Relax", ("nature",), False,
               "somewhere calm by the water to spend a slow afternoon"),
+
+    # --- Independently-graded realism queries -------------------------------
+    # Every one of these describes an intent without naming its answer key's
+    # category or any synonym of it, so `dependence_level` scores them
+    # `independent` and the graph retriever cannot reach the key by routing on
+    # the query's own words. They were added because teaching that router the
+    # synonyms travelers actually use (`places of worship` -> religion, #63)
+    # correctly moved four queries the other way, into `subset`, and dropped
+    # the independently-graded count to 29 -- below the floor this file's
+    # `_GRID_TARGET` comment and `test_query_set_is_powered_and_not_mostly_
+    # self_graded` both defend. The grid cannot make up the difference: nine
+    # categories x two phrasings x two cities is 36 cells and it already emits
+    # all of them, and every grid phrasing names its category by construction.
+    # So the shortfall has to be answered where the independent queries live,
+    # which is the hand-written tier.
+    TestQuery("PAR", "Culture Enthusiast", ("museum",), False,
+              "we have one rainy afternoon and want to see the city's most famous "
+              "art collection"),
+    TestQuery("PAR", "Culture Enthusiast", ("religion",), False,
+              "we would like to hear an organ recital beneath a vaulted ceiling"),
+    TestQuery("BER", "Nightlife Seeker", ("nightlife",), False,
+              "where does this city stay awake until sunrise?"),
+    TestQuery("PAR", "Luxury Traveler", ("shopping",), False,
+              "my partner would like to bring home something from a famous "
+              "Parisian department store"),
+    TestQuery("BER", "Family Traveler", ("nature",), False,
+              "somewhere the children can run around outdoors for an afternoon"),
+    TestQuery("BER", "Nature & Adventure", ("history",), False,
+              "we want to understand what daily life was like here before the wall "
+              "came down"),
 ]
 
 # Phrasings for the generated tier. Two families on purpose: one names the
@@ -309,7 +339,11 @@ def dependence_level(query: TestQuery) -> str:
     (issue #48).
     """
     text = query.text.lower()
-    matched = next((c for c in CATEGORY_KEYWORDS if c in text), None)
+    # The same router the retriever runs, synonyms included -- classifying with
+    # a stricter rule than the code under test reported queries as
+    # independently graded when the retriever did reach for the key's category
+    # (#63).
+    matched = next(iter(categories_in(text)), None)
     names_transport = any(keyword in text for keyword in TRANSPORT_KEYWORDS)
 
     if matched not in query.categories:

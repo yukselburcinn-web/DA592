@@ -146,6 +146,103 @@ def test_fusion_retrieval_all_configs_run():
             assert all(r["destination_id"] == MAIN_CITY for r in results)
 
 
+def test_a_crowded_category_does_not_starve_a_more_famous_one():
+    """Ordering archetype preferences lexicographically on (weight, popularity)
+    let one category bury every lower-weighted one outright. Culture Enthusiast
+    weights `museum` 1.0 and `landmark` 0.9, and the deepest city holds far
+    more museums than retrieval asks for, so every rank up to the museum count
+    was a museum and the catalogue's single most popular POI -- a landmark --
+    sat behind the city's *last* museum, past the depth anything reads (#63).
+
+    Asserted as a property rather than against a POI name: what must hold is
+    that the top-weighted category cannot monopolise the ranking while a
+    better-known place in a nearly-as-preferred category waits behind it.
+    """
+    idx = GraphIndex()
+    city = city_with_category("landmark")
+    if city is None or not city_with_category("museum", [city]):
+        pytest.skip("needs a city holding both museums and landmarks")
+
+    ranked = idx.archetype_preferred_pois("Culture Enthusiast", city, top_k=200)
+    assert ranked, "the archetype should prefer something in this city"
+
+    # The most popular POI in any category this archetype prefers at all.
+    most_popular = max(ranked, key=lambda p: p["popularity_score"])
+    rank = next(i for i, p in enumerate(ranked, 1) if p["poi_id"] == most_popular["poi_id"])
+
+    top_category = max(CATEGORY_AFFINITY["Culture Enthusiast"].items(), key=lambda kv: kv[1])[0]
+    n_top_category = sum(1 for p in ranked if p.get("category") == top_category)
+    if most_popular.get("category") == top_category:
+        pytest.skip("the most popular POI is already in the top-weighted category")
+
+    assert rank < n_top_category, (
+        f"{most_popular['name']} ({most_popular['category']}, "
+        f"popularity {most_popular['popularity_score']}) ranks {rank}, behind all "
+        f"{n_top_category} {top_category} POIs -- the starvation of #63")
+    # And it has to survive the depth retrieval actually reads.
+    assert rank <= 48
+
+
+def test_retrieval_query_describes_what_the_traveler_wants_not_the_label():
+    """The query was built by interpolating the archetype's name, which made
+    BM25 match the literal label word: "culture" surfaced a television channel
+    whose description happens to use it (#63). The query has to name
+    categories, not the archetype."""
+    from roamwise.retrieval.query import CATEGORY_PHRASE, archetype_query
+
+    for archetype, affinities in CATEGORY_AFFINITY.items():
+        query = archetype_query(archetype).lower()
+        assert archetype.lower() not in query, \
+            f"{archetype!r} query still contains the archetype label: {query!r}"
+        strongest = max(affinities.items(), key=lambda kv: kv[1])[0]
+        assert CATEGORY_PHRASE[strongest] in query, \
+            f"{archetype!r} query omits its strongest category {strongest!r}: {query!r}"
+
+
+def test_the_graph_router_understands_words_travelers_actually_use():
+    """It matched only the catalogue's taxonomy words, so "places of worship" --
+    the phrasing both the evaluation grid and the orchestrator emit -- routed as
+    naming no category at all (#63). Matching is on whole words: "pub" inside
+    "public transit" must not make a nightlife query."""
+    from roamwise.retrieval.graph_search import categories_in
+
+    assert categories_in("places of worship") == ["religion"]
+    assert categories_in("quiet gardens away from the crowds") == ["nature"]
+    assert "nightlife" not in categories_in("accessible via late-night public transit")
+    assert "nature" not in categories_in("is there parking nearby")
+    assert "food" not in categories_in("a great theatre")
+    # A profile query names several; a constrained one names exactly one. The
+    # retriever routes on that difference.
+    assert len(categories_in("museums close to a train station")) == 1
+    assert len(categories_in(
+        "the best museums, landmarks, history sites, culture venues "
+        "and places of worship to visit in this city")) > 1
+
+
+def test_zoning_returns_every_day_it_was_asked_for():
+    """`zone` returned one zone per POI when candidates ran short, so a 5-day
+    trip with 3 sightseeing POIs quietly became a 3-day itinerary, and an empty
+    pool returned no zones at all -- which `_rebalance_days` crashed on with
+    "min() iterable argument is empty" once a query surfaced nothing but food
+    (#63)."""
+    zoner = POIZoner()
+    pois = [{"lat": 48.85 + i / 100, "lon": 2.35 + i / 100} for i in range(3)]
+
+    assert sorted(zoner.zone(pois, n_zones=5)) == [0, 1, 2, 3, 4]
+    assert sum(len(z) for z in zoner.zone(pois, n_zones=5).values()) == len(pois)
+    assert zoner.zone([], n_zones=1) == {0: []}
+
+    # The crash this guards: every candidate is food, so the sightseeing pool
+    # the zoner is handed is empty.
+    idx = GraphIndex()
+    city = city_with_category("food")
+    if city is None:
+        pytest.skip("no city holds food POIs")
+    food = idx.city_pois(city, category="food")[:8]
+    itinerary = RouterAgent(idx).run(city, food, n_days=3, narrate=False)["itinerary"]
+    assert len(itinerary) == 3
+
+
 def test_fusion_beats_hybrid_on_archetype_grounding():
     fr = FusionRetriever()
     city = city_with_category("nightlife") or MAIN_CITY

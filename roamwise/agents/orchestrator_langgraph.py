@@ -41,6 +41,7 @@ from roamwise.agents.orchestrator import MIN_RETRIEVED_POIS, RETRIEVED_POIS_PER_
 from roamwise.agents.router_agent import RouterAgent
 from roamwise.knowledge_graph.build_graph import GraphIndex
 from roamwise.models.segmentation import TravelerSegmenter
+from roamwise.retrieval.query import archetype_query
 from roamwise.optimization.routing import DEFAULT_DAY_START_HOUR
 from roamwise.optimization.travel_modes import DEFAULT_MODE
 
@@ -144,7 +145,9 @@ class RoamWiseLangGraphOrchestrator:
         return {"forecast": forecast}
 
     def _retrieve(self, state: PlanState) -> dict:
-        query = f"best {state['archetype'].lower()} points of interest and experiences"
+        # Kept identical to orchestrator.py's query -- see #63 and the note
+        # in HANDOFF about prompt/query drift between the two orchestrators.
+        query = archetype_query(state["archetype"])
         rag = self.fusion_rag.run(
             query, destination_id=state["destination_id"], archetype=state["archetype"],
             config=self.retrieval_config, top_k=state.get("top_k_pois", 12),
