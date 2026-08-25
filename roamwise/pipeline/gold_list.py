@@ -175,7 +175,14 @@ def dedupe_gold(gold):
     return pd.DataFrame(keep)
 
 
-def build_gold(code):
+def build_gold(code, types=SIGHT_TYPES):
+    """Wikivoyage listings for a city, deduped and inside its radius.
+
+    `types` is which listing sections to keep. The catalogue measurement wants
+    SIGHT_TYPES; `retrieval_gold.py` also wants `eat` and `drink`, because a
+    retrieval answer key has to be able to say what a good restaurant or bar
+    is (#48).
+    """
     city = CITIES[code]
     print(f"\n{'=' * 68}\n{city['city']} gold list\n{'=' * 68}")
     pages = discover_pages(city["wv_root"])
@@ -225,7 +232,7 @@ def build_gold(code):
 
     df[["clat", "clon"]] = df.apply(lambda r: pd.Series(coord_of(r)), axis=1)
 
-    gold = df[df.type.isin(SIGHT_TYPES) & df.clat.notna()].copy()
+    gold = df[df.type.isin(types) & df.clat.notna()].copy()
     gold["km"] = gold.apply(
         lambda r: haversine_km(city["lat"], city["lon"], r.clat, r.clon), axis=1)
     gold = gold[gold.km <= city["radius_km"]].drop_duplicates(subset="name")
@@ -243,6 +250,50 @@ def build_gold(code):
 # ---------------------------------------------------------------------------
 # Measurement
 # ---------------------------------------------------------------------------
+def assign(gold, cat, qid_of):
+    """One-to-one match of gold entries to catalogue rows.
+
+    Returns ({gold_index: tier_name}, {gold_index: catalogue_positional_index}).
+
+    A 250 m radius in a dense centre puts several gold entries inside one
+    catalogue POI's circle, and counting each of them as covered credits us for
+    places we do not hold -- it is what produced a 106% "hit rate". Each
+    catalogue POI may stand for exactly one gold entry, cheapest tier first.
+    """
+    proposals = []          # (tier, distance_m, gold_index, catalogue_index)
+    for gi, g in enumerate(gold.itertuples()):
+        gn = norm_name(g.name)
+        if g.qid and g.qid in qid_of:
+            proposals.append((0, 0.0, gi, qid_of[g.qid]))
+        for ci, r in enumerate(cat.itertuples()):
+            d = haversine_km(g.clat, g.clon, r.lat, r.lon) * 1000
+            if d <= MATCH_M:
+                proposals.append((1, d, gi, ci))
+            elif len(gn) > 6 and (gn in r.n or r.n in gn):
+                proposals.append((2, d, gi, ci))
+
+    proposals.sort(key=lambda p: (p[0], p[1]))
+    taken_gold, taken_cat, assigned, matched_rows = set(), set(), {}, {}
+    for tier, d, gi, ci in proposals:
+        if gi in taken_gold or ci in taken_cat:
+            continue
+        taken_gold.add(gi)
+        taken_cat.add(ci)
+        assigned[gi] = ("qid", "koordinat", "isim")[tier]
+        matched_rows[gi] = ci
+    return assigned, matched_rows
+
+
+def catalogue_qid_index(cat):
+    """{QID: first positional index carrying it} for a catalogue frame."""
+    qid_of = {}
+    for i, r in enumerate(cat.itertuples()):
+        q = str(r.wikidata_qid).upper()
+        if q and q != "NAN":
+            qid_of.setdefault(q, i)
+    return qid_of
+
+
 def measure(code, gold, cat):
     """Three-tier match: QID, then <=250 m coordinate, then name.
 
@@ -259,37 +310,9 @@ def measure(code, gold, cat):
     cat["n"] = cat.name.map(norm_name)
     cat_qids = set(cat.wikidata_qid.dropna().astype(str).str.upper()) - {""}
 
-    # One-to-one assignment. A 250 m radius in a dense centre puts several gold
-    # entries inside one catalogue POI's circle, and counting each of them as
-    # covered credited us for places we do not hold -- it is what produced a
-    # 106% "hit rate". Each catalogue POI may now stand for exactly one gold
-    # entry, so the count can never exceed what we actually carry.
-    qid_of = {}
-    for i, r in enumerate(cat.itertuples()):
-        q = str(r.wikidata_qid).upper()
-        if q and q != "NAN":
-            qid_of.setdefault(q, i)
+    qid_of = catalogue_qid_index(cat)
 
-    proposals = []          # (tier, distance_m, gold_index, catalogue_index)
-    for gi, g in enumerate(gold.itertuples()):
-        gn = norm_name(g.name)
-        if g.qid and g.qid in qid_of:
-            proposals.append((0, 0.0, gi, qid_of[g.qid]))
-        for ci, r in enumerate(cat.itertuples()):
-            d = haversine_km(g.clat, g.clon, r.lat, r.lon) * 1000
-            if d <= MATCH_M:
-                proposals.append((1, d, gi, ci))
-            elif len(gn) > 6 and (gn in r.n or r.n in gn):
-                proposals.append((2, d, gi, ci))
-
-    proposals.sort(key=lambda p: (p[0], p[1]))
-    taken_gold, taken_cat, assigned = set(), set(), {}
-    for tier, d, gi, ci in proposals:
-        if gi in taken_gold or ci in taken_cat:
-            continue
-        taken_gold.add(gi)
-        taken_cat.add(ci)
-        assigned[gi] = ("qid", "koordinat", "isim")[tier]
+    assigned, matched_rows = assign(gold, cat, qid_of)
 
     hits, misses = [], []
     for gi, g in enumerate(gold.itertuples()):

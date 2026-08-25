@@ -17,6 +17,7 @@ from roamwise.pipeline.common import NOT_A_SIGHT_TYPES
 from roamwise.models.forecasting import forecast_city, best_months_to_visit
 from roamwise.models.segmentation import TravelerSegmenter, POIZoner
 from roamwise.retrieval.fusion import FusionRetriever
+from roamwise.retrieval.graph_search import GraphSearchIndex
 from roamwise.optimization.routing import (
     NIGHTLIFE_EARLIEST_HOUR, build_multi_day_itinerary, optimize_day_route)
 from roamwise.optimization.travel_modes import get_travel_mode
@@ -883,16 +884,23 @@ def test_every_test_query_has_an_answer():
     assert not empty, f"queries with no possible correct answer: {empty}"
 
 
-def test_query_set_is_powered_and_not_mostly_self_graded():
-    """The comparison was run on 18 queries of which only 11 were not graded
-    against the retriever's own traversal, and at that size a real effect is
-    detected about a third of the time. Both properties are easy to lose again
-    by editing the query list, so they are pinned here."""
+def test_query_set_is_powered_and_balanced_by_difficulty():
+    """The comparison was run on 18 queries and at that size a real effect is
+    detected about a third of the time, so the set has a floor.
+
+    The second half used to be about circularity -- the answer key was the
+    retriever's own traversal, so a query naming its category graded the
+    retriever against itself. That is fixed at the source (see
+    `test_the_answer_key_is_not_one_the_retriever_can_produce`), and what the
+    split now guards is difficulty: a query that names its category tells the
+    router where to look, and a headline number must not be carried entirely
+    by that easy half (#48).
+    """
     assert len(TEST_QUERIES) >= 45
     assert {q.tier for q in TEST_QUERIES} == {"handwritten", "grid"}
 
-    not_self_graded = [q for q in TEST_QUERIES if dependence_level(q) != "subset"]
-    assert len(not_self_graded) >= 30
+    name_no_category = [q for q in TEST_QUERIES if dependence_level(q) != "subset"]
+    assert len(name_no_category) >= 30
 
     # No archetype may own the set the way Culture Enthusiast owned 44% of it.
     counts = collections.Counter(q.archetype for q in TEST_QUERIES)
@@ -900,11 +908,10 @@ def test_query_set_is_powered_and_not_mostly_self_graded():
     assert set(counts) == set(CATEGORY_AFFINITY), "every archetype should be exercised"
 
 
-def test_dependence_level_spots_the_self_graded_queries():
+def test_dependence_level_spots_the_queries_that_name_their_own_category():
     query = comparative_analysis.TestQuery
-    # Names the key's category next to a transport word: the graph router
-    # dispatches to the same traversal the key is built from, at 3km inside the
-    # key's 6km, so its results cannot fall outside the key.
+    # Names the key's category next to a transport word, so the graph router
+    # dispatches straight at it -- the easiest shape of query there is.
     assert dependence_level(query(MAIN_CITY, "Culture Enthusiast", ("landmark",), True,
                                   "landmarks near a transport hub")) == "subset"
     # Same category, no transport constraint -- the router's filter is wider
@@ -914,6 +921,56 @@ def test_dependence_level_spots_the_self_graded_queries():
     # The router never reaches for the key's category at all.
     assert dependence_level(query(MAIN_CITY, "Culture Enthusiast", ("history",), False,
                                   "somewhere calm to spend a slow afternoon")) == "independent"
+
+
+def test_the_answer_key_is_not_one_the_retriever_can_produce():
+    """`recall_at_k`'s answer key used to be every catalogue POI of the queried
+    category -- `GraphIndex.city_pois`, which is the traversal the graph
+    retriever dispatches to. On a query naming its category, retrieval was a
+    subset of the key by construction, so its recall measured that it agrees
+    with itself rather than that it finds good answers (#48).
+
+    The key is now gated on Wikivoyage, which is written by travellers and owes
+    nothing to Wikidata sitelinks, OSM tagging or this project's graph. The
+    property that matters is that neither set contains the other: the retriever
+    can return plenty of category matches and still score zero.
+    """
+    idx = GraphIndex()
+    graph = GraphSearchIndex(idx)
+    city = city_with_category("museum")
+    if city is None:
+        pytest.skip("no city holds museums")
+
+    query = comparative_analysis.TestQuery(
+        city, "Culture Enthusiast", ("museum",), True,
+        "museums within easy reach of a transport hub")
+    assert dependence_level(query) == "subset", "this test needs the easiest query shape"
+
+    gold = gold_for(idx, query)
+    assert gold, "the key must not be empty"
+
+    # The key is a strict subset of the category, so something outside this
+    # project decided which members are in it.
+    every_museum = {p["poi_id"] for p in idx.city_pois(city, category="museum")}
+    assert gold < every_museum, \
+        "the key is every POI of the category again -- the circularity is back"
+
+    # And the retriever's own traversal is not contained in it.
+    retrieved = {r["poi_id"] for r in graph.search(query.text, top_k=40,
+                                                   destination_id=city,
+                                                   archetype=query.archetype)}
+    assert retrieved - gold, \
+        "graph retrieval falls entirely inside the key -- it is grading itself"
+
+
+def test_every_recommended_poi_is_a_poi_the_catalogue_still_holds():
+    """The key is committed rather than recomputed, so it can go stale against
+    a catalogue that dropped rows -- which #65 did, by 46."""
+    catalogue = set(pd.read_csv(DATA_DIR / "poi.csv").poi_id)
+    orphans = comparative_analysis.RECOMMENDED_POIS - catalogue
+    assert not orphans, (
+        f"{len(orphans)} POIs in retrieval_gold.csv are no longer in the catalogue; "
+        "rebuild with `cd roamwise/pipeline && python retrieval_gold.py --write`")
 
 
 def _synthetic_pairs(**per_config_values) -> pd.DataFrame:
