@@ -69,6 +69,160 @@ CITIES = {
 }
 
 
+
+# The fixed 10-category vocabulary CATEGORY_AFFINITY keys off. Order matters:
+# the first rule matching any Wikidata type label wins.
+CATEGORY_RULES = [
+    ("beach", ["beach", "lido"]),
+    ("religion", ["mosque", "church", "synagogue", "place of worship", "cathedral",
+                  "basilica", "monastery", "chapel", "shrine", "tomb", "mausoleum",
+                  "abbey", "temple"]),
+    ("museum", ["museum", "art gallery", "gallery", "kunsthalle"]),
+    # "archaeological site", not bare "archaeological": the loose form matched
+    # "archaeological artifact" and pulled museum pieces (the Venus de Milo)
+    # into the catalogue as though they were places.
+    ("history", ["archaeological site", "ruin", "ancient", "cistern", "defensive wall",
+                 "city wall", "fortification", "citadel", "aqueduct", "historic site",
+                 "necropolis", "memorial", "cemetery", "bunker", "catacomb"]),
+    ("shopping", ["bazaar", "market", "shopping", "mall", "department store", "arcade"]),
+    ("nightlife", ["nightclub", "bar", "pub", "cabaret", "discotheque"]),
+    ("food", ["restaurant", "cafe", "café", "food", "brasserie", "brewery"]),
+    ("nature", ["park", "garden", "forest", "island", "hill", "grove", "bay", "lake",
+                "nature reserve", "arboretum", "botanical", "canal", "zoo"]),
+    # "university" is deliberately absent. It admitted every degree-granting
+    # institution in both cities as a cultural sight -- Sorbonne University,
+    # Sciences Po, TU Berlin, ESCP Business School, the College de France, and
+    # the Charite, which is typed "university hospital". 26 of the 104 rows in
+    # `culture` were institutions of this kind, and they reached itineraries: a
+    # Budget Backpacker's Paris culture day opened Sorbonne -> Sciences Po
+    # (#65). A university building worth seeing almost always also carries a
+    # heritage listing or an architectural type, which is what keeps it.
+    ("culture", ["theatre", "theater", "opera", "concert", "cultural", "stadium",
+                 "aquarium", "library", "arena", "cinema", "philharmonic",
+                 "planetarium"]),
+    # "station" is likewise absent, and for the same reason: it made a landmark
+    # of 15 metro and mainline stations, and -- because the match is on a type
+    # *label* -- of a "television station" and a "radio station" too, which is
+    # how the France 3 television channel came to be a Paris landmark. A
+    # station that is a sight in its own right is one that also carries
+    # `palace`, `museum` or a heritage listing, and those still admit it.
+    ("landmark", ["palace", "tower", "bridge", "gate", "fountain", "lighthouse",
+                  "monument", "obelisk", "square", "architectural", "building",
+                  "structure", "pavilion", "villa", "mansion", "column",
+                  "castle", "hôtel particulier", "observation"]),
+]
+
+
+# ---------------------------------------------------------------------------
+# What counts as a place a traveller can visit
+# ---------------------------------------------------------------------------
+# `CATEGORY_RULES` in build_catalogue.py reads a POI's category off its
+# Wikidata type label, and several of those keywords admit whole classes of
+# entity that are documented like a landmark but cannot be a stop on a day
+# out. `university` put Sorbonne University, Sciences Po, TU Berlin, ESCP
+# Business School and the Charite (a "university hospital") into `culture`;
+# `station` put eighteen metro and mainline stations into `landmark`. 71 of
+# 700 catalogue rows -- 10.1% -- were entities of this kind, and they reached
+# real itineraries: a Budget Backpacker's Paris culture day opened Sorbonne
+# University -> Sciences Po, and a Luxury Traveler's first day contained
+# "2019 fire at Notre-Dame de Paris", which is an event (#65).
+#
+# This is a *rule* fix, not a data fix: every one of those rows is correctly
+# transcribed from Wikidata. What was wrong is the rule that called them
+# sights.
+NOT_A_SIGHT_TYPES = {
+    "transit station": ["station", "stop"],
+    "university or hospital": ["university", "college", "business school",
+                               "higher education", "grand établissement",
+                               "medical school", "hospital"],
+    "event, not a place": ["fire", "occurrence", "event", "disaster",
+                           "aviation accident"],
+    "demolished": ["destroyed building", "demolished"],
+    "organisation, not a place": ["nonprofit organization", "business",
+                                  "enterprise", "broadcaster", "television channel",
+                                  "record label", "publisher"],
+}
+
+# A type that would otherwise disqualify a row is overruled by evidence that
+# people go and look at the thing. Both signals are external to this project:
+# P1435 is a state heritage listing, and `tourist attraction` is Wikidata's own
+# statement about the entity.
+#
+# This matters more than the exclusions do. Without it the rule takes the
+# Berlin Wall ("destroyed building or structure"), the Bastille ("demolished"),
+# Montmartre and the Tuileries Garden -- which is precisely the mistake
+# REPORT.md section 5 already argues against for closure dates: P576 and its
+# neighbours record that an *entity* ended, not that its site is gone. Of 700
+# rows, 287 carry one of these two rescues.
+SIGHT_RESCUE_TYPES = ["tourist attraction"]
+
+# `station` inside "television station" is a television channel, not a train;
+# `palace`/`museum` on a station row means the building is the reason to go.
+_STATION_OVERRIDES = ["palace", "museum", "television", "radio"]
+
+
+def not_a_sight(type_labels, has_heritage_listing=False):
+    """Why this entity is not a place to visit, or None if it is one.
+
+    `type_labels` is the entity's Wikidata P31 labels; `has_heritage_listing`
+    is whether it carries P1435. Matching is on the type *label*, the same way
+    CATEGORY_RULES reads it, so "public research university" matches
+    "university".
+
+    A disqualifying type only counts when it is the entity's whole story. This
+    is the same test `build_catalogue.classify_spine` already applies to
+    TYPE_BLACKLIST -- "an item that carries a blacklisted type is only kept if
+    it *also* carries a real place type" -- and without it the rule takes real
+    places carrying an administrative second type: the Berlinische Galerie and
+    the Anne Frank Zentrum are each "art museum; nonprofit organization", the
+    Palais de la Decouverte is "museum; event venue", the Parc floral de Paris
+    is "urban park; event venue; public garden", the Saint-Ouen flea market is
+    "flea market; business; shopping center". Strip the disqualifying labels
+    and ask whether a CATEGORY_RULES place type is still standing; if one is,
+    that is the reason to go and the row stays.
+
+    It is what makes `demolished` safe to include at all. REPORT.md section 5
+    already argues the point for closure dates: an entity ending is not its
+    site being gone, and the Berlin Wall, the Bastille and the
+    Kaiser-Wilhelm-Gedaechtniskirche are among the best-known things to go and
+    see in their cities. Here the Tuileries Palace keeps "palace" and the
+    rebuilt Berlin Palace keeps "city palace", so both stay; the Gibbet of
+    Montfaucon is only ever "gallows; destroyed building" and goes.
+
+    The bias is deliberately toward keeping. A wrongly kept row is one odd
+    suggestion; a wrongly dropped one is a hole nothing downstream can see.
+    """
+    labels = [str(t).lower() for t in type_labels]
+    if has_heritage_listing or _any_type(labels, SIGHT_RESCUE_TYPES):
+        return None
+
+    matched, disqualifying = None, set()
+    for reason, keywords in NOT_A_SIGHT_TYPES.items():
+        hits = [label for label in labels if _any_type([label], keywords)]
+        if reason == "transit station":
+            hits = [h for h in hits if not _any_type([h], _STATION_OVERRIDES)]
+        if hits and matched is None:
+            matched = reason
+        disqualifying |= set(hits)
+    if matched is None:
+        return None
+
+    surviving = [label for label in labels if label not in disqualifying]
+    if any(pattern.search(label) for label in surviving for _, pattern in _PLACE_PATTERNS):
+        return None
+    return matched
+
+
+_PLACE_PATTERNS = [
+    (category, re.compile(r"\b(?:" + "|".join(re.escape(k) for k in keys) + r")\b"))
+    for category, keys in CATEGORY_RULES
+]
+
+
+def _any_type(labels, keywords):
+    return any(keyword in label for label in labels for keyword in keywords)
+
+
 def haversine_km(lat1, lon1, lat2, lon2):
     r = 6371.0
     p1, p2 = math.radians(lat1), math.radians(lat2)

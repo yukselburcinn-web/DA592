@@ -13,6 +13,7 @@ import pandas as pd
 import pytest
 
 from roamwise.knowledge_graph.build_graph import CATEGORY_AFFINITY, GraphIndex
+from roamwise.pipeline.common import NOT_A_SIGHT_TYPES
 from roamwise.models.forecasting import forecast_city, best_months_to_visit
 from roamwise.models.segmentation import TravelerSegmenter, POIZoner
 from roamwise.retrieval.fusion import FusionRetriever
@@ -241,6 +242,78 @@ def test_zoning_returns_every_day_it_was_asked_for():
     food = idx.city_pois(city, category="food")[:8]
     itinerary = RouterAgent(idx).run(city, food, n_days=3, narrate=False)["itinerary"]
     assert len(itinerary) == 3
+
+
+def test_the_catalogue_holds_only_places_a_traveller_can_visit():
+    """46 of 700 catalogue rows were entities documented like a landmark that
+    nobody can visit -- 25 universities and a hospital filed as `culture`, 15
+    metro and mainline stations filed as `landmark`, a television channel, a
+    radio station and the 2019 fire at Notre-Dame. They reached itineraries:
+    5 of 14 city x archetype plans contained at least one, and a Budget
+    Backpacker's Paris culture day opened Sorbonne University -> Sciences Po
+    (#65).
+
+    `data/dropped_pois.csv` records each removal with its Wikidata types, so
+    the decision stays auditable without a network call.
+    """
+    catalogue = pd.read_csv(DATA_DIR / "poi.csv")
+    dropped = pd.read_csv(DATA_DIR / "dropped_pois.csv")
+
+    assert not set(catalogue.poi_id) & set(dropped.poi_id), \
+        "a row recorded as dropped is still in the catalogue"
+    assert dropped.drop_reason.notna().all(), "every drop must record its reason"
+    assert set(dropped.drop_reason) <= set(NOT_A_SIGHT_TYPES), \
+        f"unknown drop reason: {set(dropped.drop_reason) - set(NOT_A_SIGHT_TYPES)}"
+
+    # poi_id is the join key the graph and every retriever use; a rebuild that
+    # renumbered the survivors would silently invalidate dropped_pois.csv.
+    assert catalogue.poi_id.is_unique
+
+
+def test_a_disqualifying_type_only_counts_when_it_is_the_whole_story():
+    """The rule has to remove an institution without taking a real place that
+    merely carries an administrative second type, and REPORT.md section 5's
+    argument applies: an entity ending is not its site being gone (#65)."""
+    from roamwise.pipeline.common import not_a_sight
+
+    # Removed: the disqualifying type is all there is.
+    assert not_a_sight(["comprehensive university", "public research university"])
+    assert not_a_sight(["university hospital", "medical school"])
+    assert not_a_sight(["multi-level interchange railway station", "central station"])
+    assert not_a_sight(["structure fire"])
+    # "television station" is not a railway; it must not rescue itself either.
+    assert not_a_sight(["television channel", "television station"])
+    assert not_a_sight(["broadcaster", "radio station"])
+
+    # Kept: a real place type survives the disqualifying one.
+    assert not_a_sight(["art museum", "nonprofit organization"]) is None
+    assert not_a_sight(["museum", "event venue"]) is None
+    assert not_a_sight(["urban park", "event venue", "public garden"]) is None
+    assert not_a_sight(["flea market", "business", "shopping center"]) is None
+    assert not_a_sight(["railway station", "palace"]) is None
+
+    # Kept: a heritage listing overrules any disqualifying type at all.
+    assert not_a_sight(["cordon", "destroyed building or structure"],
+                       has_heritage_listing=True) is None
+    assert not_a_sight(["gallows", "destroyed building or structure"]) == "demolished"
+
+
+def test_the_city_guide_counts_match_the_catalogue_it_describes():
+    """The guides are generated from poi.csv and state exact counts, and they
+    enter the retrieval corpus as the `guide::<CITY>` document -- so a stale
+    guide is a retrievable false statement about the catalogue. Berlin's said
+    "300 stops" and anchored the city's central cluster on a university (#65).
+    """
+    catalogue = pd.read_csv(DATA_DIR / "poi.csv")
+    for code in CITY_CODES:
+        guide = DATA_DIR / "city_guides" / f"{code}.txt"
+        if not guide.exists():
+            continue
+        text = guide.read_text()
+        n = len(catalogue[catalogue.destination_id == code])
+        assert f"{n} stops" in text, \
+            f"{code} guide does not state the catalogue's real size ({n}); regenerate " \
+            f"it with `cd roamwise/pipeline && python city_guide.py --write`"
 
 
 def test_fusion_beats_hybrid_on_archetype_grounding():
