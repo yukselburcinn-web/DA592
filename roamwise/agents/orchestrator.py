@@ -30,6 +30,7 @@ from roamwise.agents.llm_client import LLMClient, get_default_llm_client
 from roamwise.agents.router_agent import RouterAgent
 from roamwise.knowledge_graph.build_graph import GraphIndex
 from roamwise.models.segmentation import TravelerSegmenter
+from roamwise.retrieval.query import archetype_query
 from roamwise.optimization.routing import DEFAULT_DAY_START_HOUR
 from roamwise.optimization.travel_modes import DEFAULT_MODE
 from pathlib import Path
@@ -112,7 +113,11 @@ class RoamWiseOrchestrator:
 
         # --- Node 3: Fusion RAG Agent retrieves grounded, archetype-aware POIs ---
         with log_step(log, "Fusion RAG retrieval", config=self.retrieval_config) as detail:
-            query = f"best {seg['archetype'].lower()} points of interest and experiences"
+            # Built from the archetype's preferred categories, not its label:
+            # interpolating the label produced "best culture enthusiast points of
+            # interest and experiences", which BM25 answered with a television
+            # channel whose description says "culture" (#63).
+            query = archetype_query(seg["archetype"])
             # narrate=False: nothing downstream reads this agent's prose --
             # the UI shows the retrieved documents themselves, and _synthesize
             # narrates from the itinerary (issues #56, #57).

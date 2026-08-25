@@ -10,6 +10,8 @@ dispatches to the matching GraphIndex traversal; results are wrapped into the
 same doc-like shape (doc_id/text/score) as the other two retrievers so
 fusion.py can merge all three with reciprocal rank fusion.
 """
+import re
+
 from roamwise.knowledge_graph.build_graph import GraphIndex
 
 ARCHETYPE_KEYWORDS = {
@@ -25,7 +27,63 @@ CATEGORY_KEYWORDS = [
     "museum", "landmark", "history", "religion", "nature", "food", "nightlife",
     "shopping", "culture", "beach",
 ]
+
+# The router matched a category only when the query used the catalogue's own
+# taxonomy word, which made it brittle in exactly the place it is asked to be
+# robust: nobody types "religion". Both the evaluation grid and the query the
+# orchestrator builds phrase that category as "places of worship", so a query
+# *about* churches routed as though it named no category at all, fell back to
+# the generic archetype list, and -- once that list began mixing categories by
+# prominence (#63) -- ranked Culture Enthusiast's lowest-weighted category
+# (religion, 0.6) near the bottom of its own answer key.
+#
+# Only phrasings this codebase actually produces or that a traveler plausibly
+# types are listed. This is a routing aid, not a thesaurus: a term here makes
+# the graph retriever *consider* a category, and a wrong guess costs recall on
+# the category it displaces.
+CATEGORY_SYNONYMS = {
+    "religion": ["place of worship", "places of worship", "church", "cathedral",
+                 "mosque", "synagogue", "temple"],
+    "museum": ["gallery", "galleries"],
+    "landmark": ["monument", "sight"],
+    "history": ["historic", "historical", "heritage"],
+    "nature": ["park", "parks", "garden", "gardens", "green space"],
+    "nightlife": ["bar", "bars", "club", "clubs", "pub"],
+    "food": ["restaurant", "eat", "dining", "meal"],
+    "shopping": ["shop", "market", "boutique"],
+}
 TRANSPORT_KEYWORDS = ["near", "walk", "close to", "airport", "station", "transport", "hub"]
+
+
+_TERM_PATTERNS: dict[str, "re.Pattern"] = {}
+
+
+def _names(term: str, text: str) -> bool:
+    """Does `text` use `term` as a word (bare or pluralised)?
+
+    Whole words, not substrings. Matching on substrings is what a short
+    synonym list cannot survive: "pub" is inside "public", so
+    "accessible via late-night public transit" would route as a nightlife
+    query; "bar" is inside "barrier", "park" inside "parking", "eat" inside
+    "theatre". The trailing `s?` keeps the plural a traveler actually types
+    ("museums", "landmarks") matching without needing both forms listed.
+    """
+    pattern = _TERM_PATTERNS.get(term)
+    if pattern is None:
+        pattern = _TERM_PATTERNS[term] = re.compile(rf"\b{re.escape(term)}s?\b")
+    return pattern.search(text) is not None
+
+
+def categories_in(text: str) -> list[str]:
+    """Every catalogue category `text` names, by taxonomy word or synonym.
+
+    Order follows CATEGORY_KEYWORDS rather than position in the text, so the
+    result is stable for a given query whatever order the words appear in.
+    """
+    lowered = text.lower()
+    return [category for category in CATEGORY_KEYWORDS
+            if _names(category, lowered)
+            or any(_names(synonym, lowered) for synonym in CATEGORY_SYNONYMS.get(category, ()))]
 
 
 class GraphSearchIndex:
@@ -45,19 +103,51 @@ class GraphSearchIndex:
                     matched_archetype = arch
                     break
 
-        matched_category = next((c for c in CATEGORY_KEYWORDS if c in q), None)
+        # Every category the query names, not just the first one in
+        # CATEGORY_KEYWORDS order. The count is what distinguishes the two
+        # kinds of question this retriever gets asked, and taking `next(...)`
+        # collapsed them: "the best museums, landmarks, history sites, culture
+        # venues and places of worship" reported itself as a museum query
+        # purely because `museum` sorts first in the keyword list.
+        matched_categories = categories_in(q)
         near_transport = any(kw in q for kw in TRANSPORT_KEYWORDS)
 
-        if matched_archetype:
-            for poi in self.idx.archetype_preferred_pois(matched_archetype, destination_id, top_k=top_k):
-                results.append(self._poi_to_doc(poi, f"preferred by {matched_archetype} travelers"))
+        # One named category is a constraint ("museums near a transport hub");
+        # several are a preference profile, which is what the orchestrator
+        # sends. A constraint outranks a profile prior, so it leads -- the
+        # archetype list used to lead unconditionally, which was invisible only
+        # while that list was a single category deep. Once it began mixing
+        # categories by prominence (#63) a single-category query started
+        # getting the archetype's other categories ahead of the one it asked
+        # for, and recall against a single-category answer key fell with it.
+        category_leads = len(matched_categories) == 1
+        constraint = matched_categories[0] if matched_categories else None
 
-        if near_transport and matched_category:
-            for poi in self.idx.multi_hop_transport_to_poi(destination_id, matched_category):
-                results.append(self._poi_to_doc(poi, f"{poi.get('nearest_hub_km')}km from nearest transport hub"))
-        elif matched_category:
-            for poi in self.idx.city_pois(destination_id, category=matched_category):
-                results.append(self._poi_to_doc(poi, f"category match: {matched_category}"))
+        def category_matches():
+            if constraint is None:
+                return
+            if near_transport:
+                for poi in self.idx.multi_hop_transport_to_poi(destination_id, constraint):
+                    yield self._poi_to_doc(
+                        poi, f"{poi.get('nearest_hub_km')}km from nearest transport hub")
+                return
+            # Sorted rather than left in graph-edge order: this is a ranked
+            # list feeding RRF, and an unranked category dump gave the
+            # catalogue's storage order the weight of a relevance signal.
+            for poi in sorted(self.idx.city_pois(destination_id, category=constraint),
+                              key=lambda p: -p["popularity_score"]):
+                yield self._poi_to_doc(poi, f"category match: {constraint}")
+
+        def archetype_matches():
+            if not matched_archetype:
+                return
+            for poi in self.idx.archetype_preferred_pois(matched_archetype, destination_id, top_k=top_k):
+                yield self._poi_to_doc(poi, f"preferred by {matched_archetype} travelers")
+
+        first, second = ((category_matches, archetype_matches) if category_leads
+                         else (archetype_matches, category_matches))
+        results.extend(first())
+        results.extend(second())
 
         if not results:
             # fall back: return the city's top-rated POIs as generic graph context
@@ -84,6 +174,10 @@ class GraphSearchIndex:
             "destination_id": poi.get("destination_id"),
             "poi_id": poi["poi_id"],
             "name": poi["name"],
+            # Same field the corpus documents carry, so a POI fused from the
+            # graph and from the document corpus tie-breaks identically
+            # whichever retriever's copy of it fusion happens to keep (#63).
+            "popularity_score": poi.get("popularity_score", 0.0),
             "text": f"{poi['name']} ({poi.get('category')}): {poi.get('description', '')} [graph: {reason}]",
         }
 

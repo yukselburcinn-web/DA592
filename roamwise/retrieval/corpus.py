@@ -37,6 +37,12 @@ def load_documents() -> list[dict]:
             "city": city,
             "poi_id": p.poi_id,
             "name": p["name"],
+            # Carried on the document, not just in the graph, so reciprocal
+            # rank fusion can break its (very common) score ties on how
+            # well-known a place is rather than on dict insertion order (#63).
+            # Semantic and keyword search rank text alone and have no other
+            # way to tell the Eiffel Tower from a television channel.
+            "popularity_score": float(p.popularity_score),
             "text": text,
         })
     return docs

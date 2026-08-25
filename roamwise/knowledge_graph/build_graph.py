@@ -22,6 +22,44 @@ CATEGORY_AFFINITY = {
     "Family Traveler": {"nature": 0.8, "culture": 0.6, "museum": 0.6, "landmark": 0.6, "food": 0.5},
 }
 
+
+def score_by_affinity_and_prominence(pois: list[dict]) -> list[dict]:
+    """Annotate each POI with `affinity_prominence` = archetype weight x how
+    well-known the place is, and return the same list.
+
+    This replaces a lexicographic `(weight, popularity_score)` ordering, which
+    ranked *every* member of the top-weighted category above *every* member of
+    the next one. That is fine when a category holds a handful of POIs and
+    ruinous at catalogue scale: Culture Enthusiast weights `museum` at 1.0 and
+    `landmark` at 0.9, and Paris holds 57 museums -- so ranks 1..57 were all
+    museums and the Eiffel Tower, the single most popular POI in the entire
+    catalogue (`popularity_score` 5.00), sat at rank 58, behind Paris's 57th
+    best museum. Retrieval asks for 48 candidates, so it was cut. Notre-Dame
+    (`religion`, 0.6) did not appear in the first 200 at all (#63).
+
+    Multiplying instead lets a very famous place in a slightly less preferred
+    category outrank an obscure one in the favourite category, while keeping
+    the favourite category on top where prominence is equal -- the Louvre
+    (museum, 1.0 x 0.997) still leads the Eiffel Tower (landmark, 0.9 x 1.0).
+
+    `popularity_score` is min-max normalised over `pois` rather than used raw,
+    because its floor is 2.67 and not 0: as a raw multiplier its 1.9x spread
+    would be swamped by weight's 3.3x, and the starvation would survive in
+    milder form. Normalising makes the two factors comparable. A degenerate
+    range (one POI, or all equally popular) leaves prominence at 1.0 so
+    ordering falls back to weight alone.
+    """
+    if not pois:
+        return pois
+    scores = [p["popularity_score"] for p in pois]
+    lo, hi = min(scores), max(scores)
+    span = hi - lo
+    for poi in pois:
+        prominence = (poi["popularity_score"] - lo) / span if span else 1.0
+        poi["affinity_prominence"] = poi["weight"] * prominence
+    return pois
+
+
 def haversine_km(lat1, lon1, lat2, lon2):
     r = 6371.0
     p1, p2 = math.radians(lat1), math.radians(lat2)
@@ -148,7 +186,19 @@ class GraphIndex:
             query = "MATCH (a:ArchetypeProfile {name: $arch})-[r:PREFERS]->(p:POI) "
             if destination_id:
                 query += "WHERE p.destination_id = $dest_id "
-            query += "RETURN p, r.weight AS weight ORDER BY weight DESC, p.popularity_score DESC LIMIT $top_k"
+            # Ordered on the affinity x prominence product, not lexicographically
+            # on (weight, popularity) -- see the NetworkX branch below for why.
+            # Prominence is min-max normalised over the rows this query returns,
+            # which is the same set the NetworkX branch normalises over.
+            query += ("WITH p, r.weight AS weight "
+                      "WITH collect({p: p, weight: weight}) AS rows, "
+                      "     min(p.popularity_score) AS lo, max(p.popularity_score) AS hi "
+                      "UNWIND rows AS row "
+                      "RETURN row.p AS p, row.weight AS weight "
+                      "ORDER BY row.weight * "
+                      "  (CASE WHEN hi > lo THEN (row.p.popularity_score - lo) / (hi - lo) ELSE 1.0 END) DESC, "
+                      "  row.p.popularity_score DESC "
+                      "LIMIT $top_k")
             with self.driver.session() as session:
                 result = session.run(query, arch=archetype, dest_id=destination_id, top_k=top_k)
                 return [{"poi_id": record["p"].element_id, "weight": record["weight"], **record["p"]} for record in result]
@@ -164,7 +214,8 @@ class GraphIndex:
             if destination_id and node.get("destination_id") != destination_id:
                 continue
             out.append({"poi_id": poi_id, "weight": data["weight"], **node})
-        out.sort(key=lambda x: (x["weight"], x["popularity_score"]), reverse=True)
+        score_by_affinity_and_prominence(out)
+        out.sort(key=lambda x: (x["affinity_prominence"], x["popularity_score"]), reverse=True)
         return out[:top_k]
 
     # 1.0 km, not the 3.0 this used to default to. The radius has to be small

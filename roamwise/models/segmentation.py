@@ -77,7 +77,18 @@ class POIZoner:
 
     def zone(self, pois: list[dict], n_zones: int, balanced: bool = True) -> dict[int, list[dict]]:
         if len(pois) <= n_zones:
-            return {i: [p] for i, p in enumerate(pois)}
+            # Every requested zone comes back, even the ones no POI landed in.
+            # This used to return one zone per POI, so it silently returned
+            # *fewer days than the traveler asked for* whenever candidates ran
+            # short -- a 5-day trip with 3 sightseeing POIs became a 3-day
+            # itinerary -- and an empty pool returned no zones at all, which
+            # `_rebalance_days` then crashed on with "min() iterable argument
+            # is empty". An empty zone is a legitimate state: the meal and
+            # evening passes fill days the sightseeing pool could not (#63).
+            zones: dict[int, list[dict]] = {i: [] for i in range(n_zones)}
+            for i, poi in enumerate(pois):
+                zones[i].append(poi)
+            return zones
         coords = np.array([[p["lat"], p["lon"]] for p in pois])
         model = KMeans(n_clusters=n_zones, n_init=10, random_state=42)
         labels = model.fit_predict(coords)
