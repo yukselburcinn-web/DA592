@@ -23,6 +23,35 @@ CATEGORY_AFFINITY = {
 }
 
 
+
+# How much of a POI's score survives being completely unknown. At 0.0 affinity
+# and prominence multiply outright, and the least-known member of the favourite
+# category scores zero -- which over-mixes: a Nightlife Seeker's top-weighted
+# `nightlife` (1.0) loses to `food` (0.6) for every venue below the 60th
+# percentile of fame, so the answer drifts off the category the traveler asked
+# about. At 1.0 prominence stops mattering and the lexicographic starvation
+# this function exists to remove comes straight back.
+#
+# Swept against both objectives at once -- iconic coverage@24 over 14 city x
+# archetype cells, and recall_at_k on the eleven queries graded independently
+# of the retriever's own traversal (`dependence_level`, #48). Baseline before
+# any of this was 0.193 / 0.126:
+#
+#     floor   iconic_cov   recall@k   recall (independent)
+#      0.00      0.707       0.218          0.098   <- recall regresses
+#      0.25      0.607       0.223          0.115
+#      0.40      0.557       0.230          0.138   <- chosen
+#      0.50      0.450       0.230          0.150
+#      0.75      0.286       0.228          0.156
+#
+# 0.40 is the largest relevance gain that still improves *every* other measure
+# against the baseline rather than trading one off. Below it the independently
+# graded recall falls under what the old ordering achieved, which would mean
+# buying famous suggestions with worse ones -- not a trade worth making
+# quietly, and not one this issue needs to make at all.
+PROMINENCE_FLOOR = 0.40
+
+
 def score_by_affinity_and_prominence(pois: list[dict]) -> list[dict]:
     """Annotate each POI with `affinity_prominence` = archetype weight x how
     well-known the place is, and return the same list.
@@ -48,6 +77,9 @@ def score_by_affinity_and_prominence(pois: list[dict]) -> list[dict]:
     milder form. Normalising makes the two factors comparable. A degenerate
     range (one POI, or all equally popular) leaves prominence at 1.0 so
     ordering falls back to weight alone.
+
+    PROMINENCE_FLOOR keeps prominence a modifier rather than a co-equal factor
+    -- see the constant.
     """
     if not pois:
         return pois
@@ -56,7 +88,8 @@ def score_by_affinity_and_prominence(pois: list[dict]) -> list[dict]:
     span = hi - lo
     for poi in pois:
         prominence = (poi["popularity_score"] - lo) / span if span else 1.0
-        poi["affinity_prominence"] = poi["weight"] * prominence
+        poi["affinity_prominence"] = poi["weight"] * (
+            PROMINENCE_FLOOR + (1.0 - PROMINENCE_FLOOR) * prominence)
     return pois
 
 
@@ -195,12 +228,13 @@ class GraphIndex:
                       "     min(p.popularity_score) AS lo, max(p.popularity_score) AS hi "
                       "UNWIND rows AS row "
                       "RETURN row.p AS p, row.weight AS weight "
-                      "ORDER BY row.weight * "
-                      "  (CASE WHEN hi > lo THEN (row.p.popularity_score - lo) / (hi - lo) ELSE 1.0 END) DESC, "
+                      "ORDER BY row.weight * ($floor + (1.0 - $floor) * "
+                      "  (CASE WHEN hi > lo THEN (row.p.popularity_score - lo) / (hi - lo) ELSE 1.0 END)) DESC, "
                       "  row.p.popularity_score DESC "
                       "LIMIT $top_k")
             with self.driver.session() as session:
-                result = session.run(query, arch=archetype, dest_id=destination_id, top_k=top_k)
+                result = session.run(query, arch=archetype, dest_id=destination_id,
+                                     top_k=top_k, floor=PROMINENCE_FLOOR)
                 return [{"poi_id": record["p"].element_id, "weight": record["weight"], **record["p"]} for record in result]
 
         node_id = f"ARCH::{archetype}"
