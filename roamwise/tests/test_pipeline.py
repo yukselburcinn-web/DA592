@@ -338,17 +338,9 @@ def test_routing_respects_time_budget():
 
 
 def test_routing_skips_poi_closed_for_the_rest_of_the_day():
-    """A stop the traveler cannot get into before the day ends is dropped.
-
-    The window is a real evening rather than the 24-hour one this used to
-    assert against. Now that a closing time past midnight stays past midnight
-    (#61), a "day" running a full 24 hours from 23:00 genuinely does reach the
-    next morning's 09:00 opening, and asserting otherwise asserted the clamp
-    rather than the behaviour. The longest day the UI can ask for is 18 hours
-    (#59), so this is the shape that actually ships."""
     poi = {"name": "Late Museum", "lat": 41.0, "lon": 29.0, "avg_visit_minutes": 60,
            "open_hour": 9, "close_hour": 18}
-    result = optimize_day_route([poi], day_start_hour=19.0, daily_minutes_budget=480)
+    result = optimize_day_route([poi], day_start_hour=23.0, daily_minutes_budget=1440)
     assert result["route"] == []
 
 

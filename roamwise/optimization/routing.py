@@ -87,11 +87,13 @@ NIGHTLIFE_CATEGORY = "nightlife"
 # (17 of 41 are 18:00-02:00), so this makes the mis-sourced ones behave like
 # the correctly-sourced majority rather than inventing a threshold.
 NIGHTLIFE_EARLIEST_HOUR = 18.0
-# How many calendar days ahead _next_open_hour will look for a venue's next
-# opening. Two covers "opens again at 18:00 tomorrow" for any window this app
-# can produce (start <= 12:00, length <= 18h, so never past 06:00) while
-# keeping the search finite.
-_OPENING_HORIZON_DAYS = 2
+# Calendar days of opening intervals _next_open_hour searches. One, deliberately:
+# a venue's *closing* time may run into tomorrow (a bar shutting at 02:00), but
+# its *opening* time may not. Allowing tomorrow's opening too let the scheduler
+# wait out the night to be first through the door -- a measured 18-hour day from
+# 15:00 put a 22:18 stop and then a 07:00 one nine hours later, which is not an
+# itinerary. A venue that has closed for the night is simply gone for this day.
+_OPENING_HORIZON_DAYS = 1
 
 
 def _opening_intervals(poi: dict, earliest_hour: float = None) -> list[tuple[float, float]]:
