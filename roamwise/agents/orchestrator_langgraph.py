@@ -41,7 +41,6 @@ from roamwise.agents.orchestrator import MIN_RETRIEVED_POIS, RETRIEVED_POIS_PER_
 from roamwise.agents.router_agent import RouterAgent
 from roamwise.knowledge_graph.build_graph import GraphIndex
 from roamwise.models.segmentation import TravelerSegmenter
-from roamwise.optimization.routing import DEFAULT_DAY_START_HOUR
 from roamwise.optimization.travel_modes import DEFAULT_MODE
 
 DATA_DIR = Path(__file__).parent.parent / "data"
@@ -114,7 +113,7 @@ class RoamWiseLangGraphOrchestrator:
                   travel_month: str = None, top_k_pois: int = None, max_price_level: int = 3,
                   daily_minutes_budget: int = 480, use_real_routing: bool = False,
                   travel_mode: str = DEFAULT_MODE,
-                  day_start_hour: float = DEFAULT_DAY_START_HOUR) -> dict:
+                  day_start_hour: float = None) -> dict:
         """Same signature/return shape as RoamWiseOrchestrator.plan_trip()."""
         if top_k_pois is None:
             top_k_pois = max(MIN_RETRIEVED_POIS, n_days * RETRIEVED_POIS_PER_DAY)
@@ -169,7 +168,7 @@ class RoamWiseLangGraphOrchestrator:
         routing = self.router.run(
             state["destination_id"], candidate_pois, n_days=state["n_days"],
             daily_minutes_budget=state.get("daily_minutes_budget", 480),
-            day_start_hour=state.get("day_start_hour", DEFAULT_DAY_START_HOUR),
+            day_start_hour=state.get("day_start_hour"), archetype=state.get("archetype"),
             use_real_routing=state.get("use_real_routing", False),
             travel_mode=state.get("travel_mode", DEFAULT_MODE),
             narrate=False,

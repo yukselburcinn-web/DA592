@@ -30,7 +30,6 @@ from roamwise.agents.llm_client import LLMClient, get_default_llm_client
 from roamwise.agents.router_agent import RouterAgent
 from roamwise.knowledge_graph.build_graph import GraphIndex
 from roamwise.models.segmentation import TravelerSegmenter
-from roamwise.optimization.routing import DEFAULT_DAY_START_HOUR
 from roamwise.optimization.travel_modes import DEFAULT_MODE
 from pathlib import Path
 
@@ -61,7 +60,7 @@ class RoamWiseOrchestrator:
     def plan_trip(self, preferences: dict, destination_id: str = None, n_days: int = 3,
                   travel_month: str = None, top_k_pois: int = None, max_price_level: int = 3,
                   daily_minutes_budget: int = 480, use_real_routing: bool = False,
-                  travel_mode: str = DEFAULT_MODE, day_start_hour: float = DEFAULT_DAY_START_HOUR) -> dict:
+                  travel_mode: str = DEFAULT_MODE, day_start_hour: float = None) -> dict:
         """preferences: {budget, culture, nature, nightlife, relax, adventure} in [0,1].
         destination_id: pin a city, or leave None to let the orchestrator pick one.
         top_k_pois: how many POIs to retrieve; defaults to scaling with trip length
@@ -72,6 +71,9 @@ class RoamWiseOrchestrator:
         day_start_hour: what time each day begins. Used to sit only on
         RouterAgent.run()'s signature with nothing able to reach it, so every
         itinerary began at 09:00 whatever the traveler wanted (issue #59).
+        Left as None it now comes from the archetype (router_agent.DAY_START_HOURS):
+        a 09:00 default gave a Nightlife Seeker nine hours with nothing
+        schedulable in them, and a day holding one bar (issue #61).
         travel_mode: "walking", "driving" or "hybrid" -- how legs between stops are
         costed, which decides how much of a day's budget travel consumes.
         use_real_routing: use real OSRM street-network distances/times instead of the
@@ -152,12 +154,14 @@ class RoamWiseOrchestrator:
             routing = self.router.run(destination_id, candidate_pois, n_days=n_days,
                                        daily_minutes_budget=daily_minutes_budget,
                                        day_start_hour=day_start_hour,
+                                       archetype=seg["archetype"],
                                        use_real_routing=use_real_routing, travel_mode=travel_mode,
                                        narrate=False)
             state["routing"] = routing
             state["travel_mode"] = routing["travel_mode"]
             got_real_routing = any(d.get("used_real_routing") for d in routing["itinerary"])
             detail["n_pois_routed"] = sum(len(d["route"]) for d in routing["itinerary"])
+            detail["day_start_hour"] = routing["day_start_hour"]
             detail["used_real_routing"] = got_real_routing
 
         if use_real_routing and not got_real_routing:
