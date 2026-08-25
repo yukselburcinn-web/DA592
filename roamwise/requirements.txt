@@ -1,6 +1,10 @@
 faiss-cpu==1.15.0
 networkx==3.4.2
 numpy==2.2.6
+# OSM's opening_hours grammar, which the catalogue carries verbatim (#70).
+# A hand-rolled regex kept only the first HH:MM-HH:MM and dropped the day of
+# the week with it; this parses 99.4% of the catalogue's 4,404 distinct tags.
+opening-hours-py==2.1.4
 pandas==2.3.3
 plotly==6.9.0
 rank-bm25==0.2.2

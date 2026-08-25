@@ -72,7 +72,8 @@ class RoamWiseOrchestrator:
     def plan_trip(self, preferences: dict, destination_id: str = None, n_days: int = 3,
                   travel_month: str = None, top_k_pois: int = None,
                   daily_minutes_budget: int = 480, use_real_routing: bool = False,
-                  travel_mode: str = DEFAULT_MODE, day_start_hour: float = None) -> dict:
+                  travel_mode: str = DEFAULT_MODE, day_start_hour: float = None,
+                  start_date=None) -> dict:
         """preferences: {budget, culture, nature, nightlife, relax, adventure} in [0,1].
         destination_id: pin a city, or leave None to let the orchestrator pick one.
         top_k_pois: how many POIs to retrieve; defaults to scaling with trip length
@@ -89,9 +90,19 @@ class RoamWiseOrchestrator:
         costed, which decides how much of a day's budget travel consumes.
         use_real_routing: use real OSRM street-network distances/times instead of the
         haversine + flat-speed estimate (network-dependent, falls back
-        automatically if OSRM is unreachable)."""
+        automatically if OSRM is unreachable).
+        start_date: the trip's first day, as a date. It feeds two things at once --
+        the forecaster reads its month, and the router reads its day of the week,
+        which is what lets opening hours be honoured per day rather than as one
+        open/close pair (issue #70). `travel_month` remains for callers that only
+        care about the forecast; a start_date supersedes it."""
         if top_k_pois is None:
             top_k_pois = max(MIN_RETRIEVED_POIS, n_days * RETRIEVED_POIS_PER_DAY)
+        # One control, two consumers: a date carries the month the forecaster
+        # wants and the weekday the router needs, so the traveler is not asked
+        # for both.
+        if start_date is not None:
+            travel_month = f"{start_date.year:04d}-{start_date.month:02d}"
         state: dict = {"preferences": preferences, "n_days": n_days}
 
         log.info("Planning a %d-day trip", n_days, extra={"roamwise_fields": {
@@ -169,7 +180,7 @@ class RoamWiseOrchestrator:
                                        day_start_hour=day_start_hour,
                                        archetype=seg["archetype"],
                                        use_real_routing=use_real_routing, travel_mode=travel_mode,
-                                       narrate=False)
+                                       narrate=False, start_date=start_date)
             state["routing"] = routing
             state["travel_mode"] = routing["travel_mode"]
             # The honest remainder of what the catalogue knows about cost.

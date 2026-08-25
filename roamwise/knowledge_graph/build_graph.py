@@ -122,6 +122,14 @@ def build_graph() -> nx.MultiDiGraph:
             price_level=int(p.price_level), popularity_score=float(p.popularity_score),
             description=p.description, destination_id=p.destination_id,
             open_hour=int(p.open_hour), close_hour=int(p.close_hour),
+            # The pair above cannot say "shut on Mondays"; the tag it was
+            # squeezed out of can, and the router reads it when it knows what
+            # day it is (issue #70). Carried as text, empty where OSM never
+            # described the place -- GML has no null. pd.isna, not `or ""`:
+            # a missing cell reads back as NaN, which is truthy, so `or ""`
+            # would write the string "nan" into every untagged node.
+            opening_hours_raw=("" if pd.isna(p.get("opening_hours_raw"))
+                               else str(p["opening_hours_raw"]).strip()),
         )
         g.add_edge(p.destination_id, p.poi_id, relation="HAS_POI")
 

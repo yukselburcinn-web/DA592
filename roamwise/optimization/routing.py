@@ -30,7 +30,10 @@ Constraints beyond pure geography:
     driving or a per-leg hybrid of the two rather than always assuming a flat
     walking speed. See travel_modes.py.
 """
+import datetime
 import math
+
+from opening_hours import OpeningHours
 
 from roamwise.optimization.osrm_client import fetch_distance_duration_matrix
 from roamwise.optimization.travel_modes import DEFAULT_MODE, HybridTravelMode, get_travel_mode
@@ -96,39 +99,97 @@ NIGHTLIFE_EARLIEST_HOUR = 18.0
 _OPENING_HORIZON_DAYS = 1
 
 
-def _opening_intervals(poi: dict, earliest_hour: float = None) -> list[tuple[float, float]]:
+def _tag_intervals(raw: str, day_date) -> list[tuple[float, float]] | None:
+    """OPEN intervals from an OSM `opening_hours` tag, as hours from midnight of
+    `day_date` -- the same past-midnight clock the coarse pair below uses, so
+    26.0 is 02:00 the next morning.
+
+    This is the point of issue #70. `open_hour`/`close_hour` are one pair of
+    integers and the tag is a grammar: 94% of the catalogue's tags name a day of
+    the week, 53% carry several rules, 17% close for lunch. Collapsing that to a
+    pair made `Tu-Su 10:00-18:00; Mo off` indistinguishable from "open 10-18
+    every day", so a museum shut on Mondays was schedulable on a Monday.
+
+    Returns None when the tag cannot be parsed -- 27 of the catalogue's 4,404
+    distinct tags are malformed OSM (`none`, French day names, `May 1-Aug: 31`)
+    -- and the caller falls back to the coarse pair rather than dropping the
+    stop."""
+    midnight = datetime.datetime.combine(day_date, datetime.time())
+    try:
+        raw_intervals = OpeningHours(str(raw)).intervals(
+            midnight, midnight + datetime.timedelta(days=_OPENING_HORIZON_DAYS + 1))
+    except Exception:
+        return None
+
+    # `intervals()` returns closed stretches too. The state's repr is
+    # "State.OPEN" but its str() is "open" -- comparing against the repr silently
+    # matched nothing and made every tagged POI look permanently shut.
+    hours = []
+    for start, end, state, _comment in raw_intervals:
+        if str(state).lower() != "open":
+            continue
+        hours.append(((start - midnight).total_seconds() / 3600,
+                      (end - midnight).total_seconds() / 3600))
+    hours.sort()
+
+    # An interval that runs to midnight and one that starts there are the same
+    # evening: 18:00-24:00 plus 24:00-02:00 is a bar open until 02:00, and
+    # keeping them apart would make the second look like tomorrow's opening.
+    merged: list[tuple[float, float]] = []
+    for start, end in hours:
+        if merged and start <= merged[-1][1] + 1e-9:
+            merged[-1] = (merged[-1][0], max(merged[-1][1], end))
+        else:
+            merged.append((start, end))
+    # Whatever still begins tomorrow is tomorrow's opening, and waiting out a
+    # night for it is not an itinerary -- same rule as the coarse pair's horizon.
+    return [(s, e) for s, e in merged if s < 24]
+
+
+def _opening_intervals(poi: dict, earliest_hour: float = None,
+                        day_date=None) -> list[tuple[float, float]]:
     """The hours a POI is open, on the itinerary day's own clock, where 26.0
     means 02:00 the following morning.
 
-    A venue whose close_hour is below its open_hour spans midnight, so its
-    interval has to *end* past 24 rather than being clamped to it. Issue #59
-    flagged that clamp as a real limitation once days could run to 06:00 and
-    left it documented; this is that follow-up (#61). Measured on the #59 day
-    model, it is what made a 15-hour and an 18-hour day from 12:00 return
-    identical plans -- both stop at 23:49, because the next venue would arrive
-    after midnight and every 18:00-02:00 bar was considered shut by then.
+    Prefers the verbatim OSM tag (`opening_hours_raw`, issue #70) resolved
+    against the day's actual date, because only that knows which day of the week
+    it is. Falls back to the coarse `open_hour`/`close_hour` pair when the
+    catalogue has no tag for the row, when the tag is malformed, or when the
+    caller has no date to resolve it against.
 
-    `earliest_hour` is NIGHTLIFE_EARLIEST_HOUR's category floor from #59,
-    applied per calendar day so it still holds for tomorrow's opening."""
-    open_h = poi.get("open_hour", 0)
-    close_h = poi.get("close_hour", 24)
-    if close_h < open_h:
-        close_h += 24
-    intervals = []
-    for day in range(_OPENING_HORIZON_DAYS):
-        start, end = open_h + 24 * day, close_h + 24 * day
-        if earliest_hour is not None:
-            start = max(start, earliest_hour + 24 * day)
-        if start < end:
-            intervals.append((start, end))
-    return intervals
+    In the coarse case, a venue whose close_hour is below its open_hour spans
+    midnight, so its interval has to *end* past 24 rather than being clamped to
+    it. Issue #59 flagged that clamp as a real limitation once days could run to
+    06:00 and left it documented; #61 closed it. Measured on the #59 day model,
+    the clamp is what made a 15-hour and an 18-hour day from 12:00 return
+    identical plans -- both stopped at 23:49, because every 18:00-02:00 bar was
+    considered shut after midnight.
+
+    `earliest_hour` is NIGHTLIFE_EARLIEST_HOUR's category floor from #59."""
+    intervals = None
+    raw = poi.get("opening_hours_raw")
+    if raw and day_date is not None:
+        intervals = _tag_intervals(raw, day_date)
+
+    if intervals is None:
+        open_h = poi.get("open_hour", 0)
+        close_h = poi.get("close_hour", 24)
+        if close_h < open_h:
+            close_h += 24
+        intervals = [(open_h + 24 * d, close_h + 24 * d)
+                     for d in range(_OPENING_HORIZON_DAYS)]
+
+    if earliest_hour is not None:
+        intervals = [(max(s, earliest_hour), e) for s, e in intervals]
+    return [(s, e) for s, e in intervals if s < e]
 
 
-def _next_open_hour(poi: dict, arrival: float, earliest_hour: float = None) -> float | None:
+def _next_open_hour(poi: dict, arrival: float, earliest_hour: float = None,
+                     day_date=None) -> float | None:
     """When the traveler can actually walk in, having arrived at `arrival`:
     `arrival` itself if the doors are open, the next opening if they are not
     open yet, or None if the venue does not open again within the horizon."""
-    for start, end in _opening_intervals(poi, earliest_hour):
+    for start, end in _opening_intervals(poi, earliest_hour, day_date):
         if arrival < end:
             return max(arrival, start)
     return None
@@ -288,7 +349,7 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
                         day_start_hour: float = 9.0, respect_opening_hours: bool = True,
                         use_real_routing: bool = False, distance_fn=None, duration_fn=None,
                         used_real_routing: bool = None, travel_mode=DEFAULT_MODE,
-                        preserve_order: bool = False) -> dict:
+                        preserve_order: bool = False, day_date=None) -> dict:
     """Returns an ordered subset of `pois` that fits the time budget (travel +
     wait-for-opening + visit time), plus total distance/time, a per-stop
     schedule, and which distance source was actually used.
@@ -296,6 +357,11 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
     travel_mode ("walking"/"driving"/"hybrid") sets how a leg is costed, so
     the same set of stops yields a fuller day when the traveler is driving
     than when they are on foot.
+
+    `day_date` is the calendar date this day falls on, and it is what makes
+    opening hours mean anything: without it a POI's hours can only be read as
+    the coarse open/close pair, which cannot say "shut on Mondays" (issue #70).
+    Left out, the coarse pair is used and the result is the pre-#70 behaviour.
 
     preserve_order keeps `pois` in the order given instead of re-solving the
     TSP. Meal placement (issue #20) needs it: a meal is deliberately put at
@@ -348,7 +414,7 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
             # _next_open_hour keeps past-midnight closing times past midnight
             # instead of clamping them to 24:00 (#61); it returns None only
             # when the venue genuinely does not open again in reach.
-            arrival = _next_open_hour(poi, arrival, earliest)
+            arrival = _next_open_hour(poi, arrival, earliest, day_date)
             if arrival is None:
                 continue  # never open again in reach -- skip this stop
 
@@ -384,7 +450,8 @@ def build_multi_day_itinerary(pois_by_zone: dict[int, list[dict]], start_hub: di
                                daily_minutes_budget: int = 480, day_start_hour: float = 9.0,
                                respect_opening_hours: bool = True, use_real_routing: bool = False,
                                travel_mode=DEFAULT_MODE, fill_days: bool = True,
-                               food_pois: list[dict] = None, min_food_per_day: int = 0) -> list[dict]:
+                               food_pois: list[dict] = None, min_food_per_day: int = 0,
+                               start_date=None) -> list[dict]:
     """Zones in, one routed day per zone out.
 
     Geographic zoning alone decides *where* each day goes but not *how full*
@@ -403,7 +470,13 @@ def build_multi_day_itinerary(pois_by_zone: dict[int, list[dict]], start_hub: di
     drawn from `food_pois` and placed at meal times. Their time is reserved
     *before* the sightseeing passes run, so meals get added to a day that has
     room for them rather than displacing sights the traveler was already
-    promised."""
+    promised.
+
+    `start_date` is the trip's first day. Day N falls on `start_date + N-1`, and
+    that date is what lets opening hours be read as the grammar they are rather
+    than as a single open/close pair -- without it, "shut on Mondays" is not
+    expressible and a Monday-closed museum can be scheduled on a Monday (issue
+    #70). Left out, every day falls back to the coarse pair."""
     # Fetch one OSRM matrix for every POI across every day of the trip, not
     # one per day -- the public demo server rate-limits back-to-back
     # requests, and one matrix covering the whole trip is also just the
@@ -418,21 +491,30 @@ def build_multi_day_itinerary(pois_by_zone: dict[int, list[dict]], start_hub: di
         meal_pois, min_food_per_day, daily_minutes_budget)
 
     def make_router(budget, preserve_order=False):
-        def route(day_pois):
+        # Every pass below re-routes a day it already holds, so the date rides
+        # along on the day dict rather than being captured here -- one router
+        # serves all of them, each day resolved against its own calendar day.
+        def route(day_pois, day_date=None):
             return optimize_day_route(
                 day_pois, start_hub=start_hub, daily_minutes_budget=budget,
                 day_start_hour=day_start_hour, respect_opening_hours=respect_opening_hours,
                 distance_fn=distance_fn, duration_fn=duration_fn,
                 used_real_routing=used_real_routing, preserve_order=preserve_order,
+                day_date=day_date,
             )
         return route
 
     route_day = make_router(sightseeing_budget)
 
+    def date_for(zone_id):
+        return None if start_date is None else start_date + datetime.timedelta(days=zone_id)
+
     days = []
     for zone_id in sorted(pois_by_zone):
-        days.append({"day": zone_id + 1, "_assigned": list(pois_by_zone[zone_id]),
-                     **route_day(pois_by_zone[zone_id])})
+        day_date = date_for(zone_id)
+        days.append({"day": zone_id + 1, "date": day_date,
+                     "_assigned": list(pois_by_zone[zone_id]),
+                     **route_day(pois_by_zone[zone_id], day_date)})
 
     pool = []
     if fill_days:
@@ -485,7 +567,7 @@ def _ensure_evening_stops(days: list[dict], pool: list[dict], route_day_ordered,
         candidates = (sorted(available, key=lambda p: distance_fn(anchor, p))
                       if anchor else list(available))
         for cand in candidates:
-            attempt = route_day_ordered(day["route"] + [cand])
+            attempt = route_day_ordered(day["route"] + [cand], day.get("date"))
             if not any(_is_nightlife(p) for p in attempt["route"]):
                 continue  # didn't fit the budget -- the day ends too early
             day.update(attempt)
@@ -531,11 +613,13 @@ def _is_food(poi: dict) -> bool:
     return poi.get("category") == FOOD_CATEGORY
 
 
-def _open_at(poi: dict, hour: float) -> bool:
+def _open_at(poi: dict, hour: float, day_date=None) -> bool:
     """Whether the doors are open at exactly `hour`, on the same past-midnight
     clock the rest of the module uses -- so a 25.0 (01:00) meal target asks a
-    kitchen that closes at 23:00 the right question."""
-    return any(start <= hour < end for start, end in _opening_intervals(poi))
+    kitchen that closes at 23:00 the right question. `day_date` is what lets it
+    also ask about the right day of the week (issue #70): restaurants close on
+    a weekday far more often than sights do."""
+    return any(start <= hour < end for start, end in _opening_intervals(poi, None, day_date))
 
 
 def _ensure_daily_meals(days: list[dict], food_pois: list[dict], route_day_ordered,
@@ -652,7 +736,8 @@ def _insert_meal_at(day: dict, food_pois: list[dict], used: set, target_hour: fl
                      distance_fn, route_day_ordered, start_hub: dict = None,
                      max_attempts: int = 5, min_gap_hours: float = 0.0) -> None:
     route, schedule = day["route"], day.get("schedule", [])
-    candidates = [f for f in food_pois if id(f) not in used and _open_at(f, target_hour)]
+    candidates = [f for f in food_pois
+                  if id(f) not in used and _open_at(f, target_hour, day.get("date"))]
     if not candidates:
         return
 
@@ -687,7 +772,7 @@ def _insert_meal_at(day: dict, food_pois: list[dict], used: set, target_hour: fl
     for _, index, cand in options[:max_attempts]:
         sequence = route[:index] + [cand] + route[index:]
         for _ in range(MAX_MEAL_DISPLACEMENTS + 1):
-            attempt = route_day_ordered(sequence)
+            attempt = route_day_ordered(sequence, day.get("date"))
             # The day has to end up with *more* meals, not just with this one
             # in it: adding a midday meal pushes everything after it later,
             # and an already-placed evening meal can fall off the end of the
@@ -762,7 +847,7 @@ def _fill_days_to_budget(days: list[dict], route_day, daily_minutes_budget: int,
             candidates = sorted(pool, key=lambda p: distance_fn(anchor, p)) if anchor else list(pool)
 
             for cand in candidates:
-                attempt = route_day(day["route"] + [cand])
+                attempt = route_day(day["route"] + [cand], day.get("date"))
                 if len(attempt["route"]) <= len(day["route"]):
                     continue  # didn't fit: too late in the day, or closed by then
                 kept_ids = {id(p) for p in attempt["route"]}
@@ -808,10 +893,11 @@ def _rebalance_days(days: list[dict], route_day, distance_fn, start_hub: dict = 
                           if anchor else list(donor["route"]))
 
             for cand in candidates:
-                grown = route_day(receiver["route"] + [cand])
+                grown = route_day(receiver["route"] + [cand], receiver.get("date"))
                 if len(grown["route"]) <= len(receiver["route"]):
                     continue  # the receiver can't actually host it (hours, budget)
-                shrunk = route_day([p for p in donor["route"] if id(p) != id(cand)])
+                shrunk = route_day([p for p in donor["route"] if id(p) != id(cand)],
+                                   donor.get("date"))
                 if shrunk["active_minutes"] ** 2 + grown["active_minutes"] ** 2 >= before:
                     continue  # doesn't even the two days out; leave them alone
 
