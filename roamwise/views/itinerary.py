@@ -231,7 +231,12 @@ if run:
                             # and a word can't fail to render.
                             label = ("meal stop" if poi.get("category") == "food"
                                      else _humanize_category(poi.get("category", "")))
-                            st.markdown(f"{i}. {when}**{poi['name']}** _{label}_")
+                            # Free entry is the only cost fact the catalogue
+                            # actually holds -- OSM's `fee` tag. It used to be
+                            # read by a filter that could never fire and shown
+                            # to nobody (#67).
+                            free = " &middot; _free_" if poi.get("price_level", 0) == 0 else ""
+                            st.markdown(f"{i}. {when}**{poi['name']}** _{label}_{free}")
                     else:
                         st.markdown("_No stops fit the time budget for this day._")
         with col2:
@@ -282,6 +287,14 @@ if run:
                 st.plotly_chart(fig, use_container_width=True)
                 st.caption("Numbers are the visiting order. Hover a stop for its name and arrival time. "
                            "Map tiles load from OpenStreetMap over the network -- give it a moment on first load.")
+
+        free_share = result.get("free_entry_share")
+        if free_share is not None:
+            st.caption(
+                f"{free_share:.0%} of these stops are free to enter. "
+                "RoamWise knows whether a place charges admission, but not how much -- "
+                "so restaurants and nightlife are never separated by price."
+            )
 
         st.markdown("##### Agent narrative")
         st.info(result["final_plan"])

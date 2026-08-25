@@ -60,7 +60,6 @@ class PlanState(TypedDict, total=False):
     n_days: int
     travel_month: Optional[str]
     top_k_pois: int
-    max_price_level: int
     daily_minutes_budget: int
     day_start_hour: float
     use_real_routing: bool
@@ -112,7 +111,7 @@ class RoamWiseLangGraphOrchestrator:
         return g.compile()
 
     def plan_trip(self, preferences: dict, destination_id: str = None, n_days: int = 3,
-                  travel_month: str = None, top_k_pois: int = None, max_price_level: int = 3,
+                  travel_month: str = None, top_k_pois: int = None,
                   daily_minutes_budget: int = 480, use_real_routing: bool = False,
                   travel_mode: str = DEFAULT_MODE,
                   day_start_hour: float = DEFAULT_DAY_START_HOUR) -> dict:
@@ -121,7 +120,7 @@ class RoamWiseLangGraphOrchestrator:
             top_k_pois = max(MIN_RETRIEVED_POIS, n_days * RETRIEVED_POIS_PER_DAY)
         init_state: PlanState = {
             "preferences": preferences, "n_days": n_days, "travel_month": travel_month,
-            "top_k_pois": top_k_pois, "max_price_level": max_price_level,
+            "top_k_pois": top_k_pois,
             "daily_minutes_budget": daily_minutes_budget, "use_real_routing": use_real_routing,
             "day_start_hour": day_start_hour,
             "travel_mode": travel_mode, "destination_id": destination_id,
@@ -164,10 +163,9 @@ class RoamWiseLangGraphOrchestrator:
         if not candidate_pois:  # standard-prompting config: no retrieval, fall back to raw city POIs
             candidate_pois = self.graph_index.city_pois(state["destination_id"])[: state.get("top_k_pois", 12)]
 
-        max_price_level = state.get("max_price_level", 3)
-        price_filtered = [p for p in candidate_pois if p.get("price_level", 0) <= max_price_level]
-        if price_filtered:  # keep the unfiltered set if the budget filter would empty it out
-            candidate_pois = price_filtered
+        # The price filter that used to sit here is gone; it never removed a
+        # POI. Kept in step with orchestrator.py, which is the whole point of
+        # this file (#67).
 
         routing = self.router.run(
             state["destination_id"], candidate_pois, n_days=state["n_days"],
