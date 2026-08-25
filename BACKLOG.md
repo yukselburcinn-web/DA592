@@ -29,18 +29,21 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 
 ---
 
-## Durum özeti (2026-08-22)
+## Durum özeti (2026-08-26)
 
 | Alan | Açık | Kapalı |
 |---|---|---|
-| A — Veri & Modeller | 1 (#30) | 4 (#1, #2, #3, #27) |
-| B — Retrieval & Bilgi Grafiği | 0 | 3 (#4, #5, #6) |
-| C — Ajanlar, Orkestrasyon & UI | 6 (#7, #19→kapalı, #20→kapalı, #21, #22, #23, #29) | 4 (#8, #9, #10, #19, #20) |
-| D — Altyapı | 3 (#26, #31, #32) | 2 (#11, #12) |
+| A — Veri & Modeller | 4 (#30, #33, #70, #71) | 6 (#1, #2, #3, #27, #65, #67) |
+| B — Retrieval & Bilgi Grafiği | 1 (#49) | 6 (#4, #5, #6, #48, #50, #63) |
+| C — Ajanlar, Orkestrasyon & UI | 2 (#7, #72) | 12 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #54, #56, #57, #59, #61) |
+| D — Altyapı | 1 (#32) | 4 (#11, #12, #26, #31) |
 
-İlk 12 maddelik listenin **10'u kapalı** — proje büyük ölçüde ilk backlog'u bitirmiş durumda.
-Açık kalan işlerin çoğu (#21-23, #29-31) ilk listede yoktu, uygulama canlı test edilirken/
-kod incelenirken ortaya çıkan yeni bulgular.
+İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
+listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
+
+> **Not:** bu dosya bir dönem GitHub'ın gerisinde kaldı. Yukarıdaki sayılar 2026-08-26 itibarıyla
+> `gh issue list` ile doğrulandı, ama #41–#48, #50, #54, #56, #57, #59, #63, #65, #67 için ayrıntılı
+> girdi hâlâ yok — sadece sayımda görünüyorlar.
 
 ---
 
@@ -82,6 +85,38 @@ sorguya hiç girmemesi sebep gösteriliyor.
 - [ ] 47 ikonluk listede kapsama ≥45/47, şehir başına POI sayısı 150'de kalıyor
 
 [#30](https://github.com/yukselburcinn-web/DA592/issues/30) — ilişkili: #28 (merge edilmiş)
+
+### #70. Açılış saatleri parse'ı OSM etiketinin %92'sinde bilgi kaybediyor — 🔓 Açık
+*(bug, `priority:high`)* `build_catalogue.py::parse_opening_hours` bir regex; `opening_hours`
+etiketindeki ilk `HH:MM-HH:MM`'i alıp gerisini atıyor. Deponun kendi Overpass önbelleğindeki
+**4.404 eşsiz etiket** üzerinden ölçüldü: %94'ü gün bilgisi içeriyor, %53'ü çok kurallı, %17'sinde
+öğle arası var, %11'inde açık `off` kuralı — ve **%92'sinde bilgi kayboluyor**, %5'i hiç parse
+edilemiyor.
+
+Sonucu: **haftanın günü hiç taşınmıyor**, yani pazartesi kapalı bir müzeyi pazartesiye koymak bugün
+mümkün. Parse edilemeyenler daha kötü — `closed` ya da
+`"Fermé pour travaux jusqu'à novembre 2028"` etiketli POI sessizce kategori varsayılanı saatlerini
+alıyor, yani kapalı bir yer 09:00–18:00 açık görünüyor.
+
+Rota kalitesi için en yüksek getirili veri işi ve **yeni kaynak gerektirmiyor**: etiket zaten
+çekiliyor, parse'ta atılıyor. OSM ODbL — commit edilebilir. Şema additive tutulmalı; `poi.csv`'nin
+19 kolonu bozulursa bilgi grafiği ve retrieval sessizce çöker.
+
+[#70](https://github.com/yukselburcinn-web/DA592/issues/70)
+
+### #71. Google Places ile zenginleştirmeyi değerlendir — 🔓 Açık (karar issue'su)
+*(enhancement, `priority:low`)* Uygulama değil **karar** issue'su. #32 bunu zaten gerekçesiyle
+reddetmişti: Places içeriğinin kalıcı önbelleklenmesi ToS ile yasak, `place_id` dışında istisna yok.
+Engel bu proje için somut — `poi.csv` public depoda commit'li.
+
+Üç seçenek gövdede: (A) sadece `place_id` + çalışma anı çekme — offline ve **belirlenimcilik**
+kaybı, not verme tekrarlanamaz hâle gelir; (B) izin veren kaynaklar (Overture CDLA-Permissive,
+Foursquare OS Places Apache-2.0, OSM ODbL); (C) reddi teyit et.
+
+**#70 çözülmeden karar verilemez** — istenen zenginleştirmenin çoğu doğrulanmış açılış saati ve o
+veri zaten elimizde. #70 sonrası Google'ın gerçek marjinal katkısı ölçülebilir.
+
+[#71](https://github.com/yukselburcinn-web/DA592/issues/71)
 
 ---
 
@@ -151,7 +186,7 @@ kalma kaçağı var.
 
 [#29](https://github.com/yukselburcinn-web/DA592/issues/29)
 
-### #61. Gece yarısını aşan kapanış saatleri ve günün başlangıcı — 🛠️ PR #62
+### #61. Gece yarısını aşan kapanış saatleri ve günün başlangıcı — ✅ Kapalı
 *(bug, `priority:high`, #59'un takibi)* İki ayrı kalıntı, tek semptom: nightlife ilgisi yüksek
 seçilince günler tek bir mekânla dönüyordu.
 
@@ -184,7 +219,30 @@ Kapsam dışı bırakıldı: genel zaman-pencereli sıralama. #59'un kategori ku
 korundu; geç açılan bir müze hâlâ aynı muameleyi görmüyor. Gerçek çözüm OR-Tools CP-SAT tipi bir
 TSPTW formülasyonu — REPORT §5'te açık bırakıldı.
 
-[#61](https://github.com/yukselburcinn-web/DA592/issues/61) · [PR #62](https://github.com/yukselburcinn-web/DA592/pull/62)
+[#61](https://github.com/yukselburcinn-web/DA592/issues/61)
+
+### #72. Rota modelini TSP'den TOPTW'ye taşı — 🔓 Açık
+*(enhancement, `priority:medium`)* Router bir TSP çözüyor: hepsini sırala, mesafeyi küçült, sığmayanı
+ele. Turistin problemi ise **seçim** — hangi duraklar. Doğru formülasyon **TOPTW** (Team Orienteering
+Problem with Time Windows): puanlı düğümler, günlük zaman penceresi, *m* gün için *m* tur, puanı
+maksimize et.
+
+Bugünkü yamalar aynı eksikliğin izleri: `_fill_days_to_budget`, `_rebalance_days`,
+`_ensure_daily_meals`, `_ensure_evening_stops`, `NIGHTLIFE_EARLIEST_HOUR`, `_nightlife_last` —
+hepsi TOPTW'de tek bir modelin kısıtı. Ve birbirinden habersiz olmalarının **ölçülmüş bedeli var**:
+aynı aday setinde `min_food_per_day=0` → 3 nightlife durağı, `=2` → 2 durak; öğün geçişi akşam
+geçişinin koyduğu barı düşürüyor. 2 öğün garantisi de tutmuyor.
+
+Kazanç ölçüldü ama **bedelsiz değil**: 72 günde greedy zaman-pencereli yerleştirme durak/gün'ü
+7.76 → 8.24 (+%6) çıkarıyor, ama **km/durak 1.04 → 1.16 (+%12)** — bu, karşılaştırmalı analizde
+*itinerary coherence* olarak raporlanan metrik. Greedy mesafeyi optimize etmiyor; gerçek çözücünün
+(OR-Tools routing/CP-SAT, ya da Vansteenwegen'in ILS'i) bunu km cezası olmadan alması bekleniyor —
+**doğrulanmadı, issue'nun ilk işi bunu ölçmek.**
+
+#32 bağımlılık değil: TOPTW haversine matrisiyle de çalışır. #70 ise ön koşul — zaman pencerelerinin
+gerçek veriye dayanması için.
+
+[#72](https://github.com/yukselburcinn-web/DA592/issues/72) · [PR #62](https://github.com/yukselburcinn-web/DA592/pull/62)
 
 ---
 
@@ -242,13 +300,14 @@ projenin "bir kere çek, statik kullan" mimarisiyle uyuşmuyor.
 
 ---
 
-## Öncelik sırası (2026-08-22 itibarıyla açık işler)
+## Öncelik sırası (2026-08-26 itibarıyla açık işler)
 
 | Öncelik | Issue | Neden |
 |---|---|---|
-| 1 | #31 + #26 | Aynı kök sebep, uygulama şu an dokümante edilen hiçbir komutla açılmıyor — yeni katılan biri ilk denemede takılır |
+| 1 | #70 | Rota kalitesi için en yüksek getirili veri işi: haftanın günü hiç taşınmıyor, pazartesi kapalı müze pazartesiye konabiliyor. Yeni kaynak gerektirmiyor, #72'nin de ön koşulu |
 | 2 | #7 | `priority:high` etiketli, final rapor için gerçek LLM sonucu eksik |
-| 3 | #29 | Ölçülmüş, somut bir kalite sorunu (%60 gün etkileniyor) |
-| 4 | #21, #22, #23 | UI cilası, düşük risk/düşük efor |
-| 5 | #30 | Veri kalitesi ince ayarı |
-| 6 | #32 | Kapsamlı altyapı işi — Aşama 1 (Valhalla/GraphHopper) tek başına da değerli, Aşama 2 (transit) stretch goal |
+| 3 | #49 | Ölçüm dürüstlüğü: recall tavanı 1.0 değil ~0.573, ama 1.0 üzerinden okunuyor |
+| 4 | #72 | TOPTW'ye geçiş — altı özel-durum yamasını tek modele indirir; km/durak takası önce ölçülmeli |
+| 5 | #30, #33 | Veri kalitesi/granülerlik ince ayarı |
+| 6 | #71 | Karar issue'su, #70 tamamlanmadan cevaplanamaz |
+| 7 | #32 | Kapsamlı altyapı işi — Aşama 1 (Valhalla/GraphHopper) tek başına da değerli, Aşama 2 (transit) stretch goal |
