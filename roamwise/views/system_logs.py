@@ -239,6 +239,39 @@ with results_tab:
     n_queries = results_df.groupby("config").size().max()
     st.caption(f"{n_queries} test queries across 8 cities and 7 traveler archetypes.")
 
+    # The queries themselves, not just their count. This tab exists to justify
+    # pinning Fusion RAG, and that argument cannot be checked without reading
+    # what was asked and what counted as a correct answer -- the mislabelled
+    # answer keys found in #50 were only visible that way (issue #85).
+    if "query" in results_df.columns:
+        with st.expander(f"Read the {n_queries} queries"):
+            st.caption("A query is answered by any place in its accepted categories, narrowed to "
+                       "those near a transport hub only when the question asks for that. "
+                       "\"Grading\" is how much the answer key leans on the retriever being graded.")
+            asked = (results_df.drop_duplicates("query_id")
+                     .sort_values(["tier", "query_id"], ascending=[False, True]))
+            st.dataframe(
+                pd.DataFrame({
+                    "Tier": asked.tier,
+                    "City": asked.destination_id,
+                    "Archetype": asked.archetype,
+                    "Query": asked["query"],
+                    "Accepted categories": asked.category.str.replace("+", " + ", regex=False),
+                    "Near hub": asked.near_transport.map({True: "yes", False: "no"}),
+                    "Answers": asked.gold_size,
+                    "Grading": asked.dependence.map(DEPENDENCE_TEXT),
+                }),
+                use_container_width=True, hide_index=True,
+                column_config={
+                    "Tier": st.column_config.TextColumn(width="small"),
+                    "City": st.column_config.TextColumn(width="small"),
+                    "Query": st.column_config.TextColumn(width="large"),
+                    "Answers": st.column_config.NumberColumn(
+                        help="How many places in the catalogue would answer this query. Only eight "
+                             "are retrieved, so a key larger than that caps recall below 1.0."),
+                },
+            )
+
     # The headline is derived from the significance test rather than written by
     # hand. The hand-written version claimed Fusion "leads on every quality
     # metric" while it was in fact tied with Hybrid on grounding and
@@ -377,4 +410,12 @@ with results_tab:
         st.markdown(f"**{label}** _({arrow})_{flag} — {description}")
 
     with st.expander("Per-query results"):
-        st.dataframe(results_df, use_container_width=True, hide_index=True)
+        st.caption("One row per query and configuration. Every metric above is an average over "
+                   "this table.")
+        st.dataframe(
+            results_df, use_container_width=True, hide_index=True,
+            # Without a width the query is squeezed to a few characters between
+            # the id columns and the metrics, which is the state this table was
+            # already in before it carried the question at all.
+            column_config={"query": st.column_config.TextColumn("query", width="large")},
+        )
