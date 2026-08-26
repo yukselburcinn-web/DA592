@@ -57,7 +57,7 @@ _MAP_MAX_ZOOM = 16.0  # a one-stop day would otherwise zoom to street level
 # at (_MAP_ASSUMED_WIDTH_PX). On a wide screen a five-day legend fits on one
 # row and the second reserved row is simply unused white space.
 _MAP_LEGEND_PER_ROW = 3
-_MAP_LEGEND_ROW_PX = 26
+_MAP_LEGEND_ROW_PX = 30  # a rendered row measures 29px; round up, never down
 
 
 def _fit_view(lats: list[float], lons: list[float]) -> tuple[float, float, float]:
@@ -321,23 +321,27 @@ if run:
                 all_lats = [p["lat"] for day in result["routing"]["itinerary"] for p in day["route"]]
                 all_lons = [p["lon"] for day in result["routing"]["itinerary"] for p in day["route"]]
                 zoom, center_lat, center_lon = _fit_view(all_lats, all_lons)
-                # The legend sits above the map, not inside it. Inside, anchored
-                # bottom-left, it shared that strip with the OpenStreetMap
-                # attribution and ran out of room: this column is half-width and
-                # collapses to ~291px (see _MAP_ASSUMED_WIDTH_PX), so from three
-                # days on the later entries were cut off mid-word and the user
-                # had no key for those colours at all (#83). Above the map it
-                # gets the full column width, wraps instead of clipping, and
-                # covers none of the route.
+                # The legend sits in the margin *below* the map. Every other
+                # strip is already occupied: inside the map at the bottom is
+                # the OpenStreetMap attribution, and the top belongs to
+                # Plotly's zoom/pan modebar, which appears on hover. Anchored
+                # bottom-left inside the plot it collided with the attribution
+                # and ran out of width -- this column is half-width and
+                # collapses to ~291px (see _MAP_ASSUMED_WIDTH_PX) -- so from
+                # three days on the later entries were cut off mid-word and the
+                # user had no key for those colours at all (#83). Below the map
+                # it gets the full column width, wraps instead of clipping, and
+                # covers neither the route nor a control.
                 n_days_drawn = sum(1 for day in result["routing"]["itinerary"] if day["route"])
                 legend_rows = math.ceil(n_days_drawn / _MAP_LEGEND_PER_ROW)
+                legend_px = legend_rows * _MAP_LEGEND_ROW_PX
                 fig.update_layout(
                     map=dict(style="open-street-map", zoom=zoom,
                              center=dict(lat=center_lat, lon=center_lon)),
-                    margin=dict(l=0, r=0, t=legend_rows * _MAP_LEGEND_ROW_PX, b=0),
-                    height=_MAP_HEIGHT_PX + legend_rows * _MAP_LEGEND_ROW_PX,
+                    margin=dict(l=0, r=0, t=0, b=legend_px),
+                    height=_MAP_HEIGHT_PX + legend_px,
                     showlegend=True,
-                    legend=dict(orientation="h", yanchor="bottom", y=1.0,
+                    legend=dict(orientation="h", yanchor="top", y=0,
                                 xanchor="left", x=0, bgcolor="rgba(0,0,0,0)",
                                 borderwidth=0),
                     hoverlabel=dict(bgcolor="white", font_size=12),
