@@ -128,6 +128,9 @@ MEAL_SHORTFALL_MULTIPLE = 3
 # by hand, and it binds only when the pool is small -- on a real retrieved pool
 # the time budget fills the days without it.
 MIN_STOPS_PER_DAY = 1
+# Roughly what a day holds, used only to tell a pool that cannot fill the trip
+# from one that can. See the local-search operators below.
+TYPICAL_STOPS_PER_DAY = 9
 _DEFAULT_VISIT_MINUTES = 60
 
 
@@ -377,11 +380,20 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
     # and activating another day's -- two nodes, one decision. No default
     # local-search operator makes that move, so an unbalanced first solution
     # stayed unbalanced: four museums over two days came back [4, 0], the
-    # empty day's penalty paid rather than fixed. These two operators swap an
-    # active node for an inactive one, which is exactly the move the copies
-    # made necessary.
+    # empty day's penalty paid rather than fixed.
     params.local_search_operators.use_swap_active = _BOOL_TRUE
-    params.local_search_operators.use_extended_swap_active = _BOOL_TRUE
+    if len(pois) < n_days * TYPICAL_STOPS_PER_DAY:
+        # ...but only a pool too small to fill the trip needs that repair, and
+        # the repair is expensive. `use_extended_swap_active` is what actually
+        # fixes [4, 0] (plain `use_swap_active` does not), and on a pool that
+        # small it costs nothing. On a full one it is 4-5x the entire solve for
+        # no gain at all: measured on a Paris trip, three days went 3.0s -> 16.2s
+        # and *lost* a stop ([9,9,9] at 9.00 stops/day became [9,9,8] at 8.67),
+        # four days 4.2s -> 18.2s for a byte-identical itinerary. An oversupplied
+        # pool does not need the repair -- the time budget and the drop penalty
+        # spread the stops on their own -- so the operator is spent only where
+        # it earns its cost.
+        params.local_search_operators.use_extended_swap_active = _BOOL_TRUE
     params.solution_limit = SOLUTION_LIMIT
     solution = routing.SolveWithParameters(params)
     if solution is None:

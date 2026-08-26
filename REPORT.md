@@ -101,12 +101,16 @@ The proposal names LangGraph "or similar multi-agent systems." This implementati
 
   | retrieved pool | | stops/day | km/stop | days with both meals |
   |---|---|---|---|---|
-  | 24 (today's default) | previous | 6.21 | 1.582 | 28/72 |
+  | 24 (the old default) | previous | 6.21 | 1.582 | 28/72 |
   | | TOPTW | **6.69** (+7.8%) | **0.906** (−42.7%) | **72/72** |
-  | 72 | previous | 7.82 | 1.054 | 42/72 |
+  | 72 (**the default now**) | previous | 7.82 | 1.054 | 42/72 |
   | | TOPTW | **9.06** (+15.8%) | **0.471** (−55.3%) | **72/72** |
 
   Zero stops scheduled at a closed venue and zero budget overruns in every cell. The gain is not a trade: issue #72 had measured that a greedy time-windowed insertion buys +6% stops at +12% km per stop, and left open whether a real solver could take the stops without the distance. It can — both improve at once, and the greedy penalty was an artefact of greediness rather than an inherent cost. Determinism is a fixed iteration budget rather than a wall-clock limit, so the same input returns the same itinerary on any machine; verified over repeated solves.
+
+  **Pool size and latency.** `RETRIEVED_POIS_PER_DAY` went from 8 to 24 (issue #72), which is what makes the lower row above the shipped configuration rather than a hypothetical: selection used to be retrieval's job because the router could not do it, and now that the score and the solver choose from the pool, a wider pool is something to choose *from*. It is not free. Node count is candidates × days, so a longer trip pays twice, and at 24/day a five-day plan took 29s and a four-day one 33s.
+
+  The cause was not the pool, which is the useful part. Measured across pool sizes at fixed trip length, solve time barely moved — four days took 16.4s at 258 nodes and 15.6s at 610 — while it climbed steeply with *days*. That pointed at `use_extended_swap_active`, a local-search operator enabled here to fix a balance problem: because each POI is a per-day copy, moving one between days means deactivating one node and activating another, and no default operator makes that move, so `[4, 0]` stayed `[4, 0]`. On a real pool the operator is pure cost — three days 3.0s → 16.2s while *losing* a stop (9.00 → 8.67 per day), four days 4.2s → 18.2s for a byte-identical itinerary, five days 5.9s → 61.4s. It is now enabled only when the pool is too small to fill the trip, where it is both needed and cheap. Worst observed plan across 1–5 days, two cities and two archetypes: **9.6s, down from 33.0s**, with the small-pool behaviour intact.
 
   Three bugs are worth recording because each looked like a modelling failure and was not. A meal-shortfall penalty set far above the rest of the objective (10,000,000) made guided local search return an **empty trip** — one term dwarfing every gradient it could follow; it is proportional to the drop penalty now. `PATH_CHEAPEST_ARC` builds routes one vehicle at a time and dead-ends when each vehicle carries its own quotas, returning `[0, 0, 7]` stops across three days where parallel insertion returns `[6, 7, 6]` on the same input — raising the iteration limit sevenfold changed nothing. And OR-Tools treats an empty vehicle as *unused*, dropping its soft cumul penalties from the objective entirely, so every per-day floor was silently inactive on exactly the days that needed it.
 

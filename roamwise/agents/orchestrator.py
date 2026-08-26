@@ -40,7 +40,32 @@ DATA_DIR = Path(__file__).parent.parent / "data"
 # a 5-day plan started with barely two stops per day and most of each day's
 # budget went unused (issue #19). Scale with the trip instead, with headroom
 # for the ones the router will drop on opening hours or the time budget.
-RETRIEVED_POIS_PER_DAY = 8
+#
+# 24, not the 8 this was until #72. That 8 was never chosen deliberately, and
+# it sat at one end of a frontier that trades two things the project already
+# reports against each other. Measured on the pre-#72 router over 72 days,
+# raising the pool moves them in opposite directions:
+#
+#   POIs/day    stops/day   km/stop   preference match   categories/day
+#        8          6.21      1.582        0.752              1.68
+#       16          7.25      1.248        0.648              2.57
+#       24          7.82      1.054        0.584              2.86
+#       40          8.43      0.908        0.536              3.33
+#       60          9.22      0.659        0.485              4.21
+#
+# km/stop is what the comparative analysis reports as *itinerary coherence*,
+# and preference match is what retrieval's own relevance measures cover, so
+# the knob was quietly picking one over the other with nobody deciding.
+#
+# What makes 24 the right point now rather than before: selection used to be
+# retrieval's job, because the router could not do it -- it routed whatever
+# it was handed. TOPTW plus the score choose from the pool, so a wider pool
+# is something to choose *from* rather than something to get through. The
+# gain against the pre-#72 router roughly doubles at 24 over 8 (+15.8% vs
+# +7.8% stops, -55.3% vs -42.7% km/stop). Past 24 the falling preference
+# match stops being worth the diminishing geometry, and the solver's own
+# ceiling starts to matter -- node count grows with pool x days.
+RETRIEVED_POIS_PER_DAY = 24
 MIN_RETRIEVED_POIS = 12
 
 log = get_logger(__name__)
