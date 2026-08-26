@@ -1,12 +1,21 @@
 """Router Agent: acts as an algorithmic orchestrator. It does not ask the LLM
-to invent a route -- it calls the POIZoner + 2-opt routing tool (a real
-optimization method, not the LLM) to solve the routing problem logically,
-using graph-enriched POI context, then narrates the resulting itinerary."""
+to invent a route -- it scores the candidates against the traveler's own
+preference vector, hands the best of them to a TOPTW solver (a real
+optimization method, not the LLM), and narrates what comes back.
+
+Two decisions, in that order, and the split is measured rather than assumed
+(see optimization/scoring.py). The score chooses *which* places are worth
+the traveler's time; the solver then decides which of those actually fit,
+on which day, in which order and at what hour, optimising geometry and time
+uniformly over them. Weighting the solver with the same scores as well was
+tried and cost stops and distance while barely moving preference match --
+the preference signal is spent once, at selection."""
 from roamwise.agents.llm_client import LLMClient, get_default_llm_client
 from roamwise.knowledge_graph.build_graph import GraphIndex
-from roamwise.models.segmentation import POIZoner
-from roamwise.optimization.routing import (
-    DEFAULT_DAY_START_HOUR, FOOD_CATEGORY, build_multi_day_itinerary)
+from roamwise.optimization.routing import DEFAULT_DAY_START_HOUR, FOOD_CATEGORY
+from roamwise.optimization.scoring import (
+    MAX_WORKING_SET, SELECTION_PER_DAY, select_by_score)
+from roamwise.optimization.toptw import build_multi_day_itinerary
 from roamwise.optimization.travel_modes import DEFAULT_MODE, get_travel_mode
 
 # Lunch and dinner: the itinerary should read like a day a person could
@@ -74,7 +83,6 @@ def _summarize(description) -> str:
 class RouterAgent:
     def __init__(self, graph_index: GraphIndex = None, llm: LLMClient = None):
         self.graph = graph_index or GraphIndex()
-        self.zoner = POIZoner()
         self.llm = llm or get_default_llm_client()
 
     def run(self, destination_id: str, candidate_pois: list[dict], n_days: int,
@@ -82,7 +90,7 @@ class RouterAgent:
             archetype: str = None,
             respect_opening_hours: bool = True, use_real_routing: bool = False,
             travel_mode=DEFAULT_MODE, min_food_per_day: int = MIN_FOOD_PER_DAY,
-            narrate: bool = True, start_date=None) -> dict:
+            narrate: bool = True, start_date=None, preferences: dict = None) -> dict:
         """narrate=False skips the LLM paraphrase and returns only `facts` --
         see FusionRAGAgent.run()'s docstring and issue #57.
 
@@ -104,30 +112,68 @@ class RouterAgent:
         start_hub = {"lat": city_node["lat"], "lon": city_node["lon"], "name": city_node["name"]}
 
         # Retrieval can itself surface food-category POIs (markets, bazaars --
-        # common for e.g. a Nightlife Seeker query), and those used to flow
-        # into the same geography-only zoning/filling pass as everything
-        # else. That pass has no notion of "these are meals": it can pack a
-        # day with several of them back to back, or -- if a zone's other
-        # candidates don't survive opening hours -- with nothing else at all
-        # (#29). _ensure_daily_meals below is the only place that reasons
-        # about meal spacing and the sightseeing floor, so food POIs are
-        # excluded here and left entirely to it; _food_pois() already reuses
-        # any of these by identity, so nothing retrieval surfaced is lost or
-        # double-booked, just placed through the meal-aware path instead.
+        # common for e.g. a Nightlife Seeker query). They are still kept apart
+        # from the sightseeing pool, because "this is a meal" is a fact the
+        # optimizer needs and the category is the only thing carrying it;
+        # _food_pois() reuses any retrieval surfaced by identity, so nothing is
+        # lost or double-booked.
         sightseeing_pois = [p for p in candidate_pois if p.get("category") != FOOD_CATEGORY]
-        zones = self.zoner.zone(sightseeing_pois, n_zones=n_days)
+        food_pois = self._food_pois(destination_id, candidate_pois)
+        sightseeing_pois, food_pois = self._select(
+            sightseeing_pois, food_pois, n_days, preferences, min_food_per_day)
+
+        # One model decides which of these to visit, on which day, in which
+        # order and at what hour (issue #72). It replaces KMeans zoning plus
+        # six passes -- day filling, day rebalancing, meal insertion, evening
+        # insertion, a nightlife hour floor and a nightlife-last reorder --
+        # which ran in sequence over each other's output and interacted: the
+        # two-meal guarantee held on 28 of 72 measured days, and raising
+        # min_food_per_day could *remove* a nightlife stop. See
+        # optimization/toptw.py.
         itinerary = build_multi_day_itinerary(
-            zones, start_hub=start_hub, daily_minutes_budget=daily_minutes_budget,
+            sightseeing_pois, n_days, start_hub=start_hub,
+            daily_minutes_budget=daily_minutes_budget,
             day_start_hour=day_start_hour, respect_opening_hours=respect_opening_hours,
             use_real_routing=use_real_routing, travel_mode=mode,
-            food_pois=self._food_pois(destination_id, candidate_pois),
-            min_food_per_day=min_food_per_day, start_date=start_date,
+            food_pois=food_pois, min_food_per_day=min_food_per_day,
+            start_date=start_date,
         )
         facts = self._facts(destination_id, itinerary, mode)
         return {"destination_id": destination_id, "itinerary": itinerary,
                 "travel_mode": mode.key, "day_start_hour": day_start_hour, "facts": facts,
                 "start_date": start_date,
                 "narrative": self._narrate(facts) if narrate else None}
+
+    def _select(self, sightseeing: list[dict], food: list[dict], n_days: int,
+                preferences: dict, min_food_per_day: int):
+        """Shortlist both pools down to a working set the solver can hold.
+
+        The score does the choosing, and it reads the traveler's six sliders
+        directly rather than the archetype label they collapse to -- which is
+        the point: two travelers who both land on "Culture Enthusiast" have
+        different vectors and now get different itineraries, where before the
+        label was the only thing that reached this agent.
+
+        Measured against selecting by `archetype_query` retrieval at equal
+        candidate count, scoring this way returned more stops a day at the
+        same distance per stop, better-known places and more categories per
+        day. Weighting the *solver* with the same scores, by contrast, cost
+        stops and distance and barely moved preference match -- so the score
+        selects, and the solver then optimises geometry and time uniformly
+        over what it selected (see optimization/scoring.py).
+
+        Without a preference vector there is nothing to score with, so both
+        pools pass through trimmed only to what the solver can carry.
+        """
+        # Enough restaurants to have a real choice at each sitting without
+        # crowding the sights out of the working set.
+        food_limit = min(len(food), max(n_days * 4, 8)) if min_food_per_day > 0 else 0
+        sight_limit = max(MAX_WORKING_SET - food_limit, n_days)
+        sight_limit = min(sight_limit, SELECTION_PER_DAY * n_days)
+        if not preferences:
+            return sightseeing[:sight_limit], food[:food_limit]
+        return (select_by_score(sightseeing, preferences, sight_limit),
+                select_by_score(food, preferences, food_limit))
 
     def _food_pois(self, destination_id: str, candidate_pois: list[dict]) -> list[dict]:
         """Meal candidates come straight from the knowledge graph rather than

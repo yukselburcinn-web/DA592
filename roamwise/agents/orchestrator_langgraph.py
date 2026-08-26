@@ -172,7 +172,7 @@ class RoamWiseLangGraphOrchestrator:
             day_start_hour=state.get("day_start_hour"), archetype=state.get("archetype"),
             use_real_routing=state.get("use_real_routing", False),
             travel_mode=state.get("travel_mode", DEFAULT_MODE),
-            narrate=False,
+            narrate=False, preferences=state.get("preferences"),
         )
         return {"routing": routing, "travel_mode": routing["travel_mode"]}
 

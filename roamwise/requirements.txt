@@ -1,6 +1,12 @@
 faiss-cpu==1.15.0
 networkx==3.4.2
 numpy==2.2.6
+# The TOPTW solver behind the router (#72). Now a hard dependency: the router
+# has no non-solver path -- `optimize_day_route` still routes a single day,
+# but nothing assembles a trip without this. Note it pins protobuf to 6.x,
+# below the 7.x other packages here resolve to on their own; the test suite
+# and Streamlit 1.61.1 both pass on 6.x.
+ortools==9.15.6755
 # OSM's opening_hours grammar, which the catalogue carries verbatim (#70).
 # A hand-rolled regex kept only the first HH:MM-HH:MM and dropped the day of
 # the week with it; this parses 99.4% of the catalogue's 4,404 distinct tags.

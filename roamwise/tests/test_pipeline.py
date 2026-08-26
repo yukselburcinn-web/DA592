@@ -19,8 +19,8 @@ from roamwise.models.forecasting import forecast_city, best_months_to_visit
 from roamwise.models.segmentation import TravelerSegmenter, POIZoner
 from roamwise.retrieval.fusion import FusionRetriever
 from roamwise.retrieval.graph_search import GraphSearchIndex
-from roamwise.optimization.routing import (
-    NIGHTLIFE_EARLIEST_HOUR, build_multi_day_itinerary, optimize_day_route)
+from roamwise.optimization.routing import NIGHTLIFE_EARLIEST_HOUR, optimize_day_route
+from roamwise.optimization.toptw import build_multi_day_itinerary
 from roamwise.optimization.travel_modes import get_travel_mode
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
 from roamwise.agents.router_agent import DAY_START_HOURS, RouterAgent, start_hour_for
@@ -88,6 +88,15 @@ def city_with_category(category, cities=None):
 
 
 @needs_full_city
+
+def _flat(zones: dict):
+    """Zones were how the old router was *told* which POI belonged to which
+    day. TOPTW decides that itself, jointly with selection and ordering, so
+    these tests hand it the same POIs as one pool and say how many days they
+    have. What each test asserts about the result is unchanged."""
+    return [poi for zone in zones.values() for poi in zone], len(zones)
+
+
 def test_knowledge_graph_builds_and_traverses():
     idx = GraphIndex()
     stats = idx.stats()
@@ -421,7 +430,7 @@ def test_a_long_day_still_gets_its_evening_stop():
     hub = {"lat": 48.20, "lon": 16.37, "name": "hub"}
 
     day = build_multi_day_itinerary(
-        {0: zones[0] + bars}, start_hub=hub, daily_minutes_budget=12 * 60,
+        *_flat({0: zones[0] + bars}), start_hub=hub, daily_minutes_budget=12 * 60,
         day_start_hour=9.0, food_pois=[], min_food_per_day=0)[0]
 
     evening = [(p, s) for p, s in zip(day["route"], day["schedule"])
@@ -527,7 +536,7 @@ def test_multi_day_itinerary_fills_every_day_near_its_budget():
     idx = GraphIndex()
     pois = idx.city_pois(MAIN_CITY)[:40]
     zones = POIZoner().zone(pois, n_zones=5)
-    days = build_multi_day_itinerary(zones, daily_minutes_budget=480)
+    days = build_multi_day_itinerary(*_flat(zones), daily_minutes_budget=480)
 
     assert len(days) == 5
     assert all(day["route"] for day in days), "no day may come back empty"
@@ -546,23 +555,10 @@ def test_day_is_not_stranded_by_a_poi_that_cannot_fit_its_window():
     spares = [_daytime_poi(f"Museum {i}", 48.21 + i * 0.002, 16.36) for i in range(4)]
     zones = {0: [club], 1: spares}
 
-    days = build_multi_day_itinerary(zones, daily_minutes_budget=480, day_start_hour=9.0)
+    days = build_multi_day_itinerary(*_flat(zones), daily_minutes_budget=480, day_start_hour=9.0)
 
     assert all(day["route"] for day in days), "the club's day should be filled from the pool"
     assert club not in days[0]["route"]  # still correctly refused: it never opens in the window
-
-
-def test_no_fill_pass_reproduces_the_old_starved_day():
-    """Guards the fix itself: with filling switched off, the same input still
-    produces the empty day, so the test above is proving the fill pass works
-    rather than passing for some incidental reason."""
-    club = {"name": "Club", "lat": 48.20, "lon": 16.37, "avg_visit_minutes": 120,
-            "open_hour": 18, "close_hour": 2}
-    spares = [_daytime_poi(f"Museum {i}", 48.21 + i * 0.002, 16.36) for i in range(4)]
-
-    days = build_multi_day_itinerary({0: [club], 1: spares}, daily_minutes_budget=480,
-                                      day_start_hour=9.0, fill_days=False)
-    assert days[0]["route"] == []
 
 
 def test_driving_mode_fits_a_stop_walking_cannot_reach():
@@ -630,7 +626,7 @@ def test_every_day_gets_its_minimum_meals():
     zones = {0: _sights_along_a_line(6, minutes=60), 1: _sights_along_a_line(6, lat=48.24, minutes=60)}
     food = [_food_poi(f"Cafe {i}", 48.20 + i * 0.006, 16.372) for i in range(8)]
 
-    days = build_multi_day_itinerary(zones, daily_minutes_budget=480,
+    days = build_multi_day_itinerary(*_flat(zones), daily_minutes_budget=480,
                                       food_pois=food, min_food_per_day=2)
 
     assert all(len(_meals_in(day)) >= 2 for day in days)
@@ -642,7 +638,7 @@ def test_no_meals_are_added_when_the_minimum_is_zero():
     zones = {0: _sights_along_a_line(4), 1: _sights_along_a_line(4, lat=48.24)}
     food = [_food_poi(f"Cafe {i}", 48.20 + i * 0.006, 16.372) for i in range(8)]
 
-    days = build_multi_day_itinerary(zones, daily_minutes_budget=480,
+    days = build_multi_day_itinerary(*_flat(zones), daily_minutes_budget=480,
                                       food_pois=food, min_food_per_day=0)
 
     assert all(not _meals_in(day) for day in days)
@@ -656,7 +652,7 @@ def test_meals_are_spread_across_the_day_not_stacked_at_the_start():
     zones = {0: _sights_along_a_line(8, minutes=60)}
     food = [_food_poi(f"Cafe {i}", 48.20 + i * 0.005, 16.372) for i in range(8)]
 
-    day = build_multi_day_itinerary(zones, daily_minutes_budget=600,
+    day = build_multi_day_itinerary(*_flat(zones), daily_minutes_budget=600,
                                      day_start_hour=9.0, food_pois=food,
                                      min_food_per_day=2)[0]
 
@@ -676,7 +672,7 @@ def test_meals_do_not_land_back_to_back():
     zones = {0: _sights_along_a_line(3)}
     food = [_food_poi(f"Cafe {i}", 48.20 + i * 0.005, 16.372) for i in range(8)]
 
-    day = build_multi_day_itinerary(zones, daily_minutes_budget=480,
+    day = build_multi_day_itinerary(*_flat(zones), daily_minutes_budget=480,
                                      day_start_hour=9.0, food_pois=food,
                                      min_food_per_day=2)[0]
 
@@ -696,7 +692,7 @@ def test_a_sparse_day_keeps_at_least_one_sightseeing_stop():
     zones = {0: _sights_along_a_line(2)}
     food = [_food_poi(f"Cafe {i}", 48.20 + i * 0.005, 16.372) for i in range(8)]
 
-    day = build_multi_day_itinerary(zones, daily_minutes_budget=480,
+    day = build_multi_day_itinerary(*_flat(zones), daily_minutes_budget=480,
                                      day_start_hour=9.0, food_pois=food,
                                      min_food_per_day=2)[0]
 
@@ -710,7 +706,7 @@ def test_meal_choice_prefers_a_venue_on_the_route_over_a_distant_one():
     on_route = _food_poi("Corner Bistro", 48.206, 16.3705)
     far_away = _food_poi("Distant Grill", 48.35, 16.60)
 
-    day = build_multi_day_itinerary(zones, daily_minutes_budget=480,
+    day = build_multi_day_itinerary(*_flat(zones), daily_minutes_budget=480,
                                      food_pois=[far_away, on_route], min_food_per_day=1)[0]
 
     names = [p["name"] for p in _meals_in(day)]
@@ -723,7 +719,7 @@ def test_the_same_restaurant_is_not_booked_twice_in_one_trip():
              2: _sights_along_a_line(3, lat=48.26)}
     food = [_food_poi(f"Cafe {i}", 48.20 + i * 0.008, 16.372) for i in range(10)]
 
-    days = build_multi_day_itinerary(zones, daily_minutes_budget=480,
+    days = build_multi_day_itinerary(*_flat(zones), daily_minutes_budget=480,
                                       food_pois=food, min_food_per_day=2)
 
     booked = [p["name"] for day in days for p in _meals_in(day)]
@@ -821,8 +817,8 @@ def test_each_day_of_a_trip_is_resolved_against_its_own_date():
     zones = {0: [_tagged_poi("Mon only", "Mo 10:00-18:00")],
              1: [_tagged_poi("Tue only", "Tu 10:00-18:00", lat=48.24)]}
 
-    days = build_multi_day_itinerary(zones, daily_minutes_budget=600, day_start_hour=9.0,
-                                      start_date=MONDAY, fill_days=False)
+    days = build_multi_day_itinerary(*_flat(zones), daily_minutes_budget=600, day_start_hour=9.0,
+                                      start_date=MONDAY)
 
     assert [p["name"] for p in days[0]["route"]] == ["Mon only"]
     assert [p["name"] for p in days[1]["route"]] == ["Tue only"]

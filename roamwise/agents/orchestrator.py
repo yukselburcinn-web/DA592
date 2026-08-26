@@ -180,7 +180,8 @@ class RoamWiseOrchestrator:
                                        day_start_hour=day_start_hour,
                                        archetype=seg["archetype"],
                                        use_real_routing=use_real_routing, travel_mode=travel_mode,
-                                       narrate=False, start_date=start_date)
+                                       narrate=False, start_date=start_date,
+                                       preferences=preferences)
             state["routing"] = routing
             state["travel_mode"] = routing["travel_mode"]
             # The honest remainder of what the catalogue knows about cost.
