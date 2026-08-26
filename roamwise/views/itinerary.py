@@ -368,6 +368,7 @@ else:
         1. **Traveler segmentation** (KMeans) classifies your preferences into an archetype.
         2. **Forecaster Agent** interprets a demand time-series model to flag crowding and recommend timing.
         3. **Fusion RAG Agent** retrieves grounded context by fusing Semantic, Graph, and Keyword search (RRF).
-        4. **Router Agent** geographically zones the retrieved POIs and solves each day's route (2-opt).
+        4. **Router Agent** scores those POIs against your own sliders, then solves which to visit,
+           on which day and at what hour, against opening hours and your time budget (TOPTW).
         """
     )
