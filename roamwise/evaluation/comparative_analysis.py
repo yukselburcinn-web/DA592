@@ -466,6 +466,12 @@ def run_comparative_analysis(top_k: int = 8) -> pd.DataFrame:
                 "query_id": query_id,
                 "tier": test_query.tier, "dependence": level,
                 "destination_id": dest_id, "archetype": archetype,
+                # The question itself, not just its metadata. Without it the
+                # results identify a query only by id, and a reader cannot
+                # judge whether it was fair or whether its answer key matches
+                # what it asked -- which is how the mislabelled keys in #50
+                # went unnoticed (issue #85).
+                "query": test_query.text,
                 "category": "+".join(test_query.categories),
                 "near_transport": test_query.near_transport, "gold_size": len(gold),
                 "config": config, "recall_at_k": recall, "archetype_precision": round(precision, 3),
