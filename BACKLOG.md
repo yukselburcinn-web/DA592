@@ -29,20 +29,25 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 
 ---
 
-## Durum özeti (2026-08-26)
+## Durum özeti (2026-08-26, akşam)
 
 | Alan | Açık | Kapalı |
 |---|---|---|
-| A — Veri & Modeller | 4 (#30, #33, #70, #71) | 5 (#1, #2, #3, #27, #65) |
+| A — Veri & Modeller | 4 (#30, #33, #71, #79) | 6 (#1, #2, #3, #27, #65, #70) |
 | B — Retrieval & Bilgi Grafiği | 1 (#49) | 8 (#4, #5, #6, #42, #46, #48, #50, #63) |
-| C — Ajanlar, Orkestrasyon & UI | 2 (#7, #72) | 16 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67) |
+| C — Ajanlar, Orkestrasyon & UI | 6 (#7, #76, #77, #78, #80, #81) | 17 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72) |
 | D — Altyapı | 1 (#32) | 4 (#11, #12, #26, #31) |
 
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 41 issue: **8 açık, 33 kapalı.** Sayılar ve durumlar 2026-08-26 itibarıyla `gh issue list`
+Toplam 47 issue: **12 açık, 35 kapalı.** Sayılar ve durumlar 2026-08-26 itibarıyla `gh issue list`
 ile doğrulandı.
+
+**Bu güncellemede ne değişti:** #70 ve #72 kapandı. #72 (TOPTW router) altı yeni bulgu doğurdu —
+#76–#81 — ve iki issue'nun (#32, #71) varsayımlarını geçersiz kıldığı için ikisi de yeniden yazıldı.
+Açık iş sayısı 8'den 12'ye çıktı; bu bir gerileme değil, tek bir büyük issue'nun içinden çıkan
+işlerin ayrıştırılması.
 
 ---
 
@@ -93,7 +98,7 @@ sorguya hiç girmemesi sebep gösteriliyor.
 
 [#30](https://github.com/yukselburcinn-web/DA592/issues/30) — ilişkili: #28 (merge edilmiş)
 
-### #70. Açılış saatleri parse'ı OSM etiketinin %92'sinde bilgi kaybediyor — 🔓 Açık
+### #70. Açılış saatleri parse'ı OSM etiketinin %92'sinde bilgi kaybediyor — ✅ Kapalı
 *(bug, `priority:high`)* `build_catalogue.py::parse_opening_hours` bir regex; `opening_hours`
 etiketindeki ilk `HH:MM-HH:MM`'i alıp gerisini atıyor. Deponun kendi Overpass önbelleğindeki
 **4.404 eşsiz etiket** üzerinden ölçüldü: %94'ü gün bilgisi içeriyor, %53'ü çok kurallı, %17'sinde
@@ -109,21 +114,30 @@ Rota kalitesi için en yüksek getirili veri işi ve **yeni kaynak gerektirmiyor
 çekiliyor, parse'ta atılıyor. OSM ODbL — commit edilebilir. Şema additive tutulmalı; `poi.csv`'nin
 19 kolonu bozulursa bilgi grafiği ve retrieval sessizce çöker.
 
-[#70](https://github.com/yukselburcinn-web/DA592/issues/70)
+**Sonuç:** `opening-hours-py` ile değiştirildi, katalogdaki 4.404 eşsiz etiketin %99.4'ü parse
+ediliyor. Haftanın günü artık taşınıyor: haftanın her gününe başlayan geziler üzerinde ölçülen
+455 durağın 38'i kapalı bir güne düşüyordu, şimdi **sıfır**. #72 bunun üzerine kuruldu — TOPTW
+tamamen zaman pencerelerine dayanıyor. Kalan boşluk kapsam: POI'lerin yalnızca %39.8'inde gerçek
+OSM etiketi var, gerisi kategori varsayımı — bu artık #71'in konusu.
 
-### #71. Google Places ile zenginleştirmeyi değerlendir — 🔓 Açık (karar issue'su)
-*(enhancement, `priority:low`)* Uygulama değil **karar** issue'su. #32 bunu zaten gerekçesiyle
-reddetmişti: Places içeriğinin kalıcı önbelleklenmesi ToS ile yasak, `place_id` dışında istisna yok.
-Engel bu proje için somut — `poi.csv` public depoda commit'li.
+[#70](https://github.com/yukselburcinn-web/DA592/issues/70) · [PR #74](https://github.com/yukselburcinn-web/DA592/pull/74)
 
-Üç seçenek gövdede: (A) sadece `place_id` + çalışma anı çekme — offline ve **belirlenimcilik**
-kaybı, not verme tekrarlanamaz hâle gelir; (B) izin veren kaynaklar (Overture CDLA-Permissive,
-Foursquare OS Places Apache-2.0, OSM ODbL); (C) reddi teyit et.
+### #71. Açılış saati ve fiyat kapsamını kapat: Google Maps scraping dahil kaynak kararı — 🔓 Açık
+*(enhancement, `priority:high` — 2026-08-26'da `low`'dan yükseltildi ve yeniden yazıldı)* Karar
+issue'su, uygulama değil. Kapsam Places API'sinden **Google Maps scraping**'i de içerecek şekilde
+genişletildi.
 
-**#70 çözülmeden karar verilemez** — istenen zenginleştirmenin çoğu doğrulanmış açılış saati ve o
-veri zaten elimizde. #70 sonrası Google'ın gerçek marjinal katkısı ölçülebilir.
+#70 ve #72 kapandığı için karar artık ölçülebilir. Kataloğun 654 POI'sinde açılış saati **260'ında
+(%39.8)** gerçek OSM etiketi, gerisi kategori varsayımı; fiyat **80'inde (%12.2)** gerçek. İki somut
+sonuç: router'ın kısıtlarının %60'ı tahmin (TOPTW tamamen zaman pencerelerine dayanıyor), ve bütçe
+slider'ı hiçbir şey ifade edemiyor (`price_level` tek bit, 61 food POI'nin hepsi aynı değerde).
 
-[#71](https://github.com/yukselburcinn-web/DA592/issues/71)
+**Scraping engeli kaldırmıyor, büyütüyor:** asıl engel API mekanizması değil, `poi.csv`'nin public
+depoda commit'li olması. Arayüz kazıma ToS'ta ayrıca yasak, sayfa yapısına bağlı olduğu için
+kırılgan, ve REPORT'un her alanın kaynağını beyan eden yapısıyla çelişiyor. İzin veren alternatifler
+(Overture CDLA-Permissive, Foursquare Apache-2.0) aynı iki boşluğu kapatabilir — **kapsamlarını
+ölçmek yarım günlük iş ve sıfır risk**, o ölçüm yapılmadan scraping'e geçmek ihlali gereksiz yere
+üstlenmek olabilir. [#71](https://github.com/yukselburcinn-web/DA592/issues/71)
 
 ### #33. Talep tahminine ve fiyat sinyaline şehir düzeyinde granülerlik ekle — 🔓 Açık
 *(enhancement, `priority:medium`)* Talep verisi Eurostat `tour_occ_nim`'den geliyor: gerçek, aylık,
@@ -135,6 +149,21 @@ besleyemiyor.
 İkinci yarısı fiyat: `price_level` ile crowding tahmini hiçbir yerde birbirine bağlanmıyor, yani
 proposal'ın "bütçeyi mevsimsel talebe göre hizala" çerçevesinin sadece crowding tarafı gerçek veriyle
 karşılanıyor. Önerilen kaynak: Inside Airbnb. [#33](https://github.com/yukselburcinn-web/DA592/issues/33)
+
+### #79. Macera slider'ı puanı hiç hareket ettirmiyor — 🔓 Açık
+*(enhancement, `priority:medium`)* #72'nin puan fonksiyonu, tercih vektörünü kategori ağırlıklarına
+çeviren matrisi `user_survey.csv` ile `CATEGORY_AFFINITY` arasından NNLS ile türetiyor. Türetilen
+matriste **`adventure` satırının tamamı sıfır**: kullanıcı slider'ı nereye çekerse çeksin puan
+değişmiyor.
+
+Sebep taksonomi: katalogda maceraya karşılık gelen kategori yok, en yakın aday `beach` ve iki
+şehirlik sette `beach` kategorili **sıfır POI** var. Ankette `adventure` ile `nature` korele olduğu
+için NNLS ortak varyansı tamamen `nature`'a veriyor.
+
+Aynı sınıftan ikinci sorun: bütçe slider'ı da fiyat verisi tek bit olduğu için etkisiz (#71). Yani
+**altı slider'ın ikisi bugün çalışmıyor.** Taksonomi 10 kategoride sabit ve retrieval buna bağımlı —
+kategori eklenirse `CATEGORY_PHRASE`, `CATEGORY_AFFINITY` ve graf birlikte güncellenmeli.
+[#79](https://github.com/yukselburcinn-web/DA592/issues/79)
 
 ---
 
@@ -307,28 +336,77 @@ TSPTW formülasyonu — REPORT §5'te açık bırakıldı.
 
 [#61](https://github.com/yukselburcinn-web/DA592/issues/61)
 
-### #72. Rota modelini TSP'den TOPTW'ye taşı — 🔓 Açık
-*(enhancement, `priority:medium`)* Router bir TSP çözüyor: hepsini sırala, mesafeyi küçült, sığmayanı
-ele. Turistin problemi ise **seçim** — hangi duraklar. Doğru formülasyon **TOPTW** (Team Orienteering
-Problem with Time Windows): puanlı düğümler, günlük zaman penceresi, *m* gün için *m* tur, puanı
-maksimize et.
+### #72. Rota modelini TSP'den TOPTW'ye taşı — ✅ Kapalı
+*(enhancement, `priority:medium`)* Router bir TSP çözüyordu: hepsini sırala, mesafeyi küçült,
+sığmayanı ele. Turistin problemi ise **seçim** — hangi duraklar. TOPTW'ye geçildi ve altı yama
+(`_fill_days_to_budget`, `_rebalance_days`, `_ensure_daily_meals`, `_ensure_evening_stops`,
+`NIGHTLIFE_EARLIEST_HOUR`, `_nightlife_last`) tek bir modelin kısıtı hâline geldi.
 
-Bugünkü yamalar aynı eksikliğin izleri: `_fill_days_to_budget`, `_rebalance_days`,
-`_ensure_daily_meals`, `_ensure_evening_stops`, `NIGHTLIFE_EARLIEST_HOUR`, `_nightlife_last` —
-hepsi TOPTW'de tek bir modelin kısıtı. Ve birbirinden habersiz olmalarının **ölçülmüş bedeli var**:
-aynı aday setinde `min_food_per_day=0` → 3 nightlife durağı, `=2` → 2 durak; öğün geçişi akşam
-geçişinin koyduğu barı düşürüyor. 2 öğün garantisi de tutmuyor.
+**Issue'nun açık bıraktığı soru cevaplandı: takas gerçek değilmiş.** Greedy yerleştirme +%6 durak
+karşılığında +%12 km/durak istiyordu ve "gerçek çözücü bunu ceza ödemeden alabilir mi" doğrulanmamıştı.
+Alabiliyor — iki metrik aynı anda iyileşiyor. 72 gün, aynı adaylar, aynı coğrafya:
 
-Kazanç ölçüldü ama **bedelsiz değil**: 72 günde greedy zaman-pencereli yerleştirme durak/gün'ü
-7.76 → 8.24 (+%6) çıkarıyor, ama **km/durak 1.04 → 1.16 (+%12)** — bu, karşılaştırmalı analizde
-*itinerary coherence* olarak raporlanan metrik. Greedy mesafeyi optimize etmiyor; gerçek çözücünün
-(OR-Tools routing/CP-SAT, ya da Vansteenwegen'in ILS'i) bunu km cezası olmadan alması bekleniyor —
-**doğrulanmadı, issue'nun ilk işi bunu ölçmek.**
+| havuz | | durak/gün | km/durak | iki öğünlü gün |
+|---|---|---|---|---|
+| 24 (eski varsayılan) | eski router | 6.21 | 1.582 | 28/72 |
+| | TOPTW | **6.69** (+%7.8) | **0.906** (−%42.7) | **72/72** |
+| 72 (**yeni varsayılan**) | eski router | 7.82 | 1.054 | 42/72 |
+| | TOPTW | **9.06** (+%15.8) | **0.471** (−%55.3) | **72/72** |
 
-#32 bağımlılık değil: TOPTW haversine matrisiyle de çalışır. #70 ise ön koşul — zaman pencerelerinin
-gerçek veriye dayanması için.
+Kişiselleştirme seçime taşındı: puan, gezginin altı slider'ını **doğrudan** okuyor, arketip
+etiketine çökmeden — aynı "Culture Enthusiast" etiketine düşen iki gezgin artık farklı plan alıyor.
+Puanı çözücü ağırlığı olarak da kullanmak denendi ve ölçülerek elendi: durak ve mesafe kaybettiriyor,
+kendi amaç fonksiyonunu bile ancak %4 oynatıyor.
 
-[#72](https://github.com/yukselburcinn-web/DA592/issues/72) · [PR #62](https://github.com/yukselburcinn-web/DA592/pull/62)
+Kapatılmayan iki kriter ayrı issue'ya taşındı (#77, #78). Formülün `kalabalık_indirimi(tahmin, saat)`
+parçası bugünkü veriyle karşılanamıyor — forecaster şehir-ay düzeyinde tek skaler döndürüyor, sabit
+çarpan hiçbir seçimi değiştiremez; #33'e bağımlı.
+
+[#72](https://github.com/yukselburcinn-web/DA592/issues/72) · [PR #75](https://github.com/yukselburcinn-web/DA592/pull/75)
+
+---
+
+### #76. LangGraph orchestrator router'a `start_date` geçirmiyor — 🔓 Açık
+*(bug, `priority:medium`)* `orchestrator.py` geçiriyor, `orchestrator_langgraph.py` geçirmiyor;
+`PlanState`'te alan bile yok. Sonucu: **#70'in kapattığı hata bu yolda açık** — tarih olmadan
+`_opening_intervals` kaba `open_hour`/`close_hour` çiftine düşüyor, yani pazartesi kapalı müze
+pazartesiye planlanabiliyor. #72'den sonra bedeli büyüdü: yanlış pencere artık yanlış gün ataması ve
+yanlış saat demek. Mevcut eşdeğerlik testi iki orkestratörün **arayüzünü** karşılaştırıyor, çıktısını
+değil — fark bu yüzden testten kaçtı. [#76](https://github.com/yukselburcinn-web/DA592/issues/76)
+
+### #77. Toplanan puanı ulaşılabilir tavana karşı raporla — 🔓 Açık
+*(enhancement, `priority:medium`)* #72'nin kapatılmamış kriteri. TOPTW bir puan maksimizasyonu
+çözüyor ama çıktısında "ne kadar iyi" sorusunun cevabı yok; raporlanan durak sayısı ve km/durak
+**tavansız**. 9 durak iyi mi? Bu havuzda 11 mümkünse kötü. #49'un retrieval tarafında tespit ettiği
+hatanın birebir aynısı (`recall_at_k` ~0.573 tavanlı ama 1.0 üzerinden okunuyor) — ikisi birlikte
+ele alınırsa tutarlı bir "neyin yüzdesi" anlatısı çıkar.
+[#77](https://github.com/yukselburcinn-web/DA592/issues/77)
+
+### #78. Kilitle-ve-yeniden-çöz: "bu durağı değiştir" — 🔓 Açık
+*(enhancement, `priority:low`)* #72'nin kapatılmamış kriteri ve kısıt modelinin doğal kazancı:
+bir durağı kilitlemek o POI'nin gün kopyasının `ActiveVar`'ını 1'e sabitlemek, reddetmek tüm
+kopyalarını 0'a sabitlemek — ikisi de tek satır. Eksik olan model değil, arayüz ve akış. Dikkat
+edilecek nokta: reddedildikçe havuz daralıyor ve öğün/doluluk kısıtları karşılanamaz hâle gelebilir;
+sessizce gevşemek yerine bunu söylemek gerekir.
+[#78](https://github.com/yukselburcinn-web/DA592/issues/78)
+
+### #80. TOPTW formülasyonunun ~120 POI tavanı — 🔓 Açık
+*(enhancement, `priority:low`)* Router adayları çözücüye vermeden önce puanla eliyor
+(`MAX_WORKING_SET = 120`) ve bu bir tercih değil zorunluluk: 118 POI ~2 s'de çözülüyor, **371 POI
+(tüm Paris kataloğu) 10 dakikada çözülmedi**. Sebep yapısal — her POI gün başına bir kopya alıyor
+(propagation için gerekliydi), düğüm sayısı havuz × gün büyüyor.
+
+Önemi: #72 puanın **aday seçici** olarak retrieval'ın arketip sorgusunu geçtiğini ölçtü; bunun
+sonucu retrieval'ın ön filtrelemeyi bırakması olurdu, ama çözücü o ölçeğe çıkmıyor. Yollar: CP-SAT,
+Vansteenwegen'in ILS'i, ya da kademeli eleme. Bugünkü kaliteyi engellemiyor.
+[#80](https://github.com/yukselburcinn-web/DA592/issues/80)
+
+### #81. POIZoner artık router yolunda değil — 🔓 Açık
+*(`priority:low`)* #72 ile gün ataması modelin kararı oldu; `POIZoner` router tarafından hiç
+çağrılmıyor. Modül ve üç testi duruyor, #19'un kapasite kısıtlı atama çalışması REPORT'ta anlatılıyor.
+Hata değil, tercih sorusu: kalsın (proposal'ın "iki bağımsız KMeans" anlatısının parçası) mı,
+kaldırılsın (çağrılmayan kod sonraki okuyucuyu yanıltır) mı. `TravelerSegmenter` etkilenmiyor.
+[#81](https://github.com/yukselburcinn-web/DA592/issues/81)
 
 ---
 
@@ -371,29 +449,36 @@ yapmıyor — yani **test paketi bu hata sınıfını yapısal olarak göremiyor
 
 [#31](https://github.com/yukselburcinn-web/DA592/issues/31)
 
-### #32. OSRM demo sunucusunu self-hosted motora taşı + transit desteği — 🔓 Açık
-`osrm_client.py` genel-erişimli, garantisiz bir demo sunucuya bağlanıyor; sistemde hiç toplu
-taşıma modellemesi yok. Ayrıca knowledge graph'taki 16 gerçek transport hub'ı (`data/transport.csv`)
-rota optimizasyonunda hiç kullanılmıyor — `RouterAgent` ilk günü şehir merkezinden başlatıyor,
-havalimanı/istasyon koordinatından değil. Önerilen çözüm: (1) Valhalla/GraphHopper ile
-self-hosted routing (düşük efor), (2) OpenTripPlanner + GTFS ile 1-2 pilot şehirde transit
-(yüksek efor), (3) transport hub'ı 1. gün rotasına gerçekten bağlama. Google Maps API bilinçli
-olarak değerlendirilmedi: Places/Directions içeriğinin kalıcı önbelleklenmesi ToS ile yasak,
-projenin "bir kere çek, statik kullan" mimarisiyle uyuşmuyor.
-**Kabul kriterleri:** issue gövdesinde detaylı — bkz. link.
+### #32. OSRM demo sunucusundan çık: Aşama 1 self-hosted mesafe, Aşama 2 GTFS transit — 🔓 Açık
+*(enhancement, `priority:medium` — 2026-08-26'da yeniden yazıldı)* `osrm_client.py` garantisiz bir
+demo sunucuya bağlanıyor; sistemde hiç toplu taşıma modellemesi yok.
 
+**Eski gövde iki yanlış varsayım taşıyordu.** "8 şehir, 16 transport hub" — bugün **2 şehir, 18 hub**
+(`transport.csv`: 3 havalimanı, 12 tren istasyonu, 3 otobüs terminali). Ve "OTP2 tek process = tek
+graph, 8 şehir ya 8 container ya tek birleşik build" endişesinin sayısal temeli kalmadı: 2 şehir için
+ikisi de makul. **Yani transit pilotu yazıldığından ucuz.** Router tarifi de eskimişti (POIZoner +
+2-opt); entegrasyon noktası artık `routing._build_distance_functions` ve `fetch_distance_duration_matrix`
+imzası korunduğu sürece router'a hiç dokunulmuyor. TOPTW matrisi gezi başına bir kez çekiyor, yani
+rate-limit baskısı da düştü.
+
+Üç bağımsız parça: **(1)** transport hub'ı 1. güne bağla — `router_agent.py`'deki yorum bunu zaten
+vaat ediyor, implementasyon yok, bugün yapılabilir; **(2)** Aşama 1, önce OSMnx+NetworkX (sunucusuz,
+`.graphml` commit'lenir, tek-container mimarisi bozulmaz), alternatifi self-hosted
+Valhalla/GraphHopper; **(3)** Aşama 2, GTFS + OTP ile Paris/Berlin transit pilotu (stretch).
+Yolculuk planlama API'si alternatifi bilinçli olarak elendi, tekrar gündeme getirilmesin.
 [#32](https://github.com/yukselburcinn-web/DA592/issues/32)
 
 ---
 
-## Öncelik sırası (2026-08-26 itibarıyla açık işler)
+## Öncelik sırası (2026-08-26 akşamı itibarıyla açık işler)
 
 | Öncelik | Issue | Neden |
 |---|---|---|
-| 1 | #70 | Rota kalitesi için en yüksek getirili veri işi: haftanın günü hiç taşınmıyor, pazartesi kapalı müze pazartesiye konabiliyor. Yeni kaynak gerektirmiyor, #72'nin de ön koşulu |
+| 1 | #71 | Rota kalitesi için kalan en yüksek getirili veri işi: router tamamen zaman pencerelerine dayanıyor ve pencerelerin %60'ı kategori varsayımı. Aynı issue bütçe slider'ını da kapsıyor |
 | 2 | #7 | `priority:high` etiketli, final rapor için gerçek LLM sonucu eksik |
-| 3 | #49 | Ölçüm dürüstlüğü: recall tavanı 1.0 değil ~0.573, ama 1.0 üzerinden okunuyor |
-| 4 | #72 | TOPTW'ye geçiş — altı özel-durum yamasını tek modele indirir; km/durak takası önce ölçülmeli |
-| 5 | #30, #33 | Veri kalitesi/granülerlik ince ayarı |
-| 6 | #71 | Karar issue'su, #70 tamamlanmadan cevaplanamaz |
-| 7 | #32 | Kapsamlı altyapı işi — Aşama 1 (Valhalla/GraphHopper) tek başına da değerli, Aşama 2 (transit) stretch goal |
+| 3 | #76 | Gerçek hata: #70'in düzelttiği şey LangGraph yolunda hâlâ bozuk, ve #72'den sonra bedeli büyüdü |
+| 4 | #49, #77 | Ölçüm dürüstlüğü, aynı hata şekli iki yerde: ikisi de tavansız bir oranı 1.0 üzerinden okuyor. Birlikte ele alınmalı |
+| 5 | #79 | Altı slider'ın biri hiçbir şey yapmıyor; taksonomi kararı, retrieval'a dokunuyor |
+| 6 | #30, #33 | Veri kalitesi/granülerlik ince ayarı. #33 ayrıca #72'nin kalabalık çarpanının ön koşulu |
+| 7 | #32 | Kapsamlı altyapı işi. Parça (1) küçük ve bugün yapılabilir; Aşama 2 teslim penceresine sığmaz |
+| 8 | #78, #80, #81 | #72'nin bıraktığı iyileştirme ve temizlik işleri; hiçbiri bugünkü kaliteyi engellemiyor |
