@@ -16,7 +16,7 @@ import pytest
 from roamwise.knowledge_graph.build_graph import CATEGORY_AFFINITY, GraphIndex
 from roamwise.pipeline.common import NOT_A_SIGHT_TYPES
 from roamwise.models.forecasting import forecast_city, best_months_to_visit
-from roamwise.models.segmentation import TravelerSegmenter, POIZoner
+from roamwise.models.segmentation import TravelerSegmenter
 from roamwise.retrieval.fusion import FusionRetriever
 from roamwise.retrieval.graph_search import GraphSearchIndex
 from roamwise.optimization.routing import NIGHTLIFE_EARLIEST_HOUR, optimize_day_route
@@ -138,14 +138,6 @@ def test_preference_levels_produce_distinct_archetypes():
     assert len(set(archetypes.values())) == len(archetypes)
 
 
-def test_poi_zoning_covers_all_pois():
-    idx = GraphIndex()
-    pois = idx.city_pois(MAIN_CITY)
-    zones = POIZoner().zone(pois, n_zones=3)
-    total = sum(len(v) for v in zones.values())
-    assert total == len(pois)
-
-
 def test_fusion_retrieval_all_configs_run():
     fr = FusionRetriever()
     for config in ["fusion", "hybrid", "standard"]:
@@ -231,21 +223,19 @@ def test_the_graph_router_understands_words_travelers_actually_use():
         "and places of worship to visit in this city")) > 1
 
 
-def test_zoning_returns_every_day_it_was_asked_for():
-    """`zone` returned one zone per POI when candidates ran short, so a 5-day
+def test_a_trip_gets_every_day_it_asked_for_even_from_a_food_only_pool():
+    """A trip used to come back short of the days it was asked for whenever
+    candidates ran thin -- day assignment produced one day per POI, so a 5-day
     trip with 3 sightseeing POIs quietly became a 3-day itinerary, and an empty
-    pool returned no zones at all -- which `_rebalance_days` crashed on with
-    "min() iterable argument is empty" once a query surfaced nothing but food
-    (#63)."""
-    zoner = POIZoner()
-    pois = [{"lat": 48.85 + i / 100, "lon": 2.35 + i / 100} for i in range(3)]
+    sightseeing pool produced no days at all, which `_rebalance_days` crashed
+    on with "min() iterable argument is empty" once a query surfaced nothing
+    but food (#63).
 
-    assert sorted(zoner.zone(pois, n_zones=5)) == [0, 1, 2, 3, 4]
-    assert sum(len(z) for z in zoner.zone(pois, n_zones=5).values()) == len(pois)
-    assert zoner.zone([], n_zones=1) == {0: []}
-
-    # The crash this guards: every candidate is food, so the sightseeing pool
-    # the zoner is handed is empty.
+    The zoner that first carried this guarantee is gone (#72 moved day
+    assignment into the TOPTW model, #81 removed the module), so the claim is
+    now made where it actually has to hold: end to end, on the pool that
+    exposed the crash -- every candidate is food, leaving nothing to sightsee.
+    """
     idx = GraphIndex()
     city = city_with_category("food")
     if city is None:
@@ -494,49 +484,13 @@ def _daytime_poi(name, lat, lon, minutes=60):
 
 # --- issue #19: day balance, budget filling, and travel modes ---
 
-def test_balanced_zoning_evens_out_day_zones():
-    """Plain KMeans collapses a dense city centre into one zone and leaves
-    outlying sights in zones of their own -- one packed day, several starved
-    ones. Balanced assignment has to narrow that spread without losing POIs.
-
-    Measured across cities rather than on one fixed sample: whether plain
-    KMeans happens to be balanced already depends on the exact coordinates of
-    whichever POIs the current poi.csv pull put first, and a refresh of that
-    real data turned the single-city version of this test red without anything
-    in the zoner changing."""
-    idx = GraphIndex()
-    cities = CITY_CODES
-
-    def spread(pois, balanced):
-        sizes = [len(v) for v in POIZoner().zone(pois, n_zones=5, balanced=balanced).values()]
-        assert sum(sizes) == len(pois)  # nothing dropped either way
-        return max(sizes) - min(sizes), min(sizes)
-
-    strictly_better = 0
-    for city in cities:
-        pois = idx.city_pois(city)[:11]
-        balanced_spread, balanced_min = spread(pois, True)
-        plain_spread, _ = spread(pois, False)
-
-        assert balanced_min >= 1, f"{city}: no zone may be left empty"
-        assert balanced_spread <= plain_spread, f"{city}: balancing made the spread worse"
-        strictly_better += balanced_spread < plain_spread
-
-    # max(1, ...) keeps the claim meaningful on a small destination list: with
-    # two cities, len//2 == 1 anyway, but a one-city catalogue must still show
-    # the improvement somewhere rather than passing on an empty requirement.
-    assert strictly_better >= max(1, len(cities) // 2), \
-        "balancing should visibly help in most cities, not merely never hurt"
-
-
 def test_multi_day_itinerary_fills_every_day_near_its_budget():
     """The reported symptom: a multi-day plan where some days were empty and
     others held a two-hour route. Every day must now come back non-empty and
     reasonably full."""
     idx = GraphIndex()
     pois = idx.city_pois(MAIN_CITY)[:40]
-    zones = POIZoner().zone(pois, n_zones=5)
-    days = build_multi_day_itinerary(*_flat(zones), daily_minutes_budget=480)
+    days = build_multi_day_itinerary(pois, 5, daily_minutes_budget=480)
 
     assert len(days) == 5
     assert all(day["route"] for day in days), "no day may come back empty"

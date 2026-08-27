@@ -11,9 +11,12 @@ That last point is not hypothetical. The hand-written PAR.txt in the repo
 recommends the Champs-Elysees, which is not in the catalogue at all, so
 retrieval could surface a guide pointing at a stop the optimiser cannot use.
 
-Zones come from KMeans on POI coordinates -- the same technique POIZoner
-applies downstream -- so the guide describes the city the way the day planner
-will see it.
+Zones come from KMeans on POI coordinates, so the guide describes the city in
+the same geographic terms a traveller reads it in: which sights sit close
+enough to see in one go. This is the proposal's second independent KMeans --
+`models/segmentation.py::POIZoner` used to hold it for the router, but #72 gave
+day assignment to the TOPTW model and #81 removed the unused module, so the
+clustering here is the only place it now lives.
 
     python city_guide.py PAR BER --write
 """

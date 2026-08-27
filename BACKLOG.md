@@ -35,16 +35,19 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 |---|---|---|
 | A — Veri & Modeller | 4 (#30, #33, #71, #79) | 6 (#1, #2, #3, #27, #65, #70) |
 | B — Retrieval & Bilgi Grafiği | 1 (#49) | 8 (#4, #5, #6, #42, #46, #48, #50, #63) |
-| C — Ajanlar, Orkestrasyon & UI | 6 (#7, #76, #77, #78, #80, #81) | 17 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72) |
+| C — Ajanlar, Orkestrasyon & UI | 5 (#7, #76, #77, #78, #80) | 18 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #81) |
 | D — Altyapı | 1 (#32) | 4 (#11, #12, #26, #31) |
 
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 47 issue: **12 açık, 35 kapalı.** Sayılar ve durumlar 2026-08-26 itibarıyla `gh issue list`
-ile doğrulandı.
+Toplam 47 issue: **11 açık, 36 kapalı.** Bu sayım 2026-08-26 akşamının `gh issue list` anlık
+görüntüsü artı 2026-08-27'de kapanan #81'dir; **canlı depo bunun ilerisinde** ve aradaki fark bu
+tabloya henüz işlenmedi: #30 ile #32 kapandı, #92–#94 açıldı (canlı: 52 issue, 12 açık, 40 kapalı).
+O beş issue'nun kendi bölüm yazımları da eksik.
 
-**Bu güncellemede ne değişti:** #70 ve #72 kapandı. #72 (TOPTW router) altı yeni bulgu doğurdu —
+**Bu güncellemede ne değişti:** #81 kapandı — `POIZoner` kaldırıldı (aşağı bak). Önceki
+güncellemede: #70 ve #72 kapandı. #72 (TOPTW router) altı yeni bulgu doğurdu —
 #76–#81 — ve iki issue'nun (#32, #71) varsayımlarını geçersiz kıldığı için ikisi de yeniden yazıldı.
 Açık iş sayısı 8'den 12'ye çıktı; bu bir gerileme değil, tek bir büyük issue'nun içinden çıkan
 işlerin ayrıştırılması.
@@ -401,11 +404,28 @@ sonucu retrieval'ın ön filtrelemeyi bırakması olurdu, ama çözücü o ölç
 Vansteenwegen'in ILS'i, ya da kademeli eleme. Bugünkü kaliteyi engellemiyor.
 [#80](https://github.com/yukselburcinn-web/DA592/issues/80)
 
-### #81. POIZoner artık router yolunda değil — 🔓 Açık
-*(`priority:low`)* #72 ile gün ataması modelin kararı oldu; `POIZoner` router tarafından hiç
-çağrılmıyor. Modül ve üç testi duruyor, #19'un kapasite kısıtlı atama çalışması REPORT'ta anlatılıyor.
-Hata değil, tercih sorusu: kalsın (proposal'ın "iki bağımsız KMeans" anlatısının parçası) mı,
-kaldırılsın (çağrılmayan kod sonraki okuyucuyu yanıltır) mı. `TravelerSegmenter` etkilenmiyor.
+### #81. POIZoner artık router yolunda değil — ✅ Kapalı
+*(`priority:low` — 2026-08-27)* #72 ile gün ataması modelin kararı olunca `POIZoner` router
+tarafından hiç çağrılmayan bir modüle döndü; onu içe aktaran tek yer kendi testleriydi.
+
+**Karar: B — kaldırıldı.** Çağrılmayan kod bir sonraki okuyucuya hâlâ kullanımdaymış izlenimi
+verir, ve bu izlenimin bedeli somuttu: #32'nin gövdesi router'ı "POIZoner + 2-opt" diye tarif
+etmeye devam ediyordu. Proposal'ın "iki bağımsız KMeans" anlatısı bu silmeyle **kaybolmuyor**:
+ikinci KMeans `pipeline/city_guide.py` içinde, şehir rehberlerinin alan yapısını türeten kümeleme
+olarak çalışıyor — ve orası, POIZoner'ın aksine, gerçekten çağrılıyor.
+
+Silinen: `models/segmentation.py::POIZoner` (`_balance` dahil), `__main__` demo bloğunun zoner
+kısmı, artık kullanılmayan `import math`, ve iki test — `test_poi_zoning_covers_all_pois`,
+`test_balanced_zoning_evens_out_day_zones`. Üçüncü test korundu ama seviyesi değişti:
+`test_zoning_returns_every_day_it_was_asked_for` iddiasının hâlâ tutması gereken yarısı (#63'ün
+çökmesi: havuzda gezilecek hiçbir şey yokken de gezi istenen gün sayısıyla dönmeli) artık uçtan
+uca router'a karşı doğrulanıyor — `test_a_trip_gets_every_day_it_asked_for_even_from_a_food_only_pool`.
+`build_multi_day_itinerary` testlerinden biri zoner'ı yalnızca POI havuzunu tekrar düzleştirmek
+için çağırıyordu, doğrudan havuza çevrildi. `TravelerSegmenter` etkilenmedi.
+
+REPORT §3.2'deki anlatım tarihsel nota indirgendi (#19'un kapasite kısıtlı atamasının ne yaptığı
+ve #72'nin bunu neden devraldığı duruyor), `city_guide.py` docstring'indeki eskimiş "POIZoner
+applies downstream" ifadesi düzeltildi. Suite: **103 geçti, 1 atlandı.**
 [#81](https://github.com/yukselburcinn-web/DA592/issues/81)
 
 ---
