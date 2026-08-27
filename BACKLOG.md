@@ -36,18 +36,20 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 | A — Veri & Modeller | 4 (#33, #71, #79, #92) | 7 (#1, #2, #3, #27, #30, #65, #70) |
 | B — Retrieval & Bilgi Grafiği | 1 (#49) | 9 (#4, #5, #6, #42, #46, #48, #50, #63, #85) |
 | C — Ajanlar, Orkestrasyon & UI | 6 (#7, #76, #77, #78, #80, #94) | 19 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #81, #83) |
-| D — Altyapı | 1 (#93) | 5 (#11, #12, #26, #31, #32) |
+| D — Altyapı | — | 6 (#11, #12, #26, #31, #32, #93) |
 
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 52 issue: **12 açık, 40 kapalı.** Sayılar ve durumlar 2026-08-27 itibarıyla
+Toplam 52 issue: **11 açık, 41 kapalı.** Sayılar ve durumlar 2026-08-27 itibarıyla
 `gh issue list` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
 
 **Bu güncellemede ne değişti:** #32 üç parçasıyla kapandı (self-hosted sokak mesafesi, GTFS
 transit, varış hub'ı), #81 kapandı (`POIZoner` kaldırıldı) ve #30 kapandı — ölçüldüğü 47 ikonluk
 sekiz şehir listesi iki şehirlik katalog geçişiyle emekli oldu. #32'nin kapsam dışı bıraktıkları
-#93'e taşındı; #92 ve #94 uygulama canlı sürülürken çıktı. Ayrıca daha önce backlog'a hiç
+#93'e taşındı ve #93 aynı gün kapandı: 3. maddesi (`use_real_routing` varsayılanı) #94'e
+taşındı, 1. ve 2. maddeleri (tek iş günü matrisi, GTFS tazeleme) aksiyon alınmadan kapatıldı.
+#92 ve #94 uygulama canlı sürülürken çıktı. Ayrıca daha önce backlog'a hiç
 yazılmamış iki kapalı issue (#83, #85) eklendi. Önceki güncellemede: #70 ve #72 kapandı. #72 (TOPTW router) altı yeni bulgu doğurdu —
 #76–#81 — ve iki issue'nun (#32, #71) varsayımlarını geçersiz kıldığı için ikisi de yeniden yazıldı.
 Açık iş sayısı 8'den 12'ye çıktı; bu bir gerileme değil, tek bir büyük issue'nun içinden çıkan
@@ -491,7 +493,19 @@ zaten modelin kendisi, ama harita bunu rota gibi göstermemeli.
 
 Transit güzergâhını gerçekten çizmek ayrı ve büyük bir iş (RAPTOR yolculuk ayrıştırması + `shapes.txt`
 geometrisi); bu issue onu kapsamıyor.
-[#94](https://github.com/yukselburcinn-web/DA592/issues/94) — ilişkili: #21, #32
+
+**`use_real_routing` varsayılanı (#93'ten devralındı, 2026-08-27).** Bayrağın kapalı olmasının
+*eski* sebebi (public OSRM uptime'ı) #87 ile ortadan kalktı; kalan tek sebep **karşılaştırılabilirlik**
+— REPORT'taki bütün ölçümler bayrak kapalıyken alındı. Açmanın bedeli sıfır (matris araması), kazancı
+gerçek: Paris'te 4 günlük gezi düz çizgiyle 12.5 km görünürken gerçek ağda 19.6 km, yani günler fazla
+doluydu. Buraya taşındı çünkü yukarıdaki kabul kriterleri gerçek güzergâh çizimini zaten *real routing
+açıkken* şart koşuyor: varsayılan açılırsa haritanın doğru çizmesi varsayılan yol olur, kapalı kalırsa
+düz çizgi + kesikli gösterim varsayılan yol olarak kalır.
+- [ ] `evaluation/comparative_analysis.py` bayrak açıkken yeniden koşulsun
+- [ ] Değişen sayılar REPORT'a işlensin
+- [ ] Varsayılan açılsın, ya da açılmama gerekçesi güncellensin
+
+[#94](https://github.com/yukselburcinn-web/DA592/issues/94) — ilişkili: #21, #32, #93 (kapalı)
 
 ### #81. POIZoner artık router yolunda değil — ✅ Kapalı
 *(`priority:low` — 2026-08-27)* #72 ile gün ataması modelin kararı olunca `POIZoner` router
@@ -560,7 +574,8 @@ yapmıyor — yani **test paketi bu hata sınıfını yapısal olarak göremiyor
 
 ### #32. OSRM demo sunucusundan çık: Aşama 1 self-hosted mesafe, Aşama 2 GTFS transit — ✅ Kapalı
 *(enhancement, `priority:medium` — 2026-08-26'da yeniden yazıldı, 2026-08-27'de üç parçası da
-bitti: PR #87, #88, #89, #90, #91. Kapsam dışı bırakılan üç iş #93'e taşındı.)*
+bitti: PR #87, #88, #89, #90, #91. Kapsam dışı bırakılan üç iş #93'e taşındı; #93 de aynı gün
+kapandı — biri #94'te sürüyor, ikisi aksiyonsuz kapatıldı.)*
 `osrm_client.py` garantisiz bir demo sunucuya bağlanıyordu; sistemde hâlâ hiç toplu taşıma
 modellemesi yok.
 
@@ -671,39 +686,35 @@ Orly'den yürümek tuhaf bir tercih, geçersiz değil. Ölçülen eşik davranı
 uyarmıyor, Berlin uyarmıyor (önerecek transit yok).
 [#32](https://github.com/yukselburcinn-web/DA592/issues/32)
 
-### #93. #32'den artakalanlar: tek iş günü matrisi, GTFS tazeleme, `use_real_routing` — 🔓 Açık
-*(enhancement, `area:data`/`area:agents`, `priority:medium` — 2026-08-27)* #32 kapanırken kapsam
-dışı bırakılan üç şey. Hiçbiri hata değil; üçü de bilinçli sadeleştirme ve üçü de REPORT §5'te
-yazılı. Birbirlerinden bağımsızlar, sırayla yapılmaları gerekmiyor.
+### #93. #32'den artakalanlar: tek iş günü matrisi, GTFS tazeleme, `use_real_routing` — ✅ Kapalı
+*(enhancement, `area:data`/`area:agents`, `priority:medium` — açıldı ve kapandı 2026-08-27)* #32
+kapanırken kapsam dışı bırakılan üç şey burada toplanmıştı. Hiçbiri hata değildi; üçü de bilinçli
+sadeleştirme ve üçü de REPORT §5'te yazılı. **Kapatma kararı:** 3. madde #94'e taşındı, 1. ve 2.
+maddeler için **aksiyon alınmadı** — davranış olduğu gibi duruyor ve belgeli. İkisi de birbirinden ve
+#94'ten bağımsız; tekrar gündeme gelirlerse yeni issue açılır.
 
-**1 — Matris tek bir temsili iş gününden üretiliyor.** `{PAR,BER}_transit.npz` feed span'indeki
-**en dolu Çarşamba**dan geliyor (`build_transit_matrix.py --date` ile değişir), 08:00–20:00 arası
-13 kalkışın medyanı alınıyor. Yani "Pazar günü ne olur" sorusunun cevabı yok (Pazar servisi her iki
-şehirde de hafta içinin ~%47'si) ve gece tarifesi matriste hiç yok. **Sebebi yapısal:** TOPTW gezi
-başına *tek* süre matrisi tüketiyor (`toptw.solve()` `time_m`'i çözümden önce dolduruyor) ve
-OR-Tools'ta saate göre değişen ark maliyeti ayrı bir formülasyon meselesi. Medyan, "tarife o gün
-sana iyi davrandı mı" şansını dışarıda bırakmak için seçildi.
-- [ ] Hafta sonu için ikinci matris, `start_date`'in gününe göre seçim (RAPTOR tarafı bedava, tek
-      maliyet dosya boyutu — şu an 0.8 + 0.4 MB)
-- [ ] Gün başlangıç saatine göre dilim (Nightlife Seeker 15:00'te başlıyor, sabah zirvesinin medyanı
-      ona yanlış)
-- [ ] Gerçek saat-bağımlılığı: TOPTW'de zaman-bağımlı maliyet — ayrı ve büyük iş
+**1 — Matris tek bir temsili iş gününden üretiliyor — aksiyon alınmadı.** `{PAR,BER}_transit.npz`
+feed span'indeki **en dolu Çarşamba**dan geliyor (`build_transit_matrix.py --date` ile değişir),
+08:00–20:00 arası 13 kalkışın medyanı alınıyor. Yani "Pazar günü ne olur" sorusunun cevabı yok
+(Pazar servisi her iki şehirde de hafta içinin ~%47'si) ve gece tarifesi matriste hiç yok.
+**Sebebi yapısal:** TOPTW gezi başına *tek* süre matrisi tüketiyor (`toptw.solve()` `time_m`'i
+çözümden önce dolduruyor) ve OR-Tools'ta saate göre değişen ark maliyeti ayrı bir formülasyon
+meselesi. Medyan, "tarife o gün sana iyi davrandı mı" şansını dışarıda bırakmak için seçildi.
+Yapılmayanlar: hafta sonu için ikinci matris ve `start_date`'in gününe göre seçim; gün başlangıç
+saatine göre dilim (Nightlife Seeker 15:00'te başlıyor, sabah zirvesinin medyanı ona yanlış);
+TOPTW'de gerçek zaman-bağımlı maliyet.
 
-**2 — GTFS feed'leri hızlı bayatlıyor.** IDFM feed'i yalnızca **2026-08-24 .. 09-25** arasını
-kapsıyordu, bir aydan az; VBB daha iyi (2026-08-20 .. 12-12) ama o da sonlu. Sefer saatleri
-sezonluk değişiyor, OSM yol ağı gibi yıllarca durmuyorlar. Tazeleme şu an elle.
-- [ ] Yenileme sıklığına karar (feed span'i bitmeden, yani ~aylık)
-- [ ] `build_transit_matrix.py` feed'i kendi indirsin (`GTFS_URLS` kayıtlı, indirme adımı yok)
-- [ ] `service_date` dosyada duruyor — uygulama bayatlamayı fark edip söyleyebilir mi?
-- [ ] Otomatikleşecekse: zamanlanmış iş mi, "koşmayı unutma" notu mu
+**2 — GTFS feed'leri hızlı bayatlıyor — aksiyon alınmadı.** IDFM feed'i yalnızca
+**2026-08-24 .. 09-25** arasını kapsıyordu, bir aydan az; VBB daha iyi (2026-08-20 .. 12-12) ama o da
+sonlu. Sefer saatleri sezonluk değişiyor, OSM yol ağı gibi yıllarca durmuyorlar. Tazeleme **elle**
+kaldı: feed'i indir, `build_transit_matrix.py PAR BER --write` koş, commit'le. Yapılmayanlar:
+yenileme sıklığına karar (~aylık, feed span'i bitmeden); `build_transit_matrix.py`'ın feed'i kendi
+indirmesi (`GTFS_URLS` kayıtlı, indirme adımı yok); uygulamanın dosyadaki `service_date`'e bakıp
+bayatlamayı söylemesi; otomatikleşecekse zamanlanmış iş mi yoksa not mu olacağı.
 
-**3 — `use_real_routing` varsayılanı hâlâ kapalı.** Kapalı olmasının *eski* sebebi (public OSRM
-uptime'ı) #87 ile ortadan kalktı; kalan tek sebep **karşılaştırılabilirlik** — REPORT'taki bütün
-ölçümler bayrak kapalıyken alındı. Açmanın bedeli sıfır (matris araması), kazancı gerçek: Paris'te
-4 günlük gezi düz çizgiyle 12.5 km görünürken gerçek ağda 19.6 km, yani günler fazla doluydu.
-- [ ] `evaluation/comparative_analysis.py` bayrak açıkken yeniden koşulsun
-- [ ] Değişen sayılar REPORT'a işlensin
-- [ ] Varsayılan açılsın, ya da açılmama gerekçesi güncellensin
+**3 — `use_real_routing` varsayılanı — #94'e taşındı.** Maddeler oraya olduğu gibi eklendi; #94'ün
+kabul kriterleri zaten gerçek güzergâh çizimini bayrak açıkken şart koştuğu için varsayılanın
+açılıp açılmayacağı o işin parçası.
 
 [#93](https://github.com/yukselburcinn-web/DA592/issues/93) — ilişkili: #32 (kapalı), #94
 
@@ -720,6 +731,5 @@ uptime'ı) #87 ile ortadan kalktı; kalan tek sebep **karşılaştırılabilirli
 | 5 | #94 | Harita, planın söylediği mesafenin yarısını çiziyor. #32'den sonra çelişki büyüdü; sokak modları için gereken veri zaten depoda |
 | 6 | #49, #77 | Ölçüm dürüstlüğü, aynı hata şekli iki yerde: ikisi de tavansız bir oranı 1.0 üzerinden okuyor. Birlikte ele alınmalı |
 | 7 | #79 | Altı slider'ın biri hiçbir şey yapmıyor; taksonomi kararı, retrieval'a dokunuyor |
-| 8 | #93 | Üç bağımsız parça. `use_real_routing` varsayılanı ucuz ve bugün kararlaştırılabilir; hafta sonu matrisi ve GTFS tazeleme daha büyük |
-| 9 | #33 | Veri granülerliği; ayrıca #72'nin kalabalık çarpanının ön koşulu |
-| 10 | #78, #80 | #72'nin bıraktığı iyileştirmeler; ikisi de bugünkü kaliteyi engellemiyor |
+| 8 | #33 | Veri granülerliği; ayrıca #72'nin kalabalık çarpanının ön koşulu |
+| 9 | #78, #80 | #72'nin bıraktığı iyileştirmeler; ikisi de bugünkü kaliteyi engellemiyor |
