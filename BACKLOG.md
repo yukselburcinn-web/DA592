@@ -34,14 +34,14 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 | Alan | Açık | Kapalı |
 |---|---|---|
 | A — Veri & Modeller | 4 (#33, #71, #79, #92) | 7 (#1, #2, #3, #27, #30, #65, #70) |
-| B — Retrieval & Bilgi Grafiği | 1 (#49) | 9 (#4, #5, #6, #42, #46, #48, #50, #63, #85) |
+| B — Retrieval & Bilgi Grafiği | — | 10 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85) |
 | C — Ajanlar, Orkestrasyon & UI | 6 (#7, #76, #77, #78, #80, #94) | 19 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #81, #83) |
 | D — Altyapı | — | 6 (#11, #12, #26, #31, #32, #93) |
 
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 52 issue: **11 açık, 41 kapalı.** Sayılar ve durumlar 2026-08-27 itibarıyla
+Toplam 52 issue: **10 açık, 42 kapalı.** Sayılar ve durumlar 2026-08-27 itibarıyla
 `gh issue list` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
 
 **Bu güncellemede ne değişti:** #32 üç parçasıyla kapandı (self-hosted sokak mesafesi, GTFS
@@ -49,7 +49,8 @@ transit, varış hub'ı), #81 kapandı (`POIZoner` kaldırıldı) ve #30 kapand�
 sekiz şehir listesi iki şehirlik katalog geçişiyle emekli oldu. #32'nin kapsam dışı bıraktıkları
 #93'e taşındı ve #93 aynı gün kapandı: 3. maddesi (`use_real_routing` varsayılanı) #94'e
 taşındı, 1. ve 2. maddeleri (tek iş günü matrisi, GTFS tazeleme) aksiyon alınmadan kapatıldı.
-#92 ve #94 uygulama canlı sürülürken çıktı. Ayrıca daha önce backlog'a hiç
+#92 ve #94 uygulama canlı sürülürken çıktı. #49 da kapandı: recall'ın yapısal tavanı
+çözülmedi ama artık hem REPORT'ta hem uygulamada yazılı, yani gizli değil. Ayrıca daha önce backlog'a hiç
 yazılmamış iki kapalı issue (#83, #85) eklendi. Önceki güncellemede: #70 ve #72 kapandı. #72 (TOPTW router) altı yeni bulgu doğurdu —
 #76–#81 — ve iki issue'nun (#32, #71) varsayımlarını geçersiz kıldığı için ikisi de yeniden yazıldı.
 Açık iş sayısı 8'den 12'ye çıktı; bu bir gerileme değil, tek bir büyük issue'nun içinden çıkan
@@ -256,12 +257,31 @@ edilmişti — yani mimari tercihi kanıtlayan sekme, kendi denetimini imkânsı
 latency sayılarını sebepsiz oynatırdı). PR #86.
 [#85](https://github.com/yukselburcinn-web/DA592/issues/85)
 
-### #49. recall_at_k yapısal olarak tavanlı, ama 1.0 üzerinden okunuyor — 🔓 Açık
-*(enhancement, `priority:medium`)* #46'daki değerlendirmenin ikinci bulgusu (ilki #48). `recall_at_k`
-k=8'de ölçülüyor ama medyan sorgunun gold set'i çok daha büyük, dolayısıyla **kusursuz sıralayan bir
-retriever bile 1.0'a ulaşamaz** — ulaşılabilir tavan ~0.573. Sayı bugün 1.0 üzerinden okunuyor ve
-Fusion'ın skoru olduğundan kötü görünüyor. Metrik ya tavanına göre normalize edilmeli ya da tavan
-raporda açıkça yazılmalı. [#49](https://github.com/yukselburcinn-web/DA592/issues/49)
+### #49. recall_at_k yapısal olarak tavanlı, ama 1.0 üzerinden okunuyor — ✅ Kapalı
+*(enhancement, `priority:medium` — kapandı 2026-08-27)* #46'daki değerlendirmenin ikinci bulgusu
+(ilki #48). `recall_at_k` k=8'de ölçülüyor ama medyan sorgunun gold set'i çok daha büyük, dolayısıyla
+**kusursuz sıralayan bir retriever bile 1.0'a ulaşamaz**.
+
+**Kapatma kararı: tavan çözülmedi, ama artık gizli değil.** İstenen iki seçenekten ikincisi ("tavan
+raporda açıkça yazılmalı") #48'in Wikivoyage gold-key revizyonu (`pipeline/retrieval_gold.py`,
+a8da444) ve #85'in sorgu tablosu ile yan etki olarak indi:
+- REPORT `top_k=8` için ortalama ulaşılabilir tavanı **0.512** olarak yazıyor ve Fusion'ın 0.253'ünün
+  "ulaşılabilirin %49'u" olduğunu söylüyor
+- Uygulamada sorgu tablosunun "Answers" sütunu gold set büyüklüğünü gösteriyor, yardım metni
+  *"Only eight are retrieved, so a key larger than that caps recall below 1.0"* diyor
+- `comparative_analysis_results.csv` `gold_size` sütunu taşıyor — tavan sorgu bazında hesaplanabilir
+
+**Bugünkü ölçüm (61 sorgu, `top_k=8`)** — issue'nun gövdesindeki 18 sorgu / gold 13.6 / tavan 0.573
+rakamları bayat: gold set ortalama **23.0** (medyan 17, maks 85), 61 sorgunun **53'ünde** gold > 8,
+ortalama tavan **0.512**. Fusion 6 sorguda tam tavana oturuyor — kusursuz retrieval, düşük recall
+olarak okunuyor. Yani tavan gold set büyüdüğü için biraz daha sıkı.
+
+**Kapsanmadan kalan, RAG çalışmasına bırakıldı:** `views/system_logs.py`'deki metrik açıklaması hâlâ
+1.0 üzerinden okutuyor ("Share of the graph-verified answer set the retriever actually surfaced") —
+sorgu tablosu tavanı söylüyor, metrik başlığı söylemiyor. Normalize recall'ın ikinci metrik olarak
+gösterilmesi ve nDCG/MAP geçişi de yapılmadı. Normalize edilecekse toplulaştırma seçilmeli:
+oranların ortalaması (%56.6) ile ortalamaların oranı (%49) aynı şey değil, REPORT ikincisini kullanıyor.
+[#49](https://github.com/yukselburcinn-web/DA592/issues/49) — ilişkili: #46, #48, #85, #77 (açık)
 
 ---
 
@@ -432,9 +452,10 @@ değil — fark bu yüzden testten kaçtı. [#76](https://github.com/yukselburci
 ### #77. Toplanan puanı ulaşılabilir tavana karşı raporla — 🔓 Açık
 *(enhancement, `priority:medium`)* #72'nin kapatılmamış kriteri. TOPTW bir puan maksimizasyonu
 çözüyor ama çıktısında "ne kadar iyi" sorusunun cevabı yok; raporlanan durak sayısı ve km/durak
-**tavansız**. 9 durak iyi mi? Bu havuzda 11 mümkünse kötü. #49'un retrieval tarafında tespit ettiği
-hatanın birebir aynısı (`recall_at_k` ~0.573 tavanlı ama 1.0 üzerinden okunuyor) — ikisi birlikte
-ele alınırsa tutarlı bir "neyin yüzdesi" anlatısı çıkar.
+**tavansız**. 9 durak iyi mi? Bu havuzda 11 mümkünse kötü. #49'un (kapalı) retrieval tarafında
+tespit ettiği hatanın birebir aynısı. Eşleşme çözüldü: #49 kapandığı için **retrieval tarafı artık
+tavanını söylüyor, router tarafı hâlâ söylemiyor** — gerekçe zayıflamadı, aksine aynı ekranda biri
+"ulaşılabilirin %49'u" diye okunurken diğerinin tavansız durak sayısı vermesi tutarsız.
 [#77](https://github.com/yukselburcinn-web/DA592/issues/77)
 
 ### #78. Kilitle-ve-yeniden-çöz: "bu durağı değiştir" — 🔓 Açık
@@ -729,7 +750,7 @@ açılıp açılmayacağı o işin parçası.
 | 3 | #76 | Gerçek hata: #70'in düzelttiği şey LangGraph yolunda hâlâ bozuk, ve #72'den sonra bedeli büyüdü |
 | 4 | #92 | #32 Aşama 2'nin açıkta bıraktığı tek ölçülebilir yanlışlık: hub koordinatı yüzünden BER erişimi beş kat sapıyordu ve şu an düzeltilmiyor, telafi ediliyor. Veri işi, router'a dokunmuyor |
 | 5 | #94 | Harita, planın söylediği mesafenin yarısını çiziyor. #32'den sonra çelişki büyüdü; sokak modları için gereken veri zaten depoda |
-| 6 | #49, #77 | Ölçüm dürüstlüğü, aynı hata şekli iki yerde: ikisi de tavansız bir oranı 1.0 üzerinden okuyor. Birlikte ele alınmalı |
+| 6 | #77 | Ölçüm dürüstlüğü: toplanan puan tavansız raporlanıyor. #49 kapandıktan sonra retrieval tarafı tavanını söylüyor, router tarafı söylemiyor — açık kalan tek taraf bu |
 | 7 | #79 | Altı slider'ın biri hiçbir şey yapmıyor; taksonomi kararı, retrieval'a dokunuyor |
 | 8 | #33 | Veri granülerliği; ayrıca #72'nin kalabalık çarpanının ön koşulu |
 | 9 | #78, #80 | #72'nin bıraktığı iyileştirmeler; ikisi de bugünkü kaliteyi engellemiyor |
