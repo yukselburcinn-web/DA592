@@ -526,6 +526,17 @@ tutuyor (Gare de Lyon → Louvre 15 dk, Eyfel → Louvre 30 dk, Gare du Nord →
 Dosya `data/street_network/PAR_transit.npz`, 0.8 MB. Berlin'de transit modu **gösterilmiyor**;
 VBB feed'i açık, eklemek aynı script'e bir satır. GTFS feed'leri hızlı bayatlıyor (bu feed yalnızca
 2026-08-24..09-25'i kapsıyor), yani periyodik yenileme gerekiyor.
+
+**Uzak hub uyarısı (2026-08-27).** Parça 1 ile Aşama 2 birleşince ortaya çıkan boşluk: kullanıcı
+havalimanı + "On foot" seçerse hâlâ 5.8 saatlik transfer alıyordu. İtinerary bunu zaten dürüstçe
+gösteriyor (1. gün 23.84 km, iki durak eksik) ama ancak planlamadan *sonra* ve ancak 2. günle
+karşılaştıran birine. `views/itinerary._arrival_transfer_hint` seçim anında uyarıyor: transfer
+60 dakikayı aşıyorsa **ve** transit en az 1.5 kat hızlıysa. Rakamlar router'ın kullanacağı
+`_build_distance_functions` ile hesaplanıyor, ayrı bir kestirimle değil — uyarı uyardığı
+itinerary'yle çelişemesin diye. Bilinçli olarak **engellemiyor ve otomatik değiştirmiyor**:
+Orly'den yürümek tuhaf bir tercih, geçersiz değil. Ölçülen eşik davranışı: CDG + yürüme uyarıyor
+(5s 40dk → 51 dk), CDG + araba uyarmıyor (65 dk → 50 dk, kesintiye değmez), merkezi garlar
+uyarmıyor, Berlin uyarmıyor (önerecek transit yok).
 [#32](https://github.com/yukselburcinn-web/DA592/issues/32)
 
 ---

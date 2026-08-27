@@ -1803,6 +1803,63 @@ def test_arrival_options_offer_the_pinned_city_gateways():
 
 
 
+# --- issue #32: warn before a traveller walks in from the airport ---
+
+
+def _hub_id(city_code, name_fragment):
+    hubs = pd.read_csv(DATA_DIR / "transport.csv")
+    hubs = hubs[hubs["destination_id"] == city_code]
+    return hubs[hubs.name.str.contains(name_fragment, case=False, na=False)].iloc[0].transport_id
+
+
+def test_a_long_walk_in_from_the_airport_is_flagged():
+    """The itinerary already tells the truth -- day 1 comes back 23.84 km and
+    two stops shorter -- but only after planning, and only to someone who
+    compares it against day 2. Someone who picked an airport and "on foot" has
+    asked for a five-hour walk without knowing it."""
+    from roamwise.views.itinerary import _arrival_transfer_hint
+
+    hint = _arrival_transfer_hint(MAIN_CITY, _hub_id(MAIN_CITY, "Charles de Gaulle"), "walking")
+
+    assert hint is not None
+    assert "Public transport" in hint, "a warning with no way out is just nagging"
+
+
+def test_the_hint_stays_quiet_when_switching_would_barely_help():
+    """Driving in from Charles de Gaulle is 65 minutes against transit's 50.
+    Real, and not worth interrupting anyone over -- a warning that fires on
+    every gateway teaches people to dismiss it."""
+    from roamwise.views.itinerary import _arrival_transfer_hint
+
+    cdg = _hub_id(MAIN_CITY, "Charles de Gaulle")
+
+    assert _arrival_transfer_hint(MAIN_CITY, cdg, "driving") is None
+    assert _arrival_transfer_hint(MAIN_CITY, cdg, "hybrid") is None
+
+
+def test_the_hint_stays_quiet_once_there_is_nothing_to_suggest():
+    from roamwise.views.itinerary import _arrival_transfer_hint
+
+    cdg = _hub_id(MAIN_CITY, "Charles de Gaulle")
+
+    assert _arrival_transfer_hint(MAIN_CITY, cdg, "transit") is None, "already taking it"
+    assert _arrival_transfer_hint(MAIN_CITY, None, "walking") is None, "no gateway picked"
+    assert _arrival_transfer_hint(MAIN_CITY, _hub_id(MAIN_CITY, "Gare du Nord"),
+                                  "walking") is None, "a central station is a short walk"
+
+
+def test_no_hint_in_a_city_with_no_timetable_to_offer():
+    """Berlin has no transit matrix yet, so there is no faster way to point at
+    -- and inventing one from an average speed is exactly what the transit
+    mode refuses to do everywhere else."""
+    from roamwise.views.itinerary import _arrival_transfer_hint
+
+    airport = _hub_id("BER", "Brandenburg")
+
+    assert _arrival_transfer_hint("BER", airport, "walking") is None
+
+
+
 if __name__ == "__main__":
     import pytest
     raise SystemExit(pytest.main([__file__, "-v"]))

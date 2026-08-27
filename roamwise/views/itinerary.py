@@ -131,6 +131,70 @@ def _travel_mode_options(destination_id) -> dict:
             if key != "transit" or has_timetable}
 
 
+# Below this, the transfer in from the gateway is just a leg. Above it, it is
+# the shape of day 1: an hour of a twelve-hour day is already most of a
+# morning, and the Charles de Gaulle walk is 5.8 of them.
+_LONG_TRANSFER_MINUTES = 60
+# And below this, the alternative is not worth interrupting anyone for.
+# Driving in from Charles de Gaulle takes 65 minutes against transit's 50 --
+# real, but not the difference between a plan and a write-off.
+_WORTH_SWITCHING = 1.5
+
+
+def _arrival_transfer_hint(destination_id, arrival_hub_id, travel_mode):
+    """"That gateway is a long way out and there is a faster way in", or None.
+
+    The itinerary already tells the truth about this -- day 1 comes back with
+    23.84 km and two fewer stops -- but only after planning, and only to
+    someone who thinks to compare it against day 2. A traveller who picks an
+    airport and "on foot" has asked for a 5.8-hour walk without knowing it,
+    and the honest moment to say so is before the trip is planned.
+
+    Deliberately not a block or an auto-switch: walking in from Orly is a
+    strange choice, not an invalid one, and the mode stays the traveller's.
+    """
+    if not arrival_hub_id or travel_mode == "transit":
+        return None
+    hubs = pd.read_csv(DATA_DIR / "transport.csv")
+    hub = hubs[hubs.transport_id == arrival_hub_id]
+    destinations = pd.read_csv(DATA_DIR / "destinations.csv")
+    centre = destinations[destinations.destination_id == destination_id]
+    if hub.empty or centre.empty:
+        return None
+    points = [{"lat": float(hub.iloc[0].lat), "lon": float(hub.iloc[0].lon)},
+              {"lat": float(centre.iloc[0].lat), "lon": float(centre.iloc[0].lon)}]
+
+    # Costed exactly the way the router will cost it, rather than by a rule of
+    # thumb that could disagree with the itinerary it is warning about.
+    from roamwise.optimization.routing import _build_distance_functions
+
+    distance_fn, duration_fn, real = _build_distance_functions(
+        points, use_real_routing=True, travel_mode=travel_mode)
+    chosen = duration_fn(points[0], points[1])
+    if not real or chosen < _LONG_TRANSFER_MINUTES:
+        return None
+
+    _, transit_duration, by_timetable = _build_distance_functions(
+        points, use_real_routing=True, travel_mode="transit")
+    if not by_timetable:
+        return None
+    transit = transit_duration(points[0], points[1])
+    if transit * _WORTH_SWITCHING > chosen:
+        return None
+
+    return (f"**{hub.iloc[0]['name']}** is {distance_fn(*points):.0f} km from the centre. "
+            f"Getting in {_MODE_LABELS[travel_mode].lower()} takes about {_clock_span(chosen)}, "
+            f"which comes out of day 1. Public transport does it in "
+            f"{_clock_span(transit)}.")
+
+
+def _clock_span(minutes: float) -> str:
+    hours, rest = divmod(int(round(minutes)), 60)
+    if not hours:
+        return f"{rest} min"
+    return f"{hours}h {rest:02d}m" if rest else f"{hours}h"
+
+
 @st.cache_data
 def _destination_options() -> dict:
     """City label -> destination_id, read from the catalogue.
@@ -269,6 +333,9 @@ with st.sidebar:
              "cities whose timetable ships with the app, and is read from that timetable "
              "rather than estimated.",
     )
+    hint = _arrival_transfer_hint(destination_id, arrival_hub_id, travel_mode)
+    if hint:
+        st.warning(hint)
     use_real_routing = st.checkbox(
         "Use real street routing", value=False,
         help="Measures each leg along the real street network (walking or driving, matching "
