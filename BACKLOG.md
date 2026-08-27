@@ -29,25 +29,26 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 
 ---
 
-## Durum özeti (2026-08-26, akşam)
+## Durum özeti (2026-08-27, akşam)
 
 | Alan | Açık | Kapalı |
 |---|---|---|
-| A — Veri & Modeller | 4 (#30, #33, #71, #79) | 6 (#1, #2, #3, #27, #65, #70) |
-| B — Retrieval & Bilgi Grafiği | 1 (#49) | 8 (#4, #5, #6, #42, #46, #48, #50, #63) |
-| C — Ajanlar, Orkestrasyon & UI | 5 (#7, #76, #77, #78, #80) | 18 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #81) |
-| D — Altyapı | 1 (#32) | 4 (#11, #12, #26, #31) |
+| A — Veri & Modeller | 4 (#33, #71, #79, #92) | 7 (#1, #2, #3, #27, #30, #65, #70) |
+| B — Retrieval & Bilgi Grafiği | 1 (#49) | 9 (#4, #5, #6, #42, #46, #48, #50, #63, #85) |
+| C — Ajanlar, Orkestrasyon & UI | 6 (#7, #76, #77, #78, #80, #94) | 19 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #81, #83) |
+| D — Altyapı | 1 (#93) | 5 (#11, #12, #26, #31, #32) |
 
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 47 issue: **11 açık, 36 kapalı.** Bu sayım 2026-08-26 akşamının `gh issue list` anlık
-görüntüsü artı 2026-08-27'de kapanan #81'dir; **canlı depo bunun ilerisinde** ve aradaki fark bu
-tabloya henüz işlenmedi: #30 ile #32 kapandı, #92–#94 açıldı (canlı: 52 issue, 12 açık, 40 kapalı).
-O beş issue'nun kendi bölüm yazımları da eksik.
+Toplam 52 issue: **12 açık, 40 kapalı.** Sayılar ve durumlar 2026-08-27 itibarıyla
+`gh issue list` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
 
-**Bu güncellemede ne değişti:** #81 kapandı — `POIZoner` kaldırıldı (aşağı bak). Önceki
-güncellemede: #70 ve #72 kapandı. #72 (TOPTW router) altı yeni bulgu doğurdu —
+**Bu güncellemede ne değişti:** #32 üç parçasıyla kapandı (self-hosted sokak mesafesi, GTFS
+transit, varış hub'ı), #81 kapandı (`POIZoner` kaldırıldı) ve #30 kapandı — ölçüldüğü 47 ikonluk
+sekiz şehir listesi iki şehirlik katalog geçişiyle emekli oldu. #32'nin kapsam dışı bıraktıkları
+#93'e taşındı; #92 ve #94 uygulama canlı sürülürken çıktı. Ayrıca daha önce backlog'a hiç
+yazılmamış iki kapalı issue (#83, #85) eklendi. Önceki güncellemede: #70 ve #72 kapandı. #72 (TOPTW router) altı yeni bulgu doğurdu —
 #76–#81 — ve iki issue'nun (#32, #71) varsayımlarını geçersiz kıldığı için ikisi de yeniden yazıldı.
 Açık iş sayısı 8'den 12'ye çıktı; bu bir gerileme değil, tek bir büyük issue'nun içinden çıkan
 işlerin ayrıştırılması.
@@ -87,19 +88,20 @@ olarak dönüyordu). `pipeline/sight_filter.py` ile ayıklandı, elenenler `data
 kaydedildi, katalog 700 → 654'e indi ve REPORT'taki sayılar buna göre güncellendi.
 [#65](https://github.com/yukselburcinn-web/DA592/issues/65)
 
-### #30. POI kataloğunda hâlâ eksik olan 5 ikonik yer — 🔓 Açık
-*(Etiket: `area:agents`, içerik: veri/kategori kotası — etiket içerikle örtüşmüyor.)*
-#28'in (main'e merge edilmiş şöhret-bazlı sıralama) ardından ikon kapsaması 20/47'den
-42/47'ye çıktı ama Kapalıçarşı, Sacré-Cœur, Foro Romano, Alfama, Praça do Comércio hâlâ
-listede yok — kategori kotasının round-robin katılığı (bir kategoride şöhret farkı büyükse
-bile eşit sayıda alması) ve bazı OSM etiketlerinin (`place=square`, `place=neighbourhood`)
-sorguya hiç girmemesi sebep gösteriliyor.
-**Kabul kriterleri:**
-- [ ] Kota, şöhret farkı büyük olduğunda esneyebiliyor, hiçbir kategori tamamen boşalmıyor
-- [ ] `place=square` ve benzeri eksik etiketler değerlendiriliyor
-- [ ] 47 ikonluk listede kapsama ≥45/47, şehir başına POI sayısı 150'de kalıyor
+### #30. POI kataloğunda hâlâ eksik olan 5 ikonik yer — ✅ Kapalı
+*(Etiket: `area:agents`, içerik: veri/kategori kotası — etiket içerikle örtüşmüyordu. 2026-08-26'da
+kapatıldı.)* #28'in şöhret-bazlı sıralamasının ardından ikon kapsaması 20/47'den 42/47'ye çıkmış,
+Kapalıçarşı, Sacré-Cœur, Foro Romano, Alfama ve Praça do Comércio dışarıda kalmıştı.
 
-[#30](https://github.com/yukselburcinn-web/DA592/issues/30) — ilişkili: #28 (merge edilmiş)
+**Sorunun beşte dördü sorulmayı bıraktı, biri gerçekten girdi.** İki şehirlik katalog geçişi
+(`Replace the eight-city catalogue with a two-city one`) 47 ikonluk sekiz şehir listesini geçersiz
+kıldı: Kapalıçarşı (İstanbul), Foro Romano (Roma), Alfama ve Praça do Comércio (Lizbon) artık
+kapsanan şehirlerde değil. Kalan tek aday **Sacré-Cœur katalogda** (`POI0017`, PAR, `religion`,
+`sitelink_count` 59). Bugünkü katalog: **PAR 371 + BER 283 = 654 POI.**
+
+Kota esnekliği ve `place=square` gibi eksik etiketler ayrı bir soru olarak duruyor, ama artık bu
+issue'nun gövdesindeki ölçüye bağlı değil — kapsama iddiası ölçüldüğü listeyle birlikte emekli oldu.
+[#30](https://github.com/yukselburcinn-web/DA592/issues/30) — ilişkili: #28 (merge edilmiş), #2
 
 ### #70. Açılış saatleri parse'ı OSM etiketinin %92'sinde bilgi kaybediyor — ✅ Kapalı
 *(bug, `priority:high`)* `build_catalogue.py::parse_opening_hours` bir regex; `opening_hours`
@@ -168,6 +170,34 @@ Aynı sınıftan ikinci sorun: bütçe slider'ı da fiyat verisi tek bit olduğu
 kategori eklenirse `CATEGORY_PHRASE`, `CATEGORY_AFFINITY` ve graf birlikte güncellenmeli.
 [#79](https://github.com/yukselburcinn-web/DA592/issues/79)
 
+### #92. Ulaşım hub'ları pist merkezinden konumlanıyor, terminalden değil — 🔓 Açık
+*(bug, `area:data`, `priority:medium` — 2026-08-27)* `transport.csv` koordinatları OSM'den
+`out center` ile alınıyor (`pipeline/build_transport.py`), yani bir havalimanı için **pistlerin
+geometrik ortası**. Yolcunun bulunduğu yer orası değil.
+
+**Nasıl görüldü:** #32 Aşama 2'de Berlin transit matrisi ilk üretildiğinde havalimanından merkeze
+**240 dakika** çıktı; gerçeği ~45 dk. Hiçbir şey patlamadı — makul görünen bir sayı beş kat yanlıştı.
+`Berlin Brandenburg Airport` koordinatı `52.365932, 13.49691`, en yakın yaya yolu düğümü **1.225 m
+batıda, Waßmannsdorf köyünde**; erişim oradan ölçülünce yolcu köy otobüslerine biniyordu, oysa
+havalimanının kendi peronları (`Flughafen BER`) 785 m ötedeydi.
+
+Bedel üç yerde: transit erişimi (şu an "ağa 150 m'den uzaksa kuş uçuşu × 1.3" kuralıyla **telafi
+ediliyor, düzeltilmiyor**), sokak matrislerinde snap payı (BER araç ağında 1.254 m, yürümede
+1.225 m; CDG'de 185 m — orada şanslıyız), ve 1. günün pistlerin ortasından başlaması. Büyük
+parklarda aynı sapma var (Tempelhofer Feld 863 m) ama orada centroid savunulabilir; havalimanında
+değil, çünkü yolcunun bulunduğu nokta bellidir.
+
+**Kabul kriterleri:**
+- [ ] Havalimanı hub'ı `aeroway=terminal` → bağlı `railway=station` → centroid sırasıyla seçiliyor
+- [ ] Her havalimanı hub'ı en yakın yaya düğümüne **150 m'den yakın** (`SNAP_TRUST_METRES` içinde)
+- [ ] BER ve CDG transit erişimi kuş uçuşu telafisi olmadan ağ üzerinden çalışıyor
+- [ ] `transport.csv` yenilendikten sonra **altı matris de yeniden kuruldu**
+- [ ] CDG → Notre-Dame ~50 dk, BER → Brandenburg Kapısı ~45 dk elle doğrulanmış değerleriyle tutuyor
+
+Tren garı ve otobüs terminallerindeki `railway=station` düğümü zaten doğru yerde; kontrol edilmeli
+ama muhtemelen dokunulmayacak.
+[#92](https://github.com/yukselburcinn-web/DA592/issues/92) — ilişkili: #32
+
 ---
 
 ## Alan B — Retrieval & Bilgi Grafiği
@@ -212,6 +242,17 @@ Kültür gezgini Paris sorgusunda 24 adayın 7. sırasında bir televizyon kanal
 Eyfel/Notre-Dame/Sacré-Cœur/Père Lachaise listede hiç yoktu. Sıralama gezginin görmek isteyeceğine
 göre yeniden kuruldu ve ünlülük eş-değer bir faktör değil **çarpan** hâline getirildi.
 [#63](https://github.com/yukselburcinn-web/DA592/issues/63)
+
+### #85. Results sekmesinde sorgu metinleri görünmüyordu — ✅ Kapalı
+*(enhancement, `area:retrieval`/`area:ui`)* Karşılaştırma "51 test queries" diyip her sorgunun
+sonucunu gösteriyordu ama **sorgunun metni hiçbir sütunda yoktu**; okuyucu `query_id=14`'ün ne
+sorduğunu göremiyordu. Bu teorik bir endişe değildi: #50'de gold etiketlerinin yanlış olduğu
+(bir "rahat akşam" sorusunun `culture` ile notlandırılması) ancak sorgular tek tek okunarak fark
+edilmişti — yani mimari tercihi kanıtlayan sekme, kendi denetimini imkânsız kılıyordu.
+`run_comparative_analysis` satırlarına `query` alanı eklendi ve commit'li sonuç CSV'sine sütun
+**yeniden ölçüm yapmadan** işlendi (metin `query_id`'nin deterministik fonksiyonu; yeniden koşmak
+latency sayılarını sebepsiz oynatırdı). PR #86.
+[#85](https://github.com/yukselburcinn-web/DA592/issues/85)
 
 ### #49. recall_at_k yapısal olarak tavanlı, ama 1.0 üzerinden okunuyor — 🔓 Açık
 *(enhancement, `priority:medium`)* #46'daki değerlendirmenin ikinci bulgusu (ilki #48). `recall_at_k`
@@ -258,6 +299,15 @@ ayarlanmıyor. [#21](https://github.com/yukselburcinn-web/DA592/issues/21)
 
 ### #23. Tercihleri Düşük/Orta/Yüksek seçimine çevir + Max price level filtresini kaldır — ✅ Kapalı
 `good first issue`. [#23](https://github.com/yukselburcinn-web/DA592/issues/23)
+
+### #83. Harita legend'ı 3. günden itibaren kırpılıyordu — ✅ Kapalı
+*(bug, `area:ui`)* Legend yatay ve **çizim alanının içinde**, sol alt köşedeydi — hem harita yarım
+genişlikte bir sütunda (~291 px'e kadar iniyor) sığmıyordu, hem de OpenStreetMap atıf çubuğuyla
+aynı şeridi paylaşıyordu. 3 günlük planda Day 3 hiç görünmüyordu, oysa haritada üç ayrı renkte rota
+vardı. Legend haritanın **altındaki margin'e** alındı ve yüksekliği gün sayısından hesaplanıyor
+(`_MAP_LEGEND_PER_ROW`, `_MAP_LEGEND_ROW_PX`), böylece rotanın üzerini kapatmıyor ve 1–5 gün
+aralığının tamamında her günün anahtarı görünüyor. PR #84 (önce üste alındı, sonra alta taşındı).
+[#83](https://github.com/yukselburcinn-web/DA592/issues/83) — ilişkili: #21
 
 ### #29. Öğün durakları zamanda kümeleniyor — ✅ Kapalı
 #20/#25 ile öğün *sayısı* garantiye bağlandı ama 256 ölçülen günün 153'ünde (%60) iki öğün
@@ -404,6 +454,45 @@ sonucu retrieval'ın ön filtrelemeyi bırakması olurdu, ama çözücü o ölç
 Vansteenwegen'in ILS'i, ya da kademeli eleme. Bugünkü kaliteyi engellemiyor.
 [#80](https://github.com/yukselburcinn-web/DA592/issues/80)
 
+### #94. Harita kuş uçuşu çiziyor: duraklar arası düz doğru — 🔓 Açık
+*(bug, `area:ui`, `priority:medium` — 2026-08-27)* `views/itinerary.py` haritayı
+`go.Scattermap(mode="markers+lines+text")` ile çiziyor ve `lat`/`lon` olarak **doğrudan durak
+koordinatlarını** veriyor. Duraklar arası her çizgi düz bir doğru — seçilen ulaşım modundan ve
+"Use real street routing" işaretinden bağımsız.
+
+Çalışan uygulamada Plotly trace'leri okundu (Paris, 4 gün, toplu ulaşım): gün başına
+`points=7`, yani durak sayısı kadar. Gerçek güzergâh çizilse gün başına yüzlerce nokta olurdu.
+Çizilenle panelde yazan da tutmuyor:
+
+| gün | haritada çizilen | panelde yazan |
+|---|---|---|
+| Gün 1 | 3.17 km | **6.85 km** |
+| Gün 2 | 5.18 km | **7.32 km** |
+| Gün 3 | 5.91 km | **9.47 km** |
+| Gün 4 | 3.14 km | **5.74 km** |
+
+**Yeni bir gerileme değil**, harita en baştan böyleydi. Ama #32 mesafeleri haversine'den gerçek yol
+ağına taşıyınca (Paris'te 4 günlük gezi 12.5 → 19.6 km) metinle çizim arasındaki çelişki büyüdü:
+kullanıcı 6.85 km okuyup 3.17 km'lik çizgi görüyor.
+
+Moda göre ne mümkün: **yürüme/araba/hibrit + real routing açık** → düzeltilebilir, yeni veriye
+gerek yok (`{CITY}_{foot,car}.npz` düğüm koordinatlarını ve kenar listesini taşıyor; scipy
+`dijkstra(..., return_predecessors=True)` polyline verir). **Toplu ulaşım** → çizilemez, transit
+matrisi yalnızca dakika saklıyor, RAPTOR'un hangi hatlardan geçtiği tutulmuyor ve GTFS
+`shapes.txt` (IDFM 135 MB, VBB 182 MB) hiç ayrıştırılmadı. **Real routing kapalı** → düz çizgi
+zaten modelin kendisi, ama harita bunu rota gibi göstermemeli.
+
+**Kabul kriterleri:**
+- [ ] Real routing açıkken sokak modlarında polyline uzunluğu günün `distance_km`'ine **%10 içinde**
+      yakınsıyor (şu an ~%50 sapma)
+- [ ] Transit ve real-routing-kapalı bacaklar kesikli çiziliyor, başlık bunu söylüyor
+- [ ] Maliyet sınırda: bacak başına bir Dijkstra (4 günde ~28 bacak), kalkış başına toplulaştırılabilir
+- [ ] Rota boşsa ya da güzergâh bulunamazsa düz çizgiye düşülüyor, çizim kaybolmuyor
+
+Transit güzergâhını gerçekten çizmek ayrı ve büyük bir iş (RAPTOR yolculuk ayrıştırması + `shapes.txt`
+geometrisi); bu issue onu kapsamıyor.
+[#94](https://github.com/yukselburcinn-web/DA592/issues/94) — ilişkili: #21, #32
+
 ### #81. POIZoner artık router yolunda değil — ✅ Kapalı
 *(`priority:low` — 2026-08-27)* #72 ile gün ataması modelin kararı olunca `POIZoner` router
 tarafından hiç çağrılmayan bir modüle döndü; onu içe aktaran tek yer kendi testleriydi.
@@ -469,8 +558,9 @@ yapmıyor — yani **test paketi bu hata sınıfını yapısal olarak göremiyor
 
 [#31](https://github.com/yukselburcinn-web/DA592/issues/31)
 
-### #32. OSRM demo sunucusundan çık: Aşama 1 self-hosted mesafe, Aşama 2 GTFS transit — 🔓 Açık
-*(enhancement, `priority:medium` — 2026-08-26'da yeniden yazıldı, 2026-08-27'de Aşama 1 kapandı)*
+### #32. OSRM demo sunucusundan çık: Aşama 1 self-hosted mesafe, Aşama 2 GTFS transit — ✅ Kapalı
+*(enhancement, `priority:medium` — 2026-08-26'da yeniden yazıldı, 2026-08-27'de üç parçası da
+bitti: PR #87, #88, #89, #90, #91. Kapsam dışı bırakılan üç iş #93'e taşındı.)*
 `osrm_client.py` garantisiz bir demo sunucuya bağlanıyordu; sistemde hâlâ hiç toplu taşıma
 modellemesi yok.
 
@@ -581,17 +671,55 @@ Orly'den yürümek tuhaf bir tercih, geçersiz değil. Ölçülen eşik davranı
 uyarmıyor, Berlin uyarmıyor (önerecek transit yok).
 [#32](https://github.com/yukselburcinn-web/DA592/issues/32)
 
+### #93. #32'den artakalanlar: tek iş günü matrisi, GTFS tazeleme, `use_real_routing` — 🔓 Açık
+*(enhancement, `area:data`/`area:agents`, `priority:medium` — 2026-08-27)* #32 kapanırken kapsam
+dışı bırakılan üç şey. Hiçbiri hata değil; üçü de bilinçli sadeleştirme ve üçü de REPORT §5'te
+yazılı. Birbirlerinden bağımsızlar, sırayla yapılmaları gerekmiyor.
+
+**1 — Matris tek bir temsili iş gününden üretiliyor.** `{PAR,BER}_transit.npz` feed span'indeki
+**en dolu Çarşamba**dan geliyor (`build_transit_matrix.py --date` ile değişir), 08:00–20:00 arası
+13 kalkışın medyanı alınıyor. Yani "Pazar günü ne olur" sorusunun cevabı yok (Pazar servisi her iki
+şehirde de hafta içinin ~%47'si) ve gece tarifesi matriste hiç yok. **Sebebi yapısal:** TOPTW gezi
+başına *tek* süre matrisi tüketiyor (`toptw.solve()` `time_m`'i çözümden önce dolduruyor) ve
+OR-Tools'ta saate göre değişen ark maliyeti ayrı bir formülasyon meselesi. Medyan, "tarife o gün
+sana iyi davrandı mı" şansını dışarıda bırakmak için seçildi.
+- [ ] Hafta sonu için ikinci matris, `start_date`'in gününe göre seçim (RAPTOR tarafı bedava, tek
+      maliyet dosya boyutu — şu an 0.8 + 0.4 MB)
+- [ ] Gün başlangıç saatine göre dilim (Nightlife Seeker 15:00'te başlıyor, sabah zirvesinin medyanı
+      ona yanlış)
+- [ ] Gerçek saat-bağımlılığı: TOPTW'de zaman-bağımlı maliyet — ayrı ve büyük iş
+
+**2 — GTFS feed'leri hızlı bayatlıyor.** IDFM feed'i yalnızca **2026-08-24 .. 09-25** arasını
+kapsıyordu, bir aydan az; VBB daha iyi (2026-08-20 .. 12-12) ama o da sonlu. Sefer saatleri
+sezonluk değişiyor, OSM yol ağı gibi yıllarca durmuyorlar. Tazeleme şu an elle.
+- [ ] Yenileme sıklığına karar (feed span'i bitmeden, yani ~aylık)
+- [ ] `build_transit_matrix.py` feed'i kendi indirsin (`GTFS_URLS` kayıtlı, indirme adımı yok)
+- [ ] `service_date` dosyada duruyor — uygulama bayatlamayı fark edip söyleyebilir mi?
+- [ ] Otomatikleşecekse: zamanlanmış iş mi, "koşmayı unutma" notu mu
+
+**3 — `use_real_routing` varsayılanı hâlâ kapalı.** Kapalı olmasının *eski* sebebi (public OSRM
+uptime'ı) #87 ile ortadan kalktı; kalan tek sebep **karşılaştırılabilirlik** — REPORT'taki bütün
+ölçümler bayrak kapalıyken alındı. Açmanın bedeli sıfır (matris araması), kazancı gerçek: Paris'te
+4 günlük gezi düz çizgiyle 12.5 km görünürken gerçek ağda 19.6 km, yani günler fazla doluydu.
+- [ ] `evaluation/comparative_analysis.py` bayrak açıkken yeniden koşulsun
+- [ ] Değişen sayılar REPORT'a işlensin
+- [ ] Varsayılan açılsın, ya da açılmama gerekçesi güncellensin
+
+[#93](https://github.com/yukselburcinn-web/DA592/issues/93) — ilişkili: #32 (kapalı), #94
+
 ---
 
-## Öncelik sırası (2026-08-26 akşamı itibarıyla açık işler)
+## Öncelik sırası (2026-08-27 akşamı itibarıyla açık işler)
 
 | Öncelik | Issue | Neden |
 |---|---|---|
 | 1 | #71 | Rota kalitesi için kalan en yüksek getirili veri işi: router tamamen zaman pencerelerine dayanıyor ve pencerelerin %60'ı kategori varsayımı. Aynı issue bütçe slider'ını da kapsıyor |
 | 2 | #7 | `priority:high` etiketli, final rapor için gerçek LLM sonucu eksik |
 | 3 | #76 | Gerçek hata: #70'in düzelttiği şey LangGraph yolunda hâlâ bozuk, ve #72'den sonra bedeli büyüdü |
-| 4 | #49, #77 | Ölçüm dürüstlüğü, aynı hata şekli iki yerde: ikisi de tavansız bir oranı 1.0 üzerinden okuyor. Birlikte ele alınmalı |
-| 5 | #79 | Altı slider'ın biri hiçbir şey yapmıyor; taksonomi kararı, retrieval'a dokunuyor |
-| 6 | #30, #33 | Veri kalitesi/granülerlik ince ayarı. #33 ayrıca #72'nin kalabalık çarpanının ön koşulu |
-| 7 | #32 | Kapsamlı altyapı işi. Parça (1) küçük ve bugün yapılabilir; Aşama 2 teslim penceresine sığmaz |
-| 8 | #78, #80, #81 | #72'nin bıraktığı iyileştirme ve temizlik işleri; hiçbiri bugünkü kaliteyi engellemiyor |
+| 4 | #92 | #32 Aşama 2'nin açıkta bıraktığı tek ölçülebilir yanlışlık: hub koordinatı yüzünden BER erişimi beş kat sapıyordu ve şu an düzeltilmiyor, telafi ediliyor. Veri işi, router'a dokunmuyor |
+| 5 | #94 | Harita, planın söylediği mesafenin yarısını çiziyor. #32'den sonra çelişki büyüdü; sokak modları için gereken veri zaten depoda |
+| 6 | #49, #77 | Ölçüm dürüstlüğü, aynı hata şekli iki yerde: ikisi de tavansız bir oranı 1.0 üzerinden okuyor. Birlikte ele alınmalı |
+| 7 | #79 | Altı slider'ın biri hiçbir şey yapmıyor; taksonomi kararı, retrieval'a dokunuyor |
+| 8 | #93 | Üç bağımsız parça. `use_real_routing` varsayılanı ucuz ve bugün kararlaştırılabilir; hafta sonu matrisi ve GTFS tazeleme daha büyük |
+| 9 | #33 | Veri granülerliği; ayrıca #72'nin kalabalık çarpanının ön koşulu |
+| 10 | #78, #80 | #72'nin bıraktığı iyileştirmeler; ikisi de bugünkü kaliteyi engellemiyor |
