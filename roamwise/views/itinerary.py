@@ -109,6 +109,28 @@ def get_orchestrator(config: str):
     return RoamWiseOrchestrator(retrieval_config=config)
 
 
+_MODE_LABELS = {"walking": "On foot", "driving": "By car",
+                "transit": "Public transport",
+                "hybrid": "Walk nearby, drive between areas"}
+
+
+def _travel_mode_options(destination_id) -> dict:
+    """Travel modes this city can honestly offer, in TRAVEL_MODES' order.
+
+    Walking, driving and hybrid are arithmetic and work anywhere. Public
+    transport is a timetable, and a city whose timetable we do not ship has no
+    transit answer at all -- offering the mode there would dress a straight
+    line at an average speed up as a journey, on services that may not exist.
+    Paris is the pilot (issue #32 stage 2); every other city keeps exactly the
+    three modes it had.
+    """
+    from roamwise.optimization.street_network import available_cities
+
+    has_timetable = destination_id in available_cities("transit")
+    return {key: _MODE_LABELS[key] for key in TRAVEL_MODES
+            if key != "transit" or has_timetable}
+
+
 @st.cache_data
 def _destination_options() -> dict:
     """City label -> destination_id, read from the catalogue.
@@ -239,13 +261,13 @@ with st.sidebar:
     else:
         st.caption(f"Each day will run {daily_hours} hours from whatever start your "
                    "traveler type calls for.")
+    modes = _travel_mode_options(destination_id)
     travel_mode = st.radio(
-        "How are you getting around?",
-        list(TRAVEL_MODES),
-        format_func=lambda m: {"walking": "On foot", "driving": "By car",
-                               "hybrid": "Walk nearby, drive between areas"}[m],
+        "How are you getting around?", list(modes), format_func=modes.get,
         help="Sets how travel between stops is costed, so a driving day can cover more ground "
-             "than a walking one within the same time budget.",
+             "than a walking one within the same time budget. Public transport appears for "
+             "cities whose timetable ships with the app, and is read from that timetable "
+             "rather than estimated.",
     )
     use_real_routing = st.checkbox(
         "Use real street routing", value=False,
@@ -282,9 +304,16 @@ if run:
             f"Days run {_clock(chosen_start)}–{_clock(chosen_start + daily_hours)}"
             + (f", set from your **{result['archetype']}** profile." if auto_start
                else ", as you set them."))
-        if use_real_routing:
+        # Transit always reads the timetable, whatever the checkbox says (see
+        # routing._build_distance_functions), so it needs the same line -- a
+        # traveler should be able to tell measured times from estimated ones
+        # without knowing which flag implies which.
+        if use_real_routing or travel_mode == "transit":
             any_real = any(d.get("used_real_routing") for d in result["routing"]["itinerary"])
-            if any_real:
+            if any_real and travel_mode == "transit":
+                st.caption("Times below are journeys on the published timetable, including the "
+                           "walk to the stop, the wait and any changes.")
+            elif any_real:
                 st.caption("Distances/times below follow the real street network.")
             else:
                 st.caption("Real routing was requested but no street network covers this city -- "

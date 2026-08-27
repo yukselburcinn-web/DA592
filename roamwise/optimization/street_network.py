@@ -58,6 +58,15 @@ DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "street_network"
 NETWORK_TYPE = {"foot": "walk", "car": "drive"}
 DIRECTED = {"foot": False, "car": True}
 
+# `transit` is a profile with no street graph behind it. Its file carries a
+# timetable answer -- minutes solved by RAPTOR over GTFS
+# (`pipeline/build_transit_matrix.py`, issue #32 stage 2) -- rather than a
+# distance to divide by a speed, and there is nothing to fall back to for a
+# point the matrix does not hold: you cannot Dijkstra your way onto a train.
+# Only cities with a committed transit file offer the mode at all, which is
+# why `available_cities` exists.
+MATRIX_ONLY = {"transit"}
+
 # A point is routed from the nearest node of the street network, and the walk
 # from the point to that node is real distance the traveler covers. Most of
 # the time it is trivial -- a venue's coordinate is its building rather than
@@ -121,6 +130,7 @@ def load_city_network(city: str, profile: str):
                 "bbox": tuple(float(v) for v in data["bbox"]),
                 "index": {k: i for i, k in enumerate(data["keys"].tolist())},
                 "matrix": None,
+                "minutes": None,
                 "tree": None,
                 "graph": None,
             }
@@ -142,6 +152,16 @@ def _city_for_points(points: list[dict], profile: str):
         if all(west <= p["lon"] <= east and south <= p["lat"] <= north for p in points):
             return net
     return None
+
+
+def _cached(net, slot: str, member: str):
+    """One decompression per member per process. An .npz member is
+    decompressed on every access, and these are read on every trip."""
+    if net[slot] is None:
+        if member not in net["data"]:
+            return None
+        net[slot] = np.asarray(net["data"][member], dtype=np.float64)
+    return net[slot]
 
 
 def _tree_for(net):
@@ -166,15 +186,21 @@ def arrays_net(node_xy, edge_uv, edge_m) -> dict:
     graph but no committed file yet -- `pipeline/build_street_network.py` is
     the only one."""
     return {"data": {"node_xy": node_xy, "edge_uv": edge_uv, "edge_m": edge_m},
-            "matrix": None, "tree": None, "graph": None}
+            "matrix": None, "minutes": None, "tree": None, "graph": None}
 
 
-def snap(net, lats, lons):
+def snap(net, lats, lons, max_metres=MAX_SNAP_M):
     """(nearest node index, offset in metres) per point, or None if any point
-    lands further than MAX_SNAP_M from the network."""
+    lands further than `max_metres` from the network.
+
+    `max_metres=None` snaps every point and lets the caller decide what to do
+    with the far ones. A distance matrix cannot use that -- one bad point
+    makes the whole matrix dishonest, so it takes the None -- but a caller
+    snapping thousands of transit stops wants to drop the handful that sit
+    inside a station concourse rather than lose the city."""
     tree, lat0 = _tree_for(net)
     offsets, nodes = tree.query(_equirect_metres(lons, lats, lat0))
-    if len(offsets) and float(np.max(offsets)) > MAX_SNAP_M:
+    if max_metres is not None and len(offsets) and float(np.max(offsets)) > max_metres:
         return None
     return nodes, offsets
 
@@ -214,8 +240,10 @@ def fetch_distance_duration_matrix(points: list[dict], profile: str = "foot"):
     callers must fall back to the haversine heuristic in that case, never
     raise.
 
-    Durations are the network distance at the travel mode's own calibrated
-    speed, not a free-flow time read off OSM's `maxspeed` tags. That is
+    A `transit` file carries its own minutes -- a timetable is not a distance
+    divided by a speed -- and those are returned as they were solved. For the
+    street profiles, durations are the network distance at the travel mode's
+    own calibrated speed, not a free-flow time read off OSM's `maxspeed` tags. That is
     deliberate: `driving`'s 25km/h is door-to-door urban driving in a historic
     centre, measured to be right for the kind of leg these itineraries
     contain, while OSM's posted limits describe an empty road. This issue is
@@ -231,18 +259,20 @@ def fetch_distance_duration_matrix(points: list[dict], profile: str = "foot"):
     keys = [point_key(p["lat"], p["lon"]) for p in points]
     rows = [net["index"].get(k) for k in keys]
     if all(r is not None for r in rows):
-        if net["matrix"] is None:
-            # Read once and keep it: an .npz member is decompressed on every
-            # access, and this one is read on every trip.
-            net["matrix"] = np.asarray(net["data"]["matrix_km"], dtype=np.float64)
         take = np.asarray(rows)
-        km = net["matrix"][np.ix_(take, take)]
+        km = _cached(net, "matrix", "matrix_km")[np.ix_(take, take)]
+        stored = _cached(net, "minutes", "matrix_min")
+        minutes = None if stored is None else stored[np.ix_(take, take)]
+    elif profile in MATRIX_ONLY:
+        return None
     else:
         km = matrix_over(
             net, [p["lat"] for p in points], [p["lon"] for p in points],
             DIRECTED[profile])
         if km is None:
             return None
+        minutes = None
 
-    minutes = km / mode_for_network_profile(profile).speed_kmh * 60.0
+    if minutes is None:
+        minutes = km / mode_for_network_profile(profile).speed_kmh * 60.0
     return km.tolist(), minutes.tolist()

@@ -1478,6 +1478,216 @@ def test_street_routing_declines_a_city_it_holds_no_network_for():
 
 
 
+# --- issue #32 stage 2: RAPTOR over the GTFS timetable ---
+#
+# These build timetables by hand, small enough to work out on paper. That is
+# deliberate: a transit router that is subtly wrong does not crash, it returns
+# plausible journeys that nobody can actually make, and the committed Paris
+# matrix cannot tell you which of its 143,641 numbers are the wrong ones.
+
+_HOUR = 3600
+
+
+def _at(hour, minute=0):
+    return int(hour * _HOUR + minute * 60)
+
+
+def _timetable(n_stops, patterns, transfers=()):
+    from roamwise.optimization.raptor import TransitTable
+    return TransitTable.build(n_stops, [(stops, times, times) for stops, times in patterns],
+                              list(transfers))
+
+
+def _arrivals(table, origin_stop, depart, rounds=5):
+    import numpy as np
+    from roamwise.optimization.raptor import earliest_arrivals
+    return earliest_arrivals(table, np.array([[origin_stop]]), np.array([[0]]),
+                             np.array([depart]), rounds=rounds)[0]
+
+
+def test_raptor_rides_two_lines_through_a_change():
+    line_a = [[_at(8, 0), _at(8, 10), _at(8, 20)], [_at(8, 30), _at(8, 40), _at(8, 50)]]
+    line_b = [[_at(8, 25), _at(8, 40)], [_at(9, 0), _at(9, 15)]]
+    table = _timetable(5, [([0, 1, 2], line_a), ([2, 3], line_b)],
+                       transfers=[(3, 4, 300), (4, 3, 300)])
+
+    arrivals = _arrivals(table, origin_stop=0, depart=_at(7, 55))
+
+    assert arrivals[1] == _at(8, 10)
+    assert arrivals[2] == _at(8, 20)
+    assert arrivals[3] == _at(8, 40), "the 08:25 connection was reachable and should be taken"
+    assert arrivals[4] == _at(8, 45), "the five-minute footpath out of stop 3 was not relaxed"
+
+
+def test_raptor_will_not_promise_a_connection_you_cannot_make():
+    """A minute of slack is not a connection. Two minutes is the floor
+    (DEFAULT_CHANGE_SECONDS) and a matrix that ignores it reads as faster than
+    the city is."""
+    line_a = [[_at(8, 0), _at(8, 10), _at(8, 20)]]
+    departs_one_minute_later = [[_at(8, 21), _at(8, 36)], [_at(9, 0), _at(9, 15)]]
+    table = _timetable(4, [([0, 1, 2], line_a), ([2, 3], departs_one_minute_later)])
+
+    arrivals = _arrivals(table, origin_stop=0, depart=_at(7, 55))
+
+    assert arrivals[3] == _at(9, 15), "an 08:20 arrival cannot board at 08:21"
+
+
+def test_raptor_keeps_service_that_runs_past_midnight():
+    """GTFS writes 00:10 on a service day as 24:10:00. Clamped or dropped at
+    midnight, every night bus disappears and late evenings look unreachable."""
+    night_bus = [[_at(23, 50), _at(24, 10)]]
+
+    arrivals = _arrivals(_timetable(2, [([0, 1], night_bus)]), 0, _at(23, 0))
+
+    assert arrivals[1] == _at(24, 10)
+
+
+def test_raptor_boards_the_express_that_overtakes_the_stopper():
+    """RAPTOR boards the earliest *departing* trip and never reconsiders, which
+    is only optimal if trips keep their order along the pattern. The Paris feed
+    breaks that on 30 patterns, and the cost is a wrong answer, not a slow
+    one."""
+    stopper = [_at(8, 0), _at(9, 0)]
+    express = [_at(8, 10), _at(8, 30)]
+    table = _timetable(2, [([0, 1], [stopper, express])])
+
+    assert table.n_patterns == 2, "the express should have been split into its own pattern"
+    assert _arrivals(table, 0, _at(7, 0))[1] == _at(8, 30)
+
+
+def test_raptor_solves_every_origin_together_the_same_as_one_at_a_time():
+    """The whole matrix is one batched solve; if batching changed an answer,
+    every committed number would be suspect."""
+    import numpy as np
+    from roamwise.optimization.raptor import earliest_arrivals
+
+    line_a = [[_at(8, 0), _at(8, 10), _at(8, 20)], [_at(8, 30), _at(8, 40), _at(8, 50)]]
+    line_b = [[_at(8, 25), _at(8, 40)], [_at(9, 0), _at(9, 15)]]
+    table = _timetable(4, [([0, 1, 2], line_a), ([2, 3], line_b)])
+    origins = [(0, _at(7, 55)), (2, _at(8, 0)), (1, _at(8, 0))]
+
+    together = earliest_arrivals(table, np.array([[s] for s, _ in origins]),
+                                 np.zeros((len(origins), 1), dtype=int),
+                                 np.array([t for _, t in origins]))
+
+    for row, (stop, depart) in enumerate(origins):
+        assert (together[row] == _arrivals(table, stop, depart)).all()
+
+
+def test_raptor_leaves_unreachable_stops_unreachable():
+    """Nothing runs at 23:00 in this timetable, and the honest answer is
+    'you cannot get there', not a number."""
+    from roamwise.optimization.raptor import INFINITY
+
+    line_a = [[_at(8, 0), _at(8, 10)]]
+
+    assert _arrivals(_timetable(2, [([0, 1], line_a)]), 0, _at(23, 0))[1] >= INFINITY
+
+
+
+# --- issue #32 stage 2: the committed Paris timetable, end to end ---
+
+
+def _transit_points(*names):
+    """Catalogue points by name, as the router hands them to the matrix."""
+    pois = pd.read_csv(DATA_DIR / "poi.csv")
+    hubs = pd.read_csv(DATA_DIR / "transport.csv")
+    both = pd.concat([pois[["name", "lat", "lon"]], hubs[["name", "lat", "lon"]]])
+    out = []
+    for name in names:
+        row = both[both.name.str.contains(name, case=False, na=False)].iloc[0]
+        out.append({"lat": float(row.lat), "lon": float(row.lon), "name": row["name"]})
+    return out
+
+
+def test_transit_is_never_slower_than_walking():
+    """The matrix keeps whichever is faster, so it can never advise three
+    changes to cross a square. The tolerance is float32 storage, not
+    modelling: the largest excess over the whole matrix is 0.0005 seconds."""
+    from roamwise.optimization.street_network import fetch_distance_duration_matrix
+
+    points = GraphIndex().city_pois(MAIN_CITY)[:20]
+    _, transit = fetch_distance_duration_matrix(points, profile="transit")
+    _, walking = fetch_distance_duration_matrix(points, profile="foot")
+
+    for i in range(len(points)):
+        for j in range(len(points)):
+            assert transit[i][j] <= walking[i][j] + 1e-3, f"{i}->{j} rides when walking is faster"
+
+
+def test_transit_actually_beats_walking_across_town():
+    """And the other direction: if the timetable never won, the matrix would
+    be an expensive way to store walking times."""
+    from roamwise.optimization.street_network import fetch_distance_duration_matrix
+
+    points = _transit_points("Eiffel Tower", "Sacré-Cœur", "Gare de Lyon")
+    _, transit = fetch_distance_duration_matrix(points, profile="transit")
+    _, walking = fetch_distance_duration_matrix(points, profile="foot")
+
+    for i in range(len(points)):
+        for j in range(len(points)):
+            if i != j:
+                assert transit[i][j] < walking[i][j] * 0.8, "the timetable should win these"
+
+
+def test_the_airport_transfer_stops_being_a_walk():
+    """The reason stage 2 exists. With only street distances, arriving at
+    Charles de Gaulle and asking to go on foot spends the better part of a day
+    walking in; the timetable answers in under an hour and a half."""
+    from roamwise.optimization.street_network import fetch_distance_duration_matrix
+
+    points = _transit_points("Charles de Gaulle", "Notre-Dame de Paris")
+    _, walking = fetch_distance_duration_matrix(points, profile="foot")
+    _, transit = fetch_distance_duration_matrix(points, profile="transit")
+
+    assert walking[0][1] > 5 * 60, "the walk from the airport should be absurd, and it is"
+    assert transit[0][1] < 90, f"RER B and a change is not {transit[0][1]:.0f} minutes"
+
+
+def test_transit_declines_a_city_with_no_timetable():
+    """Berlin's VBB feed is open and not yet built. Until it is, there is no
+    transit answer for Berlin -- and a straight line at an average speed is
+    not one, so the matrix returns nothing rather than inventing a journey."""
+    from roamwise.optimization.street_network import fetch_distance_duration_matrix
+
+    berlin = GraphIndex().city_pois("BER")[:5]
+
+    assert fetch_distance_duration_matrix(berlin, profile="transit") is None
+
+
+def test_transit_is_offered_only_where_a_timetable_ships():
+    from roamwise.views.itinerary import _travel_mode_options
+
+    assert "transit" in _travel_mode_options(MAIN_CITY)
+    assert "transit" not in _travel_mode_options("BER")
+    assert "transit" not in _travel_mode_options(None), "an unpinned city has no timetable yet"
+
+
+def test_transit_reads_the_timetable_even_with_real_routing_off():
+    """Every other mode has an honest estimate to fall back on. Transit does
+    not, so selecting it always reads the timetable rather than quietly
+    costing the day at an average speed over straight lines."""
+    from roamwise.optimization.routing import _build_distance_functions
+
+    points = _transit_points("Eiffel Tower", "Sacré-Cœur")
+    _, duration, used_real = _build_distance_functions(points, use_real_routing=False,
+                                                       travel_mode="transit")
+
+    assert used_real is True
+    assert duration(points[0], points[1]) < 60
+
+
+def test_transit_plans_a_whole_trip():
+    from roamwise.agents.orchestrator import RoamWiseOrchestrator
+
+    prefs = {"budget": 0.6, "culture": 0.9, "nature": 0.3, "nightlife": 0.3,
+             "relax": 0.4, "adventure": 0.3}
+    planned = RoamWiseOrchestrator().plan_trip(prefs, destination_id=MAIN_CITY, n_days=3,
+                                               travel_mode="transit", use_real_routing=True)
+
+    days = planned["routing"]["itinerary"]
+    assert all(day["used_real_routing"] for day in days), "fell back off the timetable"
+    assert any(day["route"] for day in days)
 # --- issue #32: the trip starts where the traveler lands ---
 
 def _arrival_hub(city_code):
