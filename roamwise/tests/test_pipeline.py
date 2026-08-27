@@ -1644,23 +1644,44 @@ def test_the_airport_transfer_stops_being_a_walk():
     assert transit[0][1] < 90, f"RER B and a change is not {transit[0][1]:.0f} minutes"
 
 
-def test_transit_declines_a_city_with_no_timetable():
-    """Berlin's VBB feed is open and not yet built. Until it is, there is no
-    transit answer for Berlin -- and a straight line at an average speed is
-    not one, so the matrix returns nothing rather than inventing a journey."""
+def test_berlin_rides_in_from_its_airport():
+    """Brandenburg's coordinate is the middle of the airfield, 1,225m from the
+    nearest footway and outside a village. Measuring access over the street
+    network from there put the traveller on rural buses and the journey at 240
+    minutes; the airport's own platforms are 785m away in a straight line."""
     from roamwise.optimization.street_network import fetch_distance_duration_matrix
 
-    berlin = GraphIndex().city_pois("BER")[:5]
+    points = _transit_points("Brandenburg Airport", "Brandenburg Gate")
+    _, transit = fetch_distance_duration_matrix(points, profile="transit")
 
-    assert fetch_distance_duration_matrix(berlin, profile="transit") is None
+    assert 30 < transit[0][1] < 75, f"FEX and the S-Bahn do not take {transit[0][1]:.0f} minutes"
 
 
-def test_transit_is_offered_only_where_a_timetable_ships():
+def test_transit_declines_a_city_with_no_timetable():
+    """Both catalogue cities ship a timetable now. Somewhere that does not has
+    no transit answer at all -- and a straight line at an average speed is not
+    one, so the matrix returns nothing rather than inventing a journey on
+    services it knows nothing about."""
+    from roamwise.optimization.street_network import fetch_distance_duration_matrix
+
+    vienna = [{"lat": 48.2082, "lon": 16.3738}, {"lat": 48.2000, "lon": 16.3600}]
+
+    assert fetch_distance_duration_matrix(vienna, profile="transit") is None
+
+
+def test_transit_is_offered_only_where_a_timetable_ships(monkeypatch):
     from roamwise.views.itinerary import _travel_mode_options
+    import roamwise.optimization.street_network as street_network
 
-    assert "transit" in _travel_mode_options(MAIN_CITY)
-    assert "transit" not in _travel_mode_options("BER")
-    assert "transit" not in _travel_mode_options(None), "an unpinned city has no timetable yet"
+    for city in CITY_CODES:
+        assert "transit" in _travel_mode_options(city), f"{city} ships a timetable"
+    assert "transit" not in _travel_mode_options(None), "no city pinned, no timetable"
+
+    # The list is driven by what actually ships, not by a literal -- the
+    # destination picker outlived its dataset once already (#65).
+    monkeypatch.setattr(street_network, "available_cities", lambda profile="foot": [])
+    assert "transit" not in _travel_mode_options(MAIN_CITY)
+    assert list(_travel_mode_options(MAIN_CITY)) == ["walking", "driving", "hybrid"]
 
 
 def test_transit_reads_the_timetable_even_with_real_routing_off():
@@ -1848,15 +1869,33 @@ def test_the_hint_stays_quiet_once_there_is_nothing_to_suggest():
                                   "walking") is None, "a central station is a short walk"
 
 
-def test_no_hint_in_a_city_with_no_timetable_to_offer():
-    """Berlin has no transit matrix yet, so there is no faster way to point at
-    -- and inventing one from an average speed is exactly what the transit
-    mode refuses to do everywhere else."""
+def test_the_hint_works_in_both_cities():
+    """Berlin's timetable shipped after Paris', and the hint follows the data
+    rather than naming a city: Brandenburg is as far out as Charles de Gaulle
+    and walking in is as bad an idea."""
     from roamwise.views.itinerary import _arrival_transfer_hint
 
-    airport = _hub_id("BER", "Brandenburg")
+    hint = _arrival_transfer_hint("BER", _hub_id("BER", "Brandenburg"), "walking")
 
-    assert _arrival_transfer_hint("BER", airport, "walking") is None
+    assert hint is not None and "Public transport" in hint
+
+
+def test_no_hint_where_there_is_nothing_faster_to_offer(monkeypatch):
+    """A warning with no way out is just nagging. Take the timetable away and
+    the hint goes quiet, rather than telling someone to use a mode that is not
+    on offer."""
+    from roamwise.views.itinerary import _arrival_transfer_hint
+    # Patched where it is used, not where it is defined: routing.py imported
+    # the name, so it holds its own reference.
+    import roamwise.optimization.routing as routing_module
+
+    real = routing_module.fetch_distance_duration_matrix
+    monkeypatch.setattr(routing_module, "fetch_distance_duration_matrix",
+                        lambda points, profile="foot": (None if profile == "transit"
+                                                        else real(points, profile=profile)))
+
+    assert _arrival_transfer_hint(MAIN_CITY, _hub_id(MAIN_CITY, "Charles de Gaulle"),
+                                  "walking") is None
 
 
 

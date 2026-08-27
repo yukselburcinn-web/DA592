@@ -523,9 +523,31 @@ yürü, uzaksa bin" davranışı, ayrı bir hibrit moda gerek yok.
 25 dk (her yeri yürümek 55 dk); efektif kapıdan-kapıya kuş uçuşu hız medyan 7.8 km/s.
 **CDG → Notre-Dame: 5.8 saatlik yürüyüş yerine 50 dakika.** Elle doğrulanmış yolculuklarla
 tutuyor (Gare de Lyon → Louvre 15 dk, Eyfel → Louvre 30 dk, Gare du Nord → Sacré-Cœur 15 dk).
-Dosya `data/street_network/PAR_transit.npz`, 0.8 MB. Berlin'de transit modu **gösterilmiyor**;
-VBB feed'i açık, eklemek aynı script'e bir satır. GTFS feed'leri hızlı bayatlıyor (bu feed yalnızca
-2026-08-24..09-25'i kapsıyor), yani periyodik yenileme gerekiyor.
+GTFS feed'leri hızlı bayatlıyor (IDFM yalnızca 2026-08-24..09-25'i kapsıyor), yani periyodik
+yenileme gerekiyor.
+
+**Berlin de eklendi (2026-08-27), ama önce bir sessiz-yanlış-cevap daha çıktı.** VBB feed'i
+(79 MB zip, 670 MB açık) aynı script'e bir satırdı; ilk koşu **havalimanından şehre 240 dakika**
+verdi (gerçek ~50). Sebep router'da değil veride: `transport.csv`'deki havalimanı koordinatı
+**pistlerin ortası**, en yakın yaya yolu düğümü 1.225 m batıda, Waßmannsdorf köyünde. Erişim ağ
+üzerinden oradan ölçülünce yolcu köy otobüsüne biniyordu; havalimanının kendi peronu kuş uçuşu
+785 m ötedeydi ve hiç değerlendirilmiyordu. Üç düzeltme:
+
+- **Snap güveni** (`SNAP_TRUST_METRES = 150`): nokta yaya ağına yakın oturuyorsa ağ mesafesi,
+  oturmuyorsa kuş uçuşu × 1.3. Yanlış düğümden ölçülen ağ yolu "biraz hatalı" değil, başka bir
+  sorunun cevabı. Paris'te 14.147 durağın 14.130'u, Berlin'de 6.412'nin 6.386'sı ağa oturuyor.
+- **`parent_station` bağlantıları**: GTFS istasyon peronlarını zaten gruplar, biz kullanmıyorduk.
+  Flughafen BER'in 21 peronu tek ebeveyni paylaşıyor ve terminal içi yürüyüşü hiçbir yaya ağı
+  tarif etmiyor. Paris 54.032, Berlin 3.322 peron bağlantısı.
+- **Yarıçap ile maliyeti ayır**: detour çarpanı yürüyüşün modeli, "ne kadar yürünür"ün değil.
+  İkisine birden uygulayınca 785 m'lik peron 1.020 m'ye şişip 800 m yarıçapın dışında kalıyordu.
+
+Bu düzeltmeler Paris'i de iyileştirdi (yeniden üretildi): %97 → **%98**, 2.07 → **2.14 kat**,
+ortalama 25 → **23 dk**. Berlin: %95, 1.98 kat, ortalama 27 dk (yürüme 56). Doğrulanan yolculuklar
+— **havalimanı → Brandenburg Kapısı 45 dk**, → Alexanderplatz 53 dk, Hauptbahnhof →
+Alexanderplatz 13 dk, Brandenburg Kapısı → Reichstag 4 dk (yürüme berabere). Dosyalar
+`PAR_transit.npz` 0.8 MB + `BER_transit.npz` 0.4 MB. Erişimsiz kalan tek yer Tempelhofer Feld:
+merkezi en yakın duraktan 956 m, ki bu doğru — o bir park.
 
 **Uzak hub uyarısı (2026-08-27).** Parça 1 ile Aşama 2 birleşince ortaya çıkan boşluk: kullanıcı
 havalimanı + "On foot" seçerse hâlâ 5.8 saatlik transfer alıyordu. İtinerary bunu zaten dürüstçe

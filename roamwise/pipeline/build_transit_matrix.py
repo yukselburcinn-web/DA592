@@ -25,10 +25,21 @@ assumes the platform clock was kind.
 
 **Walking is part of the answer.** Each pair is also costed as a direct walk
 on the committed street network (stage 1) and the faster of the two is kept,
-so the matrix never advises three changes to cross a square. Access, egress
-and transfer footpaths are real street distances from the same network rather
-than straight lines -- having built that in stage 1, using it here costs
-nothing and a crow-flies transfer inside Châtelet would be a fiction.
+so the matrix never advises three changes to cross a square.
+
+Access, egress and transfer footpaths are real street distances from that same
+network -- wherever the network can say where something *is*. It usually can:
+14,130 of Paris' 14,147 stops and 6,386 of Berlin's 6,412 sit within 150m of a footway. Where it
+cannot, the answer is not a worse walk but a walk from somewhere else, and
+that is a different kind of wrong. Berlin Brandenburg's coordinate is the
+middle of the airfield; its nearest footway node is 1,225m away in a field
+outside Waßmannsdorf, and measuring access from there found two village bus
+stops and routed the airport into the city in 240 minutes on rural buses,
+while the airport's own platforms sat 785m away and were never considered.
+So a place set far back from the network gets a straight line and a detour
+factor instead, and platforms of one station are linked through the feed's own
+`parent_station` -- the walk from an S-Bahn platform to the FEX is inside a
+building no footway network describes.
 
     python build_transit_matrix.py PAR --write
 """
@@ -53,10 +64,13 @@ from roamwise.optimization.street_network import (  # noqa: E402
 from build_street_network import catalogue_points  # noqa: E402
 
 GTFS_URLS = {
-    # Île-de-France Mobilités publishes one official feed for the whole
-    # region, with no API key. Berlin's VBB equivalent is open too, which is
-    # what makes these two cities the pilot pair.
+    # Île-de-France Mobilités and VBB each publish one official feed for their
+    # whole region, with no API key, which is what made these two the pilot
+    # pair. Both are regional rather than municipal, so the city bounding box
+    # does real work: Berlin's feed reaches Cottbus and Frankfurt (Oder).
     "PAR": "https://eu.ftp.opendatasoft.com/stif/GTFS/IDFM-gtfs.zip",
+    "BER": "https://www.vbb.de/fileadmin/user_upload/VBB/Dokumente/API-Datensaetze/"
+           "gtfs-mastscharf/GTFS.zip",
 }
 OUT_DIR = DATA / "street_network"
 GTFS_DIR = CACHE / "gtfs"
@@ -69,6 +83,30 @@ GTFS_DIR = CACHE / "gtfs"
 ACCESS_METRES = 800.0
 TRANSFER_METRES = 400.0
 WALK_SPEED_KMH = 4.5
+# How close a place has to snap to the footway network before we believe the
+# network knows where it is. Almost everything does -- the median catalogue
+# point snaps under 25m in both cities -- but a place stored as the centroid
+# of a large polygon does not, and for those the network answers a question
+# about somewhere else. Berlin Brandenburg's coordinate is the middle of the
+# airfield: its nearest footway node is 1,225m away in a field outside
+# Waßmannsdorf, so network access found two village bus stops and routed the
+# airport into the city in 240 minutes, on rural buses, while "Flughafen BER"
+# sat 727m away in a straight line and was never considered.
+#
+# Past this, access is measured as a straight line with a detour factor
+# instead. That is a worse model of walking and a far better model of the
+# truth: the walk from the middle of an airport to its own station is inside
+# the airport, and no footway network describes it.
+SNAP_TRUST_METRES = 150.0
+STRAIGHT_LINE_DETOUR = 1.3
+# Walking between platforms of one station. GTFS models this with
+# `parent_station`, and ignoring it is how an airport ends up unreachable:
+# Flughafen BER's 21 platforms share a parent, they sit inside a terminal no
+# footway network maps, and without the parent link arriving on one platform
+# tells you nothing about the trains leaving from another. Paris tags every
+# boarding stop with a parent; Berlin only 8% of them, but the ones that
+# matter -- the stations -- are among them.
+STATION_CHANGE_SECONDS = 120
 # Departures sampled across an ordinary day. Hourly from 08:00 keeps the
 # morning peak, the midday trough and the evening service all in the median.
 DEPARTURE_HOURS = list(range(8, 21))
@@ -191,6 +229,15 @@ def build_patterns(stops: pd.DataFrame, times: pd.DataFrame):
     return patterns, index
 
 
+def haversine_metres(lat, lon, lats, lons):
+    """One point against many, in metres."""
+    radius = 6_371_000.0
+    phi1, phi2 = np.radians(lat), np.radians(lats)
+    a = (np.sin((phi2 - phi1) / 2) ** 2
+         + np.cos(phi1) * np.cos(phi2) * np.sin(np.radians(lons - lon) / 2) ** 2)
+    return 2 * radius * np.arcsin(np.sqrt(a))
+
+
 def walk_seconds(metres: np.ndarray) -> np.ndarray:
     return (metres / (WALK_SPEED_KMH * 1000 / 3600)).astype(np.int32)
 
@@ -211,35 +258,96 @@ def bounded_walks(net, source_nodes, target_nodes, limit_m: float):
     return out
 
 
-def transfer_edges(net, stop_nodes, limit_m: float):
-    """Footpaths between stops, as (from, to, metres).
+def transfer_edges(net, stop_nodes, trusted, limit_m: float):
+    """Footpaths between stops, as (from, to, seconds), over the street
+    network -- only between stops the network can actually place. A stop
+    sitting inside a terminal building snaps to whatever road passes outside,
+    and a footpath measured from there is fiction; those stops connect through
+    their station instead (see `station_edges`).
 
     Returned as edges rather than a matrix on purpose: 14,146 stops is a
     200-million-cell matrix that is almost entirely infinity, and RAPTOR only
     ever wants the neighbours."""
     csr = _csr_for(net)
+    usable = np.flatnonzero(trusted)
+    nodes = stop_nodes[usable]
     sources, targets, metres = [], [], []
-    for start in range(0, len(stop_nodes), _SOURCE_CHUNK):
-        block = stop_nodes[start:start + _SOURCE_CHUNK]
-        distances = dijkstra(csr, directed=False, indices=block, limit=limit_m)[:, stop_nodes]
+    for start in range(0, len(nodes), _SOURCE_CHUNK):
+        block = nodes[start:start + _SOURCE_CHUNK]
+        distances = dijkstra(csr, directed=False, indices=block, limit=limit_m)[:, nodes]
         rows, columns = np.nonzero(np.isfinite(distances) & (distances > 0))
-        sources.append(rows + start)
-        targets.append(columns)
+        sources.append(usable[rows + start])
+        targets.append(usable[columns])
         metres.append(distances[rows, columns])
-    return (np.concatenate(sources), np.concatenate(targets), np.concatenate(metres))
+    return (np.concatenate(sources), np.concatenate(targets),
+            walk_seconds(np.concatenate(metres)))
 
 
-def access_edges(net, point_nodes, stop_nodes, limit_m: float):
+def station_edges(parents: np.ndarray):
+    """Platform-to-platform links inside one station, as (from, to, seconds).
+
+    This is the transfer a traveller makes without going outside: off the S9,
+    up the escalator, onto the FEX. The feed says which platforms belong
+    together and nothing else can -- they are metres apart in a building the
+    street network does not describe."""
+    sources, targets = [], []
+    order = np.argsort(parents, kind="stable")
+    grouped = parents[order]
+    starts = np.flatnonzero(np.r_[True, grouped[1:] != grouped[:-1]])
+    for start, end in zip(starts, np.r_[starts[1:], len(grouped)]):
+        members = order[start:end]
+        if len(members) < 2 or not grouped[start]:
+            continue
+        left = np.repeat(members, len(members))
+        right = np.tile(members, len(members))
+        keep = left != right
+        sources.append(left[keep])
+        targets.append(right[keep])
+    if not sources:
+        return (np.empty(0, dtype=int), np.empty(0, dtype=int), np.empty(0, dtype=np.int32))
+    sources = np.concatenate(sources)
+    return (sources, np.concatenate(targets),
+            np.full(len(sources), STATION_CHANGE_SECONDS, dtype=np.int32))
+
+
+def access_edges(net, point_nodes, point_offsets, points, stop_nodes, trusted_stops,
+                 stop_points, limit_m: float):
     """(stops, seconds) each point can walk to, as a rectangular array padded
-    with INFINITY -- the shape `earliest_arrivals` takes."""
+    with INFINITY -- the shape `earliest_arrivals` takes.
+
+    Two ways of measuring, chosen per point by how far it snapped (see
+    SNAP_TRUST_METRES). Points the network can place get real walking
+    distances, plus the short walk from the place to its own footway. Points
+    it cannot get a straight line and a detour factor, because a network path
+    from the wrong starting node is not a worse estimate, it is an answer to a
+    different question."""
     csr = _csr_for(net)
+    trusted_points = point_offsets <= SNAP_TRUST_METRES
     per_point = []
-    for start in range(0, len(point_nodes), _SOURCE_CHUNK):
-        block = point_nodes[start:start + _SOURCE_CHUNK]
-        distances = dijkstra(csr, directed=False, indices=block, limit=limit_m)[:, stop_nodes]
-        for row in distances:
-            near = np.flatnonzero(np.isfinite(row))
-            per_point.append((near, walk_seconds(row[near])))
+    stop_lat, stop_lon = stop_points[:, 0], stop_points[:, 1]
+    network_stops = np.flatnonzero(trusted_stops)
+
+    for point in range(len(point_nodes)):
+        # `reach` decides which stops are close enough to walk to; `cost` is
+        # how long that walk takes. They are not the same number for a stop
+        # measured as a straight line -- the detour factor is a model of the
+        # walk, not of how far someone is willing to go -- and multiplying the
+        # radius by it as well is how an airport's own platform, 785m away,
+        # got pushed to 1,020m and out of reach.
+        reach = haversine_metres(points[point, 0], points[point, 1], stop_lat, stop_lon)
+        cost = reach * STRAIGHT_LINE_DETOUR
+        if trusted_points[point] and len(network_stops):
+            # Both ends placeable: use the streets, and charge the walk from
+            # the place to its own footway on top.
+            row = dijkstra(csr, directed=False, indices=[point_nodes[point]],
+                           limit=limit_m)[0][stop_nodes[network_stops]]
+            walked = row + point_offsets[point]
+            found = np.isfinite(walked)
+            placed = network_stops[found]
+            reach[placed] = walked[found]
+            cost[placed] = walked[found]
+        near = np.flatnonzero(reach <= limit_m)
+        per_point.append((near, walk_seconds(cost[near])))
     width = max((len(stops) for stops, _ in per_point), default=1) or 1
     stops_out = np.zeros((len(per_point), width), dtype=np.int32)
     seconds_out = np.full((len(per_point), width), INFINITY, dtype=np.int32)
@@ -286,41 +394,43 @@ def build(code: str, day: datetime.date, hours, write: bool):
     patterns, _ = build_patterns(stops, times)
     print(f"  patterns:  {len(patterns):,} stop sequences")
 
-    # Stops sit at street addresses, so most snap onto the footway network
-    # within a few metres. The ones that do not are inside station buildings
-    # the network does not model; they are dropped rather than attached to
-    # whatever road happens to be nearest.
+    # Every stop stays. Most snap onto the footway network within a few
+    # metres, and those get real walking transfers; the ones that do not are
+    # inside station buildings the network does not model, and dropping them
+    # was how an airport lost its own platforms and became unreachable.
     stop_nodes, stop_offsets = snap(walk_net, stops.lat.to_numpy(), stops.lon.to_numpy(),
                                     max_metres=None)
-    usable = stop_offsets <= ACCESS_METRES
-    if not usable.all():
-        print(f"  dropped {int((~usable).sum())} stops further than "
-              f"{ACCESS_METRES:.0f}m from any footway")
-    keep = np.flatnonzero(usable)
-    renumber = np.full(len(stops), -1, dtype=np.int64)
-    renumber[keep] = np.arange(len(keep))
-    stop_nodes = stop_nodes[keep]
-    patterns = [(renumber[seq], dep, arr) for seq, dep, arr in patterns
-                if (renumber[seq] >= 0).all()]
-    print(f"  usable:    {len(keep):,} stops, {len(patterns):,} patterns")
+    trusted_stops = stop_offsets <= SNAP_TRUST_METRES
+    print(f"  placeable: {int(trusted_stops.sum()):,} of {len(stops):,} stops sit within "
+          f"{SNAP_TRUST_METRES:.0f}m of a footway")
 
-    sources, targets, metres = transfer_edges(walk_net, stop_nodes, TRANSFER_METRES)
-    print(f"  transfers: {len(sources):,} footpaths under {TRANSFER_METRES:.0f}m")
-    transfers = list(zip(sources.tolist(), targets.tolist(),
-                         walk_seconds(metres).tolist()))
+    walk_from, walk_to, walk_secs = transfer_edges(walk_net, stop_nodes, trusted_stops,
+                                                   TRANSFER_METRES)
+    parents = stops.parent_station.fillna("").to_numpy()
+    station_from, station_to, station_secs = station_edges(parents)
+    print(f"  transfers: {len(walk_from):,} footpaths under {TRANSFER_METRES:.0f}m, "
+          f"{len(station_from):,} platform links inside stations")
+    transfers = list(zip(np.r_[walk_from, station_from].tolist(),
+                         np.r_[walk_to, station_to].tolist(),
+                         np.r_[walk_secs, station_secs].tolist()))
 
-    table = TransitTable.build(len(keep), patterns, transfers)
+    table = TransitTable.build(len(stops), patterns, transfers)
     split = table.n_patterns - len(patterns)
     print(f"  table:     {table.n_patterns:,} scannable patterns "
           f"({split} split off as overtaking)")
 
     point_nodes, point_offsets = snap(walk_net, points.lat.to_numpy(),
                                       points.lon.to_numpy(), max_metres=None)
-    access_stops, access_seconds = access_edges(walk_net, point_nodes, stop_nodes,
-                                                ACCESS_METRES)
+    point_coords = np.column_stack([points.lat.to_numpy(), points.lon.to_numpy()])
+    stop_coords = np.column_stack([stops.lat.to_numpy(), stops.lon.to_numpy()])
+    access_stops, access_seconds = access_edges(walk_net, point_nodes, point_offsets,
+                                                point_coords, stop_nodes, trusted_stops,
+                                                stop_coords, ACCESS_METRES)
     reachable = (access_seconds < INFINITY).sum(axis=1)
+    off_network = int((point_offsets > SNAP_TRUST_METRES).sum())
     print(f"  access:    median {int(np.median(reachable))} stops within "
-          f"{ACCESS_METRES:.0f}m, {int((reachable == 0).sum())} places with none")
+          f"{ACCESS_METRES:.0f}m, {int((reachable == 0).sum())} places with none, "
+          f"{off_network} measured as straight lines (set back from the network)")
 
     samples = []
     for hour in hours:
