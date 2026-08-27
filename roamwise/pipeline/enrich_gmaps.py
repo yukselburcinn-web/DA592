@@ -22,6 +22,7 @@ router intact, while a pair collapses "shut on Mondays" into "open every day".
 """
 import argparse
 import csv
+import datetime
 import json
 import re
 from pathlib import Path
@@ -116,6 +117,114 @@ def coarse_pair(weekly: dict):
     return int(starts[len(starts) // 2]), int(round(ends[len(ends) // 2]))
 
 
+_DAY_TOKEN = re.compile(r"\b(Mo|Tu|We|Th|Fr|Sa|Su)\b")
+_CALENDAR = re.compile(r"(PH|SH|easter|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|\[)")
+_WEEK_ANCHOR = datetime.date(2026, 9, 21)          # a Monday
+_SAMPLE = [i * 0.25 for i in range(4 * 24)]        # 15-minute steps over one day
+_MIN_WEEKLY_DISAGREEMENT_H = 0.25
+
+
+def day_blind(tag: str) -> bool:
+    """True when the tag says the same thing about every day of the week.
+
+    `Mo-Su 10:00-18:00` and a bare `09:00-18:00` both claim a venue keeps one
+    schedule seven days a week. That is the shape OSM tags take when nobody has
+    filled in the detail, and it is where a day-aware source has something to
+    add."""
+    if not _DAY_TOKEN.search(tag):
+        return True
+    return bool(re.fullmatch(r"\s*Mo-Su\s+[^;]+\s*", tag))
+
+
+def scraped_intervals(weekly: dict, day):
+    """Open intervals for `day` from the scraped weekly table, midnight-spanning
+    stretches included, on the same past-midnight clock the router uses.
+
+    Deliberately not routed through the OSM grammar. Re-encoding the scrape as
+    per-day rules and parsing it back loses the tail of a venue that shuts after
+    midnight, which would show up here as a disagreement that is an artefact of
+    the encoding rather than a difference between the sources."""
+    if not weekly:
+        return None
+    names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    out = []
+
+    def add(text, shift):
+        low = (text or "").strip().lower()
+        if not low or low.startswith("closed"):
+            return
+        if "24 hours" in low:
+            out.append((0.0 + shift, 24.0 + shift))
+            return
+        for span in _spans(text):
+            a, b = span.split("-")
+            ah, am = (int(x) for x in a.split(":"))
+            bh, bm = (int(x) for x in b.split(":"))
+            s, e = ah + am / 60, bh + bm / 60
+            if e <= s:
+                e += 24
+            out.append((s + shift, e + shift))
+
+    add(weekly.get(names[(day.weekday() - 1) % 7]), -24)
+    add(weekly.get(names[day.weekday()]), 0)
+    add(weekly.get(names[(day.weekday() + 1) % 7]), +24)
+    out.sort()
+    merged = []
+    for s, e in out:
+        if merged and s <= merged[-1][1] + 1e-9:
+            merged[-1] = (merged[-1][0], max(merged[-1][1], e))
+        else:
+            merged.append((s, e))
+    return [(s, e) for s, e in merged if e > 0] or None
+
+
+def blind_intervals(tag: str):
+    """The one daily schedule a day-blind tag describes, as (start, end) hours.
+
+    Only day-blind tags reach this, and those are by construction the simple
+    ones -- `Mo-Su 12:00-14:30,19:00-22:30` or a bare `09:00-18:00`. Parsing
+    them here rather than through the full grammar keeps this script free of
+    `optimization.routing`, whose own import of the `opening_hours` library is
+    shadowed by `pipeline/opening_hours.py` whenever this directory leads
+    sys.path (issue #26's failure mode). A tag this function cannot read
+    returns None and the row is left alone."""
+    body = re.sub(r"^\s*Mo-Su\s+", "", tag.strip())
+    out = []
+    for part in body.split(","):
+        m = re.fullmatch(r"\s*(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})\s*", part)
+        if not m:
+            return None
+        s = int(m.group(1)) + int(m.group(2)) / 60
+        e = int(m.group(3)) + int(m.group(4)) / 60
+        if e <= s:
+            e += 24
+        out.append((s, e))
+    return out or None
+
+
+def weekly_disagreement_hours(tag: str, weekly: dict) -> float:
+    """How many hours a week the two sources disagree about being open.
+
+    Compared by sampling the open/closed predicate rather than by matching
+    interval lists, because the same opening hours can be written several ways
+    and only the sampled answer is representation-independent: `Mo-Su
+    07:30-01:00` and a scraped "7:30 AM to 1 AM" describe one schedule and must
+    score zero, or the rule would rewrite rows that already agree."""
+    daily = blind_intervals(tag)
+    if daily is None:
+        return 0.0
+    total = 0.0
+    for offset in range(7):
+        day = _WEEK_ANCHOR + datetime.timedelta(days=offset)
+        # the day's own hours, plus yesterday's tail past midnight
+        a = list(daily) + [(s - 24, e - 24) for s, e in daily]
+        b = scraped_intervals(weekly, day) or []
+        for t in _SAMPLE:
+            if any(s <= t < e for s, e in a) != any(s <= t < e for s, e in b):
+                total += 0.25
+    return total
+
+
 def load_cache(cache_dir: Path) -> dict:
     if not cache_dir.exists():
         raise SystemExit(f"enrichment cache not found: {cache_dir}\n"
@@ -152,7 +261,7 @@ def apply(rows: list[dict], scraped: dict) -> dict:
     than resolved by rule, because a disagreement about opening days is a data
     question for a person, not something a preference order should bury."""
     stats = {"hours": 0, "price": 0, "coarse": 0, "untouched": 0,
-             "hours_kept_osm": 0, "price_kept": 0}
+             "hours_kept_osm": 0, "hours_refined": 0, "price_kept": 0}
     for row in rows:
         rec = scraped.get(row["poi_id"])
         if not rec:
@@ -160,9 +269,25 @@ def apply(rows: list[dict], scraped: dict) -> dict:
             continue
         tag = to_osm(rec.get("hours_weekly"))
         if tag:
-            if (row.get("opening_hours_raw") or "").strip():
+            existing = (row.get("opening_hours_raw") or "").strip()
+            # One exception to "the catalogue wins": a tag that claims the same
+            # schedule seven days a week is not really an answer about days, and
+            # a day-aware source has something to add. It only applies when the
+            # tag carries no season or holiday rules -- those are the part a
+            # weekly table cannot express -- and when the two actually disagree,
+            # so no row is rewritten for nothing. Measured over the catalogue:
+            # 44 rows are day-blind with an enrichment behind them, and 24 of
+            # those disagree; the other 20 are left exactly as they are.
+            refine = (existing
+                      and day_blind(existing)
+                      and not _CALENDAR.search(existing)
+                      and weekly_disagreement_hours(
+                          existing, rec["hours_weekly"]) >= _MIN_WEEKLY_DISAGREEMENT_H)
+            if existing and not refine:
                 stats["hours_kept_osm"] += 1          # katalog konuşmuş, dokunma
             else:
+                if existing:
+                    stats["hours_refined"] += 1
                 row["opening_hours_raw"] = tag
                 row["hours_source"] = "gmaps"
                 stats["hours"] += 1
@@ -198,7 +323,7 @@ def main():
     print(f"{len(rows)} rows | hours filled {stats['hours']} | price filled {stats['price']} "
           f"| coarse pair {stats['coarse']}")
     print(f"kept existing: {stats['hours_kept_osm']} hours, {stats['price_kept']} price "
-          f"| no enrichment: {stats['untouched']}")
+          f"| refined day-blind: {stats['hours_refined']} | no enrichment: {stats['untouched']}")
     print(f"rows whose values actually change: {len(touched)}")
     if not args.write:
         print("dry run; pass --write to update data/poi.csv")
