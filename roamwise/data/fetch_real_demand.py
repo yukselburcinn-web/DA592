@@ -1,4 +1,25 @@
 """
+SUPERSEDED by `pipeline/build_demand.py`. Do not run to set the project up.
+
+Two things are wrong with it now. It writes the old EIGHT-city series (IST,
+PAR, ROM, BCN, AMS, PRG, VIE, LIS, with no BER at all), and it reverts the
+measure to the **country-level** `tour_occ_nim`. The shipped series is
+`tour_occ_nin2m` at NUTS 2 granularity, and that difference is not cosmetic:
+the forecaster consumes seasonal *shape*, and France peaks in August at 2.35x
+its annual mean while Ile-de-France sits at 1.06x -- the national proxy
+changed the crowding label in 8 of 12 Paris months.
+
+`demand_timeseries.csv` is committed, so setup needs none of this (see the
+README's Quickstart). To rebuild it: `cd pipeline && python build_demand.py
+--write`. Running this script instead also makes `forecast_city` fail on
+"less than two full seasonal cycles" against the two-city destination list.
+
+Kept for history. The docstring below describes the state of the world before
+`tour_occ_nin2m` was found, and its central claim -- that Eurostat publishes
+this only at country level -- is no longer true.
+
+Original description follows.
+
 Replace the procedurally-generated `demand_timeseries.csv` with real monthly
 tourism-demand data from Eurostat's short-term tourism statistics
 (`tour_occ_nim`: nights spent by non-resident tourists in accommodation
