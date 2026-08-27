@@ -90,7 +90,8 @@ class RouterAgent:
             archetype: str = None,
             respect_opening_hours: bool = True, use_real_routing: bool = False,
             travel_mode=DEFAULT_MODE, min_food_per_day: int = MIN_FOOD_PER_DAY,
-            narrate: bool = True, start_date=None, preferences: dict = None) -> dict:
+            narrate: bool = True, start_date=None, preferences: dict = None,
+            arrival_hub_id: str = None) -> dict:
         """narrate=False skips the LLM paraphrase and returns only `facts` --
         see FusionRAGAgent.run()'s docstring and issue #57.
 
@@ -100,7 +101,13 @@ class RouterAgent:
         start_date is the trip's first day. It is what makes opening hours
         answerable -- a POI's hours are a rule over days of the week, and
         without a date the router can only read the coarse open/close pair and
-        will happily schedule a Monday-closed museum on a Monday (issue #70)."""
+        will happily schedule a Monday-closed museum on a Monday (issue #70).
+
+        arrival_hub_id is a `transport.csv` id -- the airport, station or
+        terminal the traveler lands at. Day 1 then starts there instead of at
+        the city centre (issue #32). An id the city does not have is ignored
+        rather than raised, the same way an unknown travel mode is, so a stale
+        value from the UI can never break planning."""
         n_days = max(1, min(n_days, len(candidate_pois))) if candidate_pois else 1
         mode = get_travel_mode(travel_mode)
         day_start_hour = start_hour_for(archetype, day_start_hour)
@@ -110,6 +117,15 @@ class RouterAgent:
         # optimizer walk everyone back out to the edge of town daily.
         city_node = self.graph.g.nodes[destination_id]
         start_hub = {"lat": city_node["lat"], "lon": city_node["lon"], "name": city_node["name"]}
+        # ...except day 1, if the traveler says where they are arriving. The
+        # gateways are already in the graph as Transport nodes; this is the
+        # single arrival leg the comment above has always meant.
+        arrival_hub = None
+        if arrival_hub_id:
+            hub = next((h for h in self.graph.city_transport(destination_id)
+                        if h["transport_id"] == arrival_hub_id), None)
+            if hub:
+                arrival_hub = {"lat": hub["lat"], "lon": hub["lon"], "name": hub["name"]}
 
         # Retrieval can itself surface food-category POIs (markets, bazaars --
         # common for e.g. a Nightlife Seeker query). They are still kept apart
@@ -131,7 +147,7 @@ class RouterAgent:
         # min_food_per_day could *remove* a nightlife stop. See
         # optimization/toptw.py.
         itinerary = build_multi_day_itinerary(
-            sightseeing_pois, n_days, start_hub=start_hub,
+            sightseeing_pois, n_days, start_hub=start_hub, arrival_hub=arrival_hub,
             daily_minutes_budget=daily_minutes_budget,
             day_start_hour=day_start_hour, respect_opening_hours=respect_opening_hours,
             use_real_routing=use_real_routing, travel_mode=mode,
