@@ -18,3 +18,7 @@ roamwise/data/*_poi.csv
 # REPORT.md rather than read from these files by anything.
 roamwise/data/gold_*.csv
 roamwise/data/missed_*.csv
+
+# Issue #71: Google Maps kazıma yerel bir deney. Çıktısı da aracı da
+# depoya girmiyor — poi.csv temiz kalıyor, ToS ihlali commit edilmiyor.
+local/
