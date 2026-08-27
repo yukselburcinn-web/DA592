@@ -48,7 +48,7 @@ with logs_tab:
             help="DEBUG is off by default -- the pipeline emits one INFO record per agent step.",
         )
     with search_col:
-        search = st.text_input("Search", placeholder="e.g. router, OSRM, failed",
+        search = st.text_input("Search", placeholder="e.g. router, street network, failed",
                                help="Matches the message, the source module and the structured fields.")
     with action_col:
         st.write("")  # push the buttons down onto the inputs' baseline

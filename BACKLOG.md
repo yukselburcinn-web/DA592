@@ -226,9 +226,9 @@ raporda açıkça yazılmalı. [#49](https://github.com/yukselburcinn-web/DA592/
 probe sonucu REPORT.md'ye eklenmedi. [#7](https://github.com/yukselburcinn-web/DA592/issues/7)
 
 ### #8. Rota optimizasyonunu gerçek yol ağıyla geliştir — ✅ Kapalı
-Haversine → OSRM (`optimization/osrm_client.py`, opt-in `use_real_routing`), açılış saatleri
-de itinerary'ye eklendi. [#8](https://github.com/yukselburcinn-web/DA592/issues/8) —
-takibi: **#32** (OSRM demo sunucusunu self-hosted motora taşıma + transit).
+Haversine → gerçek yol ağı (opt-in `use_real_routing`), açılış saatleri de itinerary'ye
+eklendi. [#8](https://github.com/yukselburcinn-web/DA592/issues/8) — takibi: **#32**; oradaki
+Aşama 1 ile `osrm_client.py` kalktı, yerine `optimization/street_network.py` geçti.
 
 ### #9. LangGraph'a opsiyonel geçiş — ✅ Kapalı
 `agents/orchestrator_langgraph.py`, aynı `plan_trip()` arayüzüyle.
@@ -450,8 +450,9 @@ yapmıyor — yani **test paketi bu hata sınıfını yapısal olarak göremiyor
 [#31](https://github.com/yukselburcinn-web/DA592/issues/31)
 
 ### #32. OSRM demo sunucusundan çık: Aşama 1 self-hosted mesafe, Aşama 2 GTFS transit — 🔓 Açık
-*(enhancement, `priority:medium` — 2026-08-26'da yeniden yazıldı)* `osrm_client.py` garantisiz bir
-demo sunucuya bağlanıyor; sistemde hiç toplu taşıma modellemesi yok.
+*(enhancement, `priority:medium` — 2026-08-26'da yeniden yazıldı, 2026-08-27'de Aşama 1 kapandı)*
+`osrm_client.py` garantisiz bir demo sunucuya bağlanıyordu; sistemde hâlâ hiç toplu taşıma
+modellemesi yok.
 
 **Eski gövde iki yanlış varsayım taşıyordu.** "8 şehir, 16 transport hub" — bugün **2 şehir, 18 hub**
 (`transport.csv`: 3 havalimanı, 12 tren istasyonu, 3 otobüs terminali). Ve "OTP2 tek process = tek
@@ -462,10 +463,24 @@ imzası korunduğu sürece router'a hiç dokunulmuyor. TOPTW matrisi gezi başı
 rate-limit baskısı da düştü.
 
 Üç bağımsız parça: **(1)** transport hub'ı 1. güne bağla — `router_agent.py`'deki yorum bunu zaten
-vaat ediyor, implementasyon yok, bugün yapılabilir; **(2)** Aşama 1, önce OSMnx+NetworkX (sunucusuz,
-`.graphml` commit'lenir, tek-container mimarisi bozulmaz), alternatifi self-hosted
-Valhalla/GraphHopper; **(3)** Aşama 2, GTFS + OTP ile Paris/Berlin transit pilotu (stretch).
-Yolculuk planlama API'si alternatifi bilinçli olarak elendi, tekrar gündeme getirilmesin.
+vaat ediyor, implementasyon yok, bugün yapılabilir; **(2)** ✅ **Aşama 1 tamam** (aşağı bak);
+**(3)** Aşama 2, GTFS + OTP ile Paris/Berlin transit pilotu (stretch). Yolculuk planlama API'si
+alternatifi bilinçli olarak elendi, tekrar gündeme getirilmesin.
+
+**Aşama 1 (2026-08-27): B seçildi, A denenmedi.** `osrm_client.py` kalktı, yerine
+`optimization/street_network.py` + `pipeline/build_street_network.py` geçti. Yol ağı OSM'den bir
+kez indiriliyor, budanıyor ve `data/street_network/` altına commit'leniyor. **Karar gerekçesi:**
+B (OSMnx + NetworkX) ölçülerek doğrulandı — Paris'te 868 yürüme çifti üzerinde OSRM ile ortalama
+%4.3 (medyan %2.1) uyum; haversine aynı referanstan %16.4 sapıyor. A (self-hosted
+Valhalla/GraphHopper) bu doğrulukla tek-container mimarisini `docker-compose` + kalıcı volume'a
+çevirmeyi gerektirdiği için denenmedi.
+
+`.graphml` yerine düz dizi `.npz`: Paris yürüme grafiği ham GraphML olarak 395 MB, aynı graf
+budanmış dizi olarak 3.9 MB. Ayrıca **matris de önceden hesaplanıp commit'leniyor** — router'a
+gelebilecek her nokta (POI + hub + gün başlangıcı olan şehir merkezi) zaten katalogda, yani çalışma
+anında gerçek mesafe bir dizi okuması; grafik ise katalog dışı bir koordinat geldiğinde ikinci
+katman olarak Dijkstra ile çözüyor. `use_real_routing` varsayılanı hâlâ kapalı, ama artık uptime
+değil karşılaştırılabilirlik gerekçesiyle: REPORT'taki bütün ölçümler kapalıyken alındı.
 [#32](https://github.com/yukselburcinn-web/DA592/issues/32)
 
 ---

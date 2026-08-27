@@ -455,7 +455,7 @@ def test_day_start_hour_reaches_the_router_from_plan_trip():
         f"a day started before the requested 11:00: {first_arrivals}"
 
 
-def test_routing_falls_back_when_osrm_unreachable(monkeypatch):
+def test_routing_falls_back_when_no_street_network_covers_the_points(monkeypatch):
     import roamwise.optimization.routing as routing_module
     monkeypatch.setattr(routing_module, "fetch_distance_duration_matrix",
                         lambda points, profile="foot": None)
@@ -582,7 +582,7 @@ def test_hybrid_mode_walks_short_legs_and_drives_long_ones():
     assert hybrid.leg_minutes(long_km) < walking.leg_minutes(long_km)
 
 
-def test_driving_mode_requests_the_car_osrm_profile(monkeypatch):
+def test_driving_mode_requests_the_car_network_profile(monkeypatch):
     """Real routing must price a drive on the road network, not on footpaths."""
     import roamwise.optimization.routing as routing_module
     requested = []
@@ -1389,6 +1389,93 @@ def test_map_view_survives_a_single_stop():
 
     assert zoom == pytest.approx(_MAP_MAX_ZOOM)
     assert (center_lat, center_lon) == (41.9, 12.5)
+
+
+# --- issue #32: street distances come from the repo, not a routing server ---
+
+def _street_haversine(a, b):
+    from roamwise.optimization.routing import haversine_km
+    return haversine_km(a["lat"], a["lon"], b["lat"], b["lon"])
+
+
+def test_street_matrix_answers_for_the_committed_catalogue():
+    """Every point the router can be handed -- POIs, hubs, the city centre it
+    anchors days at -- is in the precomputed matrix, so a trip pays nothing
+    for real distances."""
+    from roamwise.optimization.street_network import fetch_distance_duration_matrix
+
+    pois = GraphIndex().city_pois(MAIN_CITY)[:12]
+    result = fetch_distance_duration_matrix(pois, profile="foot")
+
+    assert result is not None, f"no committed street network covers {MAIN_CITY}"
+    km, minutes = result
+    for i, a in enumerate(pois):
+        assert km[i][i] == 0, "a point is not zero distance from itself"
+        for j, b in enumerate(pois):
+            # A route along real streets, plus the set-back from each endpoint
+            # to its road, can never be shorter than the straight line.
+            assert km[i][j] >= _street_haversine(a, b) - 1e-6, f"{i}->{j} beats the crow"
+            assert minutes[i][j] == pytest.approx(km[i][j] / 4.5 * 60)
+
+
+def test_street_matrix_is_not_just_the_straight_line():
+    """The whole point of #32: streets bend. If the ratio were ~1.0 the matrix
+    would be a slower way to compute haversine."""
+    from roamwise.optimization.street_network import fetch_distance_duration_matrix
+
+    pois = GraphIndex().city_pois(MAIN_CITY)[:25]
+    km, _ = fetch_distance_duration_matrix(pois, profile="foot")
+    ratios = [km[i][j] / _street_haversine(a, b)
+              for i, a in enumerate(pois) for j, b in enumerate(pois)
+              if _street_haversine(a, b) > 0.2]
+
+    assert 1.05 < sum(ratios) / len(ratios) < 1.9, "implausible detour factor"
+
+
+def test_real_routing_opens_no_socket(monkeypatch):
+    """This is what #32 bought. Real routing used to depend on a public OSRM
+    demo server, which is why it shipped default-off; a trip planned with the
+    network unplugged must now still come back on real street distances."""
+    import socket
+
+    def no_network(*args, **kwargs):
+        raise AssertionError("real routing must not touch the network (#32)")
+
+    monkeypatch.setattr(socket, "socket", no_network)
+    monkeypatch.setattr(socket, "create_connection", no_network)
+
+    pois = GraphIndex().city_pois(MAIN_CITY)[:10]
+    days = build_multi_day_itinerary(pois, 2, use_real_routing=True)
+
+    assert any(d["used_real_routing"] for d in days), "fell back to haversine"
+
+
+def test_street_routing_solves_points_the_matrix_does_not_hold():
+    """A coordinate that is not in the catalogue -- a pinned spot, a POI added
+    since the last build -- still gets a real street distance, from the graph
+    committed next to the matrix."""
+    from roamwise.optimization.street_network import fetch_distance_duration_matrix
+
+    pois = [dict(p) for p in GraphIndex().city_pois(MAIN_CITY)[:4]]
+    pois[0]["lat"] += 0.0007  # ~78m away: a real place, no matrix row
+
+    result = fetch_distance_duration_matrix(pois, profile="foot")
+
+    assert result is not None, "the graph layer should have answered"
+    km, _ = result
+    assert km[0][1] >= _street_haversine(pois[0], pois[1]) - 1e-6
+
+
+def test_street_routing_declines_a_city_it_holds_no_network_for():
+    """Vienna was in the old eight-city dataset and is not in this one. Half a
+    matrix in street distances and half in straight lines would make a day's
+    total mean nothing, so the whole request is declined."""
+    from roamwise.optimization.street_network import fetch_distance_duration_matrix
+
+    vienna = [{"lat": 48.2082, "lon": 16.3738}, {"lat": 48.2000, "lon": 16.3600}]
+
+    assert fetch_distance_duration_matrix(vienna, profile="foot") is None
+
 
 
 if __name__ == "__main__":
