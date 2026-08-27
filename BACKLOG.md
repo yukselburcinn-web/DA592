@@ -29,19 +29,19 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 
 ---
 
-## Durum özeti (2026-08-27, akşam)
+## Durum özeti (2026-08-28)
 
 | Alan | Açık | Kapalı |
 |---|---|---|
 | A — Veri & Modeller | 4 (#33, #71, #79, #92) | 7 (#1, #2, #3, #27, #30, #65, #70) |
 | B — Retrieval & Bilgi Grafiği | — | 10 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85) |
-| C — Ajanlar, Orkestrasyon & UI | 6 (#7, #76, #77, #78, #80, #94) | 19 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #81, #83) |
+| C — Ajanlar, Orkestrasyon & UI | 4 (#7, #76, #77, #94) | 21 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #78, #80, #81, #83) |
 | D — Altyapı | — | 6 (#11, #12, #26, #31, #32, #93) |
 
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 52 issue: **10 açık, 42 kapalı.** Sayılar ve durumlar 2026-08-27 itibarıyla
+Toplam 52 issue: **8 açık, 44 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
 `gh issue list` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
 
 **Bu güncellemede ne değişti:** #32 üç parçasıyla kapandı (self-hosted sokak mesafesi, GTFS
@@ -50,7 +50,9 @@ sekiz şehir listesi iki şehirlik katalog geçişiyle emekli oldu. #32'nin kaps
 #93'e taşındı ve #93 aynı gün kapandı: 3. maddesi (`use_real_routing` varsayılanı) #94'e
 taşındı, 1. ve 2. maddeleri (tek iş günü matrisi, GTFS tazeleme) aksiyon alınmadan kapatıldı.
 #92 ve #94 uygulama canlı sürülürken çıktı. #49 da kapandı: recall'ın yapısal tavanı
-çözülmedi ama artık hem REPORT'ta hem uygulamada yazılı, yani gizli değil. Ayrıca daha önce backlog'a hiç
+çözülmedi ama artık hem REPORT'ta hem uygulamada yazılı, yani gizli değil. #72'nin bıraktığı iki
+`priority:low` iş de kapandı: #78 kapsam dışı bırakıldı, #80'in ölçülmüş temeli ise yeniden ölçüldü
+ve tutmadı. Ayrıca daha önce backlog'a hiç
 yazılmamış iki kapalı issue (#83, #85) eklendi. Önceki güncellemede: #70 ve #72 kapandı. #72 (TOPTW router) altı yeni bulgu doğurdu —
 #76–#81 — ve iki issue'nun (#32, #71) varsayımlarını geçersiz kıldığı için ikisi de yeniden yazıldı.
 Açık iş sayısı 8'den 12'ye çıktı; bu bir gerileme değil, tek bir büyük issue'nun içinden çıkan
@@ -458,23 +460,65 @@ tavanını söylüyor, router tarafı hâlâ söylemiyor** — gerekçe zayıfla
 "ulaşılabilirin %49'u" diye okunurken diğerinin tavansız durak sayısı vermesi tutarsız.
 [#77](https://github.com/yukselburcinn-web/DA592/issues/77)
 
-### #78. Kilitle-ve-yeniden-çöz: "bu durağı değiştir" — 🔓 Açık
-*(enhancement, `priority:low`)* #72'nin kapatılmamış kriteri ve kısıt modelinin doğal kazancı:
-bir durağı kilitlemek o POI'nin gün kopyasının `ActiveVar`'ını 1'e sabitlemek, reddetmek tüm
-kopyalarını 0'a sabitlemek — ikisi de tek satır. Eksik olan model değil, arayüz ve akış. Dikkat
-edilecek nokta: reddedildikçe havuz daralıyor ve öğün/doluluk kısıtları karşılanamaz hâle gelebilir;
-sessizce gevşemek yerine bunu söylemek gerekir.
+### #78. Kilitle-ve-yeniden-çöz: "bu durağı değiştir" — ✅ Kapalı
+*(enhancement, `priority:low` — kapandı 2026-08-27, kapsam dışı)* #72'nin kapatılmamış kriteri ve
+kısıt modelinin doğal kazancı: bir durağı kilitlemek o POI'nin gün kopyasının `ActiveVar`'ını 1'e
+sabitlemek, reddetmek tüm kopyalarını 0'a sabitlemek — ikisi de tek satır.
+
+**Karar: model destekliyor, akış yazılmayacak.** Issue'nun kendi cümlesi ("eksik olan model değil,
+arayüz ve akış") işin büyük yarısını tarif ediyor ve o yarı tek satır değil: uygulamada bugün
+**hiç `session_state` yok** (`app.py`, `views/itinerary.py`, `views/system_logs.py` — 0 kullanım),
+akış tek yönlü (slider → *Plan my trip* → render). Mevcut itinerary'yi + kullanıcı kararını taşımak,
+olmayan bir kavramı mimariye sokmak demek. Üstüne iki şey daha biniyor: havuz daraldıkça öğün/doluluk
+kısıtlarının infeasible olması (sessizce gevşemek yerine söylemek gerekir — ayrı bir hata yolu) ve
+"aynı kilit kümesi = aynı çıktı" garantisinin REPORT'un determinizm iddiasına yeni test yükü koyması.
+
+Rapor tarafında kayıp yok: #78 yeni bir yetenek değil, var olan yeteneğin arayüz imkânı. Başlanacaksa
+doğru sıra — önce `toptw.solve`'a `locked`/`excluded` parametreleri (UI'sız, test edilebilir), sonra
+oturum durumu, en son buton.
 [#78](https://github.com/yukselburcinn-web/DA592/issues/78)
 
-### #80. TOPTW formülasyonunun ~120 POI tavanı — 🔓 Açık
-*(enhancement, `priority:low`)* Router adayları çözücüye vermeden önce puanla eliyor
-(`MAX_WORKING_SET = 120`) ve bu bir tercih değil zorunluluk: 118 POI ~2 s'de çözülüyor, **371 POI
-(tüm Paris kataloğu) 10 dakikada çözülmedi**. Sebep yapısal — her POI gün başına bir kopya alıyor
-(propagation için gerekliydi), düğüm sayısı havuz × gün büyüyor.
+### #80. TOPTW formülasyonunun ~120 POI tavanı — ✅ Kapalı
+*(enhancement, `priority:low` — kapandı 2026-08-28, ölçüm tekrar üretilemedi)* Router adayları
+çözücüye vermeden önce puanla eliyor (`MAX_WORKING_SET = 120`) ve issue bunu bir tercih değil
+zorunluluk olarak yazıyordu: 118 POI ~2 s'de çözülüyor, **371 POI (tüm Paris kataloğu) 10 dakikada
+çözülmedi**.
 
-Önemi: #72 puanın **aday seçici** olarak retrieval'ın arketip sorgusunu geçtiğini ölçtü; bunun
-sonucu retrieval'ın ön filtrelemeyi bırakması olurdu, ama çözücü o ölçeğe çıkmıyor. Yollar: CP-SAT,
-Vansteenwegen'in ILS'i, ya da kademeli eleme. Bugünkü kaliteyi engellemiyor.
+**Yapısal tespit doğru ve duruyor.** Düğüm sayısı havuzla değil `havuz × gün` ile büyüyor: her POI
+her gün için ayrı bir düğüm alıyor (o günün açılış penceresini taşısın diye), yemek POI'leri her gün
+her öğün oturumu için bir kopya, ve aynı POI'nin bir kez girmesini bütün kopyaları kapsayan tek
+`AddDisjunction` sağlıyor. `düğüm = (gezilecek × gün) + (yemek × gün × öğün) + 2`; Paris'te 371 POI /
+3 gün / 2 öğün = **1.256 düğüm**. Üstüne çözümden *önce* doldurulan iki `düğüm × düğüm` matris
+(~3,2 M hücre, karesel).
+
+**Ama tavan iddiası tutmuyor (2026-08-28 ölçümü).** Ön filtre tamamen atlanıp tam katalog doğrudan
+çözücüye verildi (`use_real_routing=False`, yürüme, 480 dk):
+
+| şehir | havuz | gün | düğüm | süre | duraklar |
+|---|---|---|---|---|---|
+| Paris | 371 | 3 | 1.256 | **15,6 sn** | 6 · 8 · 8 |
+| Paris | 371 | 4 | 1.674 | **20,5 sn** | 6 · 9 · 8 · 6 |
+| Berlin | 283 | 3 | 893 | **9,2 sn** | 8 · 8 · 8 |
+| Berlin | 283 | 4 | 1.190 | **8,2 sn** | 7 · 7 · 7 · 7 |
+
+Ölçeklendirme (Paris, 3 gün, öğünsüz): 40 → 2,0 sn · 80 → 3,1 · 120 → 4,7 · 160 → 8,1 · 220 → 7,6 ·
+371 → 15,9. Monoton bile değil, çünkü `SOLUTION_LIMIT = 150` sabit bir yineleme bütçesi.
+
+**Sebebin bir kısmı:** issue'nun açıldığı gün (26 Ağu 15:59) aynı gün `f34de0e`,
+`use_extended_swap_active`'i `len(pois) < gün × 9` koşuluna bağladı; ölçüm yenilenmedi. O ayar
+zorlanınca 371 POI 15,9 → **45,2 sn** oluyor (commit'in kendi "4-5 kat" notuyla tutarlı). 45 sn de
+10 dk değil — orijinal koşullar yeniden kurulamadı, iddia dar tutuldu: bugünkü kodla tavan orada değil.
+
+**Asıl sebep, kapatmanın gerçek gerekçesi:** issue "çözücü ölçeklenmiyor, *bu yüzden* mecburen ön
+filtre" diye çerçeveliyordu. Ön filtre `select_by_score` ve orası gezginin **altı slider'ının
+itinerary'ye ulaştığı tek yer**; çözücü tercih vektörünü görmüyor (REPORT: çözücüyü aynı puanlarla
+ağırlıklandırmak durak ve mesafe kaybettiriyor). Yani ön filtreyi kaldırmak, çözücü ne kadar hızlı
+olursa olsun kişiselleştirmeyi kaldırmak demek — ölçüm de destekliyor: havuz 40 → 371'e çıkarken
+durak sayısı iyileşmiyor (20 → 15 → 22).
+
+**Kapanışta kalan iş:** REPORT §5 hâlâ eski cümleyi taşıyor — *"a full 371-POI city catalogue did not
+solve in ten minutes"*. Tekrar üretilemeyen bir ölçüm; issue kapansa da düzeltilmeli.
+`MAX_WORKING_SET` yükseltilebilir (220 POI 7,6 sn) ama geziyi iyileştirdiğine dair kanıt yok.
 [#80](https://github.com/yukselburcinn-web/DA592/issues/80)
 
 ### #94. Harita kuş uçuşu çiziyor: duraklar arası düz doğru — 🔓 Açık
@@ -741,7 +785,7 @@ açılıp açılmayacağı o işin parçası.
 
 ---
 
-## Öncelik sırası (2026-08-27 akşamı itibarıyla açık işler)
+## Öncelik sırası (2026-08-28 itibarıyla açık işler)
 
 | Öncelik | Issue | Neden |
 |---|---|---|
@@ -753,4 +797,3 @@ açılıp açılmayacağı o işin parçası.
 | 6 | #77 | Ölçüm dürüstlüğü: toplanan puan tavansız raporlanıyor. #49 kapandıktan sonra retrieval tarafı tavanını söylüyor, router tarafı söylemiyor — açık kalan tek taraf bu |
 | 7 | #79 | Altı slider'ın biri hiçbir şey yapmıyor; taksonomi kararı, retrieval'a dokunuyor |
 | 8 | #33 | Veri granülerliği; ayrıca #72'nin kalabalık çarpanının ön koşulu |
-| 9 | #78, #80 | #72'nin bıraktığı iyileştirmeler; ikisi de bugünkü kaliteyi engellemiyor |
