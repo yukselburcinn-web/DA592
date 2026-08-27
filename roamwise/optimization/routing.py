@@ -194,7 +194,13 @@ def _build_distance_functions(points: list[dict], use_real_routing: bool, travel
     def haversine_duration_fn(a, b):
         return mode.leg_minutes(_haversine_distance_fn(a, b))
 
-    if not use_real_routing:
+    # Transit is the one mode with no honest estimate behind it. A straight
+    # line at an average speed is not "roughly the timetable" -- it is a
+    # journey nobody could make, on services that may not run. So picking it
+    # always reads the committed timetable, whatever the flag says; a city
+    # without one still falls through to haversine below and reports
+    # used_real_routing=False, which is what the UI shows the traveler.
+    if not use_real_routing and mode.network_profile != "transit":
         return _haversine_distance_fn, haversine_duration_fn, False
 
     if isinstance(mode, HybridTravelMode):

@@ -464,8 +464,8 @@ rate-limit baskısı da düştü.
 
 Üç bağımsız parça: **(1)** transport hub'ı 1. güne bağla — `router_agent.py`'deki yorum bunu zaten
 vaat ediyor, implementasyon yok, bugün yapılabilir; **(2)** ✅ **Aşama 1 tamam** (aşağı bak);
-**(3)** Aşama 2, GTFS + OTP ile Paris/Berlin transit pilotu (stretch). Yolculuk planlama API'si
-alternatifi bilinçli olarak elendi, tekrar gündeme getirilmesin.
+**(3)** ✅ **Aşama 2 (Paris pilotu) tamam** (aşağı bak). Yolculuk planlama API'si alternatifi
+bilinçli olarak elendi, tekrar gündeme getirilmesin.
 
 **Aşama 1 (2026-08-27): B seçildi, A denenmedi.** `osrm_client.py` kalktı, yerine
 `optimization/street_network.py` + `pipeline/build_street_network.py` geçti. Yol ağı OSM'den bir
@@ -481,6 +481,40 @@ gelebilecek her nokta (POI + hub + gün başlangıcı olan şehir merkezi) zaten
 anında gerçek mesafe bir dizi okuması; grafik ise katalog dışı bir koordinat geldiğinde ikinci
 katman olarak Dijkstra ile çözüyor. `use_real_routing` varsayılanı hâlâ kapalı, ama artık uptime
 değil karşılaştırılabilirlik gerekçesiyle: REPORT'taki bütün ölçümler kapalıyken alındı.
+
+**Aşama 2 (2026-08-27): OTP kurulmadı, RAPTOR yazıldı.** Karar öncesi karşılaştırma yapıldı;
+sonuç şu: **OTP2'nin transit yönlendiricisi zaten RAPTOR**, ama API'si yolcu bilgilendirmesi için
+tasarlandığından tek-noktadan-çoğa sorguyu ifade edemiyor (OTP2 bunu analiz tarafına bıraktı;
+kalan `SandboxAPITravelTime` isochrone/raster döndürüyor ve "desteklenmiyor" işaretli). Çift çift
+sorulunca Paris'in 379 katalog noktası 143.641 sorgu; RAPTOR ise her kalkış noktasını tek koşuda
+bütün duraklara doldurduğu için 379 koşu. İhtiyacımız olan algoritmaydı, sunucu değil. Ayrıca
+JDK 21 + docker-compose kurmak, #87'de OSRM'i atma gerekçesiyle çelişiyordu.
+
+`optimization/raptor.py` (Delling/Pajor/Werneck 2012) + `pipeline/build_transit_matrix.py`.
+IDFM feed'i (135 MB zip, açılınca 1.3 GB; `stop_times.txt` tek başına 992 MB / 11.4M satır)
+zip'ten akıtılarak okunuyor, diske açılmıyor. Tek servis günü: 2.02M çağrı, 99.342 sefer,
+2.430 desen. Bütün kalkış noktaları **tek seferde** çözülüyor — varışlar (kalkış × durak) dizisi,
+her adım tek numpy işlemi.
+
+Sessiz-yanlış-cevap tuzakları ve çözümleri: **(a)** feed'in ilk üç günü (24-26 Ağu) yayım
+tarihinden önce olduğu için neredeyse boş — "ilk Çarşamba" sezgisi 5.027 seferlik kütük bir güne
+düşüyordu, artık span içindeki **en dolu** Çarşamba seçiliyor (144.374 sefer); **(b)** aynı durak
+dizisinde birbirini geçen seferler — RAPTOR ilk kalkanı bindirdiği için ekspres kaçıyordu, kurma
+anında bölünüyor (Paris'te **30 desen**); **(c)** GTFS'in `24:40:00` yazımı — kırpılsa bütün gece
+hatları kaybolurdu, saniye olarak saklanıyor. Üçü de teste bağlandı.
+
+Matris tek bir saate sabitlenmesin diye **08:00-20:00 arası 13 kalkıştan medyan** alınıyor.
+Erişim ve aktarma yürüyüşleri Aşama 1'in gerçek yürüme ağından geliyor, kuş uçuşu değil. Her çift
+ayrıca doğrudan yürüyüşle karşılaştırılıp hızlısı tutuluyor — yani transit modu zaten "yakınsa
+yürü, uzaksa bin" davranışı, ayrı bir hibrit moda gerek yok.
+
+**Sonuçlar:** çiftlerin %97'sinde transit yürümeyi yeniyor, medyan 2.07 kat; ortalama yolculuk
+25 dk (her yeri yürümek 55 dk); efektif kapıdan-kapıya kuş uçuşu hız medyan 7.8 km/s.
+**CDG → Notre-Dame: 5.8 saatlik yürüyüş yerine 50 dakika.** Elle doğrulanmış yolculuklarla
+tutuyor (Gare de Lyon → Louvre 15 dk, Eyfel → Louvre 30 dk, Gare du Nord → Sacré-Cœur 15 dk).
+Dosya `data/street_network/PAR_transit.npz`, 0.8 MB. Berlin'de transit modu **gösterilmiyor**;
+VBB feed'i açık, eklemek aynı script'e bir satır. GTFS feed'leri hızlı bayatlıyor (bu feed yalnızca
+2026-08-24..09-25'i kapsıyor), yani periyodik yenileme gerekiyor.
 [#32](https://github.com/yukselburcinn-web/DA592/issues/32)
 
 ---
