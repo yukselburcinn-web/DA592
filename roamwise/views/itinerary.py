@@ -490,8 +490,9 @@ if run:
         if free_share is not None:
             st.caption(
                 f"{free_share:.0%} of these stops are free to enter. "
-                "RoamWise knows whether a place charges admission, but not how much -- "
-                "so restaurants and nightlife are never separated by price."
+                "Restaurants, bars and shops carry a price tier where the catalogue has "
+                "one; for sights RoamWise knows whether a place charges admission, but "
+                "not how much."
             )
 
         st.markdown("##### Agent narrative")
