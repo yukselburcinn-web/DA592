@@ -462,8 +462,8 @@ ikisi de makul. **Yani transit pilotu yazıldığından ucuz.** Router tarifi de
 imzası korunduğu sürece router'a hiç dokunulmuyor. TOPTW matrisi gezi başına bir kez çekiyor, yani
 rate-limit baskısı da düştü.
 
-Üç bağımsız parça: **(1)** transport hub'ı 1. güne bağla — `router_agent.py`'deki yorum bunu zaten
-vaat ediyor, implementasyon yok, bugün yapılabilir; **(2)** ✅ **Aşama 1 tamam** (aşağı bak);
+Üç bağımsız parça: **(1)** ✅ **transport hub 1. güne bağlandı** (aşağı bak);
+**(2)** ✅ **Aşama 1 tamam** (aşağı bak);
 **(3)** Aşama 2, GTFS + OTP ile Paris/Berlin transit pilotu (stretch). Yolculuk planlama API'si
 alternatifi bilinçli olarak elendi, tekrar gündeme getirilmesin.
 
@@ -481,6 +481,17 @@ gelebilecek her nokta (POI + hub + gün başlangıcı olan şehir merkezi) zaten
 anında gerçek mesafe bir dizi okuması; grafik ise katalog dışı bir koordinat geldiğinde ikinci
 katman olarak Dijkstra ile çözüyor. `use_real_routing` varsayılanı hâlâ kapalı, ama artık uptime
 değil karşılaştırılabilirlik gerekçesiyle: REPORT'taki bütün ölçümler kapalıyken alındı.
+
+**Parça 1 (2026-08-27): varış hub'ı 1. güne bağlandı.** `toptw.solve()` OR-Tools'a zaten araç
+başına başlangıç düğümü veriyordu; ayrı bir varış düğümü eklendi ve yalnızca 0. aracın başlangıcı
+ona bağlandı, diğer günler merkez deposundan devam ediyor. Zincir: kenar çubuğunda "Arriving at"
+listesi → `plan_trip(arrival_hub_id=...)` → `RouterAgent.run()` (id'yi `city_transport`'tan
+koordinata çeviriyor, tanınmayan id sessizce yok sayılıyor) → `build_multi_day_itinerary(arrival_hub=...)`.
+Varsayılan **"Already in the city"**, yani mevcut davranış korunuyor: sessizce havalimanı seçmek
+CDG'yi (merkeze 23 km) trenle gelenin de 1. gününe yazardı ve REPORT ölçümlerini kaydırırdı.
+Ölçülen etki (PAR, 3 gün, 12 saat): 1. gün CDG seçilince 10 durak / 3.84 km yerine
+8 durak / 26.19 km — transfer gerçekten bütçeden yiyor. Gün dict'i `starts_from` taşıyor,
+UI 1. güne "Starts from ..." başlığı basıyor.
 [#32](https://github.com/yukselburcinn-web/DA592/issues/32)
 
 ---
