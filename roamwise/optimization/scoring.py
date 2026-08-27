@@ -18,10 +18,12 @@ culture 0.95 and a traveler at culture 0.55 both come back "Culture
 Enthusiast" and get the same itinerary. Here the sliders weight the score
 themselves, so those two travelers get different ones.
 
-Three of the four factors are implemented below. The fourth, the crowding
-discount, is honestly a stub -- see `crowding_discount`, and note that the
-diversity factor lives in the solver rather than here, for the reason given
-in `score_pois`.
+Three of the four factors were implemented here from the start. The fourth,
+the crowding discount, was a stub returning 1.0 until issue #71 put a per-POI
+hourly series in the catalogue; it now varies between POIs, though only its
+per-POI half reaches the router -- see `crowding_discount`. The diversity
+factor lives in the solver rather than here, for the reason given in
+`score_pois`.
 
 WHAT MEASURING IT SHOWED (evaluation/toptw_scoring_ablation.py). The score
 has two possible jobs, and it is good at one of them:
@@ -139,29 +141,106 @@ def quality(pois: list[dict]) -> list[float]:
             ((s - lo) / span if span else 1.0) for s in scores]
 
 
-def crowding_discount(forecast: dict = None, hour: float = None) -> float:
-    """A stub, and deliberately a visible one.
+_CROWDING_CACHE: dict | None = None
+# How far a crowding discount may move a stop's worth. At 0.35 the emptiest
+# POI in the catalogue keeps 96% of its score and the busiest 72%, which is a
+# real ordering effect without letting crowding overrule what the traveler
+# actually asked for -- preference match and quality both span a wider range
+# than that, and should.
+CROWDING_STRENGTH = 0.35
 
-    The issue asks for `crowding_discount(forecast, hour)` -- a stop worth
-    less when it will be packed, and a demand forecast that "shifts the hour,
-    not just the city". Neither is answerable from the data this repo has.
-    `ForecasterAgent.run` returns one crowding level for a **city and a
-    month** (`demand_timeseries.csv` is Eurostat nights-spent by NUTS 2
-    region, monthly); there is no per-POI series and no hourly series
-    anywhere in the catalogue.
 
-    A single city-month scalar multiplied onto every POI is a constant factor
-    across the whole pool, and a constant factor cannot change which stops an
-    optimizer picks -- it rescales every candidate identically. So this
-    returns 1.0 and says so, rather than shipping a term that looks like
-    personalization and provably does nothing. Measured: the score arm's
-    itineraries are byte-identical with this factor applied and omitted.
+def _crowding_tables() -> dict:
+    """`data/crowding.csv` as the two shapes the callers want, loaded once.
 
-    Making it real needs per-POI or per-hour demand, which is exactly what
-    issue #33 (neighbourhood-level granularity via Inside Airbnb) would
-    supply. Until then this is the seam, not the feature.
+    `typical` is the mean over the hours a POI shows any activity, not over
+    the whole day: a venue open four hours would otherwise look empty because
+    twenty of its twenty-four readings are zeros about being shut.
+
+    `by_category` is the fallback, and having one is the point. Scoring an
+    unmeasured POI at 1.0 would hand every place the enrichment missed a
+    silent bonus over the places it measured -- the busiest POIs would be
+    penalised and the unknown ones would not, which rewards absence of data.
+    A category's own mean is the least-assuming stand-in the catalogue can
+    offer."""
+    global _CROWDING_CACHE
+    if _CROWDING_CACHE is not None:
+        return _CROWDING_CACHE
+    path = DATA_DIR / "crowding.csv"
+    if not path.exists():
+        _CROWDING_CACHE = {"hourly": {}, "typical": {}, "by_category": {}, "overall": None}
+        return _CROWDING_CACHE
+    df = pd.read_csv(path)
+    hourly = {}
+    for (poi_id, day, hour), busy in df.set_index(["poi_id", "day", "hour"])["busy"].items():
+        hourly.setdefault(poi_id, {})[(day, int(hour))] = int(busy)
+    active = df[df["busy"] > 0]
+    typical = active.groupby("poi_id")["busy"].mean().to_dict()
+    pois = pd.read_csv(DATA_DIR / "poi.csv", usecols=["poi_id", "category"])
+    joined = pois[pois["poi_id"].isin(typical)].copy()
+    joined["typical"] = joined["poi_id"].map(typical)
+    _CROWDING_CACHE = {
+        "hourly": hourly,
+        "typical": typical,
+        "by_category": joined.groupby("category")["typical"].mean().to_dict(),
+        "overall": float(joined["typical"].mean()) if len(joined) else None,
+    }
+    return _CROWDING_CACHE
+
+
+def busyness(poi: dict, day: str = None, hour: float = None) -> float | None:
+    """How busy this POI is, 0-100, or None when nothing is known about it.
+
+    With no day and hour, the POI's typical level across the hours it is open.
+    With both, that hour's own reading -- which is the shape issue #72 asked
+    for, and which is five times the signal the typical level carries: across
+    the catalogue a POI's day swings a median 72 points from trough to peak,
+    while POIs differ from each other by a standard deviation of 13."""
+    tables = _crowding_tables()
+    poi_id = poi.get("poi_id")
+    if day is not None and hour is not None:
+        series = tables["hourly"].get(poi_id)
+        if series:
+            reading = series.get((day, int(hour)))
+            if reading is not None:
+                return float(reading)
+        return None
+    if poi_id in tables["typical"]:
+        return float(tables["typical"][poi_id])
+    return None
+
+
+def crowding_discount(poi: dict = None, day: str = None, hour: float = None,
+                      forecast: dict = None) -> float:
+    """What a stop is worth once you account for the crowd it will be in.
+
+    This was a constant 1.0 until issue #71 put a per-POI hourly series in the
+    catalogue (`data/crowding.csv`, 269 POIs). The reason it had to be a stub
+    is worth keeping: `ForecasterAgent` answers per city and per month, and a
+    single city-month scalar multiplied onto every candidate rescales the whole
+    pool identically, so it cannot change which stops an optimiser picks. It is
+    still not read here, for exactly that reason -- `forecast` is accepted so
+    callers need not change, and ignored.
+
+    What the series buys is variation *between* POIs, which does survive
+    normalisation: the emptiest POI in the catalogue averages 12% busy and the
+    fullest 80%. A POI with no reading falls back to its category's mean rather
+    than to no discount at all; see `_crowding_tables`.
+
+    Passing `day` and `hour` gives the hour-resolved answer. Nothing in the
+    router does: the score is a static node weight and which hour a stop is
+    visited is the solver's decision, not an input to it. That half is
+    exercised by the measurement in REPORT §5 instead of being claimed here.
     """
-    return 1.0
+    if poi is None:
+        return 1.0
+    level = busyness(poi, day, hour)
+    if level is None:
+        tables = _crowding_tables()
+        level = tables["by_category"].get(poi.get("category"), tables["overall"])
+    if level is None:
+        return 1.0
+    return 1.0 - CROWDING_STRENGTH * (level / 100.0)
 
 
 def score_pois(pois: list[dict], preferences: dict, forecast: dict = None) -> list[float]:
@@ -182,9 +261,8 @@ def score_pois(pois: list[dict], preferences: dict, forecast: dict = None) -> li
     """
     if not pois:
         return []
-    crowd = crowding_discount(forecast)
     fame = quality(pois)
-    raw = [preference_match(preferences, p.get("category")) * q * crowd
+    raw = [preference_match(preferences, p.get("category")) * q * crowding_discount(p)
            for p, q in zip(pois, fame)]
     mean = sum(raw) / len(raw)
     return [r / mean for r in raw] if mean else [1.0] * len(raw)
