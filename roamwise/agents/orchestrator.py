@@ -98,7 +98,7 @@ class RoamWiseOrchestrator:
                   travel_month: str = None, top_k_pois: int = None,
                   daily_minutes_budget: int = 480, use_real_routing: bool = False,
                   travel_mode: str = DEFAULT_MODE, day_start_hour: float = None,
-                  start_date=None) -> dict:
+                  start_date=None, arrival_hub_id: str = None) -> dict:
         """preferences: {budget, culture, nature, nightlife, relax, adventure} in [0,1].
         destination_id: pin a city, or leave None to let the orchestrator pick one.
         top_k_pois: how many POIs to retrieve; defaults to scaling with trip length
@@ -121,7 +121,11 @@ class RoamWiseOrchestrator:
         the forecaster reads its month, and the router reads its day of the week,
         which is what lets opening hours be honoured per day rather than as one
         open/close pair (issue #70). `travel_month` remains for callers that only
-        care about the forecast; a start_date supersedes it."""
+        care about the forecast; a start_date supersedes it.
+        arrival_hub_id: a `transport.csv` id -- the gateway the traveler lands at.
+        Day 1 then starts from the airport/station rather than from the city
+        centre, which is the single arrival leg issue #32 asks for. Left None,
+        the trip begins in the city (right for someone already there)."""
         if top_k_pois is None:
             top_k_pois = max(MIN_RETRIEVED_POIS, n_days * RETRIEVED_POIS_PER_DAY)
         # One control, two consumers: a date carries the month the forecaster
@@ -207,7 +211,8 @@ class RoamWiseOrchestrator:
                                        archetype=seg["archetype"],
                                        use_real_routing=use_real_routing, travel_mode=travel_mode,
                                        narrate=False, start_date=start_date,
-                                       preferences=preferences)
+                                       preferences=preferences,
+                                       arrival_hub_id=arrival_hub_id)
             state["routing"] = routing
             state["travel_mode"] = routing["travel_mode"]
             # The honest remainder of what the catalogue knows about cost.
@@ -220,6 +225,7 @@ class RoamWiseOrchestrator:
             got_real_routing = any(d.get("used_real_routing") for d in routing["itinerary"])
             detail["n_pois_routed"] = sum(len(d["route"]) for d in routing["itinerary"])
             detail["day_start_hour"] = routing["day_start_hour"]
+            detail["arrives_at"] = routing["itinerary"][0].get("starts_from") if routing["itinerary"] else None
             detail["used_real_routing"] = got_real_routing
 
         if use_real_routing and not got_real_routing:

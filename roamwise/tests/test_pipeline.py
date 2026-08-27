@@ -1688,6 +1688,118 @@ def test_transit_plans_a_whole_trip():
     days = planned["routing"]["itinerary"]
     assert all(day["used_real_routing"] for day in days), "fell back off the timetable"
     assert any(day["route"] for day in days)
+# --- issue #32: the trip starts where the traveler lands ---
+
+def _arrival_hub(city_code):
+    """The city's furthest-out gateway, read from the catalogue. An airport is
+    the interesting case precisely because it is far from everything -- a hub
+    inside the centre would pass these tests without the code doing anything."""
+    hubs = pd.read_csv(DATA_DIR / "transport.csv")
+    hubs = hubs[hubs["destination_id"] == city_code]
+    dests = pd.read_csv(DATA_DIR / "destinations.csv").set_index("destination_id")
+    centre = dests.loc[city_code]
+    from roamwise.optimization.routing import haversine_km
+    ranked = sorted(hubs.itertuples(index=False),
+                    key=lambda h: haversine_km(centre.lat, centre.lon, h.lat, h.lon))
+    return ranked[-1]
+
+
+def _city_centre_hub(city_code):
+    node = GraphIndex().g.nodes[city_code]
+    return {"lat": node["lat"], "lon": node["lon"], "name": node["name"]}
+
+
+def test_day_one_starts_from_the_arrival_hub():
+    """`router_agent.py` has carried a comment promising this since #19 -- "the
+    airport hub only matters for the single arrival leg" -- with no
+    implementation behind it, so every day began at the city centre and the
+    transfer in was invisible."""
+    from roamwise.optimization.routing import haversine_km
+
+    hub = _arrival_hub(MAIN_CITY)
+    arrival = {"lat": hub.lat, "lon": hub.lon, "name": hub.name}
+    pois = GraphIndex().city_pois(MAIN_CITY)[:40]
+
+    days = build_multi_day_itinerary(pois, 3, start_hub=_city_centre_hub(MAIN_CITY),
+                                     arrival_hub=arrival, daily_minutes_budget=720)
+
+    day_one = days[0]
+    assert day_one["route"], "day 1 came back empty"
+    assert day_one["starts_from"] == hub.name
+    first = day_one["route"][0]
+    transfer = haversine_km(arrival["lat"], arrival["lon"], first["lat"], first["lon"])
+    assert day_one["distance_km"] >= transfer, \
+        "day 1's distance does not include the leg in from the gateway"
+
+
+def test_later_days_still_start_in_the_city():
+    """Anchoring every day at the gateway would walk the traveler back out to
+    the edge of town each morning. Only day 1 moves."""
+    from roamwise.optimization.routing import haversine_km
+
+    hub = _arrival_hub(MAIN_CITY)
+    arrival = {"lat": hub.lat, "lon": hub.lon, "name": hub.name}
+    centre = _city_centre_hub(MAIN_CITY)
+    pois = GraphIndex().city_pois(MAIN_CITY)[:40]
+
+    days = build_multi_day_itinerary(pois, 3, start_hub=centre, arrival_hub=arrival,
+                                     daily_minutes_budget=720)
+
+    for day in days[1:]:
+        assert day["starts_from"] is None
+        if not day["route"]:
+            continue
+        first = day["route"][0]
+        from_centre = haversine_km(centre["lat"], centre["lon"], first["lat"], first["lon"])
+        from_hub = haversine_km(arrival["lat"], arrival["lon"], first["lat"], first["lon"])
+        assert from_centre < from_hub, f"day {day['day']} opens out by the gateway"
+
+
+def test_arrival_hub_reaches_the_router_from_plan_trip():
+    """The failure mode this repo keeps hitting is a parameter that exists on
+    the router and cannot be reached from the app (#59 for day_start_hour, #76
+    for start_date on the LangGraph path). Plumbing, tested as plumbing."""
+    hub = _arrival_hub(MAIN_CITY)
+    orch = RoamWiseOrchestrator()
+    prefs = {"budget": 0.6, "culture": 0.9, "nature": 0.2, "nightlife": 0.2, "relax": 0.3, "adventure": 0.2}
+
+    planned = orch.plan_trip(prefs, destination_id=MAIN_CITY, n_days=2,
+                             daily_minutes_budget=12 * 60,
+                             arrival_hub_id=hub.transport_id)
+
+    assert planned["routing"]["itinerary"][0]["starts_from"] == hub.name
+
+
+def test_an_unknown_arrival_hub_is_ignored_rather_than_raised():
+    """A stale id from the UI -- a city switched after the gateway was picked --
+    must plan a normal trip, the same way an unknown travel mode falls back to
+    walking instead of breaking planning."""
+    orch = RoamWiseOrchestrator()
+    prefs = {"budget": 0.6, "culture": 0.9, "nature": 0.2, "nightlife": 0.2, "relax": 0.3, "adventure": 0.2}
+
+    planned = orch.plan_trip(prefs, destination_id=MAIN_CITY, n_days=2,
+                             daily_minutes_budget=12 * 60,
+                             arrival_hub_id="TR-does-not-exist")
+
+    itinerary = planned["routing"]["itinerary"]
+    assert itinerary[0]["starts_from"] is None
+    assert any(day["route"] for day in itinerary)
+
+
+def test_arrival_options_offer_the_pinned_city_gateways():
+    """The picker has to be whatever `transport.csv` holds for the chosen city
+    -- the destination dropdown outlived its dataset once already (#65)."""
+    from roamwise.views.itinerary import _arrival_options
+
+    options = _arrival_options(MAIN_CITY)
+    hubs = pd.read_csv(DATA_DIR / "transport.csv")
+    expected = set(hubs.loc[hubs["destination_id"] == MAIN_CITY, "transport_id"])
+
+    assert list(options)[0] == "Already in the city"
+    assert options["Already in the city"] is None
+    assert set(options.values()) - {None} == expected
+    # An unpinned destination has no city yet, so it can offer no gateways.
+    assert _arrival_options(None) == {"Already in the city": None}
 
 
 
