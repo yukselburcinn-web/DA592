@@ -36,12 +36,12 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 | A — Veri & Modeller | 4 (#33, #71, #79, #92) | 7 (#1, #2, #3, #27, #30, #65, #70) |
 | B — Retrieval & Bilgi Grafiği | — | 10 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85) |
 | C — Ajanlar, Orkestrasyon & UI | 4 (#7, #76, #77, #94) | 21 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #78, #80, #81, #83) |
-| D — Altyapı | — | 6 (#11, #12, #26, #31, #32, #93) |
+| D — Altyapı | 1 (#101) | 6 (#11, #12, #26, #31, #32, #93) |
 
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 52 issue: **8 açık, 44 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
+Toplam 53 issue: **9 açık, 44 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
 `gh issue list` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
 
 **Bu güncellemede ne değişti:** #32 üç parçasıyla kapandı (self-hosted sokak mesafesi, GTFS
@@ -132,22 +132,40 @@ OSM etiketi var, gerisi kategori varsayımı — bu artık #71'in konusu.
 
 [#70](https://github.com/yukselburcinn-web/DA592/issues/70) · [PR #74](https://github.com/yukselburcinn-web/DA592/pull/74)
 
-### #71. Açılış saati ve fiyat kapsamını kapat: Google Maps scraping dahil kaynak kararı — 🔓 Açık
-*(enhancement, `priority:high` — 2026-08-26'da `low`'dan yükseltildi ve yeniden yazıldı)* Karar
-issue'su, uygulama değil. Kapsam Places API'sinden **Google Maps scraping**'i de içerecek şekilde
-genişletildi.
+### #71. Açılış saati ve fiyat kapsamını kapat: kaynak kararı — 🔓 Açık (karar verildi)
+*(enhancement, `priority:high` — 2026-08-26'da yeniden yazıldı, 2026-08-28'de ölçüldü ve karara
+bağlandı)* Karar issue'su, uygulama değil.
 
-#70 ve #72 kapandığı için karar artık ölçülebilir. Kataloğun 654 POI'sinde açılış saati **260'ında
-(%39.8)** gerçek OSM etiketi, gerisi kategori varsayımı; fiyat **80'inde (%12.2)** gerçek. İki somut
-sonuç: router'ın kısıtlarının %60'ı tahmin (TOPTW tamamen zaman pencerelerine dayanıyor), ve bütçe
-slider'ı hiçbir şey ifade edemiyor (`price_level` tek bit, 61 food POI'nin hepsi aynı değerde).
+**Sorun.** Kataloğun 654 POI'sinde açılış saati 260'ında (%39,8) gerçek OSM etiketi, gerisi kategori
+varsayımı; fiyat 80'inde (%12,2) gerçek. TOPTW tamamen zaman pencerelerine dayandığı için router'ın
+kısıtlarının %60'ı tahmin, ve bütçe slider'ı hiçbir şey ifade edemiyor (`price_level` tek bit, 61
+food POI'nin hepsi aynı değerde).
 
-**Scraping engeli kaldırmıyor, büyütüyor:** asıl engel API mekanizması değil, `poi.csv`'nin public
-depoda commit'li olması. Arayüz kazıma ToS'ta ayrıca yasak, sayfa yapısına bağlı olduğu için
-kırılgan, ve REPORT'un her alanın kaynağını beyan eden yapısıyla çelişiyor. İzin veren alternatifler
-(Overture CDLA-Permissive, Foursquare Apache-2.0) aynı iki boşluğu kapatabilir — **kapsamlarını
-ölçmek yarım günlük iş ve sıfır risk**, o ölçüm yapılmadan scraping'e geçmek ihlali gereksiz yere
-üstlenmek olabilir. [#71](https://github.com/yukselburcinn-web/DA592/issues/71)
+**Karar: Google Maps kazıma, veri commit edilmeden.** Kazıma yapıldı ve ölçüldü; çıktı `local/`
+altında ve `.gitignore`'da. `poi.csv` bir satır değişmedi, `hours_source`/`price_source` yalnızca
+`osm` ve `category_default` demeye devam ediyor — çünkü commit'li satırlar gerçekten o. Kaynağın
+şartları içeriğin yeniden dağıtımına izin vermiyor ve bu depo public; asıl engel baştan beri API
+mekanizması değil, içeriğin nereye yazıldığıydı.
+
+**Ölçüm (2026-08-28).** 654 POI'nin 511'i eşleşti. Doğrulanmış haftalık saat 326 (%49,8), puan+yorum
+508 (%77,7), gün içi yoğunluk 269 (%41,1), fiyat kademesi 60 (%9,2). Katalogla birleşince açılış
+saati **%39,8 → %59,9**; fiyat tek değerden dört kademeye (371/31/21/5), `food` dördüne birden
+yayılıyor, `shopping` hiçbir şey kazanmıyor.
+
+Router etkisi — 2 şehir × 4 arketip × 3 gün, graf/retrieval/havuz bir kez kurulup paylaşıldı, tek
+değişken veri: **kapsam artışı planı büyütmüyor ya da derli toplu yapmıyor** (7,71 → 7,79 durak/gün;
+0,514 → 0,510 km/durak). Değiştirdiği şey doğruluk: bugünkü katalog denetlenebilir 101 durağın
+5'ini (**%5,0**) kapalı mekâna koyuyor, kategori varsayımı kullandığı duraklarda 32'de 3 (**%9,4**).
+Ayrıntı REPORT §5'te ve [issue yorumunda](https://github.com/yukselburcinn-web/DA592/issues/71#issuecomment-5445581883).
+
+**Overture / Foursquare ölçümü yapılmayacak (2026-08-28 kararı).** Issue'nun ilk hâli izin veren
+kaynakların kapsamını ölçmeyi şart koşuyordu. O kriter düşürüldü: kazıma zaten yapıldı, bedeli
+ölçüldü ve veri depoya girmiyor, dolayısıyla ölçüm artık hangi kaynağın seçileceğini değiştirmiyor —
+teslim penceresinde karşılığı olmayan bir iş olurdu. Proje bugünkü kapsamla ship ediliyor ve %5,0 /
+%9,4 rakamı REPORT'ta açıkça yazılı.
+
+Kalan iş yok; issue kapatılmayı bekliyor.
+[#71](https://github.com/yukselburcinn-web/DA592/issues/71)
 
 ### #33. Talep tahminine ve fiyat sinyaline şehir düzeyinde granülerlik ekle — 🔓 Açık
 *(enhancement, `priority:medium`)* Talep verisi Eurostat `tour_occ_nim`'den geliyor: gerçek, aylık,
@@ -783,13 +801,48 @@ açılıp açılmayacağı o işin parçası.
 
 [#93](https://github.com/yukselburcinn-web/DA592/issues/93) — ilişkili: #32 (kapalı), #94
 
+### #101. README Quickstart'ı eski sekiz şehirli veriyi geri yazıyor; REPORT kendi içinde çelişiyor — 🔓 Açık
+*(bug, documentation, `area:data`, `priority:high` — 2026-08-28)* `fed173e` kataloğu sekiz şehirden
+ikiye indirdi; kod bunu takip etti, dokümanların bir kısmı etmedi.
+
+**İlk madde doküman sorunu bile değil: Quickstart takip edilirse uygulama bozuluyor.** README
+satır 18-20 üç betiği çalıştırmayı söylüyor (`data/generate_data.py`, `fetch_real_pois.py`,
+`fetch_real_demand.py`) ve üçü de **eski sekiz şehirli** veri üretiyor (IST, PAR, ROM, BCN, AMS,
+PRG, VIE, LIS). Gönderilen veri iki şehir. `fed173e`'nin kendi commit mesajı sonucu yazıyor: yarı
+göç etmiş bir set uygulamayı açmıyor — iki destinasyona karşı sekiz rehber `retrieval/corpus.py`'da
+`KeyError`, sekiz talep serisi `forecast_city`'de "less than two full seasonal cycles". README
+satır 189 zaten bu betiklerin "kept for history" olduğunu söylüyor, yani **README kendi kendisiyle
+çelişiyor**; üstelik satır 24'teki hafifletici cümle yalnızca iki `fetch_*` adımını kapsıyor ve beş
+dosyayı birden ezen en yıkıcı olan `generate_data.py` hâlâ zorunlu adım gibi duruyor. Gerçek
+üreticiler `pipeline/` altında ve Quickstart onları hiç anmıyor.
+
+**İkinci madde: REPORT kendi içinde tutarsız.** `REPORT.md:47` talep verisini "ülke düzeyi
+`tour_occ_nim`, 8 şehir" diye anlatıyor, oysa `pipeline/build_demand.py` NUTS 2 `tour_occ_nin2m`
+kullanıyor ve **aynı raporun §5'i doğrusunu yazıyor**. `:228` aynı hatayı tekrarlıyor. `:208`'deki
+"ten minutes" çözücü ölçüsü #80'in ölçümüyle değiştirilmeli. BACKLOG'un #33 ve #77 maddeleri de
+issue'ların yeniden yazılan başlıklarıyla eşleşmiyor.
+
+Önemi teslimle ilgili: §5'in bütün dürüstlük iddiası her alanın kaynağını tek tek beyan etmesine
+dayanıyor (`description_source`, `hours_source`, `price_source`). Aynı raporun iki yerde zıt şey
+söylemesi o iddiayı en çok zayıflatan hata türü. (`REPORT.md:200`'ün "eight-city version" ifadesi
+bayat değil — geçmişle bilinçli karşılaştırma, kapsam dışı.)
+
+**Kabul kriterleri:**
+- [ ] Temiz klondan Quickstart takip edilince uygulama açılıyor, iki şehir de çalışıyor
+- [ ] `generate_data.py` / `fetch_real_*` zorunlu adım olarak görünmüyor; ne oldukları tek yerde yazılı
+- [ ] REPORT'ta talep granülerliğini anlatan tüm cümleler aynı şeyi söylüyor
+- [ ] `REPORT.md:208`'deki çözücü ölçeği tekrar üretilebilir bir ölçüme dayanıyor
+- [ ] BACKLOG'un #33 ve #77 maddeleri issue'ların güncel başlık ve kapsamıyla eşleşiyor
+
+[#101](https://github.com/yukselburcinn-web/DA592/issues/101) — ilişkili: `fed173e`, #80 (kapalı), #33, #77, #71
+
 ---
 
 ## Öncelik sırası (2026-08-28 itibarıyla açık işler)
 
 | Öncelik | Issue | Neden |
 |---|---|---|
-| 1 | #71 | Rota kalitesi için kalan en yüksek getirili veri işi: router tamamen zaman pencerelerine dayanıyor ve pencerelerin %60'ı kategori varsayımı. Aynı issue bütçe slider'ını da kapsıyor |
+| 1 | #101 | Teslim kritik ve tek doküman işi değil: Quickstart takip edilirse temiz klonda uygulama açılmıyor. Ayrıca REPORT kendi içinde çelişiyor, ki §5'in dürüstlük iddiasını en çok zayıflatan hata türü bu |
 | 2 | #7 | `priority:high` etiketli, final rapor için gerçek LLM sonucu eksik |
 | 3 | #76 | Gerçek hata: #70'in düzelttiği şey LangGraph yolunda hâlâ bozuk, ve #72'den sonra bedeli büyüdü |
 | 4 | #92 | #32 Aşama 2'nin açıkta bıraktığı tek ölçülebilir yanlışlık: hub koordinatı yüzünden BER erişimi beş kat sapıyordu ve şu an düzeltilmiyor, telafi ediliyor. Veri işi, router'a dokunmuyor |
@@ -797,3 +850,5 @@ açılıp açılmayacağı o işin parçası.
 | 6 | #77 | Ölçüm dürüstlüğü: toplanan puan tavansız raporlanıyor. #49 kapandıktan sonra retrieval tarafı tavanını söylüyor, router tarafı söylemiyor — açık kalan tek taraf bu |
 | 7 | #79 | Altı slider'ın biri hiçbir şey yapmıyor; taksonomi kararı, retrieval'a dokunuyor |
 | 8 | #33 | Veri granülerliği; ayrıca #72'nin kalabalık çarpanının ön koşulu |
+
+**#71 bu listede değil:** kararı verildi ve bedeli ölçüldü (%5,0 / %9,4, REPORT §5), veri depoya girmiyor ve Overture/Foursquare ölçümü düşürüldü — kalan iş yok, issue kapatılmayı bekliyor.
