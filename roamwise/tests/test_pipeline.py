@@ -1853,6 +1853,92 @@ def test_no_hint_where_there_is_nothing_faster_to_offer(monkeypatch):
 
 
 
+# --- issue #71: the crowding factor stopped being a stub ---
+
+def _crowd_poi(poi_id, category="museum", name=None):
+    return {"poi_id": poi_id, "category": category, "name": name or poi_id,
+            "lat": 48.86, "lon": 2.34, "popularity_score": 4.0}
+
+
+def test_crowding_discount_separates_a_busy_poi_from_a_quiet_one():
+    """The factor returned a constant 1.0 for the project's whole history,
+    because the only demand data was one number per city per month. It now
+    reads `data/crowding.csv`, and the thing that makes it worth having is
+    that it *differs* between POIs."""
+    from roamwise.optimization.scoring import busyness, crowding_discount, _crowding_tables
+
+    typical = _crowding_tables()["typical"]
+    assert len(typical) > 100, "crowding.csv should cover a useful slice of the catalogue"
+    busiest = max(typical, key=typical.get)
+    quietest = min(typical, key=typical.get)
+
+    assert crowding_discount(_crowd_poi(busiest)) < crowding_discount(_crowd_poi(quietest))
+    assert 0 < crowding_discount(_crowd_poi(busiest)) < 1
+    assert busyness(_crowd_poi(busiest)) > busyness(_crowd_poi(quietest))
+
+
+def test_an_unmeasured_poi_is_not_rewarded_for_being_unmeasured():
+    """Scoring a POI with no reading at 1.0 would hand every place the
+    enrichment missed a silent bonus over the places it measured: the busy
+    ones get marked down and the unknown ones do not. The fallback is the
+    category's own mean, so absence of data is not an advantage."""
+    from roamwise.optimization.scoring import (CROWDING_STRENGTH, crowding_discount,
+                                               _crowding_tables)
+
+    tables = _crowding_tables()
+    assert tables["by_category"], "a category fallback has to exist for this to hold"
+    for category, mean in tables["by_category"].items():
+        unknown = crowding_discount(_crowd_poi("NOT_IN_CATALOGUE", category))
+        assert unknown < 1.0, f"{category}: an unmeasured POI kept its full score"
+        assert unknown == pytest.approx(1.0 - CROWDING_STRENGTH * mean / 100, abs=1e-9)
+
+
+def test_crowding_changes_which_stops_the_score_selects():
+    """The regression that matters. A factor that is the same for every
+    candidate cancels out of a normalised score and provably cannot change an
+    itinerary -- which is what the old stub did, and why it returned 1.0 and
+    said so rather than looking like personalization. This asserts the new one
+    is not in that position: turning it off changes the selection."""
+    from roamwise.optimization import scoring
+
+    idx = GraphIndex()
+    pois = idx.city_pois(MAIN_CITY)[:80]
+    prefs = {d: 0.5 for d in scoring.PREFERENCE_DIMS}
+
+    with_crowd = [p["poi_id"] for p in scoring.select_by_score(pois, prefs, 20)]
+    saved = scoring.CROWDING_STRENGTH
+    try:
+        scoring.CROWDING_STRENGTH = 0.0          # her POI'ye 1.0, eski stub davranışı
+        without = [p["poi_id"] for p in scoring.select_by_score(pois, prefs, 20)]
+    finally:
+        scoring.CROWDING_STRENGTH = saved
+
+    assert with_crowd != without, \
+        "crowding makes no difference to selection -- it is a stub again"
+
+
+def test_the_hour_carries_more_signal_than_the_poi():
+    """Why the per-hour half is measured rather than claimed: a POI's own day
+    swings far wider than POIs differ from each other. The score is a static
+    node weight and the visit hour is the solver's decision, so only the
+    per-POI half reaches routing -- this pins the reason."""
+    import statistics as st
+    from roamwise.optimization.scoring import _crowding_tables
+
+    tables = _crowding_tables()
+    between = st.pstdev(list(tables["typical"].values()))
+
+    swings = []
+    for series in tables["hourly"].values():
+        by_day = {}
+        for (day, _hour), busy in series.items():
+            by_day.setdefault(day, []).append(busy)
+        swings += [max(v) - min(v) for v in by_day.values() if len(v) > 4]
+
+    assert st.median(swings) > 3 * between, \
+        "if the hour stopped dominating, the per-POI-only factor would be the wrong trade"
+
+
 if __name__ == "__main__":
     import pytest
     raise SystemExit(pytest.main([__file__, "-v"]))
