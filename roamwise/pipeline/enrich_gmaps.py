@@ -225,6 +225,63 @@ def weekly_disagreement_hours(tag: str, weekly: dict) -> float:
     return total
 
 
+def _osm_intervals():
+    """`routing._tag_intervals`, imported around this directory's own shadow.
+
+    `pipeline/opening_hours.py` has the same name as the installed grammar
+    library, so whenever this directory leads sys.path -- which it does when
+    the script is run from inside it -- `routing`'s own import resolves to the
+    wrong module (issue #26's failure mode). Dropping the script's directory
+    for the duration of the import is enough, and it is restored immediately
+    so nothing else in the process sees a changed path."""
+    import sys
+    here = str(Path(__file__).parent)
+    dropped = [q for q in sys.path if q in (here, "")]
+    for q in dropped:
+        sys.path.remove(q)
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    try:
+        from roamwise.optimization.routing import _tag_intervals
+        return _tag_intervals
+    finally:
+        for q in reversed(dropped):
+            sys.path.insert(0, q)
+
+
+_CAL_CLAUSE = re.compile(r"(PH|SH|easter|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|\[)", re.I)
+
+
+def calendar_clauses(tag: str) -> list[str]:
+    """The clauses of an OSM tag scoped to a calendar rather than a weekday.
+
+    `PH closed`, `Jan 01 12:00-18:00`, `Dec 24,Dec 31 off`, a whole seasonal
+    range. A seven-day scrape has no way to say any of this, so when the scrape
+    takes over the weekday structure these are carried across unchanged: in the
+    grammar a later rule overrides an earlier one for the dates it covers, so
+    appending them keeps the exception without disturbing the ordinary week."""
+    return [c.strip() for c in tag.split(";") if _CAL_CLAUSE.search(c)]
+
+
+def day_conflict(tag: str, weekly: dict, tag_intervals) -> bool:
+    """True when the two sources disagree about which *days* the venue opens.
+
+    Deliberately narrower than "the hours differ". A half-hour disagreement is
+    noise between two records of the same schedule; a day one source calls open
+    and the other calls shut is a different claim about the place, and it is the
+    one that puts a traveller in front of a locked door."""
+    for offset in range(7):
+        day = _WEEK_ANCHOR + datetime.timedelta(days=offset)
+        a = tag_intervals(tag, day)
+        if a is None:
+            return False                       # okunamayan etikete dokunma
+        b = scraped_intervals(weekly, day)
+        open_a = any(0 <= s < 24 for s, _ in a)
+        open_b = any(0 <= s < 24 for s, _ in (b or []))
+        if open_a != open_b:
+            return True
+    return False
+
+
 def load_cache(cache_dir: Path) -> dict:
     if not cache_dir.exists():
         raise SystemExit(f"enrichment cache not found: {cache_dir}\n"
@@ -238,7 +295,7 @@ def load_cache(cache_dir: Path) -> dict:
     return out
 
 
-def apply(rows: list[dict], scraped: dict) -> dict:
+def apply(rows: list[dict], scraped: dict, tag_intervals=None) -> dict:
     """Fill only where the catalogue is silent. An existing observed value wins.
 
     This is a gap-filler, not an overwrite, and the reason is measured. Of the
@@ -260,8 +317,10 @@ def apply(rows: list[dict], scraped: dict) -> dict:
     So OSM wins wherever it spoke. Conflicts are counted and reported rather
     than resolved by rule, because a disagreement about opening days is a data
     question for a person, not something a preference order should bury."""
+    tag_intervals = tag_intervals or _osm_intervals()
     stats = {"hours": 0, "price": 0, "coarse": 0, "untouched": 0,
-             "hours_kept_osm": 0, "hours_refined": 0, "price_kept": 0}
+             "hours_kept_osm": 0, "hours_refined": 0, "hours_conflict": 0,
+             "price_kept": 0}
     for row in rows:
         rec = scraped.get(row["poi_id"])
         if not rec:
@@ -283,11 +342,24 @@ def apply(rows: list[dict], scraped: dict) -> dict:
                       and not _CALENDAR.search(existing)
                       and weekly_disagreement_hours(
                           existing, rec["hours_weekly"]) >= _MIN_WEEKLY_DISAGREEMENT_H)
-            if existing and not refine:
+            # İkinci istisna: iki kaynak mekânın hangi GÜNLER açık olduğunda
+            # anlaşmıyorsa kazıma karar verir. Yarım saatlik fark aynı
+            # çizelgenin iki kaydı arasındaki gürültü; kapalı bir günü açık
+            # sanmak gezgini kilitli kapıya götürüyor. OSM'in takvime bağlı
+            # istisnaları (PH, mevsim, tarih) korunup sona ekleniyor.
+            conflict = (existing and not refine
+                        and day_conflict(existing, rec["hours_weekly"], tag_intervals))
+            if conflict:
+                keep = calendar_clauses(existing)
+                candidate = "; ".join([tag] + keep) if keep else tag
+                if tag_intervals(candidate, _WEEK_ANCHOR) is None:
+                    candidate = tag                    # birleşim okunmuyorsa yalın kazıma
+                tag = candidate
+            if existing and not refine and not conflict:
                 stats["hours_kept_osm"] += 1          # katalog konuşmuş, dokunma
             else:
                 if existing:
-                    stats["hours_refined"] += 1
+                    stats["hours_refined" if refine else "hours_conflict"] += 1
                 row["opening_hours_raw"] = tag
                 row["hours_source"] = "gmaps"
                 stats["hours"] += 1
@@ -323,7 +395,9 @@ def main():
     print(f"{len(rows)} rows | hours filled {stats['hours']} | price filled {stats['price']} "
           f"| coarse pair {stats['coarse']}")
     print(f"kept existing: {stats['hours_kept_osm']} hours, {stats['price_kept']} price "
-          f"| refined day-blind: {stats['hours_refined']} | no enrichment: {stats['untouched']}")
+          f"| refined day-blind: {stats['hours_refined']} "
+          f"| day conflict resolved: {stats['hours_conflict']} "
+          f"| no enrichment: {stats['untouched']}")
     print(f"rows whose values actually change: {len(touched)}")
     if not args.write:
         print("dry run; pass --write to update data/poi.csv")
