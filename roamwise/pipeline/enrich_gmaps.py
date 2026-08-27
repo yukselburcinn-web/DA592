@@ -130,7 +130,29 @@ def load_cache(cache_dir: Path) -> dict:
 
 
 def apply(rows: list[dict], scraped: dict) -> dict:
-    stats = {"hours": 0, "price": 0, "coarse": 0, "untouched": 0}
+    """Fill only where the catalogue is silent. An existing observed value wins.
+
+    This is a gap-filler, not an overwrite, and the reason is measured. Of the
+    326 rows the enrichment covers, 194 already carried an OSM `opening_hours`
+    tag. Overwriting those buys **no coverage at all** -- the enrichment's whole
+    contribution is the 132 rows where OSM said nothing -- and it costs three
+    things:
+
+      * 58 of those 194 tags carry rules the scraped weekly view cannot
+        express: seasons and public holidays. The Eiffel Tower's tag is
+        `09:30-23:45; Jun 21-Sep 02: 09:00-00:45; Jul 14,Jul 15 off` -- summer
+        hours and a Bastille Day closure. A seven-day table flattens both away.
+      * On 19 of the 194 the two sources disagree about which *days* the place
+        is open at all, and only 36% agree exactly. Overwriting picks a winner
+        silently on every one of them.
+      * Every overwritten row enlarges the amount of third-party content in a
+        public repository for no gain.
+
+    So OSM wins wherever it spoke. Conflicts are counted and reported rather
+    than resolved by rule, because a disagreement about opening days is a data
+    question for a person, not something a preference order should bury."""
+    stats = {"hours": 0, "price": 0, "coarse": 0, "untouched": 0,
+             "hours_kept_osm": 0, "price_kept": 0}
     for row in rows:
         rec = scraped.get(row["poi_id"])
         if not rec:
@@ -138,17 +160,23 @@ def apply(rows: list[dict], scraped: dict) -> dict:
             continue
         tag = to_osm(rec.get("hours_weekly"))
         if tag:
-            row["opening_hours_raw"] = tag
-            row["hours_source"] = "gmaps"
-            stats["hours"] += 1
-            pair = coarse_pair(rec["hours_weekly"])
-            if pair:
-                row["open_hour"], row["close_hour"] = str(pair[0]), str(pair[1])
-                stats["coarse"] += 1
+            if (row.get("opening_hours_raw") or "").strip():
+                stats["hours_kept_osm"] += 1          # katalog konuşmuş, dokunma
+            else:
+                row["opening_hours_raw"] = tag
+                row["hours_source"] = "gmaps"
+                stats["hours"] += 1
+                pair = coarse_pair(rec["hours_weekly"])
+                if pair:
+                    row["open_hour"], row["close_hour"] = str(pair[0]), str(pair[1])
+                    stats["coarse"] += 1
         if rec.get("price_tier"):
-            row["price_level"] = str(rec["price_tier"])
-            row["price_source"] = "gmaps"
-            stats["price"] += 1
+            if row.get("price_source") in ("osm",):
+                stats["price_kept"] += 1
+            else:
+                row["price_level"] = str(rec["price_tier"])
+                row["price_source"] = "gmaps"
+                stats["price"] += 1
     return stats
 
 
@@ -167,8 +195,10 @@ def main():
 
     stats = apply(rows, load_cache(args.cache))
     touched = [i for i, (a, b) in enumerate(zip(before, rows)) if a != b]
-    print(f"{len(rows)} rows | hours {stats['hours']} | price {stats['price']} "
-          f"| coarse pair {stats['coarse']} | untouched {stats['untouched']}")
+    print(f"{len(rows)} rows | hours filled {stats['hours']} | price filled {stats['price']} "
+          f"| coarse pair {stats['coarse']}")
+    print(f"kept existing: {stats['hours_kept_osm']} hours, {stats['price_kept']} price "
+          f"| no enrichment: {stats['untouched']}")
     print(f"rows whose values actually change: {len(touched)}")
     if not args.write:
         print("dry run; pass --write to update data/poi.csv")
