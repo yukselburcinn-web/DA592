@@ -145,6 +145,33 @@ def _destination_options() -> dict:
             **{row.city: row.destination_id for row in dests.itertuples()}}
 
 
+# What `transport.csv`'s `type` column reads as to a traveller.
+_HUB_LABELS = {"airport": "airport", "train_station": "train station",
+               "bus_station": "bus terminal"}
+
+
+def _arrival_options(destination_id) -> dict:
+    """Gateway label -> transport_id, for the pinned city.
+
+    Default first and default meaning "no gateway": the trip then begins in the
+    city, which is both the previous behaviour and the right answer for someone
+    who is already there. Silently assuming an airport would put Charles de
+    Gaulle -- 23km out -- at the start of every Paris trip, including one that
+    arrives by train.
+
+    An unpinned destination offers nothing to choose from: the city is not
+    known until planning has run, and the gateways are a property of the city.
+    """
+    options = {"Already in the city": None}
+    if destination_id is None:
+        return options
+    hubs = pd.read_csv(DATA_DIR / "transport.csv")
+    hubs = hubs[hubs["destination_id"] == destination_id]
+    for tid, name, ttype in zip(hubs["transport_id"], hubs["name"], hubs["type"]):
+        options[f"{name} ({_HUB_LABELS.get(ttype, ttype)})"] = tid
+    return options
+
+
 def _humanize_category(category: str) -> str:
     return category.replace("_", " ").title() if category else ""
 
@@ -183,6 +210,13 @@ with st.sidebar:
     dest_label = st.selectbox("Destination", list(dest_options.keys()))
     destination_id = dest_options[dest_label]
     n_days = st.slider("Trip length (days)", 1, 5, 3)
+    arrival_options = _arrival_options(destination_id)
+    arrival_hub_id = arrival_options[st.selectbox(
+        "Arriving at", list(arrival_options),
+        help="Day 1 starts from the gateway you land at instead of from the city centre, "
+             "so the transfer in is part of the plan rather than invisible. Later days "
+             "start in the city. Pick a destination above to see its gateways.",
+    )]
     # A date, not a month. The forecaster only ever needed the month and still
     # reads it from here, but opening hours are a rule over days of the week --
     # without a date the router cannot tell a Monday from a Tuesday and will
@@ -255,7 +289,8 @@ if run:
                                  daily_minutes_budget=daily_hours * 60,
                                  day_start_hour=(None if day_start_hour is None
                                                  else float(day_start_hour)),
-                                 use_real_routing=use_real_routing, travel_mode=travel_mode)
+                                 use_real_routing=use_real_routing, travel_mode=travel_mode,
+                                 arrival_hub_id=arrival_hub_id)
 
     city_name = orch.destinations.set_index("destination_id").loc[result["destination_id"], "city"]
     st.success(f"Plan ready: **{city_name}** for a **{result['archetype']}**")
@@ -296,6 +331,11 @@ if run:
                                 f"{used % 60:02d}m of your {daily_hours}h "
                                 f"&middot; {day['distance_km']} km")
                     st.progress(min(1.0, used / budget_minutes) if budget_minutes else 0.0)
+                    # The day's first leg is measured from a place that is not
+                    # in `route`. Without this line a 26km day 1 next to a 4km
+                    # day 2 looks like a bug rather than the airport transfer.
+                    if day.get("starts_from"):
+                        st.caption(f"Starts from {day['starts_from']}.")
                     if day["route"]:
                         schedule = day.get("schedule", [])
                         for i, poi in enumerate(day["route"], 1):

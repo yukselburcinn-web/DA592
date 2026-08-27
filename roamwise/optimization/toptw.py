@@ -208,6 +208,7 @@ def _day_windows(poi: dict, day: int, day_start_hour: float, budget_minutes: int
 
 
 def solve(pois: list[dict], n_days: int, start_hub: dict = None,
+          arrival_hub: dict = None,
           daily_minutes_budget: int = 480, day_start_hour: float = 9.0,
           respect_opening_hours: bool = True, start_date=None,
           distance_fn=None, duration_fn=None, used_real_routing: bool = False,
@@ -219,6 +220,11 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
 
     `pois` is the whole working set, meals included; which of them get visited,
     on which day, in which order and at what hour is what this decides.
+
+    `start_hub` is where every day begins -- the city centre, standing in for a
+    centrally booked hotel. `arrival_hub` overrides that for day 1 only, and is
+    the gateway the traveler actually lands at; leave it None and the trip
+    begins in the city, which is the right answer for someone already there.
     """
     days_out = [_empty_day(v, start_date) for v in range(n_days)]
     if not pois or n_days < 1:
@@ -243,13 +249,23 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
 
     depot = 0
     end_node = 1 + len(copies)
-    n_nodes = end_node + 1
+    # A trip that begins at an airport or a station begins there exactly once.
+    # `arrival_hub` is a node of its own that only day 1 starts from, which is
+    # what `router_agent.py` has promised in a comment since #19 without an
+    # implementation behind it: anchoring *every* day at the gateway would walk
+    # the traveler back out to the edge of town each morning -- Charles de
+    # Gaulle is 23km from the centre -- and that is what the city-centre depot
+    # is for.
+    arrival_node = end_node + 1 if arrival_hub else None
+    n_nodes = end_node + 1 + (1 if arrival_hub else 0)
     hub = start_hub or pois[0]
-    coords = [hub] + [pois[c[0]] for c in copies] + [hub]
+    coords = ([hub] + [pois[c[0]] for c in copies] + [hub]
+              + ([arrival_hub] if arrival_hub else []))
+    terminals = {depot, end_node, arrival_node}
 
     def entry_of(node: int):
-        """(poi, day, slot) for a copy, or None for either depot."""
-        return None if node in (depot, end_node) else (
+        """(poi, day, slot) for a copy, or None for a depot or the arrival hub."""
+        return None if node in terminals else (
             pois[copies[node - 1][0]], copies[node - 1][1], copies[node - 1][2])
 
     # Precomputed: the callbacks are hit hundreds of thousands of times during
@@ -258,12 +274,16 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
     time_m = [[0] * n_nodes for _ in range(n_nodes)]
     for a in range(n_nodes):
         for b in range(n_nodes):
-            if a == b or a == end_node or b == end_node:
+            # Nothing leaves the end depot and nothing travels *to* the
+            # arrival hub -- it is where day 1 starts, not a place to reach.
+            if a == b or a == end_node or b == end_node or b == arrival_node:
                 continue
             dist_m[a][b] = int(round(distance_fn(coords[a], coords[b]) * 1000))
             time_m[a][b] = int(round(duration_fn(coords[a], coords[b])))
 
-    manager = pywrapcp.RoutingIndexManager(n_nodes, n_days, [depot] * n_days,
+    starts = [arrival_node if arrival_node is not None and v == 0 else depot
+              for v in range(n_days)]
+    manager = pywrapcp.RoutingIndexManager(n_nodes, n_days, starts,
                                             [end_node] * n_days)
     routing = pywrapcp.RoutingModel(manager)
 
@@ -401,7 +421,8 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
 
     for v in range(n_days):
         route, schedule = [], []
-        km, active, previous = 0.0, 0.0, start_hub
+        origin = arrival_hub if (arrival_hub and v == 0) else start_hub
+        km, active, previous = 0.0, 0.0, origin
         index = routing.Start(v)
         while not routing.IsEnd(index):
             entry = entry_of(manager.IndexToNode(index))
@@ -418,7 +439,8 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
                 previous = poi
             index = solution.Value(routing.NextVar(index))
         days_out[v] = _finish_day(v, start_date, route, schedule, km, active,
-                                  day_start_hour, used_real_routing)
+                                  day_start_hour, used_real_routing,
+                                  starts_from=(arrival_hub if origin is arrival_hub else None))
     return days_out
 
 
@@ -426,11 +448,16 @@ def _empty_day(day: int, start_date) -> dict:
     return {"day": day + 1,
             "date": None if start_date is None else start_date + datetime.timedelta(days=day),
             "route": [], "distance_km": 0.0, "total_minutes": 0, "active_minutes": 0,
-            "idle_minutes": 0, "schedule": [], "used_real_routing": False}
+            "idle_minutes": 0, "schedule": [], "used_real_routing": False,
+            "starts_from": None}
 
 
 def _finish_day(day: int, start_date, route, schedule, km, active,
-                day_start_hour, used_real_routing) -> dict:
+                day_start_hour, used_real_routing, starts_from=None) -> dict:
+    """`starts_from` is the arrival hub, on the one day that begins at one. It
+    is carried rather than inferred because the day's first leg is measured
+    from a place that is not in `route`, and a reader looking at 23km on day 1
+    otherwise has no way to see where it came from."""
     if not schedule:
         return _empty_day(day, start_date)
     # Derived from each other rather than rounded independently, so the three
@@ -447,10 +474,12 @@ def _finish_day(day: int, start_date, route, schedule, km, active,
         "idle_minutes": span - active_minutes,
         "schedule": schedule,
         "used_real_routing": used_real_routing,
+        "starts_from": None if starts_from is None else starts_from.get("name"),
     }
 
 
 def build_multi_day_itinerary(pois: list[dict], n_days: int, start_hub: dict = None,
+                               arrival_hub: dict = None,
                                daily_minutes_budget: int = 480,
                                day_start_hour: float = DEFAULT_DAY_START_HOUR,
                                respect_opening_hours: bool = True,
@@ -477,6 +506,10 @@ def build_multi_day_itinerary(pois: list[dict], n_days: int, start_hub: dict = N
     `start_date` is the trip's first day. Day N falls on `start_date + N-1`,
     and that date is what lets opening hours be read as the grammar they are
     rather than as a single open/close pair (issue #70).
+
+    `arrival_hub` is the airport, station or terminal the traveler arrives at.
+    Day 1 starts there instead of at `start_hub`; every later day is unchanged
+    (issue #32).
     """
     meal_pool = list(food_pois or []) if min_food_per_day > 0 else []
     working_set = list(pois) + meal_pool
@@ -487,11 +520,12 @@ def build_multi_day_itinerary(pois: list[dict], n_days: int, start_hub: dict = N
     # was originally about not being rate-limited by a public routing server;
     # since #32 the matrix is local, but solving a trip's geometry once is
     # still the right shape -- the days share a single set of points.
-    points = ([start_hub] if start_hub else []) + working_set
+    points = ([start_hub] if start_hub else []) + \
+        ([arrival_hub] if arrival_hub else []) + working_set
     distance_fn, duration_fn, used_real_routing = _build_distance_functions(
         points, use_real_routing, travel_mode)
 
-    return solve(working_set, n_days, start_hub=start_hub,
+    return solve(working_set, n_days, start_hub=start_hub, arrival_hub=arrival_hub,
                  daily_minutes_budget=daily_minutes_budget,
                  day_start_hour=day_start_hour,
                  respect_opening_hours=respect_opening_hours, start_date=start_date,

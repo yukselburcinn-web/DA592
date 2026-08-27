@@ -20,9 +20,13 @@ Design notes:
     declarative branching is actually a legible improvement over the custom
     orchestrator's imperative equivalent. See REPORT.md for the full
     comparison.
-  - `plan_trip()` has the exact same signature and return shape as
+  - `plan_trip()` has the same return shape as
     `RoamWiseOrchestrator.plan_trip()`, so call sites (app.py, tests,
-    evaluation) can swap one for the other with no other code changes.
+    evaluation) can swap one for the other with no other code changes. The
+    signature is meant to match too and currently lags by `start_date`, which
+    is issue #76: a parameter added to one orchestrator and not the other is
+    not a compile error, it is a feature that silently does nothing on this
+    path.
 
 Requires the optional `requirements-langgraph.txt` dependency group (not
 installed by default -- see that file's header comment for why).
@@ -63,6 +67,7 @@ class PlanState(TypedDict, total=False):
     day_start_hour: float
     use_real_routing: bool
     travel_mode: str
+    arrival_hub_id: Optional[str]
     destination_id: Optional[str]
     archetype: str
     segmentation: dict
@@ -113,8 +118,10 @@ class RoamWiseLangGraphOrchestrator:
                   travel_month: str = None, top_k_pois: int = None,
                   daily_minutes_budget: int = 480, use_real_routing: bool = False,
                   travel_mode: str = DEFAULT_MODE,
-                  day_start_hour: float = None) -> dict:
-        """Same signature/return shape as RoamWiseOrchestrator.plan_trip()."""
+                  day_start_hour: float = None, arrival_hub_id: str = None) -> dict:
+        """Same return shape as RoamWiseOrchestrator.plan_trip(). The signature
+        still lags it by `start_date`, which is issue #76 -- opening hours are
+        read as the coarse open/close pair on this path."""
         if top_k_pois is None:
             top_k_pois = max(MIN_RETRIEVED_POIS, n_days * RETRIEVED_POIS_PER_DAY)
         init_state: PlanState = {
@@ -122,7 +129,8 @@ class RoamWiseLangGraphOrchestrator:
             "top_k_pois": top_k_pois,
             "daily_minutes_budget": daily_minutes_budget, "use_real_routing": use_real_routing,
             "day_start_hour": day_start_hour,
-            "travel_mode": travel_mode, "destination_id": destination_id,
+            "travel_mode": travel_mode, "arrival_hub_id": arrival_hub_id,
+            "destination_id": destination_id,
         }
         return self._compiled.invoke(init_state)
 
@@ -173,6 +181,7 @@ class RoamWiseLangGraphOrchestrator:
             use_real_routing=state.get("use_real_routing", False),
             travel_mode=state.get("travel_mode", DEFAULT_MODE),
             narrate=False, preferences=state.get("preferences"),
+            arrival_hub_id=state.get("arrival_hub_id"),
         )
         return {"routing": routing, "travel_mode": routing["travel_mode"]}
 
