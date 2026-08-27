@@ -167,16 +167,19 @@ teslim penceresinde karşılığı olmayan bir iş olurdu. Proje bugünkü kapsa
 Kalan iş yok; issue kapatılmayı bekliyor.
 [#71](https://github.com/yukselburcinn-web/DA592/issues/71)
 
-### #33. Talep tahminine ve fiyat sinyaline şehir düzeyinde granülerlik ekle — 🔓 Açık
-*(enhancement, `priority:medium`)* Talep verisi Eurostat `tour_occ_nim`'den geliyor: gerçek, aylık,
-COVID çöküşünü içeren bir seri — ama granülerliği **ülke düzeyinde**. Yani Paris'in talep tahmini
-tüm Fransa'nın turist sayısını proxy alıyor. REPORT §5'in kendi ifadesiyle "tek dürüst kalan boşluk".
-Eurostat'ın şehir serisi (`urb_ctour`) var ama **yıllık**, aylık mevsimsellik varsayan Holt-Winters'ı
-besleyemiyor.
+### #33. POI başına zamanla değişen kalabalık sinyali — 🔓 Açık
+*(enhancement, `priority:medium`)* Issue'nun ilk gerekçesi — talep verisinin ülke düzeyinde olması —
+kapandı: `pipeline/build_demand.py` artık `tour_occ_nin2m` (NUTS 2) çekiyor, Berlin kendi bölgesi,
+Paris Île-de-France. Kalan boşluk bölgenin **altında**: POI başına ya da saat başına hiçbir seri yok.
 
-İkinci yarısı fiyat: `price_level` ile crowding tahmini hiçbir yerde birbirine bağlanmıyor, yani
-proposal'ın "bütçeyi mevsimsel talebe göre hizala" çerçevesinin sadece crowding tarafı gerçek veriyle
-karşılanıyor. Önerilen kaynak: Inside Airbnb. [#33](https://github.com/yukselburcinn-web/DA592/issues/33)
+Bedeli somut. #72'nin puan formülündeki dört çarpandan biri, `crowding_discount`, sabit `1.0`
+döndürüyor — forecaster şehir-ay düzeyinde tek skaler veriyor ve sabit çarpan havuzdaki her adayı
+aynı oranda ölçeklediği için hiçbir seçimi değiştiremiyor. Ölçüldü: çarpan uygulanmış ve atlanmış
+güzergâhlar byte-byte aynı.
+
+Issue kaynak-agnostik yazıldı: ihtiyaç duyulan sinyalin şeklini tanımlıyor (POI başına değişmeli,
+zamanla değişmeli), kaynağı #71'in kararına bırakıyor. Fiyat yarısı #71'e taşındı.
+[#33](https://github.com/yukselburcinn-web/DA592/issues/33)
 
 ### #79. Macera slider'ı puanı hiç hareket ettirmiyor — 🔓 Açık
 *(enhancement, `priority:medium`)* #72'nin puan fonksiyonu, tercih vektörünü kategori ağırlıklarına
@@ -469,13 +472,19 @@ pazartesiye planlanabiliyor. #72'den sonra bedeli büyüdü: yanlış pencere ar
 yanlış saat demek. Mevcut eşdeğerlik testi iki orkestratörün **arayüzünü** karşılaştırıyor, çıktısını
 değil — fark bu yüzden testten kaçtı. [#76](https://github.com/yukselburcinn-web/DA592/issues/76)
 
-### #77. Toplanan puanı ulaşılabilir tavana karşı raporla — 🔓 Açık
-*(enhancement, `priority:medium`)* #72'nin kapatılmamış kriteri. TOPTW bir puan maksimizasyonu
-çözüyor ama çıktısında "ne kadar iyi" sorusunun cevabı yok; raporlanan durak sayısı ve km/durak
-**tavansız**. 9 durak iyi mi? Bu havuzda 11 mümkünse kötü. #49'un (kapalı) retrieval tarafında
-tespit ettiği hatanın birebir aynısı. Eşleşme çözüldü: #49 kapandığı için **retrieval tarafı artık
-tavanını söylüyor, router tarafı hâlâ söylemiyor** — gerekçe zayıflamadı, aksine aynı ekranda biri
-"ulaşılabilirin %49'u" diye okunurken diğerinin tavansız durak sayısı vermesi tutarsız.
+### #77. Toplanan durak sayısını ulaşılabilir tavana karşı raporla — 🔓 Açık
+*(enhancement, `priority:medium`)* #72'nin kapatılmamış kriteri. Raporlanan durak sayısı ve km/durak
+**tavansız**: 9 durak iyi mi? Bu havuzda 11 mümkünse kötü. #49'un retrieval tarafında tespit ettiği
+hatanın aynısı, ve #49 kapandığı için aynı ekranda biri "ulaşılabilirin %49'u" diye okunurken
+diğerinin tavansız sayı vermesi tutarsız.
+
+Ölçülecek büyüklük **puan değil durak**: çözücü her POI'ye sabit `DEFAULT_DROP_PENALTY_M = 8000`
+uyguluyor, puan amaç fonksiyonuna hiç girmiyor — puan adayları seçer, çözücü seçilenin üzerinde
+geometriyi tekdüze optimize eder. İlk adım yapıldı (`evaluation/toptw_ceiling.py`, PR #99): mesafe
+sıfırken çözülen gevşetilmiş tavana karşı shipped **%92.0** (48 konfigürasyon, gezi başına 2.04
+durak). Bu gerekçeyi zayıflatıyor — router tarafındaki yanılgı retrieval'ınkinden çok küçük — ve asıl
+bulgu başka: tavana oturan 10 konfigürasyonun 9'u küçük havuzda, yani bağlayıcı kısıt çözücü değil
+aday havuzu. Kalan iş oranı arayüze ve REPORT'a taşımak.
 [#77](https://github.com/yukselburcinn-web/DA592/issues/77)
 
 ### #78. Kilitle-ve-yeniden-çöz: "bu durağı değiştir" — ✅ Kapalı

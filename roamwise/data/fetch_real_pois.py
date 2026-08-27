@@ -1,4 +1,20 @@
 """
+SUPERSEDED by `pipeline/build_catalogue.py`. Do not run to set the project up.
+
+This writes the old EIGHT-city `poi.csv` (IST, PAR, ROM, BCN, AMS, PRG, VIE,
+LIS) at 150 rows each. What ships is Paris and Berlin at 2.5x the depth, and
+it is committed -- setup is `streamlit run app.py` and nothing else (see the
+README's Quickstart). Running this overwrites the shipped catalogue and leaves
+the app half-migrated: two city_guides against eight destinations raises
+KeyError in retrieval/corpus.py.
+
+To rebuild the catalogue, use `cd pipeline && python build_catalogue.py PAR BER`
+-- that is what produced the shipped file, and unlike this script it ranks
+candidates by fame, records a source for every field, and reads its city list
+from `common.CITIES`. Kept here for history.
+
+Original description follows.
+
 Replace the procedurally-generated `poi.csv` with real points of interest,
 pulled live from OpenStreetMap (Overpass API) and enriched with Wikidata.
 
