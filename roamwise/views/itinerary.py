@@ -214,10 +214,10 @@ with st.sidebar:
              "than a walking one within the same time budget.",
     )
     use_real_routing = st.checkbox(
-        "Use real street routing (OSRM)", value=False,
-        help="Fetches real street distances/times from a public OSRM server (walking or driving "
-             "network, matching the mode above) instead of the straight-line estimate. "
-             "Needs internet; falls back automatically if unreachable.",
+        "Use real street routing", value=False,
+        help="Measures each leg along the real street network (walking or driving, matching "
+             "the mode above) instead of as a straight line. Runs offline from OpenStreetMap "
+             "data shipped with the app -- no server, no wait.",
     )
 
     run = st.button("Plan my trip", type="primary", use_container_width=True)
@@ -250,10 +250,10 @@ if run:
         if use_real_routing:
             any_real = any(d.get("used_real_routing") for d in result["routing"]["itinerary"])
             if any_real:
-                st.caption("Distances/times below use real OSRM street routing.")
+                st.caption("Distances/times below follow the real street network.")
             else:
-                st.caption("Real routing was requested but OSRM was unreachable -- showing the "
-                           "straight-line + flat-walking-speed estimate instead.")
+                st.caption("Real routing was requested but no street network covers this city -- "
+                           "showing the straight-line + flat-walking-speed estimate instead.")
         col1, col2 = st.columns([1, 1])
         with col1:
             budget_minutes = daily_hours * 60

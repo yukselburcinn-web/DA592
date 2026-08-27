@@ -7,11 +7,15 @@ far fewer stops per day than they could actually manage, and daily zones
 drawn tighter than they needed to be.
 
 A mode changes three things about how a day is costed:
-  - `speed_kmh`: how fast a leg is covered when the haversine estimate is
-    used (no OSRM).
-  - `osrm_profile`: which public OSRM profile supplies real street distances
-    when `use_real_routing=True`. routing.openstreetmap.de exposes
-    routed-foot / routed-bike / routed-car; we use foot and car.
+  - `speed_kmh`: how fast a leg is covered. This is the mode's whole speed
+    model: with real routing off it prices the haversine estimate, and with
+    it on it prices the real street distance (street_network.py). It is a
+    measured door-to-door figure, not a posted limit -- see DRIVING.
+  - `network_profile`: which street network a leg is measured on -- "foot"
+    (footpaths) or "car" (the road network). It selects one of the committed
+    per-city networks in `data/street_network/`, and was named
+    `osrm_profile` while those distances came from a public OSRM server
+    (issue #32 replaced it).
   - `stop_overhead_min`: fixed per-leg cost that isn't travel time itself --
     parking and walking in from the car for `driving`. Walking has none.
 
@@ -34,7 +38,7 @@ class TravelMode:
     key: str
     label: str
     speed_kmh: float
-    osrm_profile: str
+    network_profile: str
     stop_overhead_min: float
 
     def leg_minutes(self, distance_km: float) -> float:
@@ -54,22 +58,32 @@ class HybridTravelMode(TravelMode):
 
 
 WALKING = TravelMode(
-    key="walking", label="Walking", speed_kmh=4.5, osrm_profile="foot", stop_overhead_min=0.0,
+    key="walking", label="Walking", speed_kmh=4.5, network_profile="foot", stop_overhead_min=0.0,
 )
 # 25km/h, not a highway speed: this is door-to-door urban driving in the
 # historic centres these itineraries cover, where traffic and one-way systems
 # dominate. The 8-minute overhead is parking plus the walk in from it.
 DRIVING = TravelMode(
-    key="driving", label="Driving", speed_kmh=25.0, osrm_profile="car", stop_overhead_min=8.0,
+    key="driving", label="Driving", speed_kmh=25.0, network_profile="car", stop_overhead_min=8.0,
 )
 HYBRID = HybridTravelMode(
     key="hybrid", label="Walking + driving", speed_kmh=WALKING.speed_kmh,
-    osrm_profile=WALKING.osrm_profile, stop_overhead_min=0.0,
+    network_profile=WALKING.network_profile, stop_overhead_min=0.0,
     walk=WALKING, drive=DRIVING,
 )
 
 TRAVEL_MODES = {m.key: m for m in (WALKING, DRIVING, HYBRID)}
 DEFAULT_MODE = WALKING.key
+# street_network.py is handed a profile, not a mode -- it has to turn "foot"
+# back into the speed that profile's legs are priced at. HYBRID is not in
+# here: it has no single profile, and is resolved into its walk/drive halves
+# before a matrix is ever requested (see routing._build_hybrid_matrix_functions).
+_MODE_BY_PROFILE = {WALKING.network_profile: WALKING, DRIVING.network_profile: DRIVING}
+
+
+def mode_for_network_profile(profile: str) -> TravelMode:
+    """The mode whose legs are measured on `profile`'s street network."""
+    return _MODE_BY_PROFILE.get(profile, WALKING)
 
 
 def get_travel_mode(mode) -> TravelMode:

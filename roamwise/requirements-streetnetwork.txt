@@ -1,0 +1,14 @@
+# Optional extra for pipeline/build_street_network.py (issue #32 -- the
+# committed street networks and distance matrices in data/street_network/).
+#
+# Not installed by default / not part of requirements.txt: nothing the app
+# runs needs it. osmnx downloads the OpenStreetMap street network *once*, at
+# pipeline time; what ships is the pruned result, and reading it back needs
+# only numpy, scipy and networkx, which requirements.txt already carries.
+# Install this only to rebuild those files -- after adding a city, or when the
+# catalogue's coordinates change.
+#
+#   pip install -r requirements-streetnetwork.txt
+#   cd pipeline && python build_street_network.py PAR BER --write
+
+osmnx==2.1.1

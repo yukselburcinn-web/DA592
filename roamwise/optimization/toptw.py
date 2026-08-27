@@ -483,10 +483,10 @@ def build_multi_day_itinerary(pois: list[dict], n_days: int, start_hub: dict = N
     if not working_set:
         return [_empty_day(v, start_date) for v in range(max(n_days, 0))]
 
-    # One distance matrix for the whole trip rather than one per day: the
-    # public OSRM demo server rate-limits back-to-back requests, and one
-    # matrix covering the trip is also just the architecturally correct
-    # amount of network I/O for this.
+    # One distance matrix for the whole trip rather than one per day. This
+    # was originally about not being rate-limited by a public routing server;
+    # since #32 the matrix is local, but solving a trip's geometry once is
+    # still the right shape -- the days share a single set of points.
     points = ([start_hub] if start_hub else []) + working_set
     distance_fn, duration_fn, used_real_routing = _build_distance_functions(
         points, use_real_routing, travel_mode)

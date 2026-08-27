@@ -113,9 +113,10 @@ class RoamWiseOrchestrator:
         schedulable in them, and a day holding one bar (issue #61).
         travel_mode: "walking", "driving" or "hybrid" -- how legs between stops are
         costed, which decides how much of a day's budget travel consumes.
-        use_real_routing: use real OSRM street-network distances/times instead of the
-        haversine + flat-speed estimate (network-dependent, falls back
-        automatically if OSRM is unreachable).
+        use_real_routing: use real street-network distances/times instead of the
+        haversine + flat-speed estimate. Computed from OpenStreetMap data
+        committed to this repo (issue #32), so it needs no network; it falls
+        back automatically for any point no committed city network covers.
         start_date: the trip's first day, as a date. It feeds two things at once --
         the forecaster reads its month, and the router reads its day of the week,
         which is what lets opening hours be honoured per day rather than as one
@@ -222,8 +223,9 @@ class RoamWiseOrchestrator:
             detail["used_real_routing"] = got_real_routing
 
         if use_real_routing and not got_real_routing:
-            log.warning("Real street routing was requested but OSRM was unreachable -- "
-                        "distances fall back to the straight-line estimate")
+            log.warning("Real street routing was requested but no committed street network "
+                        "covers these points -- distances fall back to the straight-line "
+                        "estimate")
 
         # --- Node 5: final synthesis ---
         with log_step(log, "Final synthesis (LLM)", llm=type(self.llm).__name__):

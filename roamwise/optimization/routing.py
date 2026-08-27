@@ -8,10 +8,11 @@ that model is built out of, plus the single-day router it replaced:
 
   - `_build_distance_functions` turns a set of points into (distance_km,
     duration_min) callables, either the mode's haversine estimate or a real
-    street-network matrix from OSRM (`use_real_routing=True`, issue #8).
-    Opt-in and network-dependent -- see osrm_client.py's docstring for why,
-    and every caller falls back to haversine automatically if the request
-    fails.
+    street-network matrix (`use_real_routing=True`, issue #8). The matrix is
+    computed from OpenStreetMap data committed to this repo rather than
+    fetched from a routing server (issue #32) -- see street_network.py --
+    and callers still fall back to haversine automatically for any point no
+    committed network covers.
   - `_opening_intervals` / `_next_open_hour` read a POI's hours as the
     grammar OSM writes them in, resolved against the day's actual date
     (issue #70). TOPTW turns these straight into time windows.
@@ -30,7 +31,7 @@ import math
 
 from opening_hours import OpeningHours
 
-from roamwise.optimization.osrm_client import fetch_distance_duration_matrix
+from roamwise.optimization.street_network import fetch_distance_duration_matrix
 from roamwise.optimization.travel_modes import DEFAULT_MODE, HybridTravelMode, get_travel_mode
 
 FOOD_CATEGORY = "food"
@@ -186,8 +187,8 @@ def _haversine_distance_fn(a: dict, b: dict) -> float:
 def _build_distance_functions(points: list[dict], use_real_routing: bool, travel_mode=DEFAULT_MODE):
     """Returns (distance_km_fn, duration_min_fn, used_real_routing). Falls
     back to the mode's haversine estimate whenever real routing wasn't
-    requested, or was requested but OSRM couldn't be reached -- callers never
-    need to know which case they're in."""
+    requested, or was requested for points no committed street network covers
+    -- callers never need to know which case they're in."""
     mode = get_travel_mode(travel_mode)
 
     def haversine_duration_fn(a, b):
@@ -212,7 +213,7 @@ def _matrix_lookup(points: list[dict]):
 
 
 def _build_single_profile_matrix_functions(points: list[dict], mode):
-    result = fetch_distance_duration_matrix(points, profile=mode.osrm_profile)
+    result = fetch_distance_duration_matrix(points, profile=mode.network_profile)
     if result is None:
         return None
     distances_km, durations_min = result
@@ -222,21 +223,21 @@ def _build_single_profile_matrix_functions(points: list[dict], mode):
         return distances_km[index[id(a)]][index[id(b)]]
 
     def matrix_duration_fn(a, b):
-        # OSRM reports pure travel time; the mode's per-stop overhead (parking
-        # and the walk in from it, for driving) is real time the traveler
-        # spends and has to be added on top of it.
+        # The matrix reports pure travel time; the mode's per-stop overhead
+        # (parking and the walk in from it, for driving) is real time the
+        # traveler spends and has to be added on top of it.
         return durations_min[index[id(a)]][index[id(b)]] + mode.stop_overhead_min
 
     return matrix_distance_fn, matrix_duration_fn
 
 
 def _build_hybrid_matrix_functions(points: list[dict], mode: HybridTravelMode):
-    """Hybrid needs both profiles: the walking network decides how far a leg
+    """Hybrid needs both networks: the walking network decides how far a leg
     really is on foot, and legs past the threshold are then priced on the
-    road network. If either request fails there is no honest way to mix the
+    road network. If either is unavailable there is no honest way to mix the
     two, so the caller falls back to the haversine hybrid estimate."""
-    foot = fetch_distance_duration_matrix(points, profile=mode.walk.osrm_profile)
-    car = fetch_distance_duration_matrix(points, profile=mode.drive.osrm_profile)
+    foot = fetch_distance_duration_matrix(points, profile=mode.walk.network_profile)
+    car = fetch_distance_duration_matrix(points, profile=mode.drive.network_profile)
     if foot is None or car is None:
         return None
     foot_km, foot_min = foot
@@ -350,7 +351,7 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
     lunches before 11am.
 
     distance_fn/duration_fn/used_real_routing let build_multi_day_itinerary
-    share a single OSRM matrix fetch across every day of a trip; if omitted
+    share a single distance matrix across every day of a trip; if omitted
     (e.g. calling this function standalone), one is built just for this
     day's points."""
     if not pois:
