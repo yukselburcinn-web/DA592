@@ -1,15 +1,29 @@
 """
-RoamWise synthetic data generator.
+RoamWise synthetic data generator -- SUPERSEDED. Do not run to set the project
+up.
+
+This writes the old EIGHT-city dataset (IST, PAR, ROM, BCN, AMS, PRG, VIE,
+LIS). What ships is two cities, Paris and Berlin, produced by `pipeline/`, and
+every file it needs is committed -- setup is `streamlit run app.py` and nothing
+else (see the README's Quickstart).
+
+Running this overwrites FIVE shipped files in one pass -- destinations.csv,
+poi.csv, transport.csv, demand_timeseries.csv and user_survey.csv -- and leaves
+the app in the half-migrated state the README warns about: two city_guides
+against eight destinations raises KeyError in retrieval/corpus.py, and eight
+demand series make forecast_city fail on "less than two full seasonal cycles".
+
+It is kept for one reason: `user_survey.csv` (illustrative archetype training
+data) has no pipeline equivalent, so this remains its source of record. To
+regenerate that file, run this and then restore the other four from git.
 
 The original proposal calls for Kaggle / TripAdvisor / OpenStreetMap / Wikidata
-sourced data. This sandbox has no credentialed access to those APIs, so this
+sourced data. This sandbox had no credentialed access to those APIs, so this
 script procedurally generates a *structurally realistic* stand-in dataset with
 the same shape: destinations, POIs, transport hubs, monthly tourism-demand
 time series (with trend + seasonality + a COVID-era shock, like real arrivals
 data), and free-text city guides for the semantic/keyword retrieval layers.
-
-Run once: `python generate_data.py`. Output lands in this directory as CSV /
-JSON / txt files that every other module reads.
+That gap is closed -- see `pipeline/` and the README's Data note.
 """
 import json
 import math
