@@ -1991,6 +1991,21 @@ def test_a_measured_poi_is_offered_its_quiet_hours_as_a_second_option():
     assert off == [(None, None)], "hour_aware=False has to be today's router"
 
 
+def test_every_crowding_row_says_where_it_came_from():
+    """`crowding.csv` follows `poi.csv`'s `hours_source` / `price_source`
+    pattern (#33): the file states its provenance instead of a README
+    asserting it. The column is constant today and still earns its bytes --
+    the issue's fallback source is a monthly pageviews series for the POIs
+    this scrape never reached, and it has to land beside these rows rather
+    than be told apart by which POI it is about."""
+    from roamwise.knowledge_graph.build_graph import DATA_DIR
+
+    crowding = pd.read_csv(DATA_DIR / "crowding.csv")
+    assert "source" in crowding.columns
+    assert crowding["source"].notna().all(), "a row with no source is an assertion"
+    assert set(crowding["source"]) <= {"gmaps", "pageviews"}
+
+
 def test_an_unmeasured_poi_is_not_the_cheapest_hour_in_the_day():
     """`expected_busyness` has to answer for a POI nobody measured, because a
     stop priced at nothing is the cheapest stop in the pool and 59% of the

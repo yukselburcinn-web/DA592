@@ -16,6 +16,16 @@ Same cache contract as `enrich_gmaps.py`: the scraped records are not in this
 repository, `crowding.csv` is, and this script exists so the provenance of its
 rows is readable rather than asserted.
 
+Every row carries a `source`, following `poi.csv`'s `hours_source` /
+`price_source` (issue #33). It reads `gmaps` on all 35,141 of today's rows,
+and a constant column is still worth its bytes for two reasons: the file
+states where it came from instead of a README asserting it, and the catalogue
+is expected to gain a second, thinner source -- the issue's fallback is a
+monthly Wikipedia pageviews series for the 59% this scrape never reached.
+When that lands it has to sit *beside* these rows rather than be told apart
+from them by which POI it is about, and a consumer weighting an hourly
+reading differently from a monthly one needs the column to do it.
+
     python pipeline/build_crowding.py --write
 """
 import argparse
@@ -26,6 +36,10 @@ from pathlib import Path
 HERE = Path(__file__).parent
 DATA = HERE.parent / "data"
 DEFAULT_CACHE = HERE.parent.parent / "local" / "gmaps" / "cache"
+# What produced a row, in `poi.csv`'s `*_source` vocabulary. Every row this
+# script writes is a Google Maps popular-times reading; the column exists so a
+# second source can land beside them without a schema change.
+SOURCE = "gmaps"
 DAY_CODE = {"Monday": "Mo", "Tuesday": "Tu", "Wednesday": "We", "Thursday": "Th",
             "Friday": "Fr", "Saturday": "Sa", "Sunday": "Su"}
 
@@ -50,7 +64,7 @@ def rows_from_cache(cache_dir: Path):
                 # the time of the scrape into the catalogue.
                 if not str(hour).isdigit():
                     continue
-                out.append((rec["poi_id"], code, int(hour), int(busy)))
+                out.append((rec["poi_id"], code, int(hour), int(busy), SOURCE))
     out.sort(key=lambda r: (r[0], list(DAY_CODE.values()).index(r[1]), r[2]))
     return out
 
@@ -70,7 +84,7 @@ def main():
     path = DATA / "crowding.csv"
     with open(path, "w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["poi_id", "day", "hour", "busy"])
+        w.writerow(["poi_id", "day", "hour", "busy", "source"])
         w.writerows(rows)
     print(f"wrote {path}")
 
