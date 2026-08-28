@@ -33,15 +33,15 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 
 | Alan | Açık | Kapalı |
 |---|---|---|
-| A — Veri & Modeller | 4 (#33, #71, #79, #92) | 7 (#1, #2, #3, #27, #30, #65, #70) |
+| A — Veri & Modeller | 3 (#71, #79, #92) | 8 (#1, #2, #3, #27, #30, #33, #65, #70) |
 | B — Retrieval & Bilgi Grafiği | — | 10 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85) |
-| C — Ajanlar, Orkestrasyon & UI | 4 (#7, #76, #77, #94) | 21 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #78, #80, #81, #83) |
+| C — Ajanlar, Orkestrasyon & UI | 5 (#7, #76, #77, #94, #109) | 21 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #78, #80, #81, #83) |
 | D — Altyapı | 1 (#101) | 6 (#11, #12, #26, #31, #32, #93) |
 
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 53 issue: **9 açık, 44 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
+Toplam 54 issue: **9 açık, 45 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
 `gh issue list` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
 
 **Bu güncellemede ne değişti:** #32 üç parçasıyla kapandı (self-hosted sokak mesafesi, GTFS
@@ -167,7 +167,7 @@ teslim penceresinde karşılığı olmayan bir iş olurdu. Proje bugünkü kapsa
 Kalan iş yok; issue kapatılmayı bekliyor.
 [#71](https://github.com/yukselburcinn-web/DA592/issues/71)
 
-### #33. POI başına zamanla değişen kalabalık sinyali — 🔓 Açık (saat yarısı kapandı)
+### #33. POI başına zamanla değişen kalabalık sinyali — 🔒 Kapalı
 *(enhancement, `priority:medium`)* Issue'nun ilk gerekçesi — talep verisinin ülke düzeyinde olması —
 `pipeline/build_demand.py`'nin NUTS 2'ye geçmesiyle kapandı. İkinci gerekçesi — `crowding_discount`'ın
 sabit `1.0` döndürmesi — #72/#71 ile kapandı: `data/crowding.csv` POI başına saatlik seriyi getirdi.
@@ -180,15 +180,20 @@ uzunluğunda ölçüldü (`evaluation/crowding_hour_measurement.py`): durakları
 göre fazladan yoğunluğu **+11.1 puandan +2.0'ye**, maruz kalınan yoğunluk %58.6'dan %49.5'e indi;
 bedeli durakların %0.4'ü ve durak başına %2.9 mesafe. 8 şehir-arketip çiftinin 7'sinde iyileşiyor.
 
-Kalan iki boşluk — issue'nun kapanması için ikisi de karara bağlanmalı:
-- **Kapsam %41.1** (269/654 POI). Kazımanın tavanı da bu civarda: 654 önbellek kaydının yalnızca
-  293'ünde `popular_times` var. Kalanı için issue gövdesindeki yedek kaynak (Wikipedia pageviews
-  aylık serisi) hâlâ açık bir seçenek; aylık olduğu için saat yarısına değil kapsama yarar.
-- **Kaynak sütunu.** `crowding.csv` `poi_id,day,hour,busy` tutuyor; `price_source`/`hours_source`
-  desenindeki köken sütunu issue'nun kabul kriterlerinde var, henüz yok.
+Kalan iki madde de kapandı:
+- **Kaynak sütunu** eklendi: `crowding.csv` artık `poi_id,day,hour,busy,source`.
+- **Kapsam %41.1**, ölçülmüş bir sınır olarak kabul edildi. Ziyaret edilen duraklarda %56.5'e
+  karşılık geliyor (router zaten merkezi POI'leri seçiyor); kalan %44 kategori ortalamasıyla
+  fiyatlanıyor ve sakin pencere alamıyor, yani körlemesine zamanlanıyor. Kabul edilmesinin
+  gerekçesi ölçüldü: ölçülmeyen kısım **yanlı bir örneklem değil** — popülerlik (3.7/3.7),
+  sitelink (17/16) ve aylık pageviews (715/721) medyanlarında fark yok. Kategori ortalaması
+  yedeğinin leave-one-out hatası medyan 6.5 puan (POI'ler arası yayılım 13.2), yani sinyalin
+  kabaca yarısını kurtarıyor. Kazımanın tavanı zaten ~%45: 654 önbellek kaydının 293'ünde
+  `popular_times` var. Kapsamı büyütmenin tek yolu ayrı bir kaynak (Wikipedia pageviews aylık
+  serisi) ve o **aylık** olduğu için saat yarısına hiçbir şey katmaz — ayrı iş olarak ayrıldı.
 
-[#33](https://github.com/yukselburcinn-web/DA592/issues/33) — ilişkili: #71 (kaynak kararı), #72
-(puan formülü), REPORT §5
+[#33](https://github.com/yukselburcinn-web/DA592/issues/33) · [PR #108](https://github.com/yukselburcinn-web/DA592/pull/108)
+— ilişkili: #71 (kaynak kararı), #72 (puan formülü), #109 (yemek oturumları), REPORT §5
 
 ### #79. Macera slider'ı puanı hiç hareket ettirmiyor — 🔓 Açık
 *(enhancement, `priority:medium`)* #72'nin puan fonksiyonu, tercih vektörünü kategori ağırlıklarına
@@ -633,6 +638,23 @@ ve #72'nin bunu neden devraldığı duruyor), `city_guide.py` docstring'indeki e
 applies downstream" ifadesi düzeltildi. Suite: **103 geçti, 1 atlandı.**
 [#81](https://github.com/yukselburcinn-web/DA592/issues/81)
 
+### #109. Yemek oturumları da sakin saatini seçsin — 🔓 Açık
+*(enhancement, `priority:medium`)* #33 saat yarısını kapattı ama sakin-pencere düğümünü yalnızca
+gezi POI'lerine verdi. Gerekçe şuydu: yemek boyutu her oturumu zorunlu kılıyor, yani "ne zaman"
+modelin seçimi değil. Ölçüldüğünde gerekçenin yarısının yanlış olduğu çıktı — oturum penceresi
+hedefinin ±2 saati (`MEAL_WINDOW_HOURS`), yani içeride dört saatlik bir aralık ve seçilecek bir
+saat var; bugün o saat kalabalık hiç hesaba katılmadan çözücünün geometrisine bırakılıyor.
+
+Bedeli ölçüldü. #33'ün fazladan yoğunluk ölçüsü türüne ayrıldığında gezi durakları **+10.7'den
+−0.4'e** iniyor, yemek durakları ise **+12.1'den ancak +8.2'ye**. Yani #33 sonrası kalan +2.0'nin
+neredeyse tamamı yemeklerde. En net vaka Paris / Nightlife Seeker: barlar tam istendiği gibi
+kayıyor (Oculto %79'da 22:20'den %23'te 19:24'e) ama akşam yemeği Tour d'Argent'da 20:12'de
+**%100** yoğunlukta kalıyor — kendi tipik seviyesi %61.
+
+Bozulmaması gereken kontrat #20 ve #29'un getirdiği: günde tam 2.0 yemek, 72 ölçülen günün
+%100'ünde iki oturum da dolu. Bu iki sayı düşerse değişiklik geri alınmalı.
+[#109](https://github.com/yukselburcinn-web/DA592/issues/109) — ilişkili: #33, #20, #29, REPORT §5
+
 ---
 
 ## Alan D — Altyapı
@@ -868,6 +890,6 @@ bayat değil — geçmişle bilinçli karşılaştırma, kapsam dışı.)
 | 5 | #94 | Harita, planın söylediği mesafenin yarısını çiziyor. #32'den sonra çelişki büyüdü; sokak modları için gereken veri zaten depoda |
 | 6 | #77 | Ölçüm dürüstlüğü: toplanan puan tavansız raporlanıyor. #49 kapandıktan sonra retrieval tarafı tavanını söylüyor, router tarafı söylemiyor — açık kalan tek taraf bu |
 | 7 | #79 | Altı slider'ın biri hiçbir şey yapmıyor; taksonomi kararı, retrieval'a dokunuyor |
-| 8 | #33 | Saat yarısı kapandı (ölçüm: +11.1 → +2.0 puan). Kalanı kapsam (%41.1) ve kaynak sütunu — ikisi de veri işi, router'a dokunmuyor |
+| 8 | #109 | #33'ün kalan +2.0 puanının neredeyse tamamı yemek duraklarında; oturum penceresi ±2 saat, yani seçilecek saat var. Router'ın kısıt modeline dokunuyor, veriye değil |
 
 **#71 bu listede değil:** kararı verildi ve bedeli ölçüldü (%5,0 / %9,4, REPORT §5), veri depoya girmiyor ve Overture/Foursquare ölçümü düşürüldü — kalan iş yok, issue kapatılmayı bekliyor.
