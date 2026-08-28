@@ -35,13 +35,13 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 |---|---|---|
 | A — Veri & Modeller | — | 11 (#1, #2, #3, #27, #30, #33, #65, #70, #71, #79, #92) |
 | B — Retrieval & Bilgi Grafiği | — | 11 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85, #113) |
-| C — Ajanlar, Orkestrasyon & UI | 2 (#7, #94) | 24 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #76, #77, #78, #80, #81, #83, #109) |
+| C — Ajanlar, Orkestrasyon & UI | 1 (#7) | 25 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #76, #77, #78, #80, #81, #83, #94, #109) |
 | D — Altyapı | — | 7 (#11, #12, #26, #31, #32, #93, #101) |
 
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 55 issue: **2 açık, 53 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
+Toplam 55 issue: **1 açık, 54 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
 `gh issue list` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
 
 **Bu güncellemede ne değişti:** #32 üç parçasıyla kapandı (self-hosted sokak mesafesi, GTFS
@@ -57,7 +57,7 @@ ve tutmadı. Son üç kapanış: **#101** (Quickstart artık veri üretmiyor, RE
 yanlışlık REPORT §5'te yazılı) ve **#76** (LangGraph yolu da `start_date`'i router'a ve forecaster'a
 geçiriyor; iki davranış testiyle korunuyor — PR #115) ve **#77** (router artık durak sayısını
 ulaşılabilir tavana karşı raporluyor — PR #117). Bununla birlikte **A, B ve D alanlarında açık iş
-kalmadı**: geriye kalan iki işin ikisi de C'de (#7, #94). Ayrıca daha önce backlog'a hiç
+kalmadı**: geriye kalan tek iş C'de (#7). Ayrıca daha önce backlog'a hiç
 yazılmamış iki kapalı issue (#83, #85) eklendi. Önceki güncellemede: #70 ve #72 kapandı. #72 (TOPTW router) altı yeni bulgu doğurdu —
 #76–#81 — ve iki issue'nun (#32, #71) varsayımlarını geçersiz kıldığı için ikisi de yeniden yazıldı.
 Açık iş sayısı 8'den 12'ye çıktı; bu bir gerileme değil, tek bir büyük issue'nun içinden çıkan
@@ -674,7 +674,7 @@ solve in ten minutes"*. Tekrar üretilemeyen bir ölçüm; issue kapansa da düz
 `MAX_WORKING_SET` yükseltilebilir (220 POI 7,6 sn) ama geziyi iyileştirdiğine dair kanıt yok.
 [#80](https://github.com/yukselburcinn-web/DA592/issues/80)
 
-### #94. Harita kuş uçuşu çiziyor: duraklar arası düz doğru — 🔓 Açık
+### #94. Harita kuş uçuşu çiziyor: duraklar arası düz doğru — ✅ Kapalı
 *(bug, `area:ui`, `priority:medium` — 2026-08-27)* `views/itinerary.py` haritayı
 `go.Scattermap(mode="markers+lines+text")` ile çiziyor ve `lat`/`lon` olarak **doğrudan durak
 koordinatlarını** veriyor. Duraklar arası her çizgi düz bir doğru — seçilen ulaşım modundan ve
@@ -703,11 +703,14 @@ matrisi yalnızca dakika saklıyor, RAPTOR'un hangi hatlardan geçtiği tutulmuy
 zaten modelin kendisi, ama harita bunu rota gibi göstermemeli.
 
 **Kabul kriterleri:**
-- [ ] Real routing açıkken sokak modlarında polyline uzunluğu günün `distance_km`'ine **%10 içinde**
-      yakınsıyor (şu an ~%50 sapma)
-- [ ] Transit ve real-routing-kapalı bacaklar kesikli çiziliyor, başlık bunu söylüyor
-- [ ] Maliyet sınırda: bacak başına bir Dijkstra (4 günde ~28 bacak), kalkış başına toplulaştırılabilir
-- [ ] Rota boşsa ya da güzergâh bulunamazsa düz çizgiye düşülüyor, çizim kaybolmuyor
+- [x] Real routing açıkken sokak modlarında polyline uzunluğu günün `distance_km`'ine **%0,4–9,1**
+      içinde yakınsıyor (öncesi ~%50). 2 şehir × 3 sokak modu × 4 gün ölçüldü
+- [x] Transit ve real-routing-kapalı bacaklar kesikli çiziliyor, başlık bunu söylüyor.
+      `Scattermap.line` yalnızca `width`/`color` taşıyor — dash özelliği yok — o yüzden kesiklik
+      koordinat dizisine `None` boşluk koyarak yapıldı
+- [x] Maliyet sınırda: bacak başına bir Dijkstra, yarıçapı sınırlı; 4 günlük gezide **0,06–0,31 sn**
+- [x] Rota boşsa, güzergâh bulunamazsa ya da şehrin ağı yoksa düz çizgiye düşülüyor; çizim
+      kaybolmuyor (Viyana testi)
 
 Transit güzergâhını gerçekten çizmek ayrı ve büyük bir iş (RAPTOR yolculuk ayrıştırması + `shapes.txt`
 geometrisi); bu issue onu kapsamıyor.
@@ -719,10 +722,38 @@ gerçek: Paris'te 4 günlük gezi düz çizgiyle 12.5 km görünürken gerçek a
 doluydu. Buraya taşındı çünkü yukarıdaki kabul kriterleri gerçek güzergâh çizimini zaten *real routing
 açıkken* şart koşuyor: varsayılan açılırsa haritanın doğru çizmesi varsayılan yol olur, kapalı kalırsa
 düz çizgi + kesikli gösterim varsayılan yol olarak kalır.
-- [ ] `evaluation/comparative_analysis.py` bayrak açıkken yeniden koşulsun
-- [ ] Değişen sayılar REPORT'a işlensin
-- [ ] Varsayılan açılsın, ya da açılmama gerekçesi güncellensin
+- [x] `evaluation/comparative_analysis.py` bayrak açıkken yeniden koşuldu (fonksiyona
+      `use_real_routing` parametresi eklendi, varsayılanı `False`)
+- [x] Değişen sayılar REPORT §5'e işlendi
+- [x] **Arayüz varsayılanı açıldı**; `RouterAgent.run`'ın kendi varsayılanı bilerek `False` kaldı
 
+**Kapanış notu (2026-08-28).** Üç parça.
+
+**1 — Gerçek güzergâh.** `street_network.route_polylines()` bacak başına yarıçapı sınırlı bir
+Dijkstra koşup düğüm dizisini veriyor; `routing.route_geometry()` mod ve bayrak mantığını sarıyor
+(hibrit, bacağı hangi ağda fiyatlandırıldıysa orada çiziyor). Harita artık iki iz kullanıyor: bir
+çizgi izi güzergâhı, bir işaretçi izi durakları taşıyor — tek izde `markers+lines` güzergâhın her
+düğümüne numaralı bir daire koyardı.
+
+**2 — İkinci bir eksik vardı ve issue'da yazmıyordu.** Günün `distance_km`'i, günün **başladığı
+yerden** (şehir merkezi, 1. günde varış hub'ı) ilk durağa olan bacağı da sayıyor; ama o nokta
+`route` içinde değil, yani harita onu hiç çizmiyordu. Paris'te yürüyerek bir günde 1,2–1,7 km ediyor:
+her sokağı kusursuz çizen bir harita bile bu olmadan %17–36 kısa kalıyordu. `toptw` artık günün
+`origin`'ini koordinatlarıyla taşıyor (`starts_from` bir isim ve testlerde kilitli olduğu için ona
+dokunulmadı) ve harita o bacağı da çiziyor.
+
+**3 — Varsayılan.** Bayrağın kapalı kalma gerekçesi olan "karşılaştırılabilirlik" ölçünce çok daha
+dar çıktı: `comparative_analysis.py` iki yönde de koşulduğunda **retrieval sütunları bit düzeyinde
+aynı** (61 sorgu × 3 config'te recall@k, archetype precision, aday sayısı), çünkü retrieval bayrağın
+varlığından habersiz. Yalnızca iki rota sütunu oynuyor: durak başına km +%21…+%39, günlük durak
+−%2…−%4, ve config sıralaması hiçbir sütunda değişmiyor. Sayıları gerçekten oynayan ölçümler
+(`toptw_measurement.py`, `toptw_scoring_ablation.py`, artık `comparative_analysis.py`) bayrağı
+**kendileri açıkça** `False` geçiyor, o yüzden arayüz varsayılanından etkilenmiyorlar. Bu yüzden
+yalnızca arayüz varsayılanı açıldı; `RouterAgent.run`'ın varsayılanı `False` bırakıldı, çünkü
+`toptw_ceiling.py` ve `crowding_hour_measurement.py` bayrağı hiç geçmiyor ve API varsayılanını
+oynatmak onların commit'li ölçümlerini sessizce değiştirirdi.
+
+Testler: 127 geçti, 1 atlandı (4 yeni test).
 [#94](https://github.com/yukselburcinn-web/DA592/issues/94) — ilişkili: #21, #32, #93 (kapalı)
 
 ### #81. POIZoner artık router yolunda değil — ✅ Kapalı
@@ -1055,4 +1086,3 @@ sayılarını anlatıyor (654 satır), aşılmış `fetch_real_pois.py`'ye atıf
 | Öncelik | Issue | Neden |
 |---|---|---|
 | 1 | #7 | `priority:high` etiketli, final rapor için gerçek LLM sonucu eksik |
-| 2 | #94 | Harita, planın söylediği mesafenin yarısını çiziyor. #32'den sonra çelişki büyüdü; sokak modları için gereken veri zaten depoda |

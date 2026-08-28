@@ -231,6 +231,86 @@ def matrix_over(net, lats, lons, directed: bool):
     return out
 
 
+def _straight_metres(a: dict, b: dict) -> float:
+    lat = math.radians((a["lat"] + b["lat"]) / 2.0)
+    dx = (b["lon"] - a["lon"]) * math.cos(lat)
+    dy = b["lat"] - a["lat"]
+    return math.hypot(dx, dy) * 111_320.0
+
+
+# How far past the straight line a leg's shortest path is allowed to wander
+# before we stop looking. Dijkstra without a limit solves the whole city for
+# every leg -- 408k nodes in Paris, seconds per source -- and a leg's real
+# path is a small neighbourhood of the straight line between its ends. The
+# committed matrices put the mean street/straight ratio at 1.21 (Paris on
+# foot) to 1.46 (Paris by car); 3x plus a kilometre clears both with room for
+# the pathological cases (a river with distant bridges) and still prunes the
+# search to a fraction of the graph.
+_PATH_SEARCH_FACTOR = 3.0
+_PATH_SEARCH_FLOOR_M = 1000.0
+
+
+def route_polylines(points: list[dict], profile: str = "foot"):
+    """The street path of each consecutive leg, as (lat, lon) vertices.
+
+    Returns one list per leg -- `len(points) - 1` of them -- or None if we
+    hold no network covering these points, which is the same condition
+    `fetch_distance_duration_matrix` returns None on. Callers draw a straight
+    line in that case; they must never present one as a route.
+
+    The stop's own coordinate opens and closes each leg, before and after the
+    network nodes. That is not decoration: `matrix_over` charges the set-back
+    from each endpoint to its road at both ends of every leg, so a polyline
+    drawn only between snapped nodes would be shorter than the distance the
+    itinerary reports by exactly the offsets it leaves out (#94 asks the two
+    to agree within 10%).
+
+    A leg whose ends the network cannot connect within the search limit falls
+    back to its straight segment rather than vanishing. Both cities' graphs are
+    pruned to one component so an unreachable pair should not exist, but a
+    drawing that silently loses a leg is worse than one that draws it plainly.
+    """
+    if len(points) < 2:
+        return []
+    if profile in MATRIX_ONLY:
+        return None
+    net = _city_for_points(points, profile)
+    if net is None:
+        return None
+    snapped = snap(net, [p["lat"] for p in points], [p["lon"] for p in points])
+    if snapped is None:
+        return None
+
+    nodes, _ = snapped
+    csr = _csr_for(net)
+    xy = np.asarray(net["data"]["node_xy"], dtype=np.float64)
+    directed = DIRECTED[profile]
+
+    out = []
+    for i in range(len(points) - 1):
+        start, end = points[i], points[i + 1]
+        ends = [(start["lat"], start["lon"]), (end["lat"], end["lon"])]
+        source, target = int(nodes[i]), int(nodes[i + 1])
+        if source == target:
+            out.append(ends)
+            continue
+        straight = _straight_metres(start, end)
+        limit = max(_PATH_SEARCH_FACTOR * straight, straight + _PATH_SEARCH_FLOOR_M)
+        _, predecessors = dijkstra(csr, directed=directed, indices=[source],
+                                   limit=limit, return_predecessors=True)
+        path, node = [], target
+        while node != source and node >= 0:
+            path.append(node)
+            node = int(predecessors[0][node])
+        if node != source:
+            out.append(ends)          # nothing found inside the limit
+            continue
+        path.append(source)
+        path.reverse()
+        out.append([ends[0]] + [(float(xy[n][1]), float(xy[n][0])) for n in path] + [ends[1]])
+    return out
+
+
 def fetch_distance_duration_matrix(points: list[dict], profile: str = "foot"):
     """points: list of {"lat": .., "lon": ..}, in the exact order callers will
     index into the result. `profile` is "foot" or "car" (travel_modes.py), so a

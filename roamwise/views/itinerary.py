@@ -18,6 +18,7 @@ import streamlit as st
 
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
 from roamwise.models.forecasting import forecast_city
+from roamwise.optimization.routing import route_geometry
 from roamwise.optimization.travel_modes import TRAVEL_MODES
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
@@ -58,6 +59,28 @@ _MAP_MAX_ZOOM = 16.0  # a one-stop day would otherwise zoom to street level
 # row and the second reserved row is simply unused white space.
 _MAP_LEGEND_PER_ROW = 3
 _MAP_LEGEND_ROW_PX = 30  # a rendered row measures 29px; round up, never down
+
+
+# A leg with no real geometry is drawn as a dashed straight line. Plotly's map
+# traces carry no `dash` property -- `Scattermap.line` is width and colour and
+# nothing else -- so the gaps are made in the data, by splitting the segment
+# and dropping every other piece. A fixed number of dashes rather than a fixed
+# dash length, because the map is pan-and-zoomable and a metre-based dash
+# would collapse to a solid line at one zoom and a dotted haze at another,
+# while a fixed count reads the same at every scale.
+_DASHES_PER_LEG = 13
+
+
+def _dashed(start, end, pieces: int = _DASHES_PER_LEG):
+    """(lats, lons) for a dashed straight segment, gapped with None."""
+    lats, lons = [], []
+    for i in range(0, pieces, 2):
+        a, b = i / pieces, min((i + 1) / pieces, 1.0)
+        lats += [start[0] + (end[0] - start[0]) * a,
+                 start[0] + (end[0] - start[0]) * b, None]
+        lons += [start[1] + (end[1] - start[1]) * a,
+                 start[1] + (end[1] - start[1]) * b, None]
+    return lats, lons
 
 
 def _fit_view(lats: list[float], lons: list[float]) -> tuple[float, float, float]:
@@ -364,11 +387,24 @@ with st.sidebar:
     hint = _arrival_transfer_hint(destination_id, arrival_hub_id, travel_mode)
     if hint:
         st.warning(hint)
+    # On by default since #94. The reason it was off outlived its cause twice:
+    # first the public OSRM server's uptime (gone with #32, which committed the
+    # networks), then comparability with a report whose measurements were all
+    # taken with it off. The second reason is narrower than it looked --
+    # `comparative_analysis.py` run both ways returns bit-identical recall,
+    # archetype precision and candidate counts, because retrieval does not know
+    # the flag exists; only the two routing columns move. And the evaluations
+    # that do move pass `use_real_routing=False` themselves, so they keep their
+    # documented condition whatever this box says. What is left is a straight
+    # choice between a measured distance and an estimate that runs 16% short,
+    # at no cost -- and, since #94, between a map that draws the route and one
+    # that can only dash a line between stops.
     use_real_routing = st.checkbox(
-        "Use real street routing", value=False,
+        "Use real street routing", value=True,
         help="Measures each leg along the real street network (walking or driving, matching "
-             "the mode above) instead of as a straight line. Runs offline from OpenStreetMap "
-             "data shipped with the app -- no server, no wait.",
+             "the mode above) instead of as a straight line, and draws the route it measured "
+             "on the map. Runs offline from OpenStreetMap data shipped with the app -- no "
+             "server, no wait. Turn it off to see the straight-line estimate instead.",
     )
 
     run = st.button("Plan my trip", type="primary", use_container_width=True)
@@ -453,6 +489,7 @@ if run:
         with col2:
             fig = go.Figure()
             colors = px.colors.qualitative.Bold
+            drawn_real = []
             for day in result["routing"]["itinerary"]:
                 if not day["route"]:
                     continue
@@ -470,20 +507,60 @@ if run:
                     when = f"{_clock(slot['arrival'])} &middot; " if slot else ""
                     kind = "meal stop" if poi.get("category") == "food" else _humanize_category(poi.get("category", ""))
                     hover.append(f"<b>{poi['name']}</b><br>{when}Day {day['day']}, stop {i}<br><i>{kind}</i>")
+                # The line used to be drawn straight from stop to stop whatever
+                # the mode said, so a day the panel reported as 6.85 km was
+                # drawn as 3.17 (#94). Where a street network priced the day,
+                # the same network now supplies the path; where nothing can --
+                # transit keeps minutes and no geometry, and a straight line is
+                # the model itself when real routing is off -- the leg is
+                # dashed rather than dressed up as a route.
+                # The day's journey starts at its origin -- the city centre, or
+                # the arrival hub on day 1 -- and `distance_km` has always
+                # counted that first leg. It was drawn nowhere, so even a map
+                # tracing every street would still come up short of the panel
+                # by 1.2-1.7km on a Paris walking day.
+                origin = day.get("origin")
+                drawn_stops = ([origin] if origin else []) + stops
+                geometry = route_geometry(drawn_stops, bool(day.get("used_real_routing")),
+                                          travel_mode)
+                line_lat, line_lon = [], []
+                for vertices, is_real_route in geometry:
+                    if is_real_route:
+                        line_lat += [v[0] for v in vertices] + [None]
+                        line_lon += [v[1] for v in vertices] + [None]
+                    else:
+                        dashed_lat, dashed_lon = _dashed(vertices[0], vertices[-1])
+                        line_lat += dashed_lat
+                        line_lon += dashed_lon
+                    drawn_real.append(is_real_route)
+                # Two traces, not one: a line whose vertices are the route and
+                # markers that stay on the stops. `markers+lines` would put a
+                # numbered circle on every vertex of the path.
+                if line_lat:
+                    fig.add_trace(go.Scattermap(
+                        lat=line_lat, lon=line_lon, mode="lines",
+                        line=dict(width=3, color=color),
+                        hoverinfo="skip", showlegend=False,
+                    ))
                 fig.add_trace(go.Scattermap(
                     lat=[p["lat"] for p in stops], lon=[p["lon"] for p in stops],
-                    mode="markers+lines+text",
+                    mode="markers+text",
                     text=[str(i) for i in range(1, len(stops) + 1)],
                     textposition="middle center",
                     textfont=dict(size=11, color="white", family="Arial Black"),
                     hovertext=hover, hoverinfo="text",
                     name=f"Day {day['day']}",
                     marker=dict(size=20, color=color, opacity=0.95),
-                    line=dict(width=3, color=color),
                 ))
             if any(day["route"] for day in result["routing"]["itinerary"]):
-                all_lats = [p["lat"] for day in result["routing"]["itinerary"] for p in day["route"]]
-                all_lons = [p["lon"] for day in result["routing"]["itinerary"] for p in day["route"]]
+                # Origins are in the fit because they are now drawn: leave them
+                # out and day 1's line to an arrival hub 23km away runs off the
+                # edge of the map with no way to tell it is there.
+                drawn_points = [p for day in result["routing"]["itinerary"]
+                                for p in (([day["origin"]] if day.get("origin") else [])
+                                          + day["route"])]
+                all_lats = [p["lat"] for p in drawn_points]
+                all_lons = [p["lon"] for p in drawn_points]
                 zoom, center_lat, center_lon = _fit_view(all_lats, all_lons)
                 # The legend sits in the margin *below* the map. Every other
                 # strip is already occupied: inside the map at the bottom is
@@ -511,7 +588,25 @@ if run:
                     hoverlabel=dict(bgcolor="white", font_size=12),
                 )
                 st.plotly_chart(fig, use_container_width=True)
-                st.caption("Numbers are the visiting order. Hover a stop for its name and arrival time. "
+                # What the line between two stops is, said plainly. A solid
+                # line is a route; a dashed one is a straight connector and
+                # nothing more, which is all transit and all straight-line
+                # costing can honestly offer (#94).
+                if all(drawn_real):
+                    route_note = ("Route lines follow the real street network, so their "
+                                  "length matches the distance shown per day. ")
+                elif not any(drawn_real):
+                    reason = ("the timetable stores journey times, not the path a service takes"
+                              if travel_mode == "transit" else
+                              "distances are straight-line estimates, which is what the dashed "
+                              "lines show")
+                    route_note = (f"Dashed lines join stops directly rather than tracing a route -- "
+                                  f"{reason}. ")
+                else:
+                    route_note = ("Solid lines follow the real street network; dashed ones join "
+                                  "stops directly and are not routes. ")
+                st.caption(route_note
+                           + "Numbers are the visiting order. Hover a stop for its name and arrival time. "
                            "Map tiles load from OpenStreetMap over the network -- give it a moment on first load.")
 
         free_share = result.get("free_entry_share")
