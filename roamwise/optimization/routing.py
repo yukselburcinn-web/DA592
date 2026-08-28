@@ -31,7 +31,8 @@ import math
 
 from opening_hours import OpeningHours
 
-from roamwise.optimization.street_network import fetch_distance_duration_matrix
+from roamwise.optimization.street_network import (fetch_distance_duration_matrix,
+                                                  route_polylines)
 from roamwise.optimization.travel_modes import DEFAULT_MODE, HybridTravelMode, get_travel_mode
 
 FOOD_CATEGORY = "food"
@@ -257,6 +258,56 @@ def _build_hybrid_matrix_functions(points: list[dict], mode: HybridTravelMode):
         return car_km[i][j], car_min[i][j] + mode.drive.stop_overhead_min
 
     return (lambda a, b: _pick(a, b)[0]), (lambda a, b: _pick(a, b)[1])
+
+
+def route_geometry(points: list[dict], use_real_routing: bool, travel_mode=DEFAULT_MODE):
+    """What each leg of a day actually looks like on a map: one
+    `(vertices, is_real_route)` pair per consecutive leg.
+
+    The map used to draw a straight line between every pair of stops whatever
+    the mode said, so a day the panel reported as 6.85 km was drawn as 3.17
+    (#94). It was never a regression -- the map had always done this -- but
+    issue #32 moved distances from the straight line onto the real street
+    network and roughly doubled the discrepancy the traveller could see.
+
+    `is_real_route` is False wherever no geometry exists, and it exists in
+    fewer cases than the distances do:
+
+      * **Transit** has none at all. `{CITY}_transit.npz` stores minutes, not
+        a path: RAPTOR's choice of lines is not kept and the feeds' own
+        `shapes.txt` is never parsed. Drawing the walking route for a metro
+        leg would be a different wrong answer, not a better one.
+      * **Real routing off** is a straight line *by definition* -- that is the
+        model the day was costed with -- so the line is honest and only the
+        drawing must stop implying it is a route.
+
+    Hybrid asks per leg, the same way `_build_hybrid_matrix_functions` prices
+    it: the walking distance decides, and the leg is then drawn on whichever
+    network it was charged to.
+    """
+    if len(points) < 2:
+        return []
+    straight = [([(a["lat"], a["lon"]), (b["lat"], b["lon"])], False)
+                for a, b in zip(points, points[1:])]
+
+    mode = get_travel_mode(travel_mode)
+    if mode.network_profile == "transit" or not use_real_routing:
+        return straight
+
+    if isinstance(mode, HybridTravelMode):
+        walked = fetch_distance_duration_matrix(points, profile=mode.walk.network_profile)
+        on_foot = route_polylines(points, profile=mode.walk.network_profile)
+        driven = route_polylines(points, profile=mode.drive.network_profile)
+        if walked is None or on_foot is None or driven is None:
+            return straight
+        foot_km = walked[0]
+        return [(on_foot[i] if foot_km[i][i + 1] <= mode.threshold_km else driven[i], True)
+                for i in range(len(points) - 1)]
+
+    drawn = route_polylines(points, profile=mode.network_profile)
+    if drawn is None:
+        return straight
+    return [(leg, True) for leg in drawn]
 
 
 def _route_length(route: list[dict], distance_fn) -> float:

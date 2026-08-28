@@ -698,7 +698,8 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
             index = solution.Value(routing.NextVar(index))
         days_out[v] = _finish_day(v, start_date, route, schedule, km, active,
                                   day_start_hour, used_real_routing,
-                                  starts_from=(arrival_hub if origin is arrival_hub else None))
+                                  starts_from=(arrival_hub if origin is arrival_hub else None),
+                                  origin=origin)
     return days_out
 
 
@@ -707,15 +708,24 @@ def _empty_day(day: int, start_date) -> dict:
             "date": None if start_date is None else start_date + datetime.timedelta(days=day),
             "route": [], "distance_km": 0.0, "total_minutes": 0, "active_minutes": 0,
             "idle_minutes": 0, "schedule": [], "used_real_routing": False,
-            "starts_from": None}
+            "starts_from": None, "origin": None}
 
 
 def _finish_day(day: int, start_date, route, schedule, km, active,
-                day_start_hour, used_real_routing, starts_from=None) -> dict:
+                day_start_hour, used_real_routing, starts_from=None,
+                origin=None) -> dict:
     """`starts_from` is the arrival hub, on the one day that begins at one. It
     is carried rather than inferred because the day's first leg is measured
     from a place that is not in `route`, and a reader looking at 23km on day 1
-    otherwise has no way to see where it came from."""
+    otherwise has no way to see where it came from.
+
+    `origin` is that same place for every day -- the city centre on an ordinary
+    day, the arrival hub on the one that begins at one -- and it carries
+    coordinates rather than a name because the map has to *draw* the leg. It
+    used to be dropped here, so the map showed a day's stops joined to each
+    other while `distance_km` also counted the journey out to the first one:
+    for a Paris walking day that is 1.2-1.7km of the total, drawn nowhere
+    (#94)."""
     if not schedule:
         return _empty_day(day, start_date)
     # Derived from each other rather than rounded independently, so the three
@@ -733,6 +743,8 @@ def _finish_day(day: int, start_date, route, schedule, km, active,
         "schedule": schedule,
         "used_real_routing": used_real_routing,
         "starts_from": None if starts_from is None else starts_from.get("name"),
+        "origin": None if origin is None else {
+            "name": origin.get("name"), "lat": origin["lat"], "lon": origin["lon"]},
     }
 
 

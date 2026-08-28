@@ -417,7 +417,12 @@ def recall_at_k(retrieved_ids: list, gold: set) -> float:
     return hit / len(gold)
 
 
-def run_comparative_analysis(top_k: int = 8) -> pd.DataFrame:
+def run_comparative_analysis(top_k: int = 8, use_real_routing: bool = False) -> pd.DataFrame:
+    """`use_real_routing` prices day 1 on the committed street network instead
+    of the straight line, which moves `n_stops_day1` and `km_per_stop_day1`
+    and nothing else -- retrieval does not know the flag exists. It is a
+    parameter rather than a constant because #93/#94 asked what the table
+    looks like with it on, and the answer has to be reproducible."""
     idx = GraphIndex()
     retriever = FusionRetriever()
     router = RouterAgent(idx)
@@ -453,7 +458,8 @@ def run_comparative_analysis(top_k: int = 8) -> pd.DataFrame:
             # the prose. Left on, this fires one generation per query per
             # config -- free under TemplateLLMClient, but hours of model time
             # once a real LLM is configured (same waste as issue #57).
-            routing = router.run(dest_id, candidate_pois, n_days=1, narrate=False)
+            routing = router.run(dest_id, candidate_pois, n_days=1, narrate=False,
+                                use_real_routing=use_real_routing)
             day = routing["itinerary"][0]
             n_stops = len(day["route"])
             km_per_stop = day["distance_km"] / n_stops if n_stops else None

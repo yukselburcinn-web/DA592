@@ -1924,6 +1924,114 @@ def test_every_airport_hub_stands_where_the_footway_network_can_place_it():
     assert checked, "no city with a committed walking network held an airport"
 
 
+# --- issue #94: what the map draws is what the day costs ---
+
+
+def _paris_day_points(*names):
+    return _transit_points(*names)
+
+
+def test_drawn_route_follows_the_street_network_it_was_priced_on():
+    """#94. The map drew a straight line between stops whatever the mode said,
+    so a day the panel reported as 6.85 km appeared as 3.17. The polyline now
+    comes off the same graph the distance does, and the two have to agree --
+    the issue's criterion is 10%, and the residual is osmnx's simplification
+    chording curved streets, which shortens the drawing and never the
+    distance."""
+    from roamwise.optimization.street_network import fetch_distance_duration_matrix
+    from roamwise.optimization.routing import route_geometry
+
+    points = _paris_day_points("Eiffel Tower", "Louvre Museum", "Notre-Dame de Paris",
+                               "Sacré-Cœur")
+    for mode, profile in (("walking", "foot"), ("driving", "car")):
+        km, _ = fetch_distance_duration_matrix(points, profile=profile)
+        geometry = route_geometry(points, use_real_routing=True, travel_mode=mode)
+
+        assert len(geometry) == len(points) - 1
+        for i, (vertices, is_real_route) in enumerate(geometry):
+            assert is_real_route, f"{mode} leg {i} should have real geometry"
+            assert len(vertices) > 2, "a real path is more than its two endpoints"
+            drawn = sum(_metres(a, b) for a, b in zip(vertices, vertices[1:])) / 1000.0
+            priced = km[i][i + 1]
+            assert abs(drawn - priced) / priced < 0.10, (
+                f"{mode} leg {i}: drew {drawn:.2f} km for a {priced:.2f} km leg")
+
+
+def _metres(a, b):
+    lat = math.radians((a[0] + b[0]) / 2)
+    return math.hypot((b[1] - a[1]) * math.cos(lat), b[0] - a[0]) * 111_320.0
+
+
+def test_a_leg_with_no_real_geometry_is_drawn_straight_and_says_so():
+    """Two cases where no path exists to draw, and neither may be dressed up as
+    a route: the transit matrix stores minutes rather than the lines a journey
+    used, and with real routing off the straight line *is* the model the day
+    was costed with. Both come back flagged, which is what the map turns into
+    a dashed line and a caption."""
+    from roamwise.optimization.routing import route_geometry
+
+    points = _paris_day_points("Eiffel Tower", "Louvre Museum", "Notre-Dame de Paris")
+
+    for geometry, why in (
+            (route_geometry(points, use_real_routing=True, travel_mode="transit"), "transit"),
+            (route_geometry(points, use_real_routing=False, travel_mode="walking"), "no real routing")):
+        assert len(geometry) == len(points) - 1, why
+        for vertices, is_real_route in geometry:
+            assert not is_real_route, f"{why} has no route geometry to draw"
+            assert len(vertices) == 2, f"{why} is a straight segment, not a path"
+
+
+def test_a_city_with_no_street_network_still_gets_a_drawable_line():
+    """The drawing must never disappear. Vienna has no committed network, so
+    there is nothing to trace -- and the answer is a straight segment marked
+    as not-a-route, not an empty list the map would silently skip."""
+    from roamwise.optimization.routing import route_geometry
+
+    vienna = [{"lat": 48.2082, "lon": 16.3738}, {"lat": 48.2000, "lon": 16.3600}]
+    geometry = route_geometry(vienna, use_real_routing=True, travel_mode="walking")
+
+    assert [is_real for _, is_real in geometry] == [False]
+    assert len(geometry[0][0]) == 2
+
+
+def test_a_day_carries_the_place_its_first_leg_is_measured_from():
+    """`distance_km` counts the journey from where the day starts to its first
+    stop, and that place is not in `route`. Without it the map is short by the
+    whole first leg -- 1.2-1.7km on a Paris walking day -- however faithfully
+    it traces the rest (#94)."""
+    from roamwise.optimization.street_network import fetch_distance_duration_matrix
+
+    pois = GraphIndex().city_pois(MAIN_CITY)[:40]
+    centre = pd.read_csv(DATA_DIR / "destinations.csv")
+    centre = centre[centre.destination_id == MAIN_CITY].iloc[0]
+    hub = {"name": centre.city, "lat": float(centre.lat), "lon": float(centre.lon)}
+
+    itinerary = build_multi_day_itinerary(pois, n_days=2, start_hub=hub,
+                                          use_real_routing=True, travel_mode="walking")
+    checked = 0
+    for day in itinerary:
+        if not day["route"]:
+            continue
+        origin = day["origin"]
+        assert origin is not None and "lat" in origin and "lon" in origin
+        assert (origin["lat"], origin["lon"]) == (hub["lat"], hub["lon"])
+
+        drawn = [origin] + day["route"]
+        km, _ = fetch_distance_duration_matrix(drawn, profile="foot")
+        total = sum(km[i][i + 1] for i in range(len(drawn) - 1))
+        assert abs(total - day["distance_km"]) < 0.05, (
+            f"day {day['day']}: legs from the origin sum to {total:.2f}, "
+            f"panel says {day['distance_km']}")
+        checked += 1
+    assert checked, "no day was routed, so nothing was checked"
+
+    # And the other branch: with nowhere to start from, no first leg is charged
+    # and there is correspondingly nothing extra to draw.
+    for day in build_multi_day_itinerary(pois, n_days=2, use_real_routing=True,
+                                          travel_mode="walking"):
+        assert day["origin"] is None
+
+
 def test_transit_declines_a_city_with_no_timetable():
     """Both catalogue cities ship a timetable now. Somewhere that does not has
     no transit answer at all -- and a straight line at an average speed is not
