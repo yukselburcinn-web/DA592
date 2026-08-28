@@ -35,13 +35,13 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 |---|---|---|
 | A — Veri & Modeller | 1 (#92) | 10 (#1, #2, #3, #27, #30, #33, #65, #70, #71, #79) |
 | B — Retrieval & Bilgi Grafiği | — | 11 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85, #113) |
-| C — Ajanlar, Orkestrasyon & UI | 3 (#7, #77, #94) | 23 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #76, #78, #80, #81, #83, #109) |
+| C — Ajanlar, Orkestrasyon & UI | 2 (#7, #94) | 24 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #76, #77, #78, #80, #81, #83, #109) |
 | D — Altyapı | — | 7 (#11, #12, #26, #31, #32, #93, #101) |
 
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 55 issue: **4 açık, 51 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
+Toplam 55 issue: **3 açık, 52 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
 `gh issue list` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
 
 **Bu güncellemede ne değişti:** #32 üç parçasıyla kapandı (self-hosted sokak mesafesi, GTFS
@@ -55,8 +55,9 @@ taşındı, 1. ve 2. maddeleri (tek iş günü matrisi, GTFS tazeleme) aksiyon a
 ve tutmadı. Son üç kapanış: **#101** (Quickstart artık veri üretmiyor, REPORT'un kendi içindeki
 çelişkileri giderildi — PR #104), **#71** (Google Maps kazıma, veri commit edilmeden; kalan %5,0
 yanlışlık REPORT §5'te yazılı) ve **#76** (LangGraph yolu da `start_date`'i router'a ve forecaster'a
-geçiriyor; iki davranış testiyle korunuyor — PR #115). Bununla birlikte **B ve D alanlarında açık iş
-kalmadı**: geriye kalan dördün üçü C'de (#7, #77, #94), biri A'da (#92). Ayrıca daha önce backlog'a hiç
+geçiriyor; iki davranış testiyle korunuyor — PR #115) ve **#77** (router artık durak sayısını
+ulaşılabilir tavana karşı raporluyor — PR #117). Bununla birlikte **B ve D alanlarında açık iş
+kalmadı**: geriye kalan üçün ikisi C'de (#7, #94), biri A'da (#92). Ayrıca daha önce backlog'a hiç
 yazılmamış iki kapalı issue (#83, #85) eklendi. Önceki güncellemede: #70 ve #72 kapandı. #72 (TOPTW router) altı yeni bulgu doğurdu —
 #76–#81 — ve iki issue'nun (#32, #71) varsayımlarını geçersiz kıldığı için ikisi de yeniden yazıldı.
 Açık iş sayısı 8'den 12'ye çıktı; bu bir gerileme değil, tek bir büyük issue'nun içinden çıkan
@@ -549,19 +550,40 @@ kapalı olduğu bir günde açık okunuyor, pazartesi açık ara en kötü (**10
 Suite: 120 geçti, 1 atlandı.
 [#76](https://github.com/yukselburcinn-web/DA592/issues/76)
 
-### #77. Toplanan durak sayısını ulaşılabilir tavana karşı raporla — 🔓 Açık
-*(enhancement, `priority:medium`)* #72'nin kapatılmamış kriteri. Raporlanan durak sayısı ve km/durak
-**tavansız**: 9 durak iyi mi? Bu havuzda 11 mümkünse kötü. #49'un retrieval tarafında tespit ettiği
-hatanın aynısı, ve #49 kapandığı için aynı ekranda biri "ulaşılabilirin %49'u" diye okunurken
-diğerinin tavansız sayı vermesi tutarsız.
+### #77. Toplanan durak sayısını ulaşılabilir tavana karşı raporla — ✅ Kapalı
+*(enhancement, `priority:medium` — kapandı 2026-08-28, PR #117)* #72'nin kapatılmamış kriteri.
+Raporlanan durak sayısı ve km/durak **tavansızdı**: 9 durak iyi mi? Bu havuzda 11 mümkünse kötü.
+#49'un retrieval tarafında tespit ettiği hatanın aynısı, ve #49 kapandığı için aynı ekranda biri
+"ulaşılabilirin %49'u" diye okunurken diğerinin tavansız sayı vermesi tutarsızdı.
 
 Ölçülecek büyüklük **puan değil durak**: çözücü her POI'ye sabit `DEFAULT_DROP_PENALTY_M = 8000`
 uyguluyor, puan amaç fonksiyonuna hiç girmiyor — puan adayları seçer, çözücü seçilenin üzerinde
-geometriyi tekdüze optimize eder. İlk adım yapıldı (`evaluation/toptw_ceiling.py`, PR #99): mesafe
-sıfırken çözülen gevşetilmiş tavana karşı shipped **%92.0** (48 konfigürasyon, gezi başına 2.04
-durak). Bu gerekçeyi zayıflatıyor — router tarafındaki yanılgı retrieval'ınkinden çok küçük — ve asıl
-bulgu başka: tavana oturan 10 konfigürasyonun 9'u küçük havuzda, yani bağlayıcı kısıt çözücü değil
-aday havuzu. Kalan iş oranı arayüze ve REPORT'a taşımak.
+geometriyi tekdüze optimize eder.
+
+**Ölçüm (yeniden alındı):** `evaluation/toptw_ceiling.py`, 48 konfigürasyon — shipped
+**1178 / 1308 = %90,1**, ortanca %90,9, gezi başına 2,71 durak kaçıyor, tavana oturan 9 ve dokuzu da
+`top_k=24`'te. Önceki %92,0 bugünkü kataloğdan ve #113 / #33 / #109 öncesindendi.
+
+**Üçüncü kol: aradığı ayrışma yok, ve cevap bu.** Gezi kısa listeden, tavan havuzdan çözülüyordu;
+aynı kısa listeyi serbest seyahatle çözen kol eklendi (kısa liste router'ın kendi `_select`'iyle
+kuruldu). İki tavan 48 konfigürasyonun **35'inde birebir aynı**, kalan 13'te en fazla 2 durak ve
+**iki yönde birden** oynuyor — 7'sinde kısa liste tavanı havuz tavanını *aşıyor*, ki alt küme
+süperkümesini gerçek bir sınırda geçemez. Yani gevşetilmiş kol optimum değil, sabit
+`SOLUTION_LIMIT = 150` altında sezgisel; büyük havuz daha zor arama. Kısa listenin maliyeti bu
+çözünürlüğün altında (**−4 durak / 48 konfigürasyon**). Sonuç bölünmeden güçlü: **boşluğun tamamı
+pratikte geometri**, kişiselleştirme gezi uzunluğundan ölçülebilir bir şey götürmüyor. "Kısa
+listenin payı −%3" gibi bir yüzde bilerek basılmadı — gürültüyü bulgu gibi giydirmek olurdu.
+
+**Yüzeye çıkarma iki katmanlı, çünkü maliyeti ölçüldü.** `RouterAgent.run(with_ceiling=True)`
+`ceiling_stops` + `stops_ratio` döndürüyor ve `facts`'e bir cümle ekliyor, ama **varsayılan kapalı**:
+mesafe aramayı budamadığı için gevşetilmiş çözüm annote ettiği geziden pahalı (Paris gezisi 9,65s,
+tavanı üstüne 16,5s). Her zaman görünen sürüm Sistem günlükleri → Results sekmesinde, commit'li
+ölçümden — retrieval'ın tavanı da zaten öyle raporlanıyor.
+
+Yan bulgu: eski docstring tavanı "gerçek üst sınır" diyordu, üçüncü kol bunun doğru olmadığını
+gösterdi; docstring ve arayüz metni düzeltildi. **Karşılanmayan tek kriter:**
+`toptw_measurement.py`'ye ayrı sütun eklenmedi — o dosya "arm" tabanlı ve `toptw_ceiling.csv` zaten
+o çıktının kendisi, oraya bir `ceiling` arm'ı koymak aynı pahalı çözümü ikinci kez koşmak olurdu.
 [#77](https://github.com/yukselburcinn-web/DA592/issues/77)
 
 ### #78. Kilitle-ve-yeniden-çöz: "bu durağı değiştir" — ✅ Kapalı
@@ -1008,4 +1030,3 @@ sayılarını anlatıyor (654 satır), aşılmış `fetch_real_pois.py`'ye atıf
 | 1 | #7 | `priority:high` etiketli, final rapor için gerçek LLM sonucu eksik |
 | 2 | #92 | #32 Aşama 2'nin açıkta bıraktığı tek ölçülebilir yanlışlık: hub koordinatı yüzünden BER erişimi beş kat sapıyordu ve şu an düzeltilmiyor, telafi ediliyor. Veri işi, router'a dokunmuyor |
 | 3 | #94 | Harita, planın söylediği mesafenin yarısını çiziyor. #32'den sonra çelişki büyüdü; sokak modları için gereken veri zaten depoda |
-| 4 | #77 | Ölçüm dürüstlüğü: toplanan puan tavansız raporlanıyor. #49 kapandıktan sonra retrieval tarafı tavanını söylüyor, router tarafı söylemiyor — açık kalan tek taraf bu |
