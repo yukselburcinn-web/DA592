@@ -19,7 +19,8 @@ from roamwise.models.forecasting import forecast_city, best_months_to_visit
 from roamwise.models.segmentation import TravelerSegmenter
 from roamwise.retrieval.fusion import FusionRetriever
 from roamwise.retrieval.graph_search import GraphSearchIndex
-from roamwise.optimization.routing import NIGHTLIFE_EARLIEST_HOUR, optimize_day_route
+from roamwise.optimization.routing import (FOOD_CATEGORY, NIGHTLIFE_EARLIEST_HOUR,
+                                           optimize_day_route)
 from roamwise.optimization.toptw import build_multi_day_itinerary
 from roamwise.optimization.travel_modes import get_travel_mode
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
@@ -2017,6 +2018,54 @@ def test_an_unmeasured_poi_is_not_the_cheapest_hour_in_the_day():
         unmeasured = {"poi_id": "NOT_IN_CATALOGUE", "category": category}
         assert expected_busyness(unmeasured) == pytest.approx(mean)
         assert expected_busyness(unmeasured) > 0
+
+
+def test_a_sitting_is_offered_a_quiet_hour_inside_its_own_band():
+    """Issue #109. #33 left the sittings out on the grounds that a compulsory
+    meal carries no choice of hour. Half of that is right: the sitting happens
+    either way. The half that is wrong is where the whole residual sat -- a
+    sitting is pinned to a four-hour band, not to a minute, and inside the
+    dinner band a restaurant runs 36% busy at its quietest hour and 100% at
+    its busiest."""
+    from roamwise.optimization import toptw
+
+    meals = [(k, target - toptw.MEAL_WINDOW_HOURS, target + toptw.MEAL_WINDOW_HOURS)
+             for k, target in enumerate(toptw.meal_target_hours(9.0, 720, 2))]
+    restaurants = [p for p in _measured_pool(MAIN_CITY, limit=400)
+                   if p.get("category") == FOOD_CATEGORY]
+    assert restaurants, "no measured restaurant to test with"
+
+    offered = 0
+    for poi in restaurants:
+        slots = toptw._meal_slots(poi, "Fr", meals, hour_aware=True)
+        sittings = [toptw._sitting_of(slot) for slot, _ in slots]
+        for k, low, high in meals:
+            assert sittings.count(k) >= 1, "a sitting lost its band-wide copy"
+            for slot, level in slots:
+                if isinstance(slot, tuple) and slot[1] == k:
+                    assert low <= slot[2] and slot[3] <= high, \
+                        "a quiet window escaped its own sitting band"
+                    offered += 1
+    assert offered, "no restaurant was offered a quiet hour at all"
+
+    off = toptw._meal_slots(restaurants[0], "Fr", meals, hour_aware=False)
+    assert [toptw._sitting_of(s) for s, _ in off] == [k for k, _, _ in meals]
+    assert all(level is None for _, level in off), "hour_aware=False priced a meal"
+
+
+def test_both_kinds_of_meal_copy_count_as_the_same_sitting():
+    """The meal dimension counts sittings by node. A sitting now has two kinds
+    of node -- the band and the quiet stretch inside it -- and if the counter
+    told them apart, "one lunch per day" would quietly become "one lunch per
+    day per kind of copy", which is exactly the two-lunches bug #20 and #29
+    exist to prevent."""
+    from roamwise.optimization.toptw import _sitting_of
+
+    assert _sitting_of(0) == 0
+    assert _sitting_of(("m", 0, 12.0, 14.0)) == 0
+    assert _sitting_of(("m", 1, 18.0, 20.0)) == 1
+    assert _sitting_of(("q", 9.0, 12.0)) is None   # a sight's window is not a sitting
+    assert _sitting_of(None) is None
 
 
 def test_the_router_schedules_stops_at_quieter_hours_than_it_used_to():

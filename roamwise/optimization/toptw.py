@@ -154,31 +154,44 @@ _DEFAULT_VISIT_MINUTES = 60
 # mean hour runs 30% busy at 09:00 and 61% at 15:00, so a six-hour window
 # starting in the morning has the afternoon peak inside it.
 CROWD_QUIET_WINDOW_HOURS = 3.0
+# The same idea inside a meal sitting, and narrower because the sitting is
+# already narrow: a band is `2 * MEAL_WINDOW_HOURS` = 4 hours wide, so a
+# three-hour window inside it would barely be a choice. Two hours still holds
+# a 60-minute sitting plus the walk to it.
+CROWD_MEAL_WINDOW_HOURS = 2.0
 # What a busy hour costs, in the metres this model denominates everything else
 # in -- a stop is already "worth taking if it costs less than `drop_penalty_m`
 # of walking", so an hour can be priced the same way.
 #
 # Swept over 2 cities x 4 archetypes x 3 day lengths
-# (`evaluation/crowding_hour_measurement.py`). `hour gap` is exposure minus the
-# same stops' own typical level: how much busier than its own average a stop is
-# at the hour the router picked for it, and the only column here that is about
-# the hour rather than about which POI was chosen.
+# (`evaluation/crowding_hour_measurement.py`). The gap columns are exposure
+# minus the same stops' own typical level: how much busier than its own
+# average a stop is at the hour the router picked for it, which is the only
+# thing here that is about the hour rather than about which POI was chosen.
+# Read `sight gap` for this knob -- meals are priced by CROWD_MEAL_COST_M and
+# were held at 1500 throughout.
 #
-#   cost      stops/day   km/stop   exposure   hour gap
-#   off (today)    6.71     1.025      58.6%      +11.1
-#   0              6.69     1.036      56.1%       +8.6
-#   1000           6.69     1.023      55.1%       +7.3
-#   2000           6.72     1.026      52.7%       +5.4
-#   4000           6.68     1.055      49.5%       +2.0
-#   8000           6.51     0.988      49.2%       +2.2
-#   16000          4.75     0.799      41.3%       -2.5
+#   cost      stops/day   km/stop   exposure   sight gap
+#   off (pre-#33)  6.71     1.025      58.6%      +10.7
+#   0              6.71     1.040      51.5%       +8.0
+#   1000           6.68     1.054      47.5%       +1.6
+#   2000           6.64     1.001      49.1%       +4.3
+#   4000           6.62     1.028      44.3%       -2.1
+#   8000           6.56     1.004      44.3%       -2.4
+#   16000          4.71     0.803      36.4%       -7.3
 #
-# 4000 closes 82% of the gap for 0.4% of the stops. Past it the sweep stops
-# buying quiet hours and starts buying quiet by not going: at 16000 a stop at a
-# 50%-busy hour costs more than the 8000 m it is worth to skip, so the solver
-# skips it -- 29% of the trip's stops, which is not a scheduling improvement.
-# The 0 arm is worth reading too: a third of the gain is the extra node alone,
-# before anything is charged for taking it.
+# 4000 is the cheapest price that takes the sight gap negative -- stops land
+# slightly quieter than their own average rather than busier -- and it costs
+# 1.3% of the stops and nothing measurable in distance. The middle of the
+# sweep is not monotone (1000 beats 2000), which is the search finding a
+# different local optimum rather than a real preference, so no value between
+# them is worth reading closely.
+#
+# Past 8000 the sweep stops buying quiet hours and starts buying quiet by not
+# going: at 16000 a stop at a 50%-busy hour costs more than the 8000 m it is
+# worth to skip, so the solver skips it -- 30% of the trip's stops, which is
+# not a scheduling improvement. The 0 arm is worth reading too: a quarter of
+# the gain is the extra node alone, before anything is charged for taking it.
 CROWD_COST_M = 4000
 # Absolute busyness, not busyness relative to the POI's own quietest hour. The
 # relative form is the tidier idea -- every POI keeps a way to be visited for
@@ -189,6 +202,31 @@ CROWD_COST_M = 4000
 # takes a busier POI whenever geometry favours it and pays nothing for the
 # swap, and exposure is an absolute quantity. Set True to reproduce.
 CROWD_RELATIVE_TO_QUIETEST = False
+# Meals get their own, lower price (#109). A sitting is compulsory, so the
+# solver cannot answer a high crowd price by skipping the meal -- it answers by
+# rebuilding the day around whichever restaurant has a cheap quiet hour, and
+# the sightseeing stops pay for it. At the sightseeing price of 4000 the meal
+# gap overshot to -9.4 points while the sightseeing gap went the wrong way,
+# -0.4 -> +2.1, and the trip lost 2.5% of its stops.
+#
+# Swept over the same 24 trips, sightseeing held at CROWD_COST_M:
+#
+#   meal cost          sight gap   meal gap   stops/day   km/stop
+#   0 (offered, free)      -1.0       +7.1       6.67      1.033
+#   1000                   +0.7       -2.1       6.62      1.011
+#   1500                   -2.1       -5.1       6.62      1.028
+#   2000                   -1.1       -9.0       6.58      1.051
+#   2500                   -0.6      -10.5       6.60      1.058
+#
+# 1500 takes the meal gap 12.2 points, from +7.1 to -5.1, for 0.7% of the
+# stops and nothing in distance. Above it the gap keeps falling and the stops
+# start paying: 2500 buys 5.4 more points for 2.4% on distance per stop, which
+# is spending walking on moving a dinner half an hour. The meal contract is
+# unmoved at every price in the sweep -- 2.0 meals a day, both sittings filled
+# on 100% of the 72 days -- which is the first thing to check here, because a
+# sitting cannot be declined and a change that improved this gap by quietly
+# dropping one would look like a win in every other column (#20, #29).
+CROWD_MEAL_COST_M = 1500
 # How much quieter the quiet window has to be before a POI earns a second
 # node. Nodes are not free: the first design cut every measured POI's day into
 # a fixed grid of slots, which tripled the node count, and at the same
@@ -212,18 +250,22 @@ def _weekday_code(start_date, day: int):
     return _WEEKDAY_CODES[(start_date + datetime.timedelta(days=day)).weekday()]
 
 
-def _quiet_window(poi: dict, weekday, day_start_hour: float, budget_minutes: int):
-    """The `CROWD_QUIET_WINDOW_HOURS` of this day when this POI is emptiest.
+def _quiet_window(poi: dict, weekday, band_start: float, band_end: float,
+                  width: float = CROWD_QUIET_WINDOW_HOURS):
+    """The `width` hours inside `[band_start, band_end]` when this POI is emptiest.
 
     Returns `(low, high, level)`, or None when the POI was never measured or
-    its day is too flat to be worth a node of its own."""
-    end = day_start_hour + budget_minutes / 60
+    the band holds no room for a window of that width."""
     best = None
-    low = float(int(day_start_hour))
-    while low + CROWD_QUIET_WINDOW_HOURS <= end + 1e-9:
-        level = busyness_over(poi, weekday, low, low + CROWD_QUIET_WINDOW_HOURS)
+    # From the band's own start, not from the hour boundary below it. A meal
+    # band starts at 17.2 as readily as at 17.0, and flooring it let a dinner
+    # window open twelve minutes before dinner -- small, but the band is the
+    # only thing keeping a sitting at a mealtime (#20, #29).
+    low = float(band_start)
+    while low + width <= band_end + 1e-9:
+        level = busyness_over(poi, weekday, low, low + width)
         if level is not None and (best is None or level < best[2]):
-            best = (low, low + CROWD_QUIET_WINDOW_HOURS, level)
+            best = (low, low + width, level)
         low += 1.0
     return best
 
@@ -257,11 +299,52 @@ def _crowd_slots(poi: dict, weekday, day_start_hour: float, budget_minutes: int,
         # has to be the thing that shipped.
         return [(None, None)]
     anytime = [(None, expected_busyness(poi))]
-    window = _quiet_window(poi, weekday, day_start_hour, budget_minutes)
+    window = _quiet_window(poi, weekday, day_start_hour,
+                           day_start_hour + budget_minutes / 60)
     if window is None or anytime[0][1] - window[2] < CROWD_MIN_SPREAD:
         return anytime
     low, high, level = window
     return [(("q", low, high), level)] + anytime
+
+
+def _meal_slots(poi: dict, weekday, meals: list, hour_aware: bool) -> list:
+    """A meal POI's options, one sitting at a time.
+
+    Issue #33 left the sittings out on the grounds that *when* a meal happens
+    is not a choice the model has -- the meal dimension makes both sittings
+    compulsory. Half of that is right and the half that is wrong turned out to
+    carry the whole residual: a sitting is pinned to a four-hour band around
+    its target, not to a minute, and inside that band a restaurant's busiest
+    hour is nothing like its quietest. Measured over the 26 restaurants the
+    series covers, the dinner band runs 36% busy at its quietest hour and 100%
+    at its busiest, a median 25 points between the quiet hour and the band's
+    own average. Sightseeing stops came out of #33 at -0.4 points against
+    their own typical level while meal stops stayed at +8.2, and this is where
+    that came from (#109).
+
+    The band-wide copy always stays, for the same reason it does for a sight:
+    the quiet stretch is an extra offer, never a constraint, so a day that can
+    only fit dinner at its busiest hour still fits dinner."""
+    out = []
+    for sitting, low, high in meals:
+        band = expected_busyness(poi, weekday, low, high) if hour_aware else None
+        if hour_aware:
+            window = _quiet_window(poi, weekday, low, high, CROWD_MEAL_WINDOW_HOURS)
+            if window is not None and band - window[2] >= CROWD_MIN_SPREAD:
+                out.append((("m", sitting, window[0], window[1]), window[2]))
+        out.append((sitting, band))
+    return out
+
+
+def _sitting_of(slot):
+    """Which sitting a copy fills, or None if it is not a meal copy at all.
+
+    A sitting has two kinds of copy now -- the band and the quiet stretch
+    inside it -- and the meal dimension has to count them as the same sitting,
+    or "one lunch per day" becomes "one lunch per day per kind of copy"."""
+    if isinstance(slot, tuple):
+        return slot[1] if slot[0] == "m" else None
+    return slot
 
 
 def _visit_minutes(poi: dict) -> int:
@@ -385,13 +468,14 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
         is_meal = min_food_per_day > 0 and _is_food(poi)
         for day in range(n_days):
             if is_meal:
-                slots = [(k, None) for k, _, _ in meals]
+                slots = _meal_slots(poi, _weekday_code(start_date, day), meals,
+                                    hour_aware)
             else:
                 slots = _crowd_slots(poi, _weekday_code(start_date, day),
                                      day_start_hour, daily_minutes_budget, hour_aware)
             for slot, level in slots:
                 if isinstance(slot, tuple):
-                    slot_hours[slot] = (slot[1], slot[2])
+                    slot_hours[slot] = tuple(slot[-2:])
                 if level is not None:
                     crowd_level[len(copies)] = level
                 copies.append((poi_i, day, slot))
@@ -446,7 +530,9 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
                 quietest[poi_i] = min(quietest.get(poi_i, level), level)
         for c, level in crowd_level.items():
             floor = quietest.get(copies[c][0], 0.0)
-            crowd_m[c + 1] = int(round(CROWD_COST_M * (level - floor) / 100.0))
+            cost = (CROWD_MEAL_COST_M if _sitting_of(copies[c][2]) is not None
+                    else CROWD_COST_M)
+            crowd_m[c + 1] = int(round(cost * (level - floor) / 100.0))
 
     starts = [arrival_node if arrival_node is not None and v == 0 else depot
               for v in range(n_days)]
@@ -521,7 +607,7 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
         # a day came back holding nine restaurants and nothing else.
         def meal_cb(i, _j, k=k):
             entry = entry_of(manager.IndexToNode(i))
-            return 1 if entry and entry[2] == k else 0
+            return 1 if entry and _sitting_of(entry[2]) == k else 0
 
         name = f"Meal_{k}"
         routing.AddDimension(routing.RegisterTransitCallback(meal_cb), 0, len(pois),
