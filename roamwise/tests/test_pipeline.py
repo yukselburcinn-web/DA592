@@ -256,6 +256,77 @@ def test_the_traveler_is_not_asked_for_a_preference_the_score_cannot_read():
     assert picked[0] == picked[1], "adventure changes the selection after all"
 
 
+def test_every_category_an_archetype_wants_gets_a_share_of_the_ranking():
+    """Issue #113. One ranking cut at `top_k` starves the weakest category
+    whenever the stronger ones hold enough POIs to fill the cut: a Culture
+    Enthusiast in Paris ranked 241 preferred POIs and the first `religion`
+    (weight 0.6) sat at rank 132, against the 72 a three-day trip retrieves.
+    The categories are merged proportionally now, so the share each gets
+    tracks what the archetype asked for."""
+    from roamwise.knowledge_graph.build_graph import CATEGORY_AFFINITY
+
+    idx = GraphIndex()
+    wanted = CATEGORY_AFFINITY["Culture Enthusiast"]
+    ranked = idx.archetype_preferred_pois("Culture Enthusiast", MAIN_CITY, top_k=72)
+    seen = collections.Counter(p.get("category") for p in ranked)
+
+    for category, weight in wanted.items():
+        available = [p for p in idx.city_pois(MAIN_CITY) if p.get("category") == category]
+        if not available:
+            continue     # `beach` holds nothing in these two cities
+        assert seen[category], f"{category!r} (weight {weight}) got no slot at all"
+    # Proportional, not equal: the strongest category still leads and still
+    # takes the most. Both halves matter -- equal shares would be a different
+    # bug, and would throw away what the traveler said.
+    assert seen["museum"] > seen["religion"], "the strongest category lost its lead"
+    assert ranked[0].get("category") == "museum", "the head is no longer what is most wanted"
+
+
+def test_the_best_known_church_in_the_city_can_actually_be_retrieved():
+    """The regression this is really about. Notre-Dame de Paris is the second
+    most popular POI in the catalogue and no traveler could be shown it: it
+    lost the graph ranking to 131 other POIs and the keyword ranking to a query
+    that asked for words the corpus does not use. 83 of 84 `religion` POIs were
+    unreachable at a three-day trip length."""
+    from roamwise.agents.fusion_rag_agent import FusionRAGAgent
+    from roamwise.agents.orchestrator import RETRIEVED_POIS_PER_DAY
+    from roamwise.retrieval.query import archetype_query
+
+    idx = GraphIndex()
+    churches = [p for p in idx.city_pois(MAIN_CITY) if p.get("category") == "religion"]
+    assert churches, "no religion POI in the catalogue to test with"
+    best = max(churches, key=lambda p: p["popularity_score"])
+
+    out = FusionRAGAgent().run(archetype_query("Culture Enthusiast"),
+                               destination_id=MAIN_CITY, archetype="Culture Enthusiast",
+                               config="fusion", top_k=3 * RETRIEVED_POIS_PER_DAY,
+                               narrate=False)
+    retrieved = {r["poi_id"] for r in out["results"] if r.get("type") == "poi"}
+    assert best["poi_id"] in retrieved, (
+        f"{best['name']} is the best-known place of worship in {MAIN_CITY} and a "
+        "Culture Enthusiast still cannot be shown it")
+
+
+def test_the_religion_query_asks_for_words_the_corpus_actually_uses():
+    """`tokenize` does no stemming, so a query matches only the words it
+    literally contains. The phrase asked for `worship` (4 of 654 documents) and
+    `places` (5) while the documents say `church` (69) -- the category was
+    invisible to BM25 for a reason that reads as a wording detail (#113)."""
+    from roamwise.retrieval.corpus import load_documents, tokenize
+    from roamwise.retrieval.query import CATEGORY_PHRASE
+
+    docs = [d for d in load_documents() if d.get("type") == "poi"]
+    frequency = collections.Counter()
+    for doc in docs:
+        frequency.update(set(tokenize(doc["text"])))
+
+    phrase_tokens = tokenize(CATEGORY_PHRASE["religion"])
+    best = max(frequency[t] for t in phrase_tokens)
+    assert best >= 50, (
+        f"the religion phrase {CATEGORY_PHRASE['religion']!r} matches no common "
+        f"corpus word: {[(t, frequency[t]) for t in phrase_tokens]}")
+
+
 def test_the_graph_router_understands_words_travelers_actually_use():
     """It matched only the catalogue's taxonomy words, so "places of worship" --
     the phrasing both the evaluation grid and the orchestrator emit -- routed as

@@ -29,11 +29,34 @@ from roamwise.knowledge_graph.build_graph import CATEGORY_AFFINITY, DATA_DIR
 # documents are "{name} ({category}) in {city}: {description}", so the category
 # word is present to be matched, and the plural noun phrase is what the
 # sentence-embedding model was trained on.
+#
+# `religion` names church buildings as well as places of worship, and the
+# wording is chosen by measurement rather than by ear (#113). The tokenizer
+# does no stemming, so a phrase matches only the words it literally contains,
+# and the phrase was asking BM25 for words the corpus does not use: across the
+# 654 POI documents `worship` occurs in 4 and `places` in 5, against `church`
+# in 69 and `churches` in 9. Reachable religion POIs out of 84, fused, with the
+# graph ranking of `build_graph.rank_preferred` in place:
+#
+#   places of worship                        14      church                  9 docs
+#   churches                                 13      churches                9 docs
+#   churches and places of worship           22
+#   church buildings and places of worship   30   <- singular `church` matches
+#
+# "church buildings" is the clumsiest of the four to read and the only one that
+# carries the singular token, which is the one the corpus actually uses. This
+# string is never shown to a traveler -- it goes from the orchestrator straight
+# into retrieval -- so it is worth 8 more reachable POIs.
+#
+# The graph ranking does the heavier lifting here (1 of 84 to 14 on its own,
+# against this phrase's 1 to 4 on its own). Both are kept because they are
+# independent faults, and this one is what the docstring above already asked
+# for: the category word present to be matched.
 CATEGORY_PHRASE = {
     "museum": "museums", "landmark": "landmarks", "history": "history sites",
     "nature": "nature spots", "nightlife": "nightlife venues", "shopping": "shopping",
     "food": "food markets and restaurants", "beach": "beaches",
-    "culture": "culture venues", "religion": "places of worship",
+    "culture": "culture venues", "religion": "church buildings and places of worship",
 }
 _CATALOGUE_CATEGORIES = None
 
