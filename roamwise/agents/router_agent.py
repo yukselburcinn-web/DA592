@@ -91,7 +91,7 @@ class RouterAgent:
             respect_opening_hours: bool = True, use_real_routing: bool = False,
             travel_mode=DEFAULT_MODE, min_food_per_day: int = MIN_FOOD_PER_DAY,
             narrate: bool = True, start_date=None, preferences: dict = None,
-            arrival_hub_id: str = None) -> dict:
+            arrival_hub_id: str = None, hour_aware: bool = True) -> dict:
         """narrate=False skips the LLM paraphrase and returns only `facts` --
         see FusionRAGAgent.run()'s docstring and issue #57.
 
@@ -152,7 +152,7 @@ class RouterAgent:
             day_start_hour=day_start_hour, respect_opening_hours=respect_opening_hours,
             use_real_routing=use_real_routing, travel_mode=mode,
             food_pois=food_pois, min_food_per_day=min_food_per_day,
-            start_date=start_date,
+            start_date=start_date, hour_aware=hour_aware,
         )
         facts = self._facts(destination_id, itinerary, mode)
         return {"destination_id": destination_id, "itinerary": itinerary,
