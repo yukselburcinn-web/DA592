@@ -15,7 +15,7 @@ from roamwise.knowledge_graph.build_graph import GraphIndex
 from roamwise.optimization.routing import DEFAULT_DAY_START_HOUR, FOOD_CATEGORY
 from roamwise.optimization.scoring import (
     MAX_WORKING_SET, SELECTION_PER_DAY, select_by_score)
-from roamwise.optimization.toptw import build_multi_day_itinerary
+from roamwise.optimization.toptw import build_multi_day_itinerary, solve
 from roamwise.optimization.travel_modes import DEFAULT_MODE, get_travel_mode
 
 # Lunch and dinner: the itinerary should read like a day a person could
@@ -91,7 +91,8 @@ class RouterAgent:
             respect_opening_hours: bool = True, use_real_routing: bool = False,
             travel_mode=DEFAULT_MODE, min_food_per_day: int = MIN_FOOD_PER_DAY,
             narrate: bool = True, start_date=None, preferences: dict = None,
-            arrival_hub_id: str = None, hour_aware: bool = True) -> dict:
+            arrival_hub_id: str = None, hour_aware: bool = True,
+            with_ceiling: bool = False) -> dict:
         """narrate=False skips the LLM paraphrase and returns only `facts` --
         see FusionRAGAgent.run()'s docstring and issue #57.
 
@@ -107,7 +108,20 @@ class RouterAgent:
         terminal the traveler lands at. Day 1 then starts there instead of at
         the city centre (issue #32). An id the city does not have is ignored
         rather than raised, the same way an unknown travel mode is, so a stale
-        value from the UI can never break planning."""
+        value from the UI can never break planning.
+
+        with_ceiling adds `ceiling_stops` and `stops_ratio` -- the trip's stop
+        count against how many would fit if travel between them were free
+        (issue #77). A stop count on its own has no scale: nine stops is good
+        or bad depending on whether ten were reachable. It is off by default
+        because it costs more than the trip it annotates: the relaxed solve
+        has no distance pruning the search, so it explores a denser problem
+        than the real one. Measured on this catalogue, a Paris Culture
+        Enthusiast trip takes 9.65s and its ceiling 16.5s on top. The always-
+        visible version of this number is therefore the measured one in the
+        System Logs screen, read from `evaluation/toptw_ceiling.csv`, the same
+        way retrieval's own ceiling is reported from a committed measurement
+        rather than recomputed per query."""
         n_days = max(1, min(n_days, len(candidate_pois))) if candidate_pois else 1
         mode = get_travel_mode(travel_mode)
         day_start_hour = start_hour_for(archetype, day_start_hour)
@@ -154,11 +168,62 @@ class RouterAgent:
             food_pois=food_pois, min_food_per_day=min_food_per_day,
             start_date=start_date, hour_aware=hour_aware,
         )
-        facts = self._facts(destination_id, itinerary, mode)
+        ceiling_stops = stops_ratio = None
+        if with_ceiling:
+            ceiling_stops, stops_ratio = self._ceiling(
+                sightseeing_pois, food_pois, n_days, start_hub, arrival_hub,
+                daily_minutes_budget, day_start_hour, respect_opening_hours,
+                min_food_per_day, start_date, hour_aware, itinerary)
+
+        facts = self._facts(destination_id, itinerary, mode, stops_ratio, ceiling_stops)
         return {"destination_id": destination_id, "itinerary": itinerary,
                 "travel_mode": mode.key, "day_start_hour": day_start_hour, "facts": facts,
                 "start_date": start_date,
+                "ceiling_stops": ceiling_stops, "stops_ratio": stops_ratio,
                 "narrative": self._narrate(facts) if narrate else None}
+
+    def _ceiling(self, sightseeing_pois, food_pois, n_days, start_hub, arrival_hub,
+                 daily_minutes_budget, day_start_hour, respect_opening_hours,
+                 min_food_per_day, start_date, hour_aware, itinerary):
+        """How many stops the same shortlist holds when travel is free.
+
+        The shortlist, not the whole retrieved pool: solving the pool would
+        fold the shortlist's own cost into the number, and that cost is not
+        solver inefficiency -- `select_by_score` is the only place the
+        traveler's sliders reach the itinerary (issue #80), so what it leaves
+        out it leaves out on purpose. Measured over 48 configurations, the two
+        ceilings are identical wherever the pool is small enough that the
+        shortlist does not bind at all.
+
+        Distance *and* duration go to zero together. Zeroing only the arc cost
+        would still spend the day's minutes travelling, and the answer would be
+        to a question nobody asked; with both at zero the day's budget buys
+        visits, and the only constraints left are the clock and the opening
+        hours -- which is what makes this an upper bound rather than a
+        different plan."""
+        def free(a, b):
+            return 0.0
+
+        # `build_multi_day_itinerary` builds its own distance matrix, so the
+        # relaxed solve goes to `solve` directly. The working set is assembled
+        # the same way it assembles it, which is the part that has to match.
+        working_set = list(sightseeing_pois) + (
+            list(food_pois or []) if min_food_per_day > 0 else [])
+        if not working_set:
+            return None, None
+        relaxed = solve(
+            working_set, n_days, start_hub=start_hub, arrival_hub=arrival_hub,
+            daily_minutes_budget=daily_minutes_budget,
+            day_start_hour=day_start_hour, respect_opening_hours=respect_opening_hours,
+            start_date=start_date, distance_fn=free, duration_fn=free,
+            min_food_per_day=min_food_per_day, hour_aware=hour_aware,
+        )
+        ceiling = sum(len(d["route"]) for d in relaxed)
+        stops = sum(len(d["route"]) for d in itinerary)
+        # A ceiling below the trip would mean the bound is not one. It can tie
+        # -- ten of the 48 measured configurations do.
+        ceiling = max(ceiling, stops)
+        return ceiling, (stops / ceiling if ceiling else None)
 
     def _select(self, sightseeing: list[dict], food: list[dict], n_days: int,
                 preferences: dict, min_food_per_day: int):
@@ -206,7 +271,8 @@ class RouterAgent:
         pois = self.graph.city_pois(destination_id, category=FOOD_CATEGORY)
         return [already.get(p.get("poi_id"), p) for p in pois]
 
-    def _facts(self, destination_id: str, itinerary: list[dict], mode) -> str:
+    def _facts(self, destination_id: str, itinerary: list[dict], mode,
+               stops_ratio: float = None, ceiling_stops: int = None) -> str:
         """The itinerary as grounded, deterministic text -- one line per stop.
 
         Each stop carries its own description rather than leaving downstream
@@ -232,6 +298,15 @@ class RouterAgent:
                 when = f"{_clock(slot['arrival'])} " if slot else ""
                 lines.append(f"  {i}. {when}{poi['name']} ({poi.get('category', 'stop')})"
                              f"{_summarize(poi.get('description'))}")
+        if stops_ratio is not None:
+            # A count with its denominator, so a narrator cannot call nine
+            # stops a full trip when eleven fit, or a thin one when nine was
+            # everything the day allowed (issue #77).
+            stops = sum(len(d["route"]) for d in itinerary)
+            lines.append(
+                f"\nThis plan fills {stops} of the {ceiling_stops} stops that would fit "
+                f"with travel between them free ({stops_ratio:.0%}); the rest is what "
+                f"getting around costs.")
         return "\n".join(lines)
 
     def _narrate(self, facts: str) -> str:
