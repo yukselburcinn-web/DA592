@@ -1,6 +1,6 @@
 transport_id,destination_id,name,type,lat,lon
-TR001,PAR,Charles de Gaulle International Airport,airport,49.006896,2.562563
-TR002,PAR,Paris–Orly Airport,airport,48.730057,2.358796
+TR001,PAR,Charles de Gaulle International Airport,airport,49.009764,2.561439
+TR002,PAR,Paris–Orly Airport,airport,48.729678,2.360179
 TR003,PAR,Villejuif-Louis Aragon,bus_station,48.787728,2.367611
 TR004,PAR,Porte d'Auteuil,bus_station,48.84738,2.257592
 TR005,PAR,Paris Gare du Nord,train_station,48.8804,2.354973
@@ -9,7 +9,7 @@ TR007,PAR,Gare Montparnasse,train_station,48.840062,2.319109
 TR008,PAR,Paris Gare de l'Est,train_station,48.877098,2.359491
 TR009,PAR,Paris-Saint-Lazare,train_station,48.87653,2.325237
 TR010,PAR,Paris Austerlitz,train_station,48.841244,2.366455
-TR011,BER,"Berlin Brandenburg Airport ""Willy Brandt""",airport,52.365932,13.49691
+TR011,BER,"Berlin Brandenburg Airport ""Willy Brandt""",airport,52.364284,13.508157
 TR012,BER,Berlin Central Bus Station,bus_station,52.507749,13.279806
 TR013,BER,Berlin Hauptbahnhof (tief),train_station,52.524636,13.369861
 TR014,BER,Berlin Zoologischer Garten,train_station,52.507434,13.332561

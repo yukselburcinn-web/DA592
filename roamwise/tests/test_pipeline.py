@@ -1867,16 +1867,61 @@ def test_the_airport_transfer_stops_being_a_walk():
 
 
 def test_berlin_rides_in_from_its_airport():
-    """Brandenburg's coordinate is the middle of the airfield, 1,225m from the
-    nearest footway and outside a village. Measuring access over the street
-    network from there put the traveller on rural buses and the journey at 240
-    minutes; the airport's own platforms are 785m away in a straight line."""
+    """Brandenburg's coordinate used to be the middle of the airfield, 1,225m
+    from the nearest footway and outside a village. Measuring access over the
+    street network from there put the traveller on rural buses and the journey
+    at 240 minutes, while the airport's own platforms sat 785m away and were
+    never considered.
+
+    The row now carries those platforms (#92), so this journey is measured over
+    real footways rather than rescued by the straight-line fallback -- and the
+    answer is the same 45 minutes the fallback happened to produce, which is
+    the point: the number was right for the wrong reason."""
     from roamwise.optimization.street_network import fetch_distance_duration_matrix
 
     points = _transit_points("Brandenburg Airport", "Brandenburg Gate")
     _, transit = fetch_distance_duration_matrix(points, profile="transit")
 
     assert 30 < transit[0][1] < 75, f"FEX and the S-Bahn do not take {transit[0][1]:.0f} minutes"
+
+
+def test_every_airport_hub_stands_where_the_footway_network_can_place_it():
+    """#92. A hub's coordinate is where access to it gets measured from, and
+    for an aerodrome OSM's `out center` is the middle of the airfield -- a
+    point between the runways that no traveller occupies.
+
+    Nothing downstream can tell that from a real coordinate. Berlin
+    Brandenburg's centroid sat 1,225m from the nearest footway node, in a field
+    outside Wassmannsdorf; access measured from there found two village bus
+    stops and reported 240 minutes to the city centre against a true ~45.
+    Charles de Gaulle's was 185m out. Both now sit on the airport's own
+    station.
+
+    150m is `build_transit_matrix.SNAP_TRUST_METRES`, the threshold past which
+    that build stops trusting the network to say where a place is and falls
+    back to a straight line with a detour factor. Inside it, access is measured
+    over real footways -- which is the whole point of the fix, and the thing a
+    silent regression here would undo.
+    """
+    from roamwise.optimization.street_network import load_city_network, snap
+
+    hubs = pd.read_csv(DATA_DIR / "transport.csv")
+    airports = hubs[hubs.type == "airport"]
+    assert not airports.empty, "transport.csv should carry at least one airport"
+
+    checked = 0
+    for code, group in airports.groupby("destination_id"):
+        net = load_city_network(code, "foot")
+        if net is None:
+            continue
+        _, offsets = snap(net, group.lat.to_numpy(), group.lon.to_numpy(),
+                          max_metres=None)
+        for name, metres in zip(group.name, offsets):
+            assert metres <= 150.0, (
+                f"{name} sits {metres:.0f}m from the nearest footway node -- "
+                f"the runway centroid again, or a terminal the network cannot reach")
+            checked += 1
+    assert checked, "no city with a committed walking network held an airport"
 
 
 def test_transit_declines_a_city_with_no_timetable():

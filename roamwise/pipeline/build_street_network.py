@@ -56,12 +56,34 @@ from roamwise.optimization.street_network import (  # noqa: E402
     DIRECTED, MAX_SNAP_M, NETWORK_TYPE, arrays_net, matrix_over, point_key, snap)
 
 OUT_DIR = DATA / "street_network"
-# How far past the outermost catalogue point the network reaches. A route
-# between two points near the same edge of the box can legitimately leave it
-# -- the shortest path around a park is not always inside the box drawn
-# around its endpoints -- and `truncate_by_edge` keeps whole ways that cross
-# the boundary rather than cutting them mid-street.
-MARGIN_KM = 2.0
+# How far past the outermost catalogue point the network reaches. Two reasons,
+# and the second is what set the number:
+#
+#   * A route between two points near the same edge of the box can legitimately
+#     leave it -- the shortest path around a park is not always inside the box
+#     drawn around its endpoints -- and `truncate_by_edge` keeps whole ways
+#     that cross the boundary rather than cutting them mid-street.
+#   * A point at a *corner* of the box needs enough network around it to reach
+#     the rest of the city, or component pruning throws its streets away. At
+#     2.0km Berlin Brandenburg's footways were a 788-node island: the corridor
+#     linking them to Berlin ran outside the box, so the airport's own paths
+#     were not the largest component and were dropped, leaving the nearest
+#     node 1,865m away in a field. The airport is 18km out and sits in the
+#     box's south-east corner, which is exactly where the margin has to do
+#     this work (#92). It reconnects at 3.0km; 4.0 is that plus headroom, for
+#     about 20% more nodes.
+MARGIN_KM = 4.0
+
+# How much further from the network a catalogue point may be pushed by
+# component pruning before the build is wrong rather than merely lossy.
+#
+# This is the check that #92 went missing for want of. Dropping a component is
+# normal and mostly right -- a car park loop with no way out is noise -- but
+# when the component that goes is the one a catalogue point stands on, the
+# point does not fail, it silently starts answering for somewhere else. BER's
+# transit access was measured from a village 1.2km away and reported 240
+# minutes to the centre against a true 45, and nothing in the build said so.
+MAX_COMPONENT_LOSS_M = 100.0
 
 ox.settings.use_cache = True
 ox.settings.cache_folder = str(CACHE / "osmnx")
@@ -125,14 +147,28 @@ def build(code: str, profile: str, write: bool):
     print(f"\n{code}/{profile}: {len(points)} catalogue points, "
           f"bbox {box[0]:.4f},{box[1]:.4f},{box[2]:.4f},{box[3]:.4f}")
 
+    # `retain_all=True` because the component decision belongs to `prune`, which
+    # documents it and which the loss check below can see. osmnx's default
+    # quietly drops everything outside the largest weakly connected component
+    # before we ever look, and that is how BER's footways disappeared without
+    # a line of output (#92).
     G = ox.graph_from_bbox(bbox=box, network_type=NETWORK_TYPE[profile],
-                           simplify=True, truncate_by_edge=True)
+                           simplify=True, retain_all=True, truncate_by_edge=True)
     print(f"  downloaded {G.number_of_nodes():,} nodes / {G.number_of_edges():,} edges")
+
+    # Where each point sits relative to the *whole* download, to compare
+    # against where it sits once one component is kept.
+    full_xy = np.array([[d["x"], d["y"]] for _, d in G.nodes(data=True)], dtype=np.float32)
+    empty_uv = np.empty((0, 2), dtype=np.uint32)
+    empty_m = np.empty(0, dtype=np.float32)
+    lats, lons = points.lat.to_numpy(), points.lon.to_numpy()
+    _, full_offsets = snap(arrays_net(full_xy, empty_uv, empty_m), lats, lons,
+                           max_metres=None)
+
     node_xy, edge_uv, edge_m = prune(G, undirected=not DIRECTED[profile])
     print(f"  pruned to  {len(node_xy):,} nodes / {len(edge_uv):,} edges")
 
     net = arrays_net(node_xy, edge_uv, edge_m)
-    lats, lons = points.lat.to_numpy(), points.lon.to_numpy()
     snapped = snap(net, lats, lons)
     if snapped is None:
         print(f"  !! a catalogue point is further than {MAX_SNAP_M:.0f}m from this "
@@ -142,6 +178,15 @@ def build(code: str, profile: str, write: bool):
     worst = points.name[int(np.argmax(offsets))]
     print(f"  snapped: median {np.median(offsets):.0f}m, mean {offsets.mean():.0f}m, "
           f"worst {offsets.max():.0f}m ({worst})")
+
+    stranded = np.flatnonzero(offsets - full_offsets > MAX_COMPONENT_LOSS_M)
+    if len(stranded):
+        print(f"  !! {len(stranded)} point(s) lost their streets to component pruning "
+              f"-- widen MARGIN_KM:")
+        for i in stranded[np.argsort(-offsets[stranded])][:10]:
+            print(f"       {points.name[int(i)][:44]:<46} "
+                  f"{full_offsets[i]:>6.0f}m -> {offsets[i]:>6.0f}m")
+        return
 
     km = matrix_over(net, lats, lons, DIRECTED[profile])
     if km is None:
