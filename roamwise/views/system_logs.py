@@ -16,6 +16,7 @@ Two tabs, both showing things that used to sit in the traveler's way:
 A page, not an entry point: see the note in `roamwise/app.py`.
 """
 from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
 import plotly.express as px
@@ -419,3 +420,105 @@ with results_tab:
             # already in before it carried the question at all.
             column_config={"query": st.column_config.TextColumn("query", width="large")},
         )
+
+
+# ---------------------------------------------------------------------------
+# The router's own ceiling (issue #77)
+#
+# Recall is reported against what was collectable -- 0.512 at top_k=8, not 1.0
+# -- and the "Answers" column above says so. The router reported stops against
+# nothing, so the same screen was asking to be read two different ways. This
+# section supplies the denominator, from the committed measurement rather than
+# a live solve: the relaxed solve costs more than the trip it annotates (9.65s
+# for a Paris trip, 16.5s for its ceiling), so recomputing it per plan would
+# treble planning time for a diagnostic. `RouterAgent.run(with_ceiling=True)`
+# is there for anyone who wants it per-trip.
+
+CEILING_CSV = Path(__file__).resolve().parents[1] / "evaluation" / "toptw_ceiling.csv"
+
+
+@st.cache_data(show_spinner=False)
+def _load_ceiling():
+    """None when there is nothing to show, including a measurement predating
+    the third arm -- the split below is meaningless without it, and a missing
+    column should read as "re-run the script" rather than as a stack trace."""
+    if not CEILING_CSV.exists():
+        return None
+    df = pd.read_csv(CEILING_CSV)
+    return df if "shortlist_ceiling_stops" in df.columns else None
+
+
+with results_tab:
+    st.markdown("##### Does the router fill the day?")
+    ceiling_df = _load_ceiling()
+    if ceiling_df is None:
+        st.info("No saved ceiling measurement found. Run "
+                "`python evaluation/toptw_ceiling.py`.")
+    else:
+        shipped = int(ceiling_df.shipped_stops.sum())
+        ceiling = int(ceiling_df.ceiling_stops.sum())
+        shortlist_ceiling = int(ceiling_df.shortlist_ceiling_stops.sum())
+
+        st.caption(
+            "A stop count has no scale on its own: nine stops is good if ten were "
+            "reachable and poor if fourteen were. The ceiling here is the same model on "
+            "the same candidates with travel between them free -- the optimistic "
+            "direction, so the true figure is higher than what this shows. "
+            f"Measured over {len(ceiling_df)} configurations "
+            f"({ceiling_df.city.nunique()} cities x {ceiling_df.archetype.nunique()} archetypes "
+            f"x {ceiling_df.budget_hours.nunique()} day lengths x {ceiling_df.top_k.nunique()} "
+            "pool sizes)."
+        )
+
+        delta = ceiling_df.shortlist_ceiling_stops - ceiling_df.ceiling_stops
+        left, right = st.columns(2)
+        left.metric("Stops filled", f"{shipped / ceiling:.1%}",
+                    help=f"{shipped} stops planned against a ceiling of {ceiling}.")
+        right.metric("What the gap is", "the geometry",
+                     help="The shortlist's share of it is too small to measure -- see below.")
+
+        st.caption(
+            "The gap is what getting between the stops costs, and effectively all of it is. "
+            "The other candidate explanation was the shortlist: the trip is solved from the "
+            f"{ceiling_df.shortlist.min()}-{ceiling_df.shortlist.max()} places scoring keeps, "
+            "not from the whole pool, so places it drops could have been the missing stops. "
+            "Solving that same shortlist with travel free says otherwise -- the two ceilings "
+            f"come out identical in {int((delta == 0).sum())} of {len(ceiling_df)} "
+            f"configurations and never differ by more than {int(delta.abs().max())} stops, in "
+            "both directions. A subset cannot beat its superset under an exact bound, so those "
+            "reversals are the relaxed solve showing its own limit: it is a heuristic, not an "
+            "optimum. The shortlist's cost sits below that resolution "
+            f"({int(ceiling - shortlist_ceiling):+d} stops over {len(ceiling_df)} "
+            "configurations), which is worth stating plainly -- personalization is not being "
+            "paid for in trip length."
+        )
+
+        st.caption(
+            "Read this next to the retrieval ceiling above: recall sits at 49% of what was "
+            f"attainable, the router at {shipped / ceiling:.0%}. The router-side gap is the "
+            "smaller problem, and saying so is better than leaving both numbers uncapped and "
+            "equally unreadable."
+        )
+
+        by_pool = (ceiling_df.groupby("top_k")
+                   .agg(configs=("ratio", "size"),
+                        shipped=("shipped_stops", "sum"),
+                        ceiling=("ceiling_stops", "sum"))
+                   .reset_index())
+        by_pool["Filled"] = by_pool.shipped / by_pool.ceiling
+        st.dataframe(
+            by_pool.rename(columns={"top_k": "Pool", "configs": "Configs",
+                                    "shipped": "Stops", "ceiling": "Ceiling"}),
+            use_container_width=True, hide_index=True,
+            column_config={"Filled": st.column_config.ProgressColumn(
+                "Filled", min_value=0.0, max_value=1.0, format="%.1f%%")},
+        )
+        st.caption(
+            "The ratio falls as the pool grows, which points at the candidates rather than the "
+            "solver: where the solver takes everything offered, the stops that never appear were "
+            "never offered. That is a reason to look at the pool, not a reason to enlarge it -- "
+            "issue #80 measured stops flat from 40 to 371 candidates."
+        )
+
+        with st.expander("Per-configuration ceiling"):
+            st.dataframe(ceiling_df, use_container_width=True, hide_index=True)

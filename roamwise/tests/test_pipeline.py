@@ -1319,6 +1319,75 @@ def _stops_scheduled_while_closed(itinerary, start_date):
     return closed
 
 
+def test_the_router_reports_its_stops_against_a_ceiling():
+    """Issue #77: a stop count has no scale on its own. `with_ceiling=True`
+    re-solves the same shortlist with travel free and reports the trip against
+    that bound.
+
+    Two things have to hold for the number to mean anything. The ceiling is an
+    upper bound, so it can never sit below the trip it bounds -- if it did, the
+    "ratio" would be a comparison of two different problems. And it has to be
+    opt-in: the relaxed solve explores a denser problem than the real one and
+    costs more than the trip, so a caller that did not ask for it must not pay
+    for it."""
+    idx = GraphIndex()
+    pois = idx.city_pois(MAIN_CITY)[:40]
+    router = RouterAgent(idx)
+    kwargs = dict(n_days=2, daily_minutes_budget=600, narrate=False, start_date=MONDAY)
+
+    plain = router.run(MAIN_CITY, pois, **kwargs)
+    assert plain["stops_ratio"] is None and plain["ceiling_stops"] is None
+    assert "would fit with travel between them free" not in plain["facts"]
+
+    annotated = router.run(MAIN_CITY, pois, with_ceiling=True, **kwargs)
+    stops = sum(len(d["route"]) for d in annotated["itinerary"])
+    assert stops > 0, "a trip with no stops cannot exercise the ratio"
+    assert annotated["ceiling_stops"] >= stops
+    assert annotated["stops_ratio"] == pytest.approx(stops / annotated["ceiling_stops"])
+    assert 0 < annotated["stops_ratio"] <= 1
+    # The denominator reaches the text the narrator is grounded on, which is
+    # the point of carrying it at all.
+    assert f"of the {annotated['ceiling_stops']} stops" in annotated["facts"]
+
+
+def test_the_ceiling_is_solved_over_the_shortlist_not_the_whole_pool():
+    """The shortlist is what `select_by_score` leaves, and what it leaves out
+    it leaves out deliberately -- that is the only place the traveler's sliders
+    reach the plan (issue #80). Solving the whole pool would fold that choice
+    into the ratio and make personalization read as solver waste, so the
+    ceiling has to move with the shortlist rather than with the pool."""
+    idx = GraphIndex()
+    router = RouterAgent(idx)
+    kwargs = dict(n_days=2, daily_minutes_budget=600, narrate=False,
+                  start_date=MONDAY, with_ceiling=True)
+
+    pool = idx.city_pois(MAIN_CITY)
+    plan = router.run(MAIN_CITY, pool, **kwargs)
+
+    # Rebuild the shortlist the way run() does and solve it with travel free.
+    # The reported ceiling has to be that number: solving the pool instead
+    # would count stops the scorer deliberately left out.
+    from roamwise.optimization.toptw import solve as toptw_solve
+    from roamwise.agents.router_agent import MIN_FOOD_PER_DAY
+
+    sights = [p for p in pool if p.get("category") != FOOD_CATEGORY]
+    short_sights, short_food = router._select(
+        sights, router._food_pois(MAIN_CITY, pool), 2, None, MIN_FOOD_PER_DAY)
+    node = idx.g.nodes[MAIN_CITY]
+    expected = toptw_solve(
+        list(short_sights) + list(short_food), 2,
+        start_hub={"lat": node["lat"], "lon": node["lon"], "name": node["name"]},
+        daily_minutes_budget=600, day_start_hour=plan["day_start_hour"],
+        start_date=MONDAY, distance_fn=lambda a, b: 0.0, duration_fn=lambda a, b: 0.0,
+        min_food_per_day=MIN_FOOD_PER_DAY)
+
+    assert plan["ceiling_stops"] == sum(len(d["route"]) for d in expected)
+    assert plan["ceiling_stops"] >= sum(len(d["route"]) for d in plan["itinerary"])
+    # And it is well below the pool it was shortlisted from, which is the
+    # whole reason the distinction matters.
+    assert plan["ceiling_stops"] < len(pool)
+
+
 def test_both_orchestrators_honour_the_weekday_a_start_date_names():
     """Issue #76: `orchestrator.py` passed `start_date` to the router and
     `orchestrator_langgraph.py` did not, so the verbatim OSM tag could not be
