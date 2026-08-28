@@ -93,6 +93,50 @@ def score_by_affinity_and_prominence(pois: list[dict]) -> list[dict]:
     return pois
 
 
+def rank_preferred(pois: list[dict], top_k: int) -> list[dict]:
+    """Rank an archetype's preferred POIs so every category it asks for is
+    represented, in proportion to how much it is asked for (issue #113).
+
+    `score_by_affinity_and_prominence` already fixed the crude version of this
+    -- see its docstring -- but it fixed it *within* a single ranking, and one
+    ranking cut at `top_k` still starves the weakest category whenever the
+    stronger ones hold enough POIs to fill the cut. Measured on the shipped
+    settings: a Culture Enthusiast in Paris ranks 241 preferred POIs, and the
+    first `religion` (weight 0.6, the lowest that archetype asks for) sat at
+    **rank 132** -- far beyond the 72 a three-day trip retrieves. The top 72
+    was 34 landmarks, 26 museums, 8 culture and 4 history, and none of Paris's
+    churches, so 83 of the catalogue's 84 religion POIs could not reach any
+    traveler at all.
+
+    So the categories are merged rather than pooled. Each category keeps its
+    own ranking, best-known first, and emits its i-th POI at position
+    `i / weight`: a weight-1.0 category emits at 1, 2, 3..., a weight-0.6 one
+    at 1.67, 3.33, 5.00... The head of the list still belongs to what the
+    traveler most wants -- the first three slots are the three strongest
+    categories -- and each category ends up with roughly its share of the cut.
+    Prominence still decides who leads *inside* a category, so the ordering the
+    prominence floor was swept for is unchanged there.
+    """
+    if not pois:
+        return pois
+    score_by_affinity_and_prominence(pois)
+    by_category: dict[str, list[dict]] = {}
+    for poi in pois:
+        by_category.setdefault(poi.get("category"), []).append(poi)
+
+    merged = []
+    for category, group in by_category.items():
+        group.sort(key=lambda p: (p["affinity_prominence"], p["popularity_score"]),
+                   reverse=True)
+        for i, poi in enumerate(group):
+            weight = poi["weight"] or 1e-9
+            # Ties resolve towards the more-wanted category, then the
+            # better-known POI, so the order stays deterministic.
+            merged.append(((i + 1) / weight, -weight, -poi["affinity_prominence"], poi))
+    merged.sort(key=lambda row: row[:3])
+    return [row[3] for row in merged[:top_k]]
+
+
 def haversine_km(lat1, lon1, lat2, lon2):
     r = 6371.0
     p1, p2 = math.radians(lat1), math.radians(lat2)
@@ -223,27 +267,24 @@ class GraphIndex:
         return sorted(out, key=lambda x: x["distance_km"])
 
     def archetype_preferred_pois(self, archetype: str, destination_id: str = None, top_k: int = 20):
+        """The POIs this archetype prefers, ranked so every category it asks
+        for is actually represented (issue #113).
+
+        Both backends now fetch the rows and rank them here, in one place. The
+        Cypher query used to do its own ordering and `LIMIT`, which meant the
+        two backends could drift apart on the thing that decides what a
+        traveler is shown.
+        """
         if self.backend == "neo4j":
             query = "MATCH (a:ArchetypeProfile {name: $arch})-[r:PREFERS]->(p:POI) "
             if destination_id:
                 query += "WHERE p.destination_id = $dest_id "
-            # Ordered on the affinity x prominence product, not lexicographically
-            # on (weight, popularity) -- see the NetworkX branch below for why.
-            # Prominence is min-max normalised over the rows this query returns,
-            # which is the same set the NetworkX branch normalises over.
-            query += ("WITH p, r.weight AS weight "
-                      "WITH collect({p: p, weight: weight}) AS rows, "
-                      "     min(p.popularity_score) AS lo, max(p.popularity_score) AS hi "
-                      "UNWIND rows AS row "
-                      "RETURN row.p AS p, row.weight AS weight "
-                      "ORDER BY row.weight * ($floor + (1.0 - $floor) * "
-                      "  (CASE WHEN hi > lo THEN (row.p.popularity_score - lo) / (hi - lo) ELSE 1.0 END)) DESC, "
-                      "  row.p.popularity_score DESC "
-                      "LIMIT $top_k")
+            query += "RETURN p, r.weight AS weight"
             with self.driver.session() as session:
-                result = session.run(query, arch=archetype, dest_id=destination_id,
-                                     top_k=top_k, floor=PROMINENCE_FLOOR)
-                return [{"poi_id": record["p"].element_id, "weight": record["weight"], **record["p"]} for record in result]
+                result = session.run(query, arch=archetype, dest_id=destination_id)
+                out = [{"poi_id": record["p"].element_id, "weight": record["weight"],
+                        **record["p"]} for record in result]
+            return rank_preferred(out, top_k)
 
         node_id = f"ARCH::{archetype}"
         if node_id not in self.g:
@@ -256,9 +297,7 @@ class GraphIndex:
             if destination_id and node.get("destination_id") != destination_id:
                 continue
             out.append({"poi_id": poi_id, "weight": data["weight"], **node})
-        score_by_affinity_and_prominence(out)
-        out.sort(key=lambda x: (x["affinity_prominence"], x["popularity_score"]), reverse=True)
-        return out[:top_k]
+        return rank_preferred(out, top_k)
 
     # 1.0 km, not the 3.0 this used to default to. The radius has to be small
     # enough that "near a transport hub" separates some POIs from the rest, and

@@ -34,14 +34,14 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 | Alan | Açık | Kapalı |
 |---|---|---|
 | A — Veri & Modeller | 2 (#71, #92) | 9 (#1, #2, #3, #27, #30, #33, #65, #70, #79) |
-| B — Retrieval & Bilgi Grafiği | — | 10 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85) |
+| B — Retrieval & Bilgi Grafiği | — | 11 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85, #113) |
 | C — Ajanlar, Orkestrasyon & UI | 4 (#7, #76, #77, #94) | 22 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #78, #80, #81, #83, #109) |
 | D — Altyapı | 1 (#101) | 6 (#11, #12, #26, #31, #32, #93) |
 
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 54 issue: **7 açık, 47 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
+Toplam 55 issue: **7 açık, 48 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
 `gh issue list` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
 
 **Bu güncellemede ne değişti:** #32 üç parçasıyla kapandı (self-hosted sokak mesafesi, GTFS
@@ -663,6 +663,42 @@ REPORT §3.2'deki anlatım tarihsel nota indirgendi (#19'un kapasite kısıtlı 
 ve #72'nin bunu neden devraldığı duruyor), `city_guide.py` docstring'indeki eskimiş "POIZoner
 applies downstream" ifadesi düzeltildi. Suite: **103 geçti, 1 atlandı.**
 [#81](https://github.com/yukselburcinn-web/DA592/issues/81)
+
+### #113. Kataloğun bir kategorisi hiçbir gezgine ulaşamıyordu — 🔒 Kapalı
+*(bug, `area:retrieval`, `priority:medium`)* #79 üzerinde çalışırken çıktı. Proje bugüne kadar hep
+"plan neyi içeriyor" diye sordu; "katalog neyi sunabiliyor" sorusu hiç sorulmamıştı ve cevabı çok
+daha kötüydü. Her (şehir × arketip) retrieval havuzunun **birleşimi** — yani herhangi bir gezginin
+görebileceği her şey — 3 günlük gezide kataloğun %63.8'iydi, ama `religion` bu birleşimde **84
+POI'den 1'iydi**. Görülemeyen 83'ün içinde iki şehrin en bilinen 24 yerinden dördü vardı:
+Notre-Dame de Paris, Panthéon, Sacré-Cœur ve Berlin Cathedral.
+
+**İki bağımsız hata, ikisi de düzeltilmesi gerekiyordu.**
+
+*Graf sıralaması:* `archetype_preferred_pois` tercih edilen POI'leri tek bir afinite × belirginlik
+listesinde sıralayıp `top_k`'da kesiyordu. Bu, güçlü kategoriler kesimi doldurabildiği sürece en
+zayıf kategoriyi aç bırakıyor: Culture Enthusiast / Paris'te 241 POI sıralanıyor ve ilk `religion`
+(ağırlık 0.6) **132. sırada** — 3 günlük gezinin çektiği 72'nin çok ötesinde. Artık her kategori
+kendi sıralamasını koruyup birleşik listeye ağırlığının belirlediği hızda giriyor (`i / ağırlık`):
+listenin başı hâlâ gezginin en çok istediği şey (Louvre, Eiffel, Père Lachaise, Palais Garnier,
+**Notre-Dame** — 5. sırada), ama istediği her kategori payını alıyor. İlk 72'nin dağılımı
+17/16/15/14/10. Her iki backend de (NetworkX ve neo4j) artık aynı Python sıralamasını kullanıyor;
+Cypher'ın kendi `ORDER BY`/`LIMIT`'i vardı ve ikisi bu noktada birbirinden sapabiliyordu.
+
+*Kelime retriever'ı:* tokenizer kök almıyor, yani sorgu yalnızca birebir içerdiği kelimeleri
+eşleştiriyor. İfade "places of worship" diyordu; 654 POI belgesinde `worship` 4, `places` 5 kez
+geçiyor, `church` ise **69**. Kategori BM25'e görünmezdi ve sebebi bir yazım detayı gibi okunuyor.
+
+**Ölçüm** (`evaluation/retrieval_coverage.py`, artık repoda): ulaşılabilir `religion` 1 → **30**,
+3 günlük gezide ünlü POI kapsamı **20/24 → 24/24**. Retrieval kalitesi projenin kendi ölçüleriyle
+gerilemedi: recall@k 0.253 → 0.258, archetype precision 0.967 → 0.969.
+
+**Bedeli gerçek ve aşırı temsil edilen kategorilerin kuyruğu:** `landmark` ulaşılabilirliği
+%39.7'den %19.8'e, `museum` %68.5'ten %42.6'ya iniyor, toplam 417 → 403. Üç kategorideki derinlik,
+hepsindeki genişlikle takas edildi; ünlü POI ölçüsü bu takasın ünlüleri götürmediğini söylüyor.
+
+Yan düzeltme: REPORT §5 `RETRIEVED_POIS_PER_DAY = 8` diyor ve "kimsenin bilerek seçmediği knob"
+olarak anlatıyordu. `f34de0e` (26 Ağu) değeri 24 yaptı ve gerekçesini ölçümle yazdı; §5 güncellendi.
+[#113](https://github.com/yukselburcinn-web/DA592/issues/113) — ilişkili: #63, #79, REPORT §5
 
 ### #109. Yemek oturumları da sakin saatini seçsin — 🔒 Kapalı
 *(enhancement, `priority:medium`)* #33 saat yarısını kapattı ama sakin-pencere düğümünü yalnızca
