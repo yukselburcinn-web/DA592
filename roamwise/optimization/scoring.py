@@ -85,17 +85,42 @@ def _fit_preference_matrix() -> dict[str, dict[str, float]]:
     recovers the correct top-3 categories in 16 of 21 archetype slots, and
     the right first choice for all but one.
 
-    One honest gap it exposes: `adventure` fits to all zeros. The catalogue
-    has no adventure-ish category of its own (`beach` holds nothing in the
-    two-city dataset), so the slider's signal is entirely absorbed by
-    `nature`, which it correlates with across the survey. The adventure
-    slider therefore does not move this score on its own today.
+    The fit runs over the categories the **catalogue actually holds**, not over
+    every category `CATEGORY_AFFINITY` names (#79). `beach` is the reason: two
+    inland cities hold zero beach POIs, but the affinity table still wants it
+    for two archetypes, so NNLS spent 8.2% of the whole matrix -- and 30% of
+    the `relax` row, 25% of `nature`'s -- on a column no POI can ever match.
+
+    Be precise about what removing it does, because it is tempting to claim
+    more: **nothing changes for any POI that exists.** `preference_match` looks
+    up one category at a time, so a beach weight was only ever read for a beach
+    POI, and `_MAX_MATCH` is set by the `food` column (1.087) rather than by
+    `beach` (0.617), so the normaliser is untouched too. Measured before and
+    after, the same 24 POIs are selected for every slider setting. What the
+    filter buys is that the matrix stops describing a catalogue we do not have
+    -- the reader of this table, and the report that quotes it, were both being
+    told about a preference the product cannot act on. It is also self-healing:
+    add a city with a coast and `beach` returns to the fit on its own, because
+    nothing here is hand-written.
+
+    One honest gap this does *not* close: `adventure` still fits to all zeros.
+    The catalogue has no adventure-ish category at all -- `beach` was the
+    nearest thing the affinity table offered and it was never populated -- so
+    the slider's signal is entirely absorbed by `nature`, which it correlates
+    with across the survey. Measured: holding every other slider at 0.5 and
+    moving `adventure` from 0.1 to 0.9 changes none of the 24 selected POIs,
+    where `culture` changes all 24. That is why the traveler is not shown an
+    adventure slider (see `views/itinerary.py`); it is a gap in the catalogue's
+    taxonomy, and inventing a category to fill it is tracked separately.
     """
     from scipy.optimize import nnls
 
     survey = pd.read_csv(DATA_DIR / "user_survey.csv")
+    in_catalogue = set(pd.read_csv(DATA_DIR / "poi.csv", usecols=["category"])
+                       ["category"].unique())
     archetypes = sorted(CATEGORY_AFFINITY)
-    categories = sorted({c for a in CATEGORY_AFFINITY.values() for c in a})
+    categories = sorted({c for a in CATEGORY_AFFINITY.values() for c in a}
+                        & in_catalogue)
     prefs = np.array([survey[survey.archetype == a][PREFERENCE_DIMS].mean().values
                       for a in archetypes])
     wants = np.array([[CATEGORY_AFFINITY[a].get(c, 0.0) for c in categories]
