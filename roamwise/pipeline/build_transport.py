@@ -24,6 +24,11 @@ tags find the candidates and Wikidata ranks them:
     Lyon, Montparnasse, Gare de l'Est, Saint-Lazare, Austerlitz -- the six
     termini, in order -- and Berlin leads with Hauptbahnhof.
 
+A station's node is where the passenger is, but an aerodrome's is not: `out
+center` returns the middle of the airfield. `passenger_point` moves each
+airport onto its nearest terminal (#92), which is what the rest of the
+pipeline then measures walking access and street distance from.
+
     python build_transport.py PAR BER --write
 """
 import argparse
@@ -39,6 +44,19 @@ from common import (CITIES, DATA, OVERPASS, QLEVER, haversine_km, http,
 SEARCH_KM = 45.0            # airports sit well outside the catalogue's 7 km
 MAX_STATIONS = 6             # the termini; below them come commuter stops
 HUB_RADIUS_KM = 3.0          # what build_graph.py calls "near a hub"
+
+# How far from an aerodrome's centroid to look for the point a passenger is
+# actually standing on. Terminals get the wider circle because they are spread
+# across the airfield -- CDG's outermost hall (2G) is 2.9km from the middle --
+# and only the nearest one is taken, so a generous radius costs nothing.
+#
+# Stations get a tighter one, and that difference is the whole point: a 3km
+# circle around Berlin Brandenburg also contains Waßmannsdorf (2.3km) and
+# Schoenefeld (3.0km), which are villages with their own stations, not the
+# airport. 2km reaches the airport's own station (0.8km) and stops short of
+# both.
+TERMINAL_SEARCH_M = 3000
+STATION_SEARCH_M = 2000
 
 
 def _bbox(city, km):
@@ -88,6 +106,60 @@ out center tags;
                         "lon": round(lon, 6), "km": km,
                         "iata": t.get("iata", ""), "qid": qid, "sitelinks": 0}
     return list(out.values())
+
+
+def passenger_point(airport):
+    """Where a traveller actually stands at an airport, or None if OSM has
+    nothing better than the centroid.
+
+    `out center` gives an aerodrome its geometric middle, and for an airport
+    that is a point between the runways. Nothing downstream can tell it from a
+    real coordinate, so it does not fail, it just answers a different
+    question: Berlin Brandenburg's centroid snaps 1,225m to the nearest
+    footway node -- in a field outside Wassmannsdorf -- and access measured
+    from there found two village bus stops and routed the airport into the
+    city in 240 minutes, against a true ~45 (#92, #32 stage 2).
+
+    The airport's own station comes first, its nearest terminal second. #92
+    specified the other order, and measuring it is what changed the answer: at
+    a multi-terminal airport "the nearest terminal" is a hall, not a gateway.
+    CDG's centroid resolves to Terminal 2B, whose 800m walking circle holds
+    seven inter-terminal bus stops and no train at all -- the RER B that makes
+    this journey 50 minutes is further away than that -- and CDG to Notre-Dame
+    came out at 60 minutes against a hand-checked ~50. The stations reach it
+    directly: Roissypole touches 28 stops including the RER, CDG2 TGV 15.
+    A station is also what the bug was about, at the other airport too --
+    Flughafen BER's platforms were 785m from the centroid and never
+    considered.
+
+    Terminals stay as the fallback because not every airport tags a station of
+    its own, and any terminal beats the middle of an airfield.
+    """
+    lat, lon = airport["lat"], airport["lon"]
+    q = f"""[out:json][timeout:180];
+(
+  nwr["aeroway"="terminal"]["name"](around:{TERMINAL_SEARCH_M},{lat},{lon});
+  nwr["railway"="station"]["name"](around:{STATION_SEARCH_M},{lat},{lon});
+  nwr["public_transport"="station"]["name"](around:{STATION_SEARCH_M},{lat},{lon});
+);
+out center tags;
+"""
+    data = http(OVERPASS, data="data=" + urllib.parse.quote(q),
+                cache_key="apoint-" + q, timeout=300)
+
+    best = {}
+    for el in data.get("elements", []):
+        t = el.get("tags", {})
+        elat = el.get("lat") or el.get("center", {}).get("lat")
+        elon = el.get("lon") or el.get("center", {}).get("lon")
+        if elat is None or elon is None:
+            continue
+        kind = "terminal" if t.get("aeroway") == "terminal" else "station"
+        km = haversine_km(lat, lon, elat, elon)
+        if kind not in best or km < best[kind]["km"]:
+            best[kind] = {"kind": kind, "name": t.get("name:en") or t["name"],
+                          "lat": round(elat, 6), "lon": round(elon, 6), "km": km}
+    return best.get("station") or best.get("terminal")
 
 
 def add_sitelinks(hubs):
@@ -167,6 +239,17 @@ def main():
             n += 1
             print(f"  {h['type']:<14} sl{h['sitelinks']:>3} {h['iata']:<4} "
                   f"{h['name'][:40]:<42} {h['km']:>5.1f} km")
+            # An aerodrome's `out center` is a point between the runways, which
+            # is not where anyone stands (#92).
+            if h["type"] == "airport":
+                point = passenger_point(h)
+                if point is None:
+                    print("                 -> terminal/istasyon yok, merkez kaldi")
+                else:
+                    moved = haversine_km(h["lat"], h["lon"], point["lat"], point["lon"])
+                    print(f"                 -> {point['kind']}: {point['name'][:34]:<36} "
+                          f"merkezden {moved * 1000:>5.0f} m tasindi")
+                    h["lat"], h["lon"] = point["lat"], point["lon"]
             rows.append({"transport_id": f"TR{n:03d}", "destination_id": code,
                          "name": h["name"], "type": h["type"],
                          "lat": h["lat"], "lon": h["lon"]})

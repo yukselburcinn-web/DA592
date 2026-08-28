@@ -33,7 +33,7 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 
 | Alan | Açık | Kapalı |
 |---|---|---|
-| A — Veri & Modeller | 1 (#92) | 10 (#1, #2, #3, #27, #30, #33, #65, #70, #71, #79) |
+| A — Veri & Modeller | — | 11 (#1, #2, #3, #27, #30, #33, #65, #70, #71, #79, #92) |
 | B — Retrieval & Bilgi Grafiği | — | 11 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85, #113) |
 | C — Ajanlar, Orkestrasyon & UI | 2 (#7, #94) | 24 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #76, #77, #78, #80, #81, #83, #109) |
 | D — Altyapı | — | 7 (#11, #12, #26, #31, #32, #93, #101) |
@@ -41,7 +41,7 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 55 issue: **3 açık, 52 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
+Toplam 55 issue: **2 açık, 53 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
 `gh issue list` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
 
 **Bu güncellemede ne değişti:** #32 üç parçasıyla kapandı (self-hosted sokak mesafesi, GTFS
@@ -56,8 +56,8 @@ ve tutmadı. Son üç kapanış: **#101** (Quickstart artık veri üretmiyor, RE
 çelişkileri giderildi — PR #104), **#71** (Google Maps kazıma, veri commit edilmeden; kalan %5,0
 yanlışlık REPORT §5'te yazılı) ve **#76** (LangGraph yolu da `start_date`'i router'a ve forecaster'a
 geçiriyor; iki davranış testiyle korunuyor — PR #115) ve **#77** (router artık durak sayısını
-ulaşılabilir tavana karşı raporluyor — PR #117). Bununla birlikte **B ve D alanlarında açık iş
-kalmadı**: geriye kalan üçün ikisi C'de (#7, #94), biri A'da (#92). Ayrıca daha önce backlog'a hiç
+ulaşılabilir tavana karşı raporluyor — PR #117). Bununla birlikte **A, B ve D alanlarında açık iş
+kalmadı**: geriye kalan iki işin ikisi de C'de (#7, #94). Ayrıca daha önce backlog'a hiç
 yazılmamış iki kapalı issue (#83, #85) eklendi. Önceki güncellemede: #70 ve #72 kapandı. #72 (TOPTW router) altı yeni bulgu doğurdu —
 #76–#81 — ve iki issue'nun (#32, #71) varsayımlarını geçersiz kıldığı için ikisi de yeniden yazıldı.
 Açık iş sayısı 8'den 12'ye çıktı; bu bir gerileme değil, tek bir büyük issue'nun içinden çıkan
@@ -248,7 +248,7 @@ Kapsam dışı kalan ve ayrı issue'ya taşınan bulgu: **retrieval `top_k=24`'t
 görünüyor. Kataloğun büyük bir kısmı bu yüzden ürüne ulaşmıyor.
 [#79](https://github.com/yukselburcinn-web/DA592/issues/79)
 
-### #92. Ulaşım hub'ları pist merkezinden konumlanıyor, terminalden değil — 🔓 Açık
+### #92. Ulaşım hub'ları pist merkezinden konumlanıyor, terminalden değil — ✅ Kapalı
 *(bug, `area:data`, `priority:medium` — 2026-08-27)* `transport.csv` koordinatları OSM'den
 `out center` ile alınıyor (`pipeline/build_transport.py`), yani bir havalimanı için **pistlerin
 geometrik ortası**. Yolcunun bulunduğu yer orası değil.
@@ -259,21 +259,48 @@ geometrik ortası**. Yolcunun bulunduğu yer orası değil.
 batıda, Waßmannsdorf köyünde**; erişim oradan ölçülünce yolcu köy otobüslerine biniyordu, oysa
 havalimanının kendi peronları (`Flughafen BER`) 785 m ötedeydi.
 
-Bedel üç yerde: transit erişimi (şu an "ağa 150 m'den uzaksa kuş uçuşu × 1.3" kuralıyla **telafi
-ediliyor, düzeltilmiyor**), sokak matrislerinde snap payı (BER araç ağında 1.254 m, yürümede
-1.225 m; CDG'de 185 m — orada şanslıyız), ve 1. günün pistlerin ortasından başlaması. Büyük
+Bedel üç yerdeydi: transit erişimi ("ağa 150 m'den uzaksa kuş uçuşu × 1.3" kuralıyla **telafi
+ediliyor, düzeltilmiyordu**), sokak matrislerinde snap payı (BER araç ağında 1.254 m, yürümede
+1.225 m; CDG'de 185 m), ve 1. günün pistlerin ortasından başlaması. Büyük
 parklarda aynı sapma var (Tempelhofer Feld 863 m) ama orada centroid savunulabilir; havalimanında
 değil, çünkü yolcunun bulunduğu nokta bellidir.
 
 **Kabul kriterleri:**
-- [ ] Havalimanı hub'ı `aeroway=terminal` → bağlı `railway=station` → centroid sırasıyla seçiliyor
-- [ ] Her havalimanı hub'ı en yakın yaya düğümüne **150 m'den yakın** (`SNAP_TRUST_METRES` içinde)
-- [ ] BER ve CDG transit erişimi kuş uçuşu telafisi olmadan ağ üzerinden çalışıyor
-- [ ] `transport.csv` yenilendikten sonra **altı matris de yeniden kuruldu**
-- [ ] CDG → Notre-Dame ~50 dk, BER → Brandenburg Kapısı ~45 dk elle doğrulanmış değerleriyle tutuyor
+- [x] Havalimanı hub'ı istasyon → terminal → centroid sırasıyla seçiliyor *(sıra ölçümle
+      değiştirildi — aşağıya bak)*
+- [x] Her havalimanı hub'ı en yakın yaya düğümüne **150 m'den yakın**: BER 1.225 → **15 m**,
+      CDG 185 → **15 m**, Orly 42 → **26 m**
+- [x] BER ve CDG transit erişimi kuş uçuşu telafisi olmadan ağ üzerinden çalışıyor. Paris'te
+      kuş uçuşuyla ölçülen nokta kalmadı (0/379); Berlin'de kalan tek nokta havalimanı değil,
+      Spreepark (156 m, park centroid'i)
+- [x] `transport.csv` yenilendikten sonra **altı matris de yeniden kuruldu**
+- [x] CDG → Notre-Dame **51 dk**, BER → Brandenburg Kapısı **45 dk** — ikisi de değişmedi
 
-Tren garı ve otobüs terminallerindeki `railway=station` düğümü zaten doğru yerde; kontrol edilmeli
-ama muhtemelen dokunulmayacak.
+Tren garı ve otobüs terminalleri kontrol edildi, dokunulmadı: hepsi zaten yaya ağına 44 m'den yakın.
+
+**Kapanış notu (2026-08-28).** İki ayrı kusur çıktı, ikincisi issue'da yazmıyordu.
+
+**1 — Koordinat.** `build_transport.py` artık havalimanını yolcunun bulunduğu noktaya taşıyor
+(`passenger_point`). **Sıra issue'nun yazdığının tersi, ve bunu ölçüm belirledi.** Terminal-önce
+kuralıyla CDG "Terminal 2B"ye düşüyor; oranın 800 m'lik yürüme çemberinde yedi terminal servisi
+otobüs durağı var, tren yok — CDG'yi 50 dakikaya indiren RER B daha uzakta — ve CDG → Notre-Dame
+elle doğrulanmış 51 yerine **60 dk** çıkıyor. İstasyon-önce kuralı 51'i ve Louvre'a 55'i birebir
+veriyor. Terminal, istasyon etiketlenmemiş havalimanları için yedekte duruyor. İki varyant da
+kurulup yan yana ölçüldü; BER ve Orly ikisinde de aynı (45 / 40 dk), fark yalnızca çok terminalli
+CDG'de.
+
+**2 — Ağ, ve asıl sessiz olan buydu.** BER'i terminale taşımak snap'i **kötüleştiriyordu**
+(1.225 → 1.865 m), çünkü commit'li Berlin yaya ağı havalimanını hiç içermiyordu: osmnx varsayılan
+olarak yalnızca en büyük bağlı bileşeni tutuyor, `build_street_network.py` bunu hiç geçmiyordu ve
+2 km'lik marjda havalimanının 788 düğümlük yaya ağını şehre bağlayan koridor kutunun dışında
+kalıyordu. Yani havalimanının kendi yolları ikinci bir bileşendi ve **tek satır çıktı vermeden**
+düşüyordu. `MARGIN_KM` 4 km (3'te bağlanıyor), bileşen kararı tek ve belgeli bir yerde, ve yeni bir
+kontrol her noktanın indirmenin tamamına olan uzaklığını kırpma sonrasına karşı ölçüyor: eski marjla
+`Berlin Brandenburg Airport 15 m → 1.818 m` deyip dosyayı yazmayı reddediyor. Bu hatayı zamanında
+yakalayacak olan kontrol buydu.
+
+Regresyon testi: `test_every_airport_hub_stands_where_the_footway_network_can_place_it`.
+REPORT §5 güncellendi. Testler: 123 geçti, 1 atlandı.
 [#92](https://github.com/yukselburcinn-web/DA592/issues/92) — ilişkili: #32
 
 ---
@@ -1028,5 +1055,4 @@ sayılarını anlatıyor (654 satır), aşılmış `fetch_real_pois.py`'ye atıf
 | Öncelik | Issue | Neden |
 |---|---|---|
 | 1 | #7 | `priority:high` etiketli, final rapor için gerçek LLM sonucu eksik |
-| 2 | #92 | #32 Aşama 2'nin açıkta bıraktığı tek ölçülebilir yanlışlık: hub koordinatı yüzünden BER erişimi beş kat sapıyordu ve şu an düzeltilmiyor, telafi ediliyor. Veri işi, router'a dokunmuyor |
-| 3 | #94 | Harita, planın söylediği mesafenin yarısını çiziyor. #32'den sonra çelişki büyüdü; sokak modları için gereken veri zaten depoda |
+| 2 | #94 | Harita, planın söylediği mesafenin yarısını çiziyor. #32'den sonra çelişki büyüdü; sokak modları için gereken veri zaten depoda |
