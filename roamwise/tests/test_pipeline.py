@@ -1918,10 +1918,9 @@ def test_crowding_changes_which_stops_the_score_selects():
 
 
 def test_the_hour_carries_more_signal_than_the_poi():
-    """Why the per-hour half is measured rather than claimed: a POI's own day
-    swings far wider than POIs differ from each other. The score is a static
-    node weight and the visit hour is the solver's decision, so only the
-    per-POI half reaches routing -- this pins the reason."""
+    """Why the hour was worth a second node (#33): a POI's own day swings far
+    wider than POIs differ from each other, so a factor that reads only the
+    per-POI half is reading the smaller signal. This pins the reason."""
     import statistics as st
     from roamwise.optimization.scoring import _crowding_tables
 
@@ -1937,6 +1936,104 @@ def test_the_hour_carries_more_signal_than_the_poi():
 
     assert st.median(swings) > 3 * between, \
         "if the hour stopped dominating, the per-POI-only factor would be the wrong trade"
+
+
+# --- issue #33: the router chooses the hour, not just the stop ---
+
+def _hour_gap(days, start_date):
+    """Exposure minus the same stops' own typical level: how much busier than
+    its own average a stop is at the hour it was scheduled for. The subtraction
+    is what makes this a measure of *timing* -- an itinerary that simply picked
+    quieter POIs moves both terms and leaves the gap where it was."""
+    from roamwise.optimization.scoring import busyness
+
+    codes = ("Mo", "Tu", "We", "Th", "Fr", "Sa", "Su")
+    gaps = []
+    for day_i, day in enumerate(days):
+        weekday = codes[(start_date + datetime.timedelta(days=day_i)).weekday()]
+        for poi, slot in zip(day["route"], day["schedule"]):
+            at_hour = busyness(poi, weekday, int(slot["arrival"]) % 24)
+            typical = busyness(poi)
+            if at_hour is not None and typical is not None:
+                gaps.append(at_hour - typical)
+    return (sum(gaps) / len(gaps) if gaps else None), len(gaps)
+
+
+def _measured_pool(city, limit=40):
+    """POIs the crowding series actually covers -- the only ones this factor
+    can say anything about."""
+    from roamwise.optimization.scoring import _crowding_tables
+
+    hourly = _crowding_tables()["hourly"]
+    pois = [p for p in GraphIndex().city_pois(city) if p.get("poi_id") in hourly]
+    return pois[:limit]
+
+
+def test_a_measured_poi_is_offered_its_quiet_hours_as_a_second_option():
+    """The mechanism, and the reason it cannot take an itinerary away. A POI
+    with a real dip in its day gets a second node pinned to that dip -- but the
+    day-wide node stays, so every route that was reachable before still is, at
+    the same price. An earlier design cut the day into slots instead, and a
+    stop that fitted no slot lost its place in the day entirely."""
+    from roamwise.optimization import toptw
+
+    measured = _measured_pool(MAIN_CITY, limit=60)
+    offered = [toptw._crowd_slots(p, "Fr", 9.0, 720, hour_aware=True)
+               for p in measured]
+    with_window = [o for o in offered if len(o) == 2]
+    assert with_window, "no measured POI was offered a quiet window at all"
+    for options in with_window:
+        (window, quiet_level), (day_wide, day_level) = options
+        assert window[0] == "q" and day_wide is None
+        assert quiet_level < day_level, "the quiet window is not the quieter one"
+
+    off = toptw._crowd_slots(measured[0], "Fr", 9.0, 720, hour_aware=False)
+    assert off == [(None, None)], "hour_aware=False has to be today's router"
+
+
+def test_an_unmeasured_poi_is_not_the_cheapest_hour_in_the_day():
+    """`expected_busyness` has to answer for a POI nobody measured, because a
+    stop priced at nothing is the cheapest stop in the pool and 59% of the
+    catalogue is unmeasured. Absence of data must not be an advantage -- the
+    same rule the static discount already follows."""
+    from roamwise.optimization.scoring import _crowding_tables, expected_busyness
+
+    for category, mean in _crowding_tables()["by_category"].items():
+        unmeasured = {"poi_id": "NOT_IN_CATALOGUE", "category": category}
+        assert expected_busyness(unmeasured) == pytest.approx(mean)
+        assert expected_busyness(unmeasured) > 0
+
+
+def test_the_router_schedules_stops_at_quieter_hours_than_it_used_to():
+    """Issue #33's acceptance criterion. Before this, stops landed 11.1 points
+    busier than the places' own averages across the measured trips -- the
+    router put people in at the busy hour, because the hours a day naturally
+    fills are the hours everyone else fills too. The full sweep is
+    `evaluation/crowding_hour_measurement.py`; this pins the direction."""
+    from roamwise.optimization.toptw import build_multi_day_itinerary
+
+    start_date = datetime.date(2026, 9, 25)   # a Friday, so the trip spans Fri-Sun
+    pool = _measured_pool(MAIN_CITY, limit=40)
+    kwargs = dict(n_days=3, daily_minutes_budget=720, day_start_hour=9.0,
+                  start_date=start_date)
+    before = build_multi_day_itinerary(pool, hour_aware=False, **kwargs)
+    after = build_multi_day_itinerary(pool, hour_aware=True, **kwargs)
+
+    gap_before, n_before = _hour_gap(before, start_date)
+    gap_after, n_after = _hour_gap(after, start_date)
+    assert n_before and n_after, "no measured stop was scheduled at all"
+    assert gap_after < gap_before, (
+        f"the hour is not being chosen: gap {gap_before:.1f} -> {gap_after:.1f}")
+
+    # Quiet hours must not be bought by not going. The bound is loose because
+    # this pool is deliberately harsher than a real one: every one of its 40
+    # POIs is measured, so every one of them competes for the same quiet hours.
+    # On the pool the app actually retrieves, the measured cost is 0.4% of the
+    # stops (6.71 -> 6.68 per day) -- see evaluation/crowding_hour_measurement.py.
+    stops_before = sum(len(d["route"]) for d in before)
+    stops_after = sum(len(d["route"]) for d in after)
+    assert stops_after >= 0.9 * stops_before, (
+        f"quieter hours cost stops: {stops_before} -> {stops_after}")
 
 
 if __name__ == "__main__":

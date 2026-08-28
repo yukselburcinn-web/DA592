@@ -24,7 +24,8 @@ The model, as OR-Tools sees it:
   timeline      one absolute clock across the whole trip; day d owns the
                 minutes [d*1440 + start, d*1440 + start + budget]
   nodes         one copy of each POI *per day*, pinned to that day's vehicle
-                and carrying that day's opening window
+                and carrying that day's opening window; a measured POI gets a
+                second copy per day pinned to its quietest hours (#33)
   disjunction   a POI's copies, max cardinality 1 -- visit it on one of the
                 days, or pay `drop_penalty_m` to skip it
   arc cost      distance in metres
@@ -51,6 +52,7 @@ from ortools.util.optional_boolean_pb2 import BOOL_TRUE as _BOOL_TRUE
 from roamwise.optimization.routing import (
     DEFAULT_DAY_START_HOUR, FOOD_CATEGORY, NIGHTLIFE_EARLIEST_HOUR,
     _build_distance_functions, _is_food, _is_nightlife, _opening_intervals)
+from roamwise.optimization.scoring import busyness_over, expected_busyness
 from roamwise.optimization.travel_modes import DEFAULT_MODE
 
 # What a stop is worth, in metres of extra walking, when nothing says
@@ -133,6 +135,134 @@ MIN_STOPS_PER_DAY = 1
 TYPICAL_STOPS_PER_DAY = 9
 _DEFAULT_VISIT_MINUTES = 60
 
+# --- The hour half of the crowding factor (issue #33) -----------------------
+# `scoring.crowding_discount` knows how busy a POI is at a given hour and
+# nothing asked it: a node weight is static, and which hour a stop is visited
+# was the solver's decision rather than an input to it. So the router placed
+# people at 56.9% busy against the 47.9% their own typical level predicts --
+# systematically worse than chance, because the hours a day naturally fills
+# are the hours everyone else fills too.
+#
+# The fix is the same trick the meal sittings already use: a POI gets one node
+# per slot of the day, each carrying that slot's window, and the model picks a
+# slot by picking a node. Busyness then attaches to a *node*, which a static
+# weight can express.
+# How wide the quiet window is. Three hours is about two stops, and it has to
+# be wide enough that the rest of the day can still be built around it: at one
+# hour almost nothing fits inside it once travel and a 60-90 minute visit are
+# paid for, and at six it stops being a quiet window at all -- the catalogue's
+# mean hour runs 30% busy at 09:00 and 61% at 15:00, so a six-hour window
+# starting in the morning has the afternoon peak inside it.
+CROWD_QUIET_WINDOW_HOURS = 3.0
+# What a busy hour costs, in the metres this model denominates everything else
+# in -- a stop is already "worth taking if it costs less than `drop_penalty_m`
+# of walking", so an hour can be priced the same way.
+#
+# Swept over 2 cities x 4 archetypes x 3 day lengths
+# (`evaluation/crowding_hour_measurement.py`). `hour gap` is exposure minus the
+# same stops' own typical level: how much busier than its own average a stop is
+# at the hour the router picked for it, and the only column here that is about
+# the hour rather than about which POI was chosen.
+#
+#   cost      stops/day   km/stop   exposure   hour gap
+#   off (today)    6.71     1.025      58.6%      +11.1
+#   0              6.69     1.036      56.1%       +8.6
+#   1000           6.69     1.023      55.1%       +7.3
+#   2000           6.72     1.026      52.7%       +5.4
+#   4000           6.68     1.055      49.5%       +2.0
+#   8000           6.51     0.988      49.2%       +2.2
+#   16000          4.75     0.799      41.3%       -2.5
+#
+# 4000 closes 82% of the gap for 0.4% of the stops. Past it the sweep stops
+# buying quiet hours and starts buying quiet by not going: at 16000 a stop at a
+# 50%-busy hour costs more than the 8000 m it is worth to skip, so the solver
+# skips it -- 29% of the trip's stops, which is not a scheduling improvement.
+# The 0 arm is worth reading too: a third of the gain is the extra node alone,
+# before anything is charged for taking it.
+CROWD_COST_M = 4000
+# Absolute busyness, not busyness relative to the POI's own quietest hour. The
+# relative form is the tidier idea -- every POI keeps a way to be visited for
+# nothing, so the price can only ever be about *when*, never about which POI
+# is worth visiting. Measured over the same 24 trips at the same 4000 it is
+# beaten on both counts: hour gap +4.4 against +2.0, km/stop 1.110 against
+# 1.055. Being blind to which POI it is looking at costs it -- the solver
+# takes a busier POI whenever geometry favours it and pays nothing for the
+# swap, and exposure is an absolute quantity. Set True to reproduce.
+CROWD_RELATIVE_TO_QUIETEST = False
+# How much quieter the quiet window has to be before a POI earns a second
+# node. Nodes are not free: the first design cut every measured POI's day into
+# a fixed grid of slots, which tripled the node count, and at the same
+# iteration budget the search got worse at everything -- on Paris / Culture
+# Enthusiast / 12h it cost 1.7km with the crowd price set to zero, before the
+# factor could buy anything at all.
+CROWD_MIN_SPREAD = 10.0
+_WEEKDAY_CODES = ("Mo", "Tu", "We", "Th", "Fr", "Sa", "Su")
+
+
+def _weekday_code(start_date, day: int):
+    """`data/crowding.csv`'s day code for trip day `day`, or None with no date.
+
+    None is not a degraded answer here -- `busyness_over` reads it as "any
+    weekday", which averages the readings. A trip with no calendar date
+    genuinely does not know whether its day 2 is a Tuesday or a Saturday, and
+    a POI's weekday means differ by a median 8.7 points, so averaging is the
+    honest stand-in rather than picking one."""
+    if start_date is None:
+        return None
+    return _WEEKDAY_CODES[(start_date + datetime.timedelta(days=day)).weekday()]
+
+
+def _quiet_window(poi: dict, weekday, day_start_hour: float, budget_minutes: int):
+    """The `CROWD_QUIET_WINDOW_HOURS` of this day when this POI is emptiest.
+
+    Returns `(low, high, level)`, or None when the POI was never measured or
+    its day is too flat to be worth a node of its own."""
+    end = day_start_hour + budget_minutes / 60
+    best = None
+    low = float(int(day_start_hour))
+    while low + CROWD_QUIET_WINDOW_HOURS <= end + 1e-9:
+        level = busyness_over(poi, weekday, low, low + CROWD_QUIET_WINDOW_HOURS)
+        if level is not None and (best is None or level < best[2]):
+            best = (low, low + CROWD_QUIET_WINDOW_HOURS, level)
+        low += 1.0
+    return best
+
+
+def _crowd_slots(poi: dict, weekday, day_start_hour: float, budget_minutes: int,
+                 hour_aware: bool) -> list:
+    """This POI's options for the day, each with the busyness it carries.
+
+    Always at least `(None, typical)`: one node spanning the whole day, priced
+    at the level the POI runs at over its open hours. A measured POI with a
+    genuinely quieter stretch gets a second node pinned to it, and the choice
+    between the two is the choice of hour -- which is the thing a static node
+    weight could not express and the thing issue #33 is about.
+
+    Adding a node rather than replacing the day-wide one matters. It means
+    turning this on cannot take an itinerary away: every route that was
+    reachable before is still reachable, at the same price, and the quiet
+    window is an extra offer rather than a constraint. The first design cut the
+    day into slots instead, and a stop that fitted no slot simply lost its
+    place in the day.
+
+    The whole-day node is priced even for a POI nobody measured -- via
+    `expected_busyness`'s category fallback -- because a stop priced at nothing
+    is the cheapest stop in the pool, and 59% of the catalogue is unmeasured.
+    Being unmeasured must not be an advantage; it is simply not a *choice* of
+    hour."""
+    if not hour_aware:
+        # Not "priced at zero" -- priced at nothing at all. Charging the
+        # day-wide level here too would make `hour_aware=False` a *different*
+        # router rather than today's one, and the arm this is measured against
+        # has to be the thing that shipped.
+        return [(None, None)]
+    anytime = [(None, expected_busyness(poi))]
+    window = _quiet_window(poi, weekday, day_start_hour, budget_minutes)
+    if window is None or anytime[0][1] - window[2] < CROWD_MIN_SPREAD:
+        return anytime
+    low, high, level = window
+    return [(("q", low, high), level)] + anytime
+
 
 def _visit_minutes(poi: dict) -> int:
     return int(round(poi.get("avg_visit_minutes", _DEFAULT_VISIT_MINUTES)))
@@ -213,7 +343,8 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
           respect_opening_hours: bool = True, start_date=None,
           distance_fn=None, duration_fn=None, used_real_routing: bool = False,
           min_food_per_day: int = 0, drop_penalty_m: int = DEFAULT_DROP_PENALTY_M,
-          max_same_category: int = DEFAULT_MAX_SAME_CATEGORY) -> list[dict]:
+          max_same_category: int = DEFAULT_MAX_SAME_CATEGORY,
+          hour_aware: bool = True) -> list[dict]:
     """One model, every day. Returns one dict per day in the shape the rest of
     the app already reads -- route, distance_km, total/active/idle minutes,
     schedule -- so views and narration need no change.
@@ -234,17 +365,35 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
         meal_target_hours(day_start_hour, daily_minutes_budget, min_food_per_day))
         for low, high in [(target - MEAL_WINDOW_HOURS, target + MEAL_WINDOW_HOURS)]]
 
-    # One node per (POI, day, slot). Sightseeing has a single slot spanning the
-    # whole day; a meal POI gets one slot per sitting, each carrying that
-    # sitting's window -- which is how "lunch and dinner" becomes a constraint
-    # rather than a count. A bare count of two food stops a day is satisfied by
-    # two lunches at 11:00 and 11:45, and that is what the old
+    # One node per (POI, day, slot). A meal POI gets one slot per sitting, each
+    # carrying that sitting's window -- which is how "lunch and dinner" becomes
+    # a constraint rather than a count. A bare count of two food stops a day is
+    # satisfied by two lunches at 11:00 and 11:45, and that is what the old
     # `_ensure_daily_meals` pass existed to prevent.
-    copies = []  # (poi_index, day, slot or None)
+    #
+    # A sightseeing POI used to have a single slot spanning the whole day. It
+    # now gets one per hour slot when its busyness varies across them (#33),
+    # which is what lets the model choose the hour rather than inherit it. The
+    # sittings are deliberately left out of that: the meal dimension makes
+    # every sitting compulsory, so *when* a meal happens is not a choice the
+    # model has -- only which restaurant fills it, and which is what the static
+    # discount in `scoring` already answers.
+    slot_hours = {k: (low, high) for k, low, high in meals}
+    copies = []       # (poi_index, day, slot or None)
+    crowd_level = {}  # index into `copies` -> busyness this copy's hours carry
     for poi_i, poi in enumerate(pois):
         is_meal = min_food_per_day > 0 and _is_food(poi)
         for day in range(n_days):
-            for slot in ([k for k, _, _ in meals] if is_meal else [None]):
+            if is_meal:
+                slots = [(k, None) for k, _, _ in meals]
+            else:
+                slots = _crowd_slots(poi, _weekday_code(start_date, day),
+                                     day_start_hour, daily_minutes_budget, hour_aware)
+            for slot, level in slots:
+                if isinstance(slot, tuple):
+                    slot_hours[slot] = (slot[1], slot[2])
+                if level is not None:
+                    crowd_level[len(copies)] = level
                 copies.append((poi_i, day, slot))
 
     depot = 0
@@ -281,6 +430,24 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
             dist_m[a][b] = int(round(distance_fn(coords[a], coords[b]) * 1000))
             time_m[a][b] = int(round(duration_fn(coords[a], coords[b])))
 
+    # What a busy hour costs, in the metres this model denominates everything
+    # else in -- a stop is already "worth taking if it costs less than
+    # `drop_penalty_m` of walking", so an hour can be priced the same way.
+    #
+    # Every stop carries one, measured or not -- see `_crowd_slots`. A POI
+    # split into hour slots has a different one per slot, which is the whole
+    # mechanism: choosing the node chooses the hour, and the hour has a price.
+    crowd_m = [0] * n_nodes
+    if crowd_level:
+        quietest: dict[int, float] = {}
+        if CROWD_RELATIVE_TO_QUIETEST:
+            for c, level in crowd_level.items():
+                poi_i = copies[c][0]
+                quietest[poi_i] = min(quietest.get(poi_i, level), level)
+        for c, level in crowd_level.items():
+            floor = quietest.get(copies[c][0], 0.0)
+            crowd_m[c + 1] = int(round(CROWD_COST_M * (level - floor) / 100.0))
+
     starts = [arrival_node if arrival_node is not None and v == 0 else depot
               for v in range(n_days)]
     manager = pywrapcp.RoutingIndexManager(n_nodes, n_days, starts,
@@ -288,7 +455,13 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
     routing = pywrapcp.RoutingModel(manager)
 
     def distance_cb(i, j):
-        return dist_m[manager.IndexToNode(i)][manager.IndexToNode(j)]
+        # The crowd surcharge rides on the arc *into* a node, which is what
+        # makes it sum to the trip's total crowd exposure over whatever route
+        # the solver settles on. Reported distance is not taken from here --
+        # `_finish_day` re-measures it with `distance_fn` -- so the itinerary
+        # still shows the kilometres actually walked.
+        b = manager.IndexToNode(j)
+        return dist_m[manager.IndexToNode(i)][b] + crowd_m[b]
 
     def time_cb(i, j):
         a, b = manager.IndexToNode(i), manager.IndexToNode(j)
@@ -314,7 +487,6 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
         time_dim.CumulVar(routing.End(v)).SetRange(base, base + daily_minutes_budget)
 
     solver = routing.solver()
-    slot_hours = {k: (low, high) for k, low, high in meals}
     by_poi: dict[int, list[int]] = {}
     for node, (poi_i, day, slot) in enumerate(copies, start=1):
         index = manager.NodeToIndex(node)
@@ -487,7 +659,8 @@ def build_multi_day_itinerary(pois: list[dict], n_days: int, start_hub: dict = N
                                food_pois: list[dict] = None, min_food_per_day: int = 0,
                                start_date=None,
                                drop_penalty_m: int = DEFAULT_DROP_PENALTY_M,
-                               max_same_category: int = DEFAULT_MAX_SAME_CATEGORY) -> list[dict]:
+                               max_same_category: int = DEFAULT_MAX_SAME_CATEGORY,
+                               hour_aware: bool = True) -> list[dict]:
     """The router's entry point: candidates in, one routed day per trip day out.
 
     Note what this signature no longer takes. It used to be handed
@@ -532,4 +705,4 @@ def build_multi_day_itinerary(pois: list[dict], n_days: int, start_hub: dict = N
                  distance_fn=distance_fn, duration_fn=duration_fn,
                  used_real_routing=used_real_routing,
                  min_food_per_day=min_food_per_day, drop_penalty_m=drop_penalty_m,
-                 max_same_category=max_same_category)
+                 max_same_category=max_same_category, hour_aware=hour_aware)

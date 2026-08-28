@@ -20,10 +20,12 @@ themselves, so those two travelers get different ones.
 
 Three of the four factors were implemented here from the start. The fourth,
 the crowding discount, was a stub returning 1.0 until issue #71 put a per-POI
-hourly series in the catalogue; it now varies between POIs, though only its
-per-POI half reaches the router -- see `crowding_discount`. The diversity
-factor lives in the solver rather than here, for the reason given in
-`score_pois`.
+hourly series in the catalogue. Both halves of it are live now: this module
+owns *which* stop -- a static node weight, which is all a selector can be --
+and issue #33 gave *when* to the solver, which prices the hour by offering a
+POI a second node pinned to its quietest three hours (`toptw._crowd_slots`).
+The diversity factor lives in the solver rather than here too, for the reason
+given in `score_pois`.
 
 WHAT MEASURING IT SHOWED (evaluation/toptw_scoring_ablation.py). The score
 has two possible jobs, and it is good at one of them:
@@ -51,6 +53,8 @@ So the recommendation this module carries into the TOPTW router: score the
 candidates, then let the solver optimise geometry and time uniformly over
 what the score chose.
 """
+import math
+
 import numpy as np
 import pandas as pd
 
@@ -210,6 +214,52 @@ def busyness(poi: dict, day: str = None, hour: float = None) -> float | None:
     return None
 
 
+def busyness_over(poi: dict, day: str, start_hour: float, end_hour: float) -> float | None:
+    """Mean busyness over the open hours this POI has in `[start_hour, end_hour)`.
+
+    The router needs a level it can attach to a *slot*, not to a clock
+    reading. Which slot a stop falls in is a choice the model can make -- it
+    is which node it activates -- while the arrival minute inside that slot is
+    settled afterwards by everything else in the day. The mean over the slot
+    is the level that does not pretend to know that minute.
+
+    Hours reading 0 are skipped for the reason `_crowding_tables` gives: a
+    zero is a statement about being shut, not about being empty. Returns None
+    when the slot holds no reading at all, which is the same answer as "this
+    POI was never measured" and is treated the same way by callers.
+    """
+    series = _crowding_tables()["hourly"].get(poi.get("poi_id"))
+    if not series:
+        return None
+    hours = range(int(math.floor(start_hour)), int(math.ceil(end_hour)))
+    readings = [series[(day, h)] for h in hours
+                if series.get((day, h)) is not None and series[(day, h)] > 0]
+    return sum(readings) / len(readings) if readings else None
+
+
+def expected_busyness(poi: dict, day: str = None, start_hour: float = None,
+                      end_hour: float = None) -> float:
+    """Busyness for a POI the caller must price whether or not it was measured.
+
+    `busyness` and `busyness_over` answer None when nothing is known, which is
+    the right answer to a question about data. A router cannot use it: a stop
+    it cannot price is a stop it prices at zero, and zero is the cheapest
+    number there is -- so every POI the enrichment missed would become the
+    cheapest hour of the day to visit. The ladder is the same one
+    `crowding_discount` climbs, and for the same reason: the slot's own
+    reading, then the POI's typical level, then its category's mean.
+    """
+    level = None
+    if start_hour is not None and end_hour is not None:
+        level = busyness_over(poi, day, start_hour, end_hour)
+    if level is None:
+        level = busyness(poi)
+    if level is None:
+        tables = _crowding_tables()
+        level = tables["by_category"].get(poi.get("category"), tables["overall"])
+    return 0.0 if level is None else float(level)
+
+
 def crowding_discount(poi: dict = None, day: str = None, hour: float = None,
                       forecast: dict = None) -> float:
     """What a stop is worth once you account for the crowd it will be in.
@@ -227,10 +277,11 @@ def crowding_discount(poi: dict = None, day: str = None, hour: float = None,
     fullest 80%. A POI with no reading falls back to its category's mean rather
     than to no discount at all; see `_crowding_tables`.
 
-    Passing `day` and `hour` gives the hour-resolved answer. Nothing in the
-    router does: the score is a static node weight and which hour a stop is
-    visited is the solver's decision, not an input to it. That half is
-    exercised by the measurement in REPORT §5 instead of being claimed here.
+    Passing `day` and `hour` gives the hour-resolved answer. This function is
+    still asked without one, and deliberately: a score is a static node weight,
+    so the hour cannot be an input to it. The router reaches the hour-resolved
+    series by a different route -- `toptw._crowd_slots` turns "when" into a
+    choice between nodes, which is a thing a static weight *can* price (#33).
     """
     if poi is None:
         return 1.0

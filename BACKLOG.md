@@ -167,19 +167,28 @@ teslim penceresinde karşılığı olmayan bir iş olurdu. Proje bugünkü kapsa
 Kalan iş yok; issue kapatılmayı bekliyor.
 [#71](https://github.com/yukselburcinn-web/DA592/issues/71)
 
-### #33. POI başına zamanla değişen kalabalık sinyali — 🔓 Açık
+### #33. POI başına zamanla değişen kalabalık sinyali — 🔓 Açık (saat yarısı kapandı)
 *(enhancement, `priority:medium`)* Issue'nun ilk gerekçesi — talep verisinin ülke düzeyinde olması —
-kapandı: `pipeline/build_demand.py` artık `tour_occ_nin2m` (NUTS 2) çekiyor, Berlin kendi bölgesi,
-Paris Île-de-France. Kalan boşluk bölgenin **altında**: POI başına ya da saat başına hiçbir seri yok.
+`pipeline/build_demand.py`'nin NUTS 2'ye geçmesiyle kapandı. İkinci gerekçesi — `crowding_discount`'ın
+sabit `1.0` döndürmesi — #72/#71 ile kapandı: `data/crowding.csv` POI başına saatlik seriyi getirdi.
 
-Bedeli somut. #72'nin puan formülündeki dört çarpandan biri, `crowding_discount`, sabit `1.0`
-döndürüyor — forecaster şehir-ay düzeyinde tek skaler veriyor ve sabit çarpan havuzdaki her adayı
-aynı oranda ölçeklediği için hiçbir seçimi değiştiremiyor. Ölçüldü: çarpan uygulanmış ve atlanmış
-güzergâhlar byte-byte aynı.
+**Üçüncüsü de kapandı: saat.** Puan statik bir düğüm ağırlığı olduğu için ziyaret saati ona girdi
+olamıyordu; TOPTW'de zamana bağlı düğüm ödülü için de yer yok. Yerine ölçülen POI'ye günde **ikinci
+bir düğüm** veriliyor: kendi en sakin üç saatine sabitli ve gün boyu kopyasından ucuz fiyatlanmış
+(`toptw._crowd_slots`). Saati seçmek böylece düğüm seçmeye dönüşüyor. 2 şehir × 4 arketip × 3 gün
+uzunluğunda ölçüldü (`evaluation/crowding_hour_measurement.py`): durakların kendi ortalamalarına
+göre fazladan yoğunluğu **+11.1 puandan +2.0'ye**, maruz kalınan yoğunluk %58.6'dan %49.5'e indi;
+bedeli durakların %0.4'ü ve durak başına %2.9 mesafe. 8 şehir-arketip çiftinin 7'sinde iyileşiyor.
 
-Issue kaynak-agnostik yazıldı: ihtiyaç duyulan sinyalin şeklini tanımlıyor (POI başına değişmeli,
-zamanla değişmeli), kaynağı #71'in kararına bırakıyor. Fiyat yarısı #71'e taşındı.
-[#33](https://github.com/yukselburcinn-web/DA592/issues/33)
+Kalan iki boşluk — issue'nun kapanması için ikisi de karara bağlanmalı:
+- **Kapsam %41.1** (269/654 POI). Kazımanın tavanı da bu civarda: 654 önbellek kaydının yalnızca
+  293'ünde `popular_times` var. Kalanı için issue gövdesindeki yedek kaynak (Wikipedia pageviews
+  aylık serisi) hâlâ açık bir seçenek; aylık olduğu için saat yarısına değil kapsama yarar.
+- **Kaynak sütunu.** `crowding.csv` `poi_id,day,hour,busy` tutuyor; `price_source`/`hours_source`
+  desenindeki köken sütunu issue'nun kabul kriterlerinde var, henüz yok.
+
+[#33](https://github.com/yukselburcinn-web/DA592/issues/33) — ilişkili: #71 (kaynak kararı), #72
+(puan formülü), REPORT §5
 
 ### #79. Macera slider'ı puanı hiç hareket ettirmiyor — 🔓 Açık
 *(enhancement, `priority:medium`)* #72'nin puan fonksiyonu, tercih vektörünü kategori ağırlıklarına
@@ -457,8 +466,9 @@ Puanı çözücü ağırlığı olarak da kullanmak denendi ve ölçülerek elen
 kendi amaç fonksiyonunu bile ancak %4 oynatıyor.
 
 Kapatılmayan iki kriter ayrı issue'ya taşındı (#77, #78). Formülün `kalabalık_indirimi(tahmin, saat)`
-parçası bugünkü veriyle karşılanamıyor — forecaster şehir-ay düzeyinde tek skaler döndürüyor, sabit
-çarpan hiçbir seçimi değiştiremez; #33'e bağımlı.
+parçası o gün karşılanamıyordu — forecaster şehir-ay düzeyinde tek skaler döndürüyor, sabit çarpan
+hiçbir seçimi değiştiremez. İkisi de sonradan kapandı: POI yarısı #71'in serisiyle, saat yarısı
+#33'ün ikinci düğümüyle. `tahmin` parametresi hâlâ okunmuyor ve gerekçesi aynı.
 
 [#72](https://github.com/yukselburcinn-web/DA592/issues/72) · [PR #75](https://github.com/yukselburcinn-web/DA592/pull/75)
 
@@ -858,6 +868,6 @@ bayat değil — geçmişle bilinçli karşılaştırma, kapsam dışı.)
 | 5 | #94 | Harita, planın söylediği mesafenin yarısını çiziyor. #32'den sonra çelişki büyüdü; sokak modları için gereken veri zaten depoda |
 | 6 | #77 | Ölçüm dürüstlüğü: toplanan puan tavansız raporlanıyor. #49 kapandıktan sonra retrieval tarafı tavanını söylüyor, router tarafı söylemiyor — açık kalan tek taraf bu |
 | 7 | #79 | Altı slider'ın biri hiçbir şey yapmıyor; taksonomi kararı, retrieval'a dokunuyor |
-| 8 | #33 | Veri granülerliği; ayrıca #72'nin kalabalık çarpanının ön koşulu |
+| 8 | #33 | Saat yarısı kapandı (ölçüm: +11.1 → +2.0 puan). Kalanı kapsam (%41.1) ve kaynak sütunu — ikisi de veri işi, router'a dokunmuyor |
 
 **#71 bu listede değil:** kararı verildi ve bedeli ölçüldü (%5,0 / %9,4, REPORT §5), veri depoya girmiyor ve Overture/Foursquare ölçümü düşürüldü — kalan iş yok, issue kapatılmayı bekliyor.
