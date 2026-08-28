@@ -12,6 +12,23 @@ from neo4j import GraphDatabase
 HERE = Path(__file__).parent
 DATA_DIR = HERE.parent / "data"
 
+# What "near a transport hub" means, in kilometres -- 1.0, not the 3.0 this
+# used to default to (#113). The radius has to be small enough that the
+# relation separates some POIs from the rest, and 3.0 no longer did: against a
+# 7 km-radius catalogue with real interchanges in it, 96% of Paris POIs and 92%
+# of Berlin's sat inside 3 km, so `multi_hop_transport_to_poi` returned nearly
+# the whole city and distinguished nothing. It is geometry rather than a data
+# problem -- a 3 km circle covers most of the disc whatever hubs you pick. 1.0
+# keeps roughly a fifth of Paris and half of Berlin (18% / 54% over the
+# committed catalogue and hubs), and it is also what the queries actually ask
+# for: a hub "within walking distance", which 3 km is not.
+#
+# It lives here, at module scope, because `pipeline/build_transport.py` reports
+# the same share when it selects hubs and had its own copy of the number. That
+# copy said 3.0 long after this one moved, so every run of the hub pipeline
+# printed a warning about a radius nothing used.
+HUB_WALK_KM = 1.0
+
 CATEGORY_AFFINITY = {
     "Culture Enthusiast": {"museum": 1.0, "landmark": 0.9, "history": 0.9, "religion": 0.6, "culture": 0.8},
     "Beach & Relax": {"beach": 1.0, "nature": 0.8, "food": 0.5, "culture": 0.3},
@@ -299,16 +316,10 @@ class GraphIndex:
             out.append({"poi_id": poi_id, "weight": data["weight"], **node})
         return rank_preferred(out, top_k)
 
-    # 1.0 km, not the 3.0 this used to default to. The radius has to be small
-    # enough that "near a transport hub" separates some POIs from the rest, and
-    # 3.0 no longer did: against a 7 km-radius catalogue with real interchanges
-    # in it, 96% of Paris POIs and 92% of Berlin's sat inside 3 km, so the
-    # relation returned nearly the whole city and distinguished nothing. It is
-    # geometry rather than a data problem -- a 3 km circle covers most of the
-    # disc whatever hubs you pick. 1.0 km keeps 18% / 55%, and it is also what
-    # the queries actually ask for: a hub is "within walking distance", which
-    # 3 km is not.
-    def multi_hop_transport_to_poi(self, destination_id: str, category: str, max_km: float = 1.0):
+    # See HUB_WALK_KM for why the radius is 1.0 km and not the 3.0 this used to
+    # default to.
+    def multi_hop_transport_to_poi(self, destination_id: str, category: str,
+                                   max_km: float = HUB_WALK_KM):
         if self.backend == "neo4j":
             hubs = self.city_transport(destination_id)
             pois = self.city_pois(destination_id, category=category)
