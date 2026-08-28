@@ -2,12 +2,12 @@
 
 "Every transport point" is the wrong target, and the graph says why.
 `multi_hop_transport_to_poi` answers "which sights sit near a transport hub"
-with a 3 km radius (knowledge_graph/build_graph.py). Paris has 365 rail
-stations inside 45 km and 334 metro stations inside the catalogue's own bbox;
-feed those in and every POI is within 3 km of a hub, so the relation stops
-telling anything apart. The repo's two-rows-per-city goes wrong the other way:
-Charles de Gaulle is 23 km out, so its 3 km circle is empty and only the one
-station does any work.
+within `build_graph.HUB_WALK_KM`, which this script imports rather than
+restates. Paris has 365 rail stations inside 45 km and 334 metro stations
+inside the catalogue's own bbox; feed those in and every POI is within walking
+distance of a hub, so the relation stops telling anything apart. The repo's
+two-rows-per-city goes wrong the other way: Charles de Gaulle is 23 km out, so
+its circle is empty and only the one station does any work.
 
 The useful set is the gateways -- where a traveller actually arrives. Two OSM
 tags find the candidates and Wikidata ranks them:
@@ -35,15 +35,24 @@ import argparse
 import math
 import sys
 import urllib.parse
+from pathlib import Path
 
 import pandas as pd
 
 from common import (CITIES, DATA, OVERPASS, QLEVER, haversine_km, http,
                     normalize_qid)
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+# Imported rather than copied. This script reports the share of the catalogue
+# its chosen hubs put "near a hub", and that phrase means whatever
+# `multi_hop_transport_to_poi` traverses -- so a second copy of the number here
+# is a copy that can go stale, and did: it still said 3.0 after #113 moved the
+# traversal to 1.0, and every run printed a warning about a radius nothing
+# used.
+from roamwise.knowledge_graph.build_graph import HUB_WALK_KM  # noqa: E402
+
 SEARCH_KM = 45.0            # airports sit well outside the catalogue's 7 km
 MAX_STATIONS = 6             # the termini; below them come commuter stops
-HUB_RADIUS_KM = 3.0          # what build_graph.py calls "near a hub"
 
 # How far from an aerodrome's centroid to look for the point a passenger is
 # actually standing on. Terminals get the wider circle because they are spread
@@ -203,16 +212,21 @@ def report_reach(code, hubs, poi):
 
     The number to watch: at 100% the graph relation carries no information,
     and with the repo's two rows it was near zero. Neither extreme is useful.
+
+    Measured at `HUB_WALK_KM`, the radius the traversal actually uses, so the
+    warning below describes the relation as it ships. It used to be measured at
+    3.0 km -- what the traversal used before #113 -- which put both cities over
+    90% and fired the warning on every run about a radius nothing reads.
     """
     city_poi = poi[poi.destination_id == code]
     if city_poi.empty or not hubs:
         return
     near = sum(
-        any(haversine_km(r.lat, r.lon, h["lat"], h["lon"]) <= HUB_RADIUS_KM
+        any(haversine_km(r.lat, r.lon, h["lat"], h["lon"]) <= HUB_WALK_KM
             for h in hubs)
         for r in city_poi.itertuples())
     pct = 100 * near / len(city_poi)
-    print(f"    {len(city_poi)} POI'nin {near}'i bir hub'a {HUB_RADIUS_KM} km "
+    print(f"    {len(city_poi)} POI'nin {near}'i bir hub'a {HUB_WALK_KM} km "
           f"icinde = %{pct:.0f}"
           + ("   <-- iliski ayirt etmiyor" if pct >= 90 else ""))
 
