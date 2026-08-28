@@ -20,17 +20,19 @@ Design notes:
     declarative branching is actually a legible improvement over the custom
     orchestrator's imperative equivalent. See REPORT.md for the full
     comparison.
-  - `plan_trip()` has the same return shape as
+  - `plan_trip()` has the same signature and return shape as
     `RoamWiseOrchestrator.plan_trip()`, so call sites (app.py, tests,
-    evaluation) can swap one for the other with no other code changes. The
-    signature is meant to match too and currently lags by `start_date`, which
-    is issue #76: a parameter added to one orchestrator and not the other is
-    not a compile error, it is a feature that silently does nothing on this
-    path.
+    evaluation) can swap one for the other with no other code changes. Keeping
+    the signatures level is the maintenance cost of having two orchestrators,
+    and it is not enforced by anything the compiler does: `start_date` was
+    added to one and not the other and silently did nothing on this path for
+    as long as it took someone to read both files (issue #76). What guards it
+    now is a behavioural test, not the interface test that missed it.
 
 Requires the optional `requirements-langgraph.txt` dependency group (not
 installed by default -- see that file's header comment for why).
 """
+import datetime
 import json
 from pathlib import Path
 from typing import Optional, TypedDict
@@ -67,6 +69,7 @@ class PlanState(TypedDict, total=False):
     day_start_hour: float
     use_real_routing: bool
     travel_mode: str
+    start_date: Optional[datetime.date]
     arrival_hub_id: Optional[str]
     destination_id: Optional[str]
     archetype: str
@@ -118,18 +121,26 @@ class RoamWiseLangGraphOrchestrator:
                   travel_month: str = None, top_k_pois: int = None,
                   daily_minutes_budget: int = 480, use_real_routing: bool = False,
                   travel_mode: str = DEFAULT_MODE,
-                  day_start_hour: float = None, arrival_hub_id: str = None) -> dict:
-        """Same return shape as RoamWiseOrchestrator.plan_trip(). The signature
-        still lags it by `start_date`, which is issue #76 -- opening hours are
-        read as the coarse open/close pair on this path."""
+                  day_start_hour: float = None, start_date=None,
+                  arrival_hub_id: str = None) -> dict:
+        """Same signature and return shape as RoamWiseOrchestrator.plan_trip();
+        see that method's docstring for what each parameter does."""
         if top_k_pois is None:
             top_k_pois = max(MIN_RETRIEVED_POIS, n_days * RETRIEVED_POIS_PER_DAY)
+        # One control, two consumers, exactly as orchestrator.py does it: the
+        # month reaches the forecaster and the weekday reaches the router. This
+        # derivation is the half of #76 that is easy to miss, because omitting
+        # it leaves opening hours looking fixed *and* the crowding forecast
+        # pointed at whatever month the caller happened to pass instead.
+        if start_date is not None:
+            travel_month = f"{start_date.year:04d}-{start_date.month:02d}"
         init_state: PlanState = {
             "preferences": preferences, "n_days": n_days, "travel_month": travel_month,
             "top_k_pois": top_k_pois,
             "daily_minutes_budget": daily_minutes_budget, "use_real_routing": use_real_routing,
             "day_start_hour": day_start_hour,
-            "travel_mode": travel_mode, "arrival_hub_id": arrival_hub_id,
+            "travel_mode": travel_mode, "start_date": start_date,
+            "arrival_hub_id": arrival_hub_id,
             "destination_id": destination_id,
         }
         return self._compiled.invoke(init_state)
@@ -181,6 +192,7 @@ class RoamWiseLangGraphOrchestrator:
             use_real_routing=state.get("use_real_routing", False),
             travel_mode=state.get("travel_mode", DEFAULT_MODE),
             narrate=False, preferences=state.get("preferences"),
+            start_date=state.get("start_date"),
             arrival_hub_id=state.get("arrival_hub_id"),
         )
         return {"routing": routing, "travel_mode": routing["travel_mode"]}

@@ -20,7 +20,7 @@ from roamwise.models.segmentation import TravelerSegmenter
 from roamwise.retrieval.fusion import FusionRetriever
 from roamwise.retrieval.graph_search import GraphSearchIndex
 from roamwise.optimization.routing import (FOOD_CATEGORY, NIGHTLIFE_EARLIEST_HOUR,
-                                           optimize_day_route)
+                                           _opening_intervals, optimize_day_route)
 from roamwise.optimization.toptw import build_multi_day_itinerary
 from roamwise.optimization.travel_modes import get_travel_mode
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
@@ -1275,10 +1275,15 @@ def test_paired_significance_calls_a_coin_flip_no_difference():
 
 
 def test_langgraph_orchestrator_matches_custom_orchestrator_interface():
-    """Optional: skipped in CI, where the langgraph extra isn't installed
-    (see requirements-langgraph.txt). Confirms the LangGraph rewrite exposes
-    the same plan_trip() shape and honors a pinned destination via its
-    conditional edge (select_destination is skipped)."""
+    """Skipped only where the langgraph extra is absent (see
+    requirements-langgraph.txt); CI installs it, so this runs there. Confirms
+    the LangGraph rewrite exposes the same plan_trip() shape and honors a
+    pinned destination via its conditional edge (select_destination is
+    skipped).
+
+    Shape is all this checks. That is exactly why issue #76 survived it: a
+    parameter missing from one orchestrator changes the itinerary, not the
+    return type. The behavioural half is the test below."""
     pytest.importorskip("langgraph")
     from roamwise.agents.orchestrator_langgraph import RoamWiseLangGraphOrchestrator
 
@@ -1293,6 +1298,76 @@ def test_langgraph_orchestrator_matches_custom_orchestrator_interface():
 
     pinned = orch.plan_trip(prefs, destination_id=MAIN_CITY, n_days=2)
     assert pinned["destination_id"] == MAIN_CITY
+
+
+def _stops_scheduled_while_closed(itinerary, start_date):
+    """Stops whose arrival hour falls outside the venue's hours *for the
+    weekday that day actually falls on*, read from the same helper the router
+    schedules with.
+
+    The date comes from `start_date` plus the day's index rather than from the
+    itinerary's own `date` field, deliberately: an orchestrator that never
+    passed the date leaves that field None, and reading it would make this
+    check skip exactly the itineraries it exists to catch."""
+    closed = []
+    for offset, day in enumerate(itinerary):
+        day_date = start_date + datetime.timedelta(days=offset)
+        for poi, slot in zip(day["route"], day["schedule"]):
+            intervals = _opening_intervals(poi, day_date=day_date)
+            if not any(low <= slot["arrival"] <= high for low, high in intervals):
+                closed.append((day_date, poi["name"]))
+    return closed
+
+
+def test_both_orchestrators_honour_the_weekday_a_start_date_names():
+    """Issue #76: `orchestrator.py` passed `start_date` to the router and
+    `orchestrator_langgraph.py` did not, so the verbatim OSM tag could not be
+    resolved against a weekday on that path and fell back to the coarse
+    open/close pair -- `Tu-Su 10:00-18:00; Mo off` read as open on Monday.
+
+    The interface test above could not see this: both orchestrators returned
+    the same shape while one of them scheduled Monday-closed museums on a
+    Monday. So this asserts the itinerary instead, on a real Monday, where the
+    catalogue's signal is sharpest -- 70 of its POIs are shut that day.
+
+    Both paths are asserted, not just the fixed one: the bug was a divergence
+    between two files, and a test that only reads one of them cannot see the
+    next divergence either."""
+    pytest.importorskip("langgraph")
+    from roamwise.agents.orchestrator_langgraph import RoamWiseLangGraphOrchestrator
+
+    prefs = {"budget": 0.5, "culture": 0.9, "nature": 0.3,
+             "nightlife": 0.2, "relax": 0.4, "adventure": 0.3}
+    kwargs = dict(destination_id=MAIN_CITY, n_days=2, start_date=MONDAY)
+
+    custom = RoamWiseOrchestrator().plan_trip(prefs, **kwargs)["routing"]["itinerary"]
+    graph = RoamWiseLangGraphOrchestrator().plan_trip(prefs, **kwargs)["routing"]["itinerary"]
+
+    assert sum(len(d["route"]) for d in graph) > 0, "a trip with no stops proves nothing"
+
+    # The consequence first: this is what the bug actually did to travelers.
+    assert _stops_scheduled_while_closed(custom, MONDAY) == []
+    assert _stops_scheduled_while_closed(graph, MONDAY) == []
+    # And the date reaches the itinerary, so the UI can show which day is which.
+    assert [d["date"] for d in graph] == [d["date"] for d in custom] == [
+        MONDAY, MONDAY + datetime.timedelta(days=1)]
+
+
+def test_a_start_date_also_reaches_the_forecaster_on_the_langgraph_path():
+    """The other half of #76, and the easier half to leave out: `start_date`
+    supersedes `travel_month` in `orchestrator.py`, so a caller who gives a
+    date gets crowding for that date's month. Without the same derivation the
+    LangGraph path would forecast whatever month it was handed -- here, none at
+    all."""
+    pytest.importorskip("langgraph")
+    from roamwise.agents.orchestrator_langgraph import RoamWiseLangGraphOrchestrator
+
+    prefs = {"budget": 0.5, "culture": 0.9, "nature": 0.3,
+             "nightlife": 0.2, "relax": 0.4, "adventure": 0.3}
+    plan = RoamWiseLangGraphOrchestrator().plan_trip(
+        prefs, destination_id=MAIN_CITY, n_days=1, start_date=MONDAY)
+
+    assert plan["forecast"]["target_month"] == f"{MONDAY.year:04d}-{MONDAY.month:02d}"
 
 
 def test_local_llm_is_opt_in_and_falls_back_safely(monkeypatch):
