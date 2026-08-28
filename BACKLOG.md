@@ -33,15 +33,15 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 
 | Alan | Açık | Kapalı |
 |---|---|---|
-| A — Veri & Modeller | 2 (#71, #92) | 9 (#1, #2, #3, #27, #30, #33, #65, #70, #79) |
+| A — Veri & Modeller | 1 (#92) | 10 (#1, #2, #3, #27, #30, #33, #65, #70, #71, #79) |
 | B — Retrieval & Bilgi Grafiği | — | 11 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85, #113) |
-| C — Ajanlar, Orkestrasyon & UI | 4 (#7, #76, #77, #94) | 22 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #78, #80, #81, #83, #109) |
-| D — Altyapı | 1 (#101) | 6 (#11, #12, #26, #31, #32, #93) |
+| C — Ajanlar, Orkestrasyon & UI | 3 (#7, #77, #94) | 23 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #76, #78, #80, #81, #83, #109) |
+| D — Altyapı | — | 7 (#11, #12, #26, #31, #32, #93, #101) |
 
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 55 issue: **7 açık, 48 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
+Toplam 55 issue: **4 açık, 51 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
 `gh issue list` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
 
 **Bu güncellemede ne değişti:** #32 üç parçasıyla kapandı (self-hosted sokak mesafesi, GTFS
@@ -52,7 +52,11 @@ taşındı, 1. ve 2. maddeleri (tek iş günü matrisi, GTFS tazeleme) aksiyon a
 #92 ve #94 uygulama canlı sürülürken çıktı. #49 da kapandı: recall'ın yapısal tavanı
 çözülmedi ama artık hem REPORT'ta hem uygulamada yazılı, yani gizli değil. #72'nin bıraktığı iki
 `priority:low` iş de kapandı: #78 kapsam dışı bırakıldı, #80'in ölçülmüş temeli ise yeniden ölçüldü
-ve tutmadı. Ayrıca daha önce backlog'a hiç
+ve tutmadı. Son üç kapanış: **#101** (Quickstart artık veri üretmiyor, REPORT'un kendi içindeki
+çelişkileri giderildi — PR #104), **#71** (Google Maps kazıma, veri commit edilmeden; kalan %5,0
+yanlışlık REPORT §5'te yazılı) ve **#76** (LangGraph yolu da `start_date`'i router'a ve forecaster'a
+geçiriyor; iki davranış testiyle korunuyor — PR #115). Bununla birlikte **B ve D alanlarında açık iş
+kalmadı**: geriye kalan dördün üçü C'de (#7, #77, #94), biri A'da (#92). Ayrıca daha önce backlog'a hiç
 yazılmamış iki kapalı issue (#83, #85) eklendi. Önceki güncellemede: #70 ve #72 kapandı. #72 (TOPTW router) altı yeni bulgu doğurdu —
 #76–#81 — ve iki issue'nun (#32, #71) varsayımlarını geçersiz kıldığı için ikisi de yeniden yazıldı.
 Açık iş sayısı 8'den 12'ye çıktı; bu bir gerileme değil, tek bir büyük issue'nun içinden çıkan
@@ -132,7 +136,7 @@ OSM etiketi var, gerisi kategori varsayımı — bu artık #71'in konusu.
 
 [#70](https://github.com/yukselburcinn-web/DA592/issues/70) · [PR #74](https://github.com/yukselburcinn-web/DA592/pull/74)
 
-### #71. Açılış saati ve fiyat kapsamını kapat: kaynak kararı — 🔓 Açık (karar verildi)
+### #71. Açılış saati ve fiyat kapsamını kapat: kaynak kararı — ✅ Kapalı
 *(enhancement, `priority:high` — 2026-08-26'da yeniden yazıldı, 2026-08-28'de ölçüldü ve karara
 bağlandı)* Karar issue'su, uygulama değil.
 
@@ -165,6 +169,13 @@ teslim penceresinde karşılığı olmayan bir iş olurdu. Proje bugünkü kapsa
 %9,4 rakamı REPORT'ta açıkça yazılı.
 
 Kalan iş yok; issue kapatılmayı bekliyor.
+**Kapatıldı (2026-08-27).** Karar verildi, uygulandı, bedeli ölçüldü ve kalan iş bırakılmadı.
+Kapsam artışının router çıktısına etkisi yok (7,71 → 7,79 durak/gün; 0,514 → 0,510 km/durak);
+değiştirdiği şey doğruluk — bugünkü katalog denetlenebilir 101 durağın 5'ini (%5,0) kapalı mekâna
+koyuyor, kategori varsayımı kullanılan duraklarda 32'de 3 (%9,4). Bu rakam REPORT §5'te gizlenmek
+yerine yazılı ve proje bu kapsamla ship ediliyor. **Overture / Foursquare ölçümü düşürüldü:** kalan
+kapsamda izin veren kaynakların hiçbiri entegre edilmeyeceği için ölçüm ship edilen hiçbir şeyi
+değiştirmezdi.
 [#71](https://github.com/yukselburcinn-web/DA592/issues/71)
 
 ### #33. POI başına zamanla değişen kalabalık sinyali — 🔒 Kapalı
@@ -505,13 +516,38 @@ hiçbir seçimi değiştiremez. İkisi de sonradan kapandı: POI yarısı #71'in
 
 ---
 
-### #76. LangGraph orchestrator router'a `start_date` geçirmiyor — 🔓 Açık
-*(bug, `priority:medium`)* `orchestrator.py` geçiriyor, `orchestrator_langgraph.py` geçirmiyor;
-`PlanState`'te alan bile yok. Sonucu: **#70'in kapattığı hata bu yolda açık** — tarih olmadan
-`_opening_intervals` kaba `open_hour`/`close_hour` çiftine düşüyor, yani pazartesi kapalı müze
-pazartesiye planlanabiliyor. #72'den sonra bedeli büyüdü: yanlış pencere artık yanlış gün ataması ve
-yanlış saat demek. Mevcut eşdeğerlik testi iki orkestratörün **arayüzünü** karşılaştırıyor, çıktısını
-değil — fark bu yüzden testten kaçtı. [#76](https://github.com/yukselburcinn-web/DA592/issues/76)
+### #76. LangGraph orchestrator router'a `start_date` geçirmiyordu — ✅ Kapalı
+*(bug, `priority:medium` — kapandı 2026-08-28, PR #115)* `orchestrator.py` geçiriyordu,
+`orchestrator_langgraph.py` geçirmiyordu; `PlanState`'te alan bile yoktu. Sonucu: **#70'in kapattığı
+hata bu yolda açıktı** — tarih olmadan `_opening_intervals` verbatim OSM etiketini haftanın gününe
+göre çözemeyip kaba `open_hour`/`close_hour` çiftine düşüyor, yani `Tu-Su 10:00-18:00; Mo off`
+"her gün 10-18 açık" diye okunuyordu. #72 router'ı tamamen pencere-bağımlı hale getirdiği için bedeli
+yanlış bir durak değil, yanlış gün ataması ve yanlış saatti.
+
+**Düzeltme, dördü de `orchestrator_langgraph.py`'de:** `PlanState`'e `start_date`, `plan_trip`
+imzasına `start_date` (`orchestrator.py:101` ile aynı sırada), `travel_month` türetmesi `init_state`
+kurulmadan önce, ve `_route`'ta router'a geçirme. Üçüncüsü salt parite detayı değil: `travel_month`
+state'e girip forecast düğümü tarafından okunuyor, yani o satır olmadan tarih veren bir çağıran
+yanlış açılış saatlerinin yanında **yanlış ay için kalabalık tahmini** de alıyordu.
+
+**Testler.** Mevcut eşdeğerlik testi iki orkestratörün dönüş *şeklini* karşılaştırıyor, çıktısını
+değil — hata bu yüzden ondan kaçtı; docstring'i ayrıca yanlış olarak "CI'da atlanır" diyordu, oysa
+`tests.yml` `requirements-langgraph.txt`'i kuruyor. İki davranış testi eklendi ve **ikisinin de doğru
+sebeple kırıldığı düzeltme geri alınarak doğrulandı**: `test_both_orchestrators_honour_the_weekday_a_start_date_names`
+Centre Georges Pompidou ve Tour d'Argent'ı pazartesiye planlıyor (ikisi de o gün kapalı),
+`test_a_start_date_also_reaches_the_forecaster_on_the_langgraph_path` tahmini 2026-09 yerine 2027-02
+için alıyor. Yardımcı, pencereyi itinerary'nin kendi `date` alanına değil `start_date` + gün indeksine
+göre çözüyor — tarihi hiç geçirmeyen orkestratör o alanı `None` bıraktığı için, alanı okumak testi
+tam da yakalaması gereken itinerary'lerde atlamaya sokuyordu.
+
+**REPORT §3.3 düzeltildi.** Cümle *"identical signature ... verified by
+test_langgraph_orchestrator_matches_custom_orchestrator_interface"* diyordu ve iki yarısı da yanlıştı:
+imza aynı değildi, ve o test imza eşitliğini zaten doğrulamıyor. Katalog ölçüsü issue yorumundaki
+226/108/70 rakamlarıyla değil yeniden ölçülerek yazıldı (654 POI, her etiket yedi güne çözülüp kaba
+çiftle karşılaştırılarak): **342 POI (%52,3)** en az bir günde farklı pencere veriyor, **153 (%23,4)**
+kapalı olduğu bir günde açık okunuyor, pazartesi açık ara en kötü (**101**), sonra pazar (46).
+Suite: 120 geçti, 1 atlandı.
+[#76](https://github.com/yukselburcinn-web/DA592/issues/76)
 
 ### #77. Toplanan durak sayısını ulaşılabilir tavana karşı raporla — 🔓 Açık
 *(enhancement, `priority:medium`)* #72'nin kapatılmamış kriteri. Raporlanan durak sayısı ve km/durak
@@ -920,7 +956,7 @@ açılıp açılmayacağı o işin parçası.
 
 [#93](https://github.com/yukselburcinn-web/DA592/issues/93) — ilişkili: #32 (kapalı), #94
 
-### #101. README Quickstart'ı eski sekiz şehirli veriyi geri yazıyor; REPORT kendi içinde çelişiyor — 🔓 Açık
+### #101. README Quickstart'ı eski sekiz şehirli veriyi geri yazıyor; REPORT kendi içinde çelişiyor — ✅ Kapalı
 *(bug, documentation, `area:data`, `priority:high` — 2026-08-28)* `fed173e` kataloğu sekiz şehirden
 ikiye indirdi; kod bunu takip etti, dokümanların bir kısmı etmedi.
 
@@ -953,7 +989,15 @@ bayat değil — geçmişle bilinçli karşılaştırma, kapsam dışı.)
 - [ ] `REPORT.md:208`'deki çözücü ölçeği tekrar üretilebilir bir ölçüme dayanıyor
 - [ ] BACKLOG'un #33 ve #77 maddeleri issue'ların güncel başlık ve kapsamıyla eşleşiyor
 
-[#101](https://github.com/yukselburcinn-web/DA592/issues/101) — ilişkili: `fed173e`, #80 (kapalı), #33, #77, #71
+**Kapatıldı (2026-08-27), PR #104.** Quickstart'tan veri üretme adımı tamamen kalktı —
+uygulamanın okuduğu her dosya commit'li, kurulum dört satır ve sonu `streamlit run app.py`; hiçbir
+üretim adımı çalıştırılmadan uygulamanın HTTP 200 verdiği doğrulandı. Üç aşılmış betik yerinde
+kaldı ama docstring'lerinde neyi ezdikleri yazılı (`data/legacy/`'ye taşımak ya da silmek ayrı bir
+karar olarak açık). REPORT tarafında: `:47` ve `:228`'deki ülke-düzeyi `tour_occ_nim` iddiası NUTS 2
+ile hizalandı, çözücü tavanı cümlesi #80'in ölçümüyle değiştirildi, ve issue'nun listelemediği ama
+zorunlu hale gelen kısım yapıldı — §3.1 artık `pipeline/build_catalogue.py`'yi ve commit'li dosyanın
+sayılarını anlatıyor (654 satır), aşılmış `fetch_real_pois.py`'ye atıf değil.
+[#101](https://github.com/yukselburcinn-web/DA592/issues/101) — ilişkili: `fed173e`, #80 (kapalı), #33, #77, #71 (kapalı)
 
 ---
 
@@ -961,11 +1005,7 @@ bayat değil — geçmişle bilinçli karşılaştırma, kapsam dışı.)
 
 | Öncelik | Issue | Neden |
 |---|---|---|
-| 1 | #101 | Teslim kritik ve tek doküman işi değil: Quickstart takip edilirse temiz klonda uygulama açılmıyor. Ayrıca REPORT kendi içinde çelişiyor, ki §5'in dürüstlük iddiasını en çok zayıflatan hata türü bu |
-| 2 | #7 | `priority:high` etiketli, final rapor için gerçek LLM sonucu eksik |
-| 3 | #76 | Gerçek hata: #70'in düzelttiği şey LangGraph yolunda hâlâ bozuk, ve #72'den sonra bedeli büyüdü |
-| 4 | #92 | #32 Aşama 2'nin açıkta bıraktığı tek ölçülebilir yanlışlık: hub koordinatı yüzünden BER erişimi beş kat sapıyordu ve şu an düzeltilmiyor, telafi ediliyor. Veri işi, router'a dokunmuyor |
-| 5 | #94 | Harita, planın söylediği mesafenin yarısını çiziyor. #32'den sonra çelişki büyüdü; sokak modları için gereken veri zaten depoda |
-| 6 | #77 | Ölçüm dürüstlüğü: toplanan puan tavansız raporlanıyor. #49 kapandıktan sonra retrieval tarafı tavanını söylüyor, router tarafı söylemiyor — açık kalan tek taraf bu |
-
-**#71 bu listede değil:** kararı verildi ve bedeli ölçüldü (%5,0 / %9,4, REPORT §5), veri depoya girmiyor ve Overture/Foursquare ölçümü düşürüldü — kalan iş yok, issue kapatılmayı bekliyor.
+| 1 | #7 | `priority:high` etiketli, final rapor için gerçek LLM sonucu eksik |
+| 2 | #92 | #32 Aşama 2'nin açıkta bıraktığı tek ölçülebilir yanlışlık: hub koordinatı yüzünden BER erişimi beş kat sapıyordu ve şu an düzeltilmiyor, telafi ediliyor. Veri işi, router'a dokunmuyor |
+| 3 | #94 | Harita, planın söylediği mesafenin yarısını çiziyor. #32'den sonra çelişki büyüdü; sokak modları için gereken veri zaten depoda |
+| 4 | #77 | Ölçüm dürüstlüğü: toplanan puan tavansız raporlanıyor. #49 kapandıktan sonra retrieval tarafı tavanını söylüyor, router tarafı söylemiyor — açık kalan tek taraf bu |
