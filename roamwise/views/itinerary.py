@@ -252,6 +252,10 @@ st.caption("Agentic AI framework for personalized tourism forecasting and itiner
 # changes the segmentation contract or user_survey.csv.
 PREFERENCE_LEVELS = {"Low": 0.2, "Medium": 0.5, "High": 0.8}
 _LEVEL_NAMES = list(PREFERENCE_LEVELS)
+# What the sixth survey feature is held at now that the traveler is not asked
+# for it -- the survey's own mean, so the segmentation sees a typical traveler
+# on that axis rather than an invented one. See the sidebar below for why.
+_ADVENTURE_FIXED = 0.42
 
 
 def _level_slider(label: str, default: str, **kwargs) -> float:
@@ -261,13 +265,37 @@ def _level_slider(label: str, default: str, **kwargs) -> float:
 
 with st.sidebar:
     st.header("Traveler preferences")
-    budget = _level_slider("Budget", "Medium",
-                            help="Economical / Medium / Luxury")
+    budget = _level_slider(
+        "Everyday or upmarket", "Medium",
+        help="Shifts the plan between everyday stops and upmarket ones -- it reaches "
+             "the score through shopping and landmarks. It does not filter by what "
+             "things cost: the catalogue records free-or-paid rather than a price, so "
+             "cost is shown per stop instead of being used to choose stops.")
     culture = _level_slider("Culture / history interest", "High")
     nature = _level_slider("Nature / outdoors interest", "Medium")
     nightlife = _level_slider("Nightlife interest", "Low")
-    relax = _level_slider("Relaxation / beach interest", "Low")
-    adventure = _level_slider("Adventure interest", "Low")
+    relax = _level_slider(
+        "Relaxed pace", "Low",
+        help="Slower days built around cafes, restaurants and easy culture stops.")
+    # No "Adventure interest" slider, and its absence is the honest answer
+    # rather than an oversight (#79). The catalogue has no adventure-ish
+    # category -- `beach` was the nearest one the affinity table offered and it
+    # holds zero POIs in these two inland cities -- so the fitted preference
+    # matrix gives `adventure` a row of zeros and the score cannot act on it.
+    # Measured: with every other slider held at 0.5, moving adventure from 0.1
+    # to 0.9 changed none of the 24 selected POIs. What it *did* still do was
+    # move the KMeans archetype, which is worse than doing nothing: a traveler
+    # who asked for maximum adventure came back classified a Budget Backpacker
+    # and got a different plan for a reason that has nothing to do with
+    # adventure.
+    #
+    # The survey mean keeps the segmentation contract intact -- KMeans still
+    # fits six features, `user_survey.csv` is untouched, and all seven
+    # archetypes stay reachable from the five remaining sliders (Nature &
+    # Adventure falls from 5.8% of profiles to 2.5%, reached through the nature
+    # slider). Give the catalogue a real adventure category and this becomes a
+    # slider again.
+    adventure = _ADVENTURE_FIXED
 
     st.header("Trip constraints")
     dest_options = _destination_options()

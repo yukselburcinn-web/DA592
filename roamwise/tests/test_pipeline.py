@@ -192,16 +192,68 @@ def test_retrieval_query_describes_what_the_traveler_wants_not_the_label():
     """The query was built by interpolating the archetype's name, which made
     BM25 match the literal label word: "culture" surfaced a television channel
     whose description happens to use it (#63). The query has to name
-    categories, not the archetype."""
+    categories, not the archetype.
+
+    "Strongest category" now means the strongest one the *catalogue holds*
+    (#79). Two archetypes lead with `beach`, and these two inland cities hold
+    zero beach POIs -- a query term for an empty category can only match the
+    wrong thing, so it is dropped and the next real category leads instead."""
+    from roamwise.optimization.scoring import DATA_DIR
     from roamwise.retrieval.query import CATEGORY_PHRASE, archetype_query
 
+    held = set(pd.read_csv(DATA_DIR / "poi.csv", usecols=["category"])["category"])
     for archetype, affinities in CATEGORY_AFFINITY.items():
         query = archetype_query(archetype).lower()
         assert archetype.lower() not in query, \
             f"{archetype!r} query still contains the archetype label: {query!r}"
-        strongest = max(affinities.items(), key=lambda kv: kv[1])[0]
+        real = {c: w for c, w in affinities.items() if c in held}
+        strongest = max(real.items(), key=lambda kv: kv[1])[0]
         assert CATEGORY_PHRASE[strongest] in query, \
             f"{archetype!r} query omits its strongest category {strongest!r}: {query!r}"
+        for empty in set(affinities) - held:
+            assert CATEGORY_PHRASE[empty] not in query, \
+                f"{archetype!r} query asks for {empty!r}, which the catalogue has none of"
+
+
+def test_the_preference_matrix_only_spans_categories_the_catalogue_holds():
+    """A weight on an empty category is a preference the product cannot act on
+    (#79). `beach` was 8.2% of the fitted matrix -- 30% of the `relax` row and
+    25% of `nature`'s -- in two cities holding zero beach POIs. Nothing about
+    any real POI changed when it went; what changed is that the table stopped
+    describing a catalogue we do not have."""
+    from roamwise.optimization.scoring import (DATA_DIR, PREFERENCE_CATEGORY_WEIGHTS,
+                                               PREFERENCE_DIMS)
+
+    held = set(pd.read_csv(DATA_DIR / "poi.csv", usecols=["category"])["category"])
+    for dim in PREFERENCE_DIMS:
+        fitted = set(PREFERENCE_CATEGORY_WEIGHTS[dim])
+        assert fitted <= held, f"{dim} carries weight on empty categories: {fitted - held}"
+    assert held & set(PREFERENCE_CATEGORY_WEIGHTS["culture"]), "the fit lost every category"
+
+
+def test_the_traveler_is_not_asked_for_a_preference_the_score_cannot_read():
+    """Why `views/itinerary.py` has five sliders and not six (#79).
+
+    `adventure` fits to a row of zeros because the catalogue has no
+    adventure-ish category, so the score cannot act on it -- and the slider was
+    not merely inert: it moved the KMeans archetype, so a traveler asking for
+    maximum adventure came back a Budget Backpacker with a different plan for
+    an unrelated reason.
+
+    **If this test fails because the row is no longer zero, that is good news**
+    -- the catalogue grew a category the slider can act on, and the slider
+    should go back into the sidebar."""
+    from roamwise.optimization.scoring import PREFERENCE_CATEGORY_WEIGHTS, select_by_score
+
+    row = PREFERENCE_CATEGORY_WEIGHTS["adventure"]
+    assert not any(row.values()), \
+        f"adventure now reaches the score ({row}) -- restore its slider in the sidebar"
+
+    pois = GraphIndex().city_pois(MAIN_CITY)
+    base = {d: 0.5 for d in PREFERENCE_CATEGORY_WEIGHTS}
+    picked = [[p["poi_id"] for p in select_by_score(pois, {**base, "adventure": v}, 24)]
+              for v in (0.1, 0.9)]
+    assert picked[0] == picked[1], "adventure changes the selection after all"
 
 
 def test_the_graph_router_understands_words_travelers_actually_use():

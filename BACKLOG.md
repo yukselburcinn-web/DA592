@@ -33,7 +33,7 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 
 | Alan | Açık | Kapalı |
 |---|---|---|
-| A — Veri & Modeller | 3 (#71, #79, #92) | 8 (#1, #2, #3, #27, #30, #33, #65, #70) |
+| A — Veri & Modeller | 2 (#71, #92) | 9 (#1, #2, #3, #27, #30, #33, #65, #70, #79) |
 | B — Retrieval & Bilgi Grafiği | — | 10 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85) |
 | C — Ajanlar, Orkestrasyon & UI | 4 (#7, #76, #77, #94) | 22 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #78, #80, #81, #83, #109) |
 | D — Altyapı | 1 (#101) | 6 (#11, #12, #26, #31, #32, #93) |
@@ -41,7 +41,7 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 54 issue: **8 açık, 46 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
+Toplam 54 issue: **7 açık, 47 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
 `gh issue list` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
 
 **Bu güncellemede ne değişti:** #32 üç parçasıyla kapandı (self-hosted sokak mesafesi, GTFS
@@ -195,7 +195,7 @@ Kalan iki madde de kapandı:
 [#33](https://github.com/yukselburcinn-web/DA592/issues/33) · [PR #108](https://github.com/yukselburcinn-web/DA592/pull/108)
 — ilişkili: #71 (kaynak kararı), #72 (puan formülü), #109 (yemek oturumları), REPORT §5
 
-### #79. Macera slider'ı puanı hiç hareket ettirmiyor — 🔓 Açık
+### #79. Macera slider'ı puanı hiç hareket ettirmiyor — 🔒 Kapalı
 *(enhancement, `priority:medium`)* #72'nin puan fonksiyonu, tercih vektörünü kategori ağırlıklarına
 çeviren matrisi `user_survey.csv` ile `CATEGORY_AFFINITY` arasından NNLS ile türetiyor. Türetilen
 matriste **`adventure` satırının tamamı sıfır**: kullanıcı slider'ı nereye çekerse çeksin puan
@@ -205,9 +205,35 @@ Sebep taksonomi: katalogda maceraya karşılık gelen kategori yok, en yakın ad
 şehirlik sette `beach` kategorili **sıfır POI** var. Ankette `adventure` ile `nature` korele olduğu
 için NNLS ortak varyansı tamamen `nature`'a veriyor.
 
-Aynı sınıftan ikinci sorun: bütçe slider'ı da fiyat verisi tek bit olduğu için etkisiz (#71). Yani
-**altı slider'ın ikisi bugün çalışmıyor.** Taksonomi 10 kategoride sabit ve retrieval buna bağımlı —
-kategori eklenirse `CATEGORY_PHRASE`, `CATEGORY_AFFINITY` ve graf birlikte güncellenmeli.
+**Karar: B — taksonomiye dokunmadan arayüzü dürüst yap.** A seçeneği (kataloğa `adventure`
+kategorisi eklemek) veriyle denendi ve zemini zayıf çıktı: anahtar kelime taraması 61 POI buluyor
+ama içinde Sorbonne ve Tour d'Argent gibi açık yanlışlar var, yani #65'in temizlediği sınıftan bir
+taksonomi riski. Retrieval 10 kategoriye bağımlıyken teslime bir haftadan az kala alınacak risk
+değil.
+
+Yapılanlar:
+- **Slider arayüzden kaldırıldı**, altıncı anket özelliğine anket ortalaması (0.42) besleniyor.
+  KMeans hâlâ altı özellikle çalışıyor, `user_survey.csv` değişmedi, yedi arketibin hepsi kalan beş
+  slider'dan ulaşılabilir durumda (Nature & Adventure profillerin %5.8'inden %2.5'ine düşüyor,
+  `nature` üzerinden geliniyor). Kaldırma kararını belirleyen ölçüm: slider etkisiz olmakla
+  kalmıyordu, KMeans arketibini değiştiriyordu — macerayı sonuna kadar açan kullanıcı **"Budget
+  Backpacker"** olarak sınıflanıp alakasız bir sebeple farklı plan alıyordu.
+- **`beach` fitten ve arketip sorgularından çıktı.** Matrisin %8.2'siydi (relax satırının %30'u,
+  nature'ın %25'i) ve iki arketibin sorgusu denizi olmayan şehirlerde "beaches" istiyordu. Bu
+  değişiklik **davranışı hiç değiştirmiyor** ve öyle iddia ediliyor: `preference_match` tek
+  kategoriye bakıyor, `_MAX_MATCH`'i `food` sütunu belirliyor, aynı POI'ler seçiliyor. Kazanç
+  matrisin ve sorguların elimizde olmayan bir kataloğu anlatmayı bırakması. Filtre katalogdan
+  türetildiği için kendi kendini onarıyor: denizi olan bir şehir eklenirse `beach` fite geri döner.
+- **Bütçe slider'ı hakkındaki iddia düzeltildi.** REPORT "#71'den sonra slider fiyata göre çalışıyor"
+  diyordu; yanlış. `price_level` kodda yalnızca iki yerde okunuyor ve ikisi de puan değil:
+  orchestrator'ın "ücretsiz oranı" istatistiği ve arayüzdeki "· free" etiketi. Slider puana yalnızca
+  `shopping` (0.306) + `landmark` (0.095) üzerinden ulaşıyor — toplam 0.400, `culture`'ın 3.205'ine
+  karşı — ve uçtan uca 24 POI'nin 2'sini değiştiriyor. Etiketi bu yüzden "Budget" değil "Everyday or
+  upmarket".
+
+Kapsam dışı kalan ve ayrı issue'ya taşınan bulgu: **retrieval `top_k=24`'te tek kategoriye yığılıyor**
+— Culture Enthusiast havuzu 19 müze + 4 landmark + 1 history geliyor, `religion` ilk kez `top_k=120`'de
+görünüyor. Kataloğun büyük bir kısmı bu yüzden ürüne ulaşmıyor.
 [#79](https://github.com/yukselburcinn-web/DA592/issues/79)
 
 ### #92. Ulaşım hub'ları pist merkezinden konumlanıyor, terminalden değil — 🔓 Açık
@@ -905,6 +931,5 @@ bayat değil — geçmişle bilinçli karşılaştırma, kapsam dışı.)
 | 4 | #92 | #32 Aşama 2'nin açıkta bıraktığı tek ölçülebilir yanlışlık: hub koordinatı yüzünden BER erişimi beş kat sapıyordu ve şu an düzeltilmiyor, telafi ediliyor. Veri işi, router'a dokunmuyor |
 | 5 | #94 | Harita, planın söylediği mesafenin yarısını çiziyor. #32'den sonra çelişki büyüdü; sokak modları için gereken veri zaten depoda |
 | 6 | #77 | Ölçüm dürüstlüğü: toplanan puan tavansız raporlanıyor. #49 kapandıktan sonra retrieval tarafı tavanını söylüyor, router tarafı söylemiyor — açık kalan tek taraf bu |
-| 7 | #79 | Altı slider'ın biri hiçbir şey yapmıyor; taksonomi kararı, retrieval'a dokunuyor |
 
 **#71 bu listede değil:** kararı verildi ve bedeli ölçüldü (%5,0 / %9,4, REPORT §5), veri depoya girmiyor ve Overture/Foursquare ölçümü düşürüldü — kalan iş yok, issue kapatılmayı bekliyor.
