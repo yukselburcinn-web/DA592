@@ -13,7 +13,8 @@ fusion.py can merge all three with reciprocal rank fusion.
 import os
 import re
 
-from roamwise.knowledge_graph.build_graph import GraphIndex
+from roamwise.knowledge_graph.build_graph import (REACHABLE_MAX_MIN, SERVES_MAX_MIN,
+                                                  GraphIndex)
 from roamwise.optimization.routing import _opening_intervals
 
 ARCHETYPE_KEYWORDS = {
@@ -64,16 +65,31 @@ def _env_flag(name: str, default: bool = False) -> bool:
     return raw.strip().lower() in ("1", "true", "yes", "on")
 
 
-# The hour-aware chain, off by default (#126 phase 4).
+# The hour-aware chain, on by default since #126 phase 5 passed its gate.
 #
-# It ships behind a flag because it changes *every* plan rather than only the
-# queries that name a transport word: the anchor defaults to the city centre,
-# so the chain fires on the archetype query the orchestrator actually sends.
-# There is no "opt-in, therefore zero regression" story to lean on, and the
-# measurement that decides whether the new default is better (#126 phase 5,
-# KN-3) has not been made. Merging behind a flag keeps those two things apart
-# -- the code lands, the default moves only once it is earned.
-CHAIN_ENABLED = _env_flag("ROAMWISE_GRAPH_CHAIN", default=False)
+# It shipped behind a flag, default off, because it fires on the archetype
+# query the orchestrator actually sends -- the anchor is the city centre, not a
+# keyword -- so it changes every plan rather than only the queries that name a
+# transport word. There was no "opt-in, therefore zero regression" story to
+# lean on, and the measurement that decides whether the new default is better
+# had not been made.
+#
+# It has now. Over the full 12/15/18-hour grid (24 cells, 2 cities x 4
+# archetypes x 3 day lengths, `evaluation/graph_rag_baseline.py --full`):
+#
+#                       stops/day   km/stop   pref match   cats/day   closed
+#     flag off            9.417      0.637      0.5858       3.167       0
+#     flag on             9.444      0.628      0.5859       3.194       0
+#
+# Nothing regresses: distance per stop falls slightly, preference match is flat
+# to four decimals, category variety per day rises, and arrivals at a closed
+# venue stay at zero with both meals filled on all 72 days. That is the gate
+# #126 set (KN-3), so the default moves.
+#
+# The flag stays, and stays honest in both directions: `ROAMWISE_GRAPH_CHAIN=0`
+# turns the traversal off without a code change, which is what makes the
+# comparison above reproducible by anyone who doubts it.
+CHAIN_ENABLED = _env_flag("ROAMWISE_GRAPH_CHAIN", default=True)
 
 # Only POIs whose hours were actually observed take part. 277 of the
 # catalogue's 654 rows carry a category default -- "a museum is usually open
@@ -207,6 +223,58 @@ class GraphSearchIndex:
         if destination_id is None:
             return []
         anchor_id = self.anchor_for(destination_id, arrival_hub_id)
+        ranked = self.chains(destination_id, arrival_hub_id=arrival_hub_id,
+                             start_date=start_date)
+        anchor_name = self.idx.g.nodes[anchor_id]["name"] if anchor_id in self.idx.g else anchor_id
+
+        results = []
+        for poi_a, to_a, poi_b, a_to_b, closes_a in ranked:
+            # The path itself, not a claim about it. This text reaches the
+            # traveler through "What the plan was grounded in"
+            # (`views/itinerary.py`), so provenance becomes something they can
+            # follow rather than something the report asserts.
+            path = (f"{anchor_name} \u2192{to_a:.1f}min\u2192 {poi_a['name']} "
+                    f"(closes {_clock(closes_a)}) "
+                    f"\u2192{a_to_b:.1f}min\u2192 {poi_b['name']}")
+            results.append(self._poi_to_doc(poi_a, path))
+            results.append(self._poi_to_doc(poi_b, path))
+
+        seen = set()
+        deduped = []
+        for r in results:
+            if r["poi_id"] in seen:
+                continue
+            seen.add(r["poi_id"])
+            deduped.append(r)
+        for rank, r in enumerate(deduped[:top_k]):
+            r["score"] = 1.0 - rank / max(len(deduped), 1)
+        return deduped[:top_k]
+
+    def chains(self, destination_id: str, arrival_hub_id: str = None, start_date=None,
+               enforce_hours: bool = True, max_serves_min: float = None,
+               max_reachable_min: float = None) -> list[tuple]:
+        """The ranked chains themselves: `(poi_a, minutes_to_a, poi_b,
+        minutes_a_to_b, poi_a_closing_hour)`, best first.
+
+        `chain_search` flattens these into documents; the evaluation reads them
+        as chains. Both go through here so there is one definition of what a
+        valid chain is -- the invalid-chain rate #126 reports would be
+        worthless if the evaluator computed validity with its own copy of this
+        rule and the two drifted.
+
+        `enforce_hours=False` keeps every pair the two edges admit, hour
+        compatibility ignored. That is not a mode anything ships; it is the
+        denominator the invalid-chain rate is measured against, and the only
+        honest way to state what the constraint is worth.
+
+        The two threshold overrides exist for the same reason: the sweep that
+        chose them (`evaluation/chain_threshold_sweep.py`) has to ask what a
+        different pair would have returned. Left None they are the shipped
+        constants. Tightening here filters edges the graph already holds, so
+        the sweep can vary both without rebuilding -- but it can only tighten,
+        never loosen past what `build_graph` stored.
+        """
+        anchor_id = self.anchor_for(destination_id, arrival_hub_id)
 
         # Opening hours are parsed from a text tag, and one anchor produces
         # thousands of chains over a few hundred POIs -- so each POI's day is
@@ -224,7 +292,12 @@ class GraphSearchIndex:
             return cached
 
         ranked = []
-        for poi_a, to_a, poi_b, a_to_b in self.idx.chains_from(anchor_id):
+        walked = self.idx.chains_from(
+            anchor_id,
+            max_serves_min=SERVES_MAX_MIN if max_serves_min is None else max_serves_min,
+            max_reachable_min=(REACHABLE_MAX_MIN if max_reachable_min is None
+                               else max_reachable_min))
+        for poi_a, to_a, poi_b, a_to_b in walked:
             if poi_b.get("category") in CHAIN_EXCLUDED_SECOND_LEG:
                 continue
             if (poi_a.get("hours_source") not in CHAIN_REAL_HOURS_SOURCES
@@ -234,45 +307,26 @@ class GraphSearchIndex:
             if not open_a:
                 continue
             closes_a = max(end for _, end in open_a)
-            if closes_a > CHAIN_LATEST_DEPARTURE_HOUR:
-                continue
-            arrival = closes_a + a_to_b / 60.0
-            stay = poi_b.get("avg_visit_minutes", 0) / 60.0
-            # Open on arrival *and* still open long enough to be visited.
-            # Arriving five minutes before the doors shut is not "you can do
-            # this one after that one", which is the whole claim of the edge.
-            if not any(start <= arrival and arrival + stay <= end for start, end in intervals(poi_b)):
-                continue
+            if enforce_hours:
+                if closes_a > CHAIN_LATEST_DEPARTURE_HOUR:
+                    continue
+                arrival = closes_a + a_to_b / 60.0
+                stay = poi_b.get("avg_visit_minutes", 0) / 60.0
+                # Open on arrival *and* still open long enough to be visited.
+                # Arriving five minutes before the doors shut is not "you can
+                # do this one after that one", which is the whole claim of the
+                # edge.
+                if not any(start <= arrival and arrival + stay <= end
+                           for start, end in intervals(poi_b)):
+                    continue
             ranked.append((
                 -max(poi_a.get("popularity_score", 0.0), poi_b.get("popularity_score", 0.0)),
                 to_a + a_to_b, poi_a["poi_id"], poi_b["poi_id"],
-                poi_a, to_a, poi_b, a_to_b))
+                poi_a, to_a, poi_b, a_to_b, closes_a))
 
         ranked.sort(key=lambda row: row[:4])
-        anchor_name = self.idx.g.nodes[anchor_id]["name"] if anchor_id in self.idx.g else anchor_id
-
-        results = []
-        for _, _, _, _, poi_a, to_a, poi_b, a_to_b in ranked:
-            # The path itself, not a claim about it. This text reaches the
-            # traveler through "What the plan was grounded in"
-            # (`views/itinerary.py`), so provenance becomes something they can
-            # follow rather than something the report asserts.
-            path = (f"{anchor_name} \u2192{to_a:.1f}min\u2192 {poi_a['name']} "
-                    f"(closes {_clock(max(e for _, e in intervals(poi_a)))}) "
-                    f"\u2192{a_to_b:.1f}min\u2192 {poi_b['name']}")
-            results.append(self._poi_to_doc(poi_a, path))
-            results.append(self._poi_to_doc(poi_b, path))
-
-        seen = set()
-        deduped = []
-        for r in results:
-            if r["poi_id"] in seen:
-                continue
-            seen.add(r["poi_id"])
-            deduped.append(r)
-        for rank, r in enumerate(deduped[:top_k]):
-            r["score"] = 1.0 - rank / max(len(deduped), 1)
-        return deduped[:top_k]
+        return [(poi_a, to_a, poi_b, a_to_b, closes_a)
+                for _, _, _, _, poi_a, to_a, poi_b, a_to_b, closes_a in ranked]
 
     def search(self, query: str, top_k: int = 10, destination_id: str = None,
                archetype: str = None, arrival_hub_id: str = None) -> list[dict]:

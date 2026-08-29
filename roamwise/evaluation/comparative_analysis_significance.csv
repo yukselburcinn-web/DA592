@@ -1,11 +1,13 @@
 metric,champion,opponent,n,mean_advantage,wins,losses,ties,p_value,verdict
-recall_at_k,fusion,hybrid,61,0.1274,49,2,10,0.0,better
-archetype_precision,fusion,hybrid,61,0.2763,45,1,15,0.0,better
-grounded_entity_rate,fusion,hybrid,61,0.0,0,0,61,,identical
-km_per_stop_day1,fusion,hybrid,61,0.2272,38,19,4,0.00032,better
-retrieval_ms,fusion,hybrid,61,-2.6352,6,55,0,0.0,worse
-recall_at_k,fusion,standard,61,0.2578,58,0,3,0.0,better
-archetype_precision,fusion,standard,61,0.5246,60,1,0,0.0,better
-grounded_entity_rate,fusion,standard,61,1.0,61,0,0,0.0,better
-km_per_stop_day1,fusion,standard,61,0.0093,30,30,1,0.53382,no difference
-retrieval_ms,fusion,standard,61,-13.3133,0,61,0,0.0,worse
+recall_at_k,fusion,hybrid,67,0.116,52,3,12,0.0,better
+normalized_recall,fusion,hybrid,67,0.2688,52,3,12,0.0,better
+archetype_precision,fusion,hybrid,67,0.2958,50,1,16,0.0,better
+grounded_entity_rate,fusion,hybrid,67,0.0,0,0,67,,identical
+km_per_stop_day1,fusion,hybrid,67,0.2543,42,20,5,6e-05,better
+retrieval_ms,fusion,hybrid,67,-14.0434,0,67,0,0.0,worse
+recall_at_k,fusion,standard,67,0.2362,64,0,3,0.0,better
+normalized_recall,fusion,standard,67,0.517,64,0,3,0.0,better
+archetype_precision,fusion,standard,67,0.528,66,1,0,0.0,better
+grounded_entity_rate,fusion,standard,67,1.0,67,0,0,0.0,better
+km_per_stop_day1,fusion,standard,67,0.0015,35,30,2,0.75869,no difference
+retrieval_ms,fusion,standard,67,-23.0637,0,67,0,0.0,worse
