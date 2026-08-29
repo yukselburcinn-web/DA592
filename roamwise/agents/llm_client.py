@@ -23,22 +23,101 @@ why. Like the Anthropic path, this only activates on an explicit opt-in
 (ROAMWISE_LOCAL_LLM=1): merely having the `mlx-lm` package importable must
 never trigger an unexpected multi-gigabyte download.
 """
+import logging
 import os
 import textwrap
+from typing import NamedTuple
+
+log = logging.getLogger(__name__)
+
+
+class Completion(NamedTuple):
+    """What a client produced, plus whether it was allowed to finish.
+
+    `truncated` is the part callers previously had no way to see. A generation
+    that runs into its output cap returns well-formed prose that simply stops
+    mid-sentence, which is indistinguishable from a finished answer unless the
+    client reports it -- so a half-written itinerary reached the UI looking
+    complete (issue #125).
+    """
+
+    text: str
+    truncated: bool
+
+
+# How much room a generation gets, derived from the prompt rather than fixed.
+#
+# The synthesis prompt grows with the trip -- measured on the committed
+# catalogue, one day of itinerary facts costs ~520 tokens and five days ~1980 --
+# and the narrative has to restate every one of those stops as prose, so the
+# output runs longer than the prompt, not shorter. A flat 1024-token cap
+# therefore covered a 2-day trip (966 prompt tokens) and cut a 3-day one (1348)
+# off mid-sentence: the narrative described two days of a three-day route and
+# said nothing about the third (issue #125).
+#
+# Budgeting from the prompt is what keeps that from returning at some longer
+# trip nobody tried. Every call gets room proportional to what it was asked to
+# describe, instead of a constant that happened to fit the trip length someone
+# tested once.
+MAX_TOKENS_FLOOR = 1024      # short prompts still get a usable answer
+MAX_TOKENS_CEILING = 8192    # a runaway generation is a bug, not a long trip
+PROMPT_TO_OUTPUT_RATIO = 2.0
+CHARS_PER_TOKEN = 4  # rough English-prose estimate; only ever used to size a budget
+
+
+def budget_for(prompt: str) -> int:
+    """Output-token budget for `prompt`, clamped to [FLOOR, CEILING].
+
+    Deliberately an estimate from character count rather than a real tokenizer
+    count: this has to work for AnthropicLLMClient too, which has no local
+    tokenizer, and being generous by a few hundred tokens costs nothing while
+    being short by one costs the last day of the itinerary.
+    """
+    wanted = int(len(prompt) / CHARS_PER_TOKEN * PROMPT_TO_OUTPUT_RATIO)
+    return max(MAX_TOKENS_FLOOR, min(wanted, MAX_TOKENS_CEILING))
+
+
+def _warn_if_truncated(truncated: bool, client: str, budget: int) -> None:
+    """Truncation is a silent failure by nature, so it is logged loudly.
+
+    The System logs screen reads this logger, which makes a cut narrative
+    visible to an operator instead of something a reader has to notice by
+    spotting a sentence that stops in the middle.
+    """
+    if truncated:
+        log.warning(
+            "%s hit its %d-token output cap; the answer is cut off mid-sentence",
+            client, budget,
+            extra={"roamwise_fields": {"client": client, "max_tokens": budget,
+                                       "truncated": True}},
+        )
 
 
 class LLMClient:
-    def complete(self, system: str, prompt: str) -> str:
+    def complete(self, system: str, prompt: str, max_tokens: int = None) -> str:
+        """The text alone, for the callers that cannot act on truncation."""
+        return self.complete_verbose(system, prompt, max_tokens).text
+
+    def complete_verbose(self, system: str, prompt: str,
+                         max_tokens: int = None) -> Completion:
         raise NotImplementedError
 
 
 class TemplateLLMClient(LLMClient):
     """A deterministic stand-in 'LLM' that composes grounded context into
     readable prose via templates. Used as the default so the full agentic
-    pipeline runs offline with no API key."""
+    pipeline runs offline with no API key.
 
-    def complete(self, system: str, prompt: str) -> str:
-        return textwrap.dedent(prompt).strip()
+    It applies no output cap, which is exactly why it cannot surface issue
+    #125 on its own: offline the prompt *is* the answer, so nothing is ever
+    cut. Asserting that `budget_for(prompt)` actually covers the prompt is how
+    a test catches that risk without a model -- see
+    test_the_synthesis_budget_covers_every_trip_length.
+    """
+
+    def complete_verbose(self, system: str, prompt: str,
+                         max_tokens: int = None) -> Completion:
+        return Completion(textwrap.dedent(prompt).strip(), truncated=False)
 
 
 class AnthropicLLMClient(LLMClient):
@@ -47,14 +126,21 @@ class AnthropicLLMClient(LLMClient):
         self.client = anthropic.Anthropic()
         self.model = model
 
-    def complete(self, system: str, prompt: str) -> str:
+    def complete_verbose(self, system: str, prompt: str,
+                         max_tokens: int = None) -> Completion:
+        budget = max_tokens or budget_for(prompt)
         resp = self.client.messages.create(
             model=self.model,
-            max_tokens=1024,
+            max_tokens=budget,
             system=system,
             messages=[{"role": "user", "content": prompt}],
         )
-        return "".join(block.text for block in resp.content if hasattr(block, "text"))
+        # The API says outright when it stopped because it ran out of room;
+        # this used to be dropped on the floor with the rest of the response.
+        truncated = resp.stop_reason == "max_tokens"
+        _warn_if_truncated(truncated, "AnthropicLLMClient", budget)
+        text = "".join(block.text for block in resp.content if hasattr(block, "text"))
+        return Completion(text, truncated)
 
 
 # mlx-community re-converts popular Hugging Face models into MLX's native
@@ -74,11 +160,24 @@ class LocalHuggingFaceLLMClient(LLMClient):
         from mlx_lm import load  # imported lazily so the dependency is optional
         self.model, self.tokenizer = load(model_id)
 
-    def complete(self, system: str, prompt: str) -> str:
-        from mlx_lm import generate
+    def complete_verbose(self, system: str, prompt: str,
+                         max_tokens: int = None) -> Completion:
+        # stream_generate rather than generate: generate() returns the text and
+        # nothing else, so whether it stopped at an end-of-turn token or simply
+        # ran out of budget is unrecoverable. The streaming form carries a
+        # finish_reason -- "stop" for EOS, "length" for the cap (issue #125).
+        from mlx_lm import stream_generate
+        budget = max_tokens or budget_for(prompt)
         messages = [{"role": "system", "content": system}, {"role": "user", "content": prompt}]
         rendered = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-        return generate(self.model, self.tokenizer, prompt=rendered, max_tokens=1024, verbose=False).strip()
+        parts, finish_reason = [], None
+        for chunk in stream_generate(self.model, self.tokenizer, prompt=rendered,
+                                     max_tokens=budget):
+            parts.append(chunk.text)
+            finish_reason = chunk.finish_reason
+        truncated = finish_reason == "length"
+        _warn_if_truncated(truncated, "LocalHuggingFaceLLMClient", budget)
+        return Completion("".join(parts).strip(), truncated)
 
 
 def get_default_llm_client() -> LLMClient:

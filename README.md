@@ -84,7 +84,7 @@ pip install -r requirements-local-llm.txt
 export ROAMWISE_LOCAL_LLM=1
 ```
 
-The model (~2.1GB) downloads to your own Hugging Face cache on first use, not to this repo — see `requirements-local-llm.txt` for why. A 3-day plan takes roughly 20–50s of generation against milliseconds for the template default; see [`REPORT.md` §3.4.2](REPORT.md#342-a-live-non-template-llm-run-issues-54-56-57) for the measurements, and for the two bugs that only a real generative model could surface (issues #56 and #57). If `ANTHROPIC_API_KEY` is also set, Anthropic takes priority.
+The model (~2.1GB) downloads to your own Hugging Face cache on first use, not to this repo — see `requirements-local-llm.txt` for why. A 3-day plan takes roughly 80–140s of generation on an M3 MacBook Air against milliseconds for the template default, and a 5-day plan around 270s; see [`REPORT.md` §3.4.2](REPORT.md#342-a-live-non-template-llm-run-issues-54-56-57) for the measurements, and for the three bugs that only a real generative model could surface (issues #56, #57 and #125). Those figures are hardware-bound and sustained generation throttles on a fanless machine, so treat them as an order of magnitude rather than a benchmark. If `ANTHROPIC_API_KEY` is also set, Anthropic takes priority.
 
 ### Optional: LangGraph orchestrator
 

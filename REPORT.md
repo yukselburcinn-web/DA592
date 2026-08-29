@@ -138,7 +138,7 @@ The orchestrator's `plan_trip()` runs all five nodes in sequence: segmentation �
 
 The Anthropic path (§3.4, issue #7) needs a paid, provisioned API key that no build environment so far has had, which is why every prior report used the deterministic `TemplateLLMClient`. `LocalHuggingFaceLLMClient` closes that gap for free: `mlx-community/Qwen3-4B-Instruct-2507-4bit` (Qwen3, Apache-2.0, 4-bit quantized for Apple's MLX runtime — Apple Silicon only) runs entirely on-device, downloading once (~2.1GB) to the user's own Hugging Face cache rather than being bundled with the repo (see `requirements-local-llm.txt` for why committing the weights isn't practical: GitHub blocks any single file over 100MB outright, and recommends whole repos stay under 1–5GB).
 
-Running it exposed two problems that the deterministic default had been hiding for the entire life of the project, both fixed in issues #56 and #57.
+Running it exposed two problems that the deterministic default had been hiding for the entire life of the project, both fixed in issues #56 and #57. A third of the same family surfaced later and is in §3.4.3 (issue #125): the narrative was being cut off at a fixed output cap, which offline could never happen because offline the prompt *is* the answer.
 
 **The narrative recommended places that were not in the itinerary (#56).** `_synthesize()` used to hand the model two lists of places — the Fusion RAG *candidates* and the routed *itinerary* — with nothing saying which was the plan. Those are very different sets: retrieval returns candidates, and the router then drops most of them on opening hours, travel time and the day budget. On a measured 3-day Berlin plan, **4 of the 6** retrieved POIs pasted into that prompt were not in the itinerary at all, so the model blended both and sent the reader to stops the route never contained. Under `TemplateLLMClient` the prompt is echoed back verbatim, so no amount of offline testing could surface this: it is a prompt-design bug that only a real generative model can express. The fix removes the candidate list from the prompt entirely and moves each stop's description onto the stop itself (`RouterAgent._facts`), so the itinerary is the only list of places the narrator ever sees.
 
@@ -158,6 +158,42 @@ The two fixes compound, because the second one also removes a stage of paraphras
 What this does **not** fix is the subtler failure documented when #54 landed: the model still layers unverified elaboration on top of correctly-grounded stops (claimed exhibition contents, atmosphere descriptions). Nothing in the pipeline checks those, and the grounding criterion above deliberately does not claim to — it constrains *which places* appear, not *what is said about them*. The full raw output of a post-fix run is preserved in `evaluation/local_llm_sample_run.md`.
 
 This remains a per-run structural check, not the systematic hallucination measurement `run_llm_hallucination_probe()` performs (§3.5) — that function is written against `AnthropicLLMClient` specifically and was not extended to the local client (§7).
+
+#### 3.4.3 The narrative stopped mid-sentence, and nothing said so (issue #125)
+
+A third bug of the same family as #56 and #57 — invisible under `TemplateLLMClient`, obvious the moment a real model runs. A 3-day plan came back with a complete 3-day route and a narrative that described **two** days and stopped in the middle of a word.
+
+**The output cap was a constant; the prompt is not.** Both clients passed a flat `max_tokens=1024`. The synthesis prompt grows with the trip — measured on the committed catalogue with the tokenizer the local model actually uses:
+
+| Trip | Stops | Synthesis prompt (tokens) | Old cap |
+|---|---|---|---|
+| 3 days, 8h days | 22 | 1321 | 1024 |
+| 5 days, 8h days | 35 | 2002 | 1024 |
+| **3 days, 12h days** (the app's default) | **30** | **1799** | 1024 |
+| **5 days, 12h days** | **45** | **2610** | 1024 |
+
+At the app's own sidebar defaults the narrator was asked to describe 30 stops and given less room than the facts themselves occupied. The cap is now derived from the prompt (`llm_client.budget_for`) rather than fixed, so every call gets room proportional to what it was asked to describe.
+
+**The clearest evidence is the same generation run twice.** Decoding is greedy, so the pre- and post-fix runs of a 5-day plan produce character-for-character identical text until the cap intervenes:
+
+| | Narrative ends |
+|---|---|
+| Before | `…Enjoy the quiet beauty, the depth of` |
+| After | `…Enjoy the quiet beauty, the depth of meaning, and the city's enduring spirit.` |
+
+**Truncation is now reported rather than inferred.** Raising the cap alone would have left the same bug waiting at a longer trip. `Completion` carries a `truncated` flag — read from Anthropic's `stop_reason` and from the MLX stream's `finish_reason`, neither of which was previously looked at — which is logged as a WARNING to the System logs screen and surfaced in the UI instead of presenting half an itinerary as the whole one.
+
+**#57's cost regression had come back by another route.** #57 removed the two paraphrases nobody reads, but its test pins `destination_id`, and the app does not: unpinned, `_recommend_destination` runs the forecaster over every city in the catalogue to read one field, and the forecaster narrated unconditionally. That is N+1 generations per request with N discarded — the flag #57 gave `FusionRAGAgent` and `RouterAgent` was never given to `ForecasterAgent`.
+
+| Berlin, 3-day, 12h days, unpinned | Before | After |
+|---|---|---|
+| LLM generations per trip | 4 | **2** |
+| Wall clock (M3 MacBook Air) | 136.4s | **82.9s** |
+| Narrative covers every day of the route | 3/3 here, **but cut at 5 days** | **yes, 3/3 and 5/5** |
+
+The 3-day figures are like-for-like — both runs produce the identical 3498-character narrative, so the saving is the two discarded generations. The 5-day pair is **not** comparable as a timing measurement (191.2s before, 269.4s after) precisely because the earlier run stopped early; it produces more text now because it is allowed to finish. All timings are from a fanless M3 MacBook Air where sustained generation throttles, and are not comparable to the figures in §3.4.2 above, which were taken on different hardware.
+
+Whether a given 3-day plan trips the old cap is a boundary condition, not a certainty: a plan whose narrative lands just under 1024 tokens completes, and the same trip length with a start date set lands just over and is cut. That is why the fix is the budget *and* the detection, and why the regression tests sweep 1–5 days rather than asserting on the one trip length that was reported.
 
 ### 3.5 Comparative analysis
 

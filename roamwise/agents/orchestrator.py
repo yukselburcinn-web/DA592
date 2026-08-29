@@ -26,7 +26,7 @@ import pandas as pd
 from roamwise.app_logging import get_logger, log_step
 from roamwise.agents.forecaster_agent import ForecasterAgent
 from roamwise.agents.fusion_rag_agent import FusionRAGAgent
-from roamwise.agents.llm_client import LLMClient, get_default_llm_client
+from roamwise.agents.llm_client import Completion, LLMClient, get_default_llm_client
 from roamwise.agents.router_agent import RouterAgent
 from roamwise.knowledge_graph.build_graph import GraphIndex
 from roamwise.models.segmentation import TravelerSegmenter
@@ -234,8 +234,13 @@ class RoamWiseOrchestrator:
                         "estimate")
 
         # --- Node 5: final synthesis ---
-        with log_step(log, "Final synthesis (LLM)", llm=type(self.llm).__name__):
-            state["final_plan"] = self._synthesize(state)
+        with log_step(log, "Final synthesis (LLM)", llm=type(self.llm).__name__) as detail:
+            completion = self._synthesize(state)
+            state["final_plan"] = completion.text
+            # Carried into the result so the UI can say the narrative is cut
+            # rather than presenting half an itinerary as the whole one (#125).
+            state["final_plan_truncated"] = completion.truncated
+            detail["truncated"] = completion.truncated
         return state
 
     def _recommend_destination(self, preferences: dict, travel_month: str = None) -> str:
@@ -244,7 +249,9 @@ class RoamWiseOrchestrator:
         for _, d in self.destinations.iterrows():
             tag_overlap = self._tag_affinity(preferences, d.tags)
             budget_fit = 1 - abs(d.budget_level - budget_target) / 2
-            fc = self.forecaster.run(d.destination_id, travel_month=travel_month, horizon_months=6)
+            # Only crowding_level is read here, so this must not narrate.
+            fc = self.forecaster.run(d.destination_id, travel_month=travel_month,
+                                     horizon_months=6, narrate=False)
             crowd_penalty = {"low": 0.0, "medium": 0.15, "high": 0.35}[fc["crowding_level"]]
             score = 0.5 * tag_overlap + 0.3 * budget_fit - crowd_penalty
             scored.append((d.destination_id, score))
@@ -261,7 +268,7 @@ class RoamWiseOrchestrator:
         vals = [preferences.get(tag_to_pref[t], 0.3) for t in tags if t in tag_to_pref]
         return sum(vals) / len(vals) if vals else 0.3
 
-    def _synthesize(self, state: dict) -> str:
+    def _synthesize(self, state: dict) -> Completion:
         """Narrate the plan from the itinerary alone.
 
         This deliberately does *not* include the Fusion RAG context. Retrieval
@@ -287,7 +294,7 @@ class RoamWiseOrchestrator:
             f"Forecast: {state['forecast']['narrative']}",
             state["routing"]["facts"],
         ])
-        return self.llm.complete(
+        return self.llm.complete_verbose(
             system="You are RoamWise, an agentic travel-planning assistant. Write a coherent "
                    "recommendation for the itinerary below, describing its stops in the order "
                    "given and working in the forecast's timing advice. The itinerary is the "

@@ -620,6 +620,15 @@ if run:
 
         st.markdown("##### Agent narrative")
         st.info(result["final_plan"])
+        # A generation that ran out of room stops mid-sentence and otherwise
+        # reads like a finished answer, so the reader is told rather than left
+        # to notice that the last day is missing (issue #125).
+        if result.get("final_plan_truncated"):
+            st.warning(
+                "This narrative was cut short: the model reached its output limit before "
+                "it finished describing the trip, so the last day or days may be missing. "
+                "The itinerary above is complete and unaffected."
+            )
 
     with tab2:
         st.subheader(f"Tourism demand forecast for {city_name}")
