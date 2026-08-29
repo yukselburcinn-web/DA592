@@ -21,6 +21,7 @@ outscored the one retriever that had it right (graph, rank 1, 0.0164). See
 RETRIEVER_WEIGHTS below.
 """
 from roamwise.retrieval.corpus import load_documents
+from roamwise.retrieval import graph_search
 from roamwise.retrieval.graph_search import GraphSearchIndex
 from roamwise.retrieval.keyword_search import KeywordIndex
 from roamwise.retrieval.semantic_search import SemanticIndex
@@ -39,7 +40,32 @@ RRF_K = 60
 # seventeenth (#63). Giving graph the weight of the pair it is being compared
 # against makes the two families count the same. Configs without graph
 # (`hybrid`) are unaffected -- both their retrievers stay at 1.0.
-RETRIEVER_WEIGHTS = {"graph": 2.0, "semantic": 1.0, "keyword": 1.0}
+# "chain" is the hour-aware traversal (#126, decision K4). Its weight was
+# swept rather than picked, because a short dense list stacks its votes in RRF
+# -- the same "head counting" problem #63 solved for the other three. Measured
+# over 8 cells (2 cities x 4 archetypes), how many of the top 8 the chain
+# surfaced:
+#
+#     weight   mean/8   range     verdict
+#      0.25     1.00     0-3      below the target band
+#      0.50     1.25     0-3
+#      1.00     1.25     0-3      below -- see the note under KN-2 below
+#      1.50     2.75     0-5   <- chosen: mid-band
+#      2.00     3.75     1-6      top of the band
+#      3.00     7.00     5-8      dominates
+#      4.00     8.00     8-8      the whole result is the chain
+#
+# KN-2's band is 2-4 of 8, so 1.5. Worth recording that #126 predicted the
+# chain would arrive *dominating* at weight 1.0 (7 of 8) and it does not: at
+# 1.0 it contributes 1.25, and domination starts at 3.0. The prediction came
+# from a standalone injection; against the shipped retriever most chain POIs
+# are already in the graph list, so the chain adds rank rather than new
+# documents until its weight can outrun `graph`'s 2.0.
+#
+# Inert while ROAMWISE_GRAPH_CHAIN is off: with no chain list, this key is
+# never read. It is written down now because the value is what KN-2 decided,
+# and a measured number belongs next to the thing it decided.
+RETRIEVER_WEIGHTS = {"graph": 2.0, "chain": 1.5, "semantic": 1.0, "keyword": 1.0}
 DEFAULT_RETRIEVER_WEIGHT = 1.0
 
 
@@ -90,12 +116,13 @@ class FusionRetriever:
 
     def retrieve(self, query: str, config: str = "fusion", destination_id: str = None,
                  archetype: str = None, top_k: int = 8,
-                 arrival_hub_id: str = None) -> list[dict]:
-        """`arrival_hub_id` reaches only the graph retriever: it names where
-        the traveler's day starts, and the graph is the only component that
-        holds a relation from a starting point to anything (#126). The
-        semantic and keyword indexes read POI text, which says nothing about
-        where anyone arrived."""
+                 arrival_hub_id: str = None, start_date=None) -> list[dict]:
+        """`arrival_hub_id` and `start_date` reach only the graph retrievers:
+        one names where the traveler's day starts and the other which day it
+        is, and the graph is the only component holding a relation from a
+        starting point to anything, or one that opening hours can invalidate
+        (#126). The semantic and keyword indexes read POI text, which says
+        nothing about where anyone arrived or what day they arrived on."""
         if config == "standard":
             return []
 
@@ -107,6 +134,15 @@ class FusionRetriever:
             lists.append(("graph", self.graph.search(
                 query, top_k=top_k * 2, destination_id=destination_id, archetype=archetype,
                 arrival_hub_id=arrival_hub_id)))
+            # A fourth list rather than more entries in the graph list: the
+            # chain is a different kind of evidence and RRF has to be able to
+            # weight it on its own (RETRIEVER_WEIGHTS["chain"], #126). Read
+            # off the module rather than imported by value so a test -- and
+            # the flag gate in phase 5 -- can flip it.
+            if graph_search.CHAIN_ENABLED:
+                lists.append(("chain", self.graph.chain_search(
+                    destination_id=destination_id, top_k=top_k * 2,
+                    arrival_hub_id=arrival_hub_id, start_date=start_date)))
         elif config != "hybrid":
             raise ValueError(f"unknown retrieval config: {config}")
 

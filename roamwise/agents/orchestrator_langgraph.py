@@ -170,6 +170,7 @@ class RoamWiseLangGraphOrchestrator:
             query, destination_id=state["destination_id"], archetype=state["archetype"],
             config=self.retrieval_config, top_k=state.get("top_k_pois", 12),
             narrate=False, arrival_hub_id=state.get("arrival_hub_id"),
+            start_date=state.get("start_date"),
         )
         return {"fusion_rag": rag}
 

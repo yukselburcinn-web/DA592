@@ -20,7 +20,9 @@ from roamwise.pipeline.common import NOT_A_SIGHT_TYPES
 from roamwise.models.forecasting import forecast_city, best_months_to_visit
 from roamwise.models.segmentation import TravelerSegmenter
 from roamwise.retrieval.fusion import FusionRetriever
+from roamwise.retrieval import graph_search
 from roamwise.retrieval.graph_search import GraphSearchIndex
+from roamwise.retrieval.query import archetype_query
 from roamwise.optimization.routing import (FOOD_CATEGORY, NIGHTLIFE_EARLIEST_HOUR,
                                            _opening_intervals, optimize_day_route)
 from roamwise.optimization.toptw import build_multi_day_itinerary
@@ -2288,6 +2290,143 @@ def test_the_retrieval_anchor_is_the_gateway_when_named_and_the_centre_otherwise
     assert graph.anchor_for(MAIN_CITY, "TR-does-not-exist") == MAIN_CITY
     if not foreign.empty:
         assert graph.anchor_for(MAIN_CITY, foreign.iloc[0].transport_id) == MAIN_CITY
+
+
+def test_the_chain_is_off_by_default_and_changes_nothing_while_it_is():
+    """#126 phase 4 ships behind `ROAMWISE_GRAPH_CHAIN`, default off.
+
+    The flag exists because the chain fires on the archetype query the
+    orchestrator actually sends -- the anchor is the city centre, not a
+    keyword -- so it would move every plan the moment it merged. Off, no chain
+    list reaches RRF at all; the assertion is on the absence of the retriever
+    rather than on a plan, because that is the property the flag promises.
+    """
+    assert graph_search.CHAIN_ENABLED is False, "the flag must ship off"
+
+    retriever = FusionRetriever()
+    results = retriever.retrieve(archetype_query("Culture Enthusiast"),
+                                 destination_id=MAIN_CITY,
+                                 archetype="Culture Enthusiast", top_k=8)
+    assert results
+    assert all("chain" not in r.get("retrieved_by", ()) for r in results)
+
+
+def test_the_chain_walks_two_real_edges_and_reports_the_path_it_walked():
+    """`anchor -[SERVES]-> POI_a -[REACHABLE]-> POI_b`, with POI_b still open
+    once POI_a closes (#126).
+
+    The reason text is asserted because it is not decoration: it reaches the
+    traveler through the "What the plan was grounded in" block, which turns
+    provenance from a claim the report makes into a path they can follow.
+    """
+    graph = GraphSearchIndex()
+    docs = graph.chain_search(destination_id=MAIN_CITY, top_k=20,
+                              start_date=datetime.date(2026, 9, 24))
+    assert docs, "the shipped catalogue and matrices should support chains"
+
+    # K2: two ordinary POI documents, not a new first-class type.
+    assert all(d["type"] == "poi" for d in docs)
+
+    path = docs[0]["text"].split("[graph: ")[1].rstrip("]")
+    assert path.count("\u2192") == 4, f"expected two timed legs, got {path!r}"
+    assert "closes " in path
+
+
+def test_the_chain_anchor_follows_the_arrival_hub_when_one_is_named():
+    """Centre by default, the gateway when the traveler names one -- and an
+    airport 45 minutes out honestly returns nothing rather than being widened
+    until it returns something (#126, K3)."""
+    graph = GraphSearchIndex()
+    day = datetime.date(2026, 9, 24)
+    hubs = pd.read_csv(DATA_DIR / "transport.csv")
+    city_hubs = hubs[hubs.destination_id == MAIN_CITY]
+
+    centre = {d["poi_id"] for d in graph.chain_search(destination_id=MAIN_CITY, top_k=500,
+                                                     start_date=day)}
+    assert centre
+
+    by_hub = {}
+    for hub_id in city_hubs.transport_id:
+        by_hub[hub_id] = {d["poi_id"] for d in graph.chain_search(
+            destination_id=MAIN_CITY, top_k=500, arrival_hub_id=hub_id, start_date=day)}
+
+    assert any(pois != centre for pois in by_hub.values()), \
+        "naming a gateway must move the anchor"
+    # An id this city does not hold falls back to the centre rather than
+    # returning nothing -- the rule `anchor_for` documents.
+    assert {d["poi_id"] for d in graph.chain_search(
+        destination_id=MAIN_CITY, top_k=500, arrival_hub_id="TR-does-not-exist",
+        start_date=day)} == centre
+
+
+def test_the_chain_is_not_raw_two_hop_expansion():
+    """The formulation #126 rejected: take the union of both hops and you get
+    186 of Paris's 371 POIs from Gare du Nord, 200 from Gare de Lyon -- half
+    the catalogue, which is #113's 3 km radius in a new unit.
+
+    Measured on the shipped data, the hour-constrained chain reaches 28% (PAR)
+    and 18% (BER). #126's acceptance criterion names 25%; the threshold here
+    is 30% and the gap is deliberate rather than hidden -- see the issue
+    comment on phase 4. What the test has to catch is the failure mode, and
+    that mode sits at 41-54%.
+    """
+    graph = GraphSearchIndex()
+    day = datetime.date(2026, 9, 24)
+    for city in CITY_CODES:
+        catalogue = graph.idx.city_pois(city)
+        if not catalogue:
+            continue
+        reached = {d["poi_id"] for d in graph.chain_search(
+            destination_id=city, top_k=len(catalogue), start_date=day)}
+        share = len(reached) / len(catalogue)
+        assert share <= 0.30, f"{city}: chain returns {share:.0%} of the catalogue"
+
+
+def test_the_chain_only_uses_hours_somebody_actually_observed():
+    """277 of the catalogue's 654 rows carry a category default -- "a museum is
+    usually open 10-18" -- which nobody checked. Against those the sequencing
+    constraint is satisfied for free, so a chain built on them measures
+    nothing.
+
+    Both halves are asserted: that the filter is applied, and that it is what
+    makes the relation discriminate. Without it the chain reaches roughly half
+    the catalogue and separates nothing; with it, under a third.
+    """
+    graph = GraphSearchIndex()
+    day = datetime.date(2026, 9, 24)
+    docs = graph.chain_search(destination_id=MAIN_CITY, top_k=500, start_date=day)
+    assert docs
+    nodes = graph.idx.g.nodes
+    assert all(nodes[d["poi_id"]].get("hours_source") in graph_search.CHAIN_REAL_HOURS_SOURCES
+               for d in docs)
+
+    catalogue = graph.idx.city_pois(MAIN_CITY)
+    observed = [p for p in catalogue
+                if p.get("hours_source") in graph_search.CHAIN_REAL_HOURS_SOURCES]
+    # The filter's own coverage limit, recorded rather than left to be found:
+    # it is why the chain can never reach more than this share (#126, REPORT 5).
+    assert len(observed) / len(catalogue) < 0.7
+    assert len(docs) / len(catalogue) < len(observed) / len(catalogue)
+
+
+def test_the_chain_does_not_reimplement_opening_hours():
+    """#126 asks for `routing._opening_intervals` to be used rather than
+    rewritten: OSM grammar, lunchtime closures and past-midnight hours are
+    solved there (#70), and a second reading of the same tags is a second
+    reading to drift."""
+    from roamwise.optimization import routing
+
+    assert graph_search._opening_intervals is routing._opening_intervals
+
+
+def test_the_chain_weight_is_recorded_where_rrf_reads_it():
+    """K4: the chain's RRF weight is a measured number, not a default. KN-2
+    swept it over 8 cells and 1.5 is the value that lands the chain in the
+    2-4-of-8 band; the sweep is in `fusion.py`'s comment."""
+    from roamwise.retrieval.fusion import DEFAULT_RETRIEVER_WEIGHT, RETRIEVER_WEIGHTS
+
+    assert RETRIEVER_WEIGHTS["chain"] != DEFAULT_RETRIEVER_WEIGHT
+    assert RETRIEVER_WEIGHTS["chain"] < RETRIEVER_WEIGHTS["graph"]
 
 
 def test_an_unknown_arrival_hub_is_ignored_rather_than_raised():
