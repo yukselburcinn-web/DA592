@@ -129,7 +129,7 @@ class GraphSearchIndex:
             if near_transport:
                 for poi in self.idx.multi_hop_transport_to_poi(destination_id, constraint):
                     yield self._poi_to_doc(
-                        poi, f"{poi.get('nearest_hub_km')}km from nearest transport hub")
+                        poi, f"{poi.get('nearest_hub_minutes')}min from nearest transport hub")
                 return
             # Sorted rather than left in graph-edge order: this is a ranked
             # list feeding RRF, and an unranked category dump gave the

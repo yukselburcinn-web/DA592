@@ -120,8 +120,8 @@ def graph_section() -> dict:
     node_types = collections.Counter(
         data.get("type") for _, data in graph.nodes(data=True))
 
-    # The traversal #126 replaces. Timed over repeats because a single call is
-    # short enough that process noise dominates it.
+    # The traversal #126 rebuilt on `SERVES` edges. Timed over repeats because a
+    # single call is short enough that process noise dominates it.
     reps = 50
     t = time.perf_counter()
     for _ in range(reps):

@@ -44,12 +44,13 @@ from common import (CITIES, DATA, OVERPASS, QLEVER, haversine_km, http,
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 # Imported rather than copied. This script reports the share of the catalogue
-# its chosen hubs put "near a hub", and that phrase means whatever
-# `multi_hop_transport_to_poi` traverses -- so a second copy of the number here
-# is a copy that can go stale, and did: it still said 3.0 after #113 moved the
+# its chosen hubs put "near a hub", and that phrase means whatever the
+# `SERVES` relation holds -- so a second copy of the threshold here is a copy
+# that can go stale, and did: it still said 3.0 km after #113 moved the
 # traversal to 1.0, and every run printed a warning about a radius nothing
-# used.
-from roamwise.knowledge_graph.build_graph import HUB_WALK_KM  # noqa: E402
+# used. Both thresholds come from the same module for that reason.
+from roamwise.knowledge_graph.build_graph import (  # noqa: E402
+    HUB_WALK_KM, SERVES_MAX_MIN, serves_builder)
 
 SEARCH_KM = 45.0            # airports sit well outside the catalogue's 7 km
 MAX_STATIONS = 6             # the termini; below them come commuter stops
@@ -213,20 +214,25 @@ def report_reach(code, hubs, poi):
     The number to watch: at 100% the graph relation carries no information,
     and with the repo's two rows it was near zero. Neither extreme is useful.
 
-    Measured at `HUB_WALK_KM`, the radius the traversal actually uses, so the
-    warning below describes the relation as it ships. It used to be measured at
-    3.0 km -- what the traversal used before #113 -- which put both cities over
-    90% and fired the warning on every run about a radius nothing reads.
+    Measured with the rule the `SERVES` edge is actually built from (#126), so
+    the warning below describes the relation as it ships rather than a rule
+    nothing reads -- which is what went wrong once already, when this stayed at
+    3.0 km after #113 moved the traversal to 1.0 and every run warned about a
+    radius no traversal used. Where the city has a committed transit matrix
+    that rule is a journey time; where it has none, `serves_builder` falls
+    back to the `HUB_WALK_KM` circle and so does this, both saying so.
     """
     city_poi = poi[poi.destination_id == code]
     if city_poi.empty or not hubs:
         return
-    near = sum(
-        any(haversine_km(r.lat, r.lon, h["lat"], h["lon"]) <= HUB_WALK_KM
-            for h in hubs)
-        for r in city_poi.itertuples())
-    pct = 100 * near / len(city_poi)
-    print(f"    {len(city_poi)} POI'nin {near}'i bir hub'a {HUB_WALK_KM} km "
+    serves = serves_builder(code, city_poi)
+    reached = {poi_id for hub in hubs for poi_id, _, _ in serves(hub)}
+    sources = {source for hub in hubs for _, _, source in serves(hub)}
+    rule = (f"{SERVES_MAX_MIN:.0f} dk" if sources == {"transit"}
+            else f"{HUB_WALK_KM} km" if sources == {"haversine"}
+            else f"{SERVES_MAX_MIN:.0f} dk / {HUB_WALK_KM} km")
+    pct = 100 * len(reached) / len(city_poi)
+    print(f"    {len(city_poi)} POI'nin {len(reached)}'i bir hub'dan {rule} "
           f"icinde = %{pct:.0f}"
           + ("   <-- iliski ayirt etmiyor" if pct >= 90 else ""))
 

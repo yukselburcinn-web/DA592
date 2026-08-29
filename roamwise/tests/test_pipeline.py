@@ -13,7 +13,9 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from roamwise.knowledge_graph.build_graph import CATEGORY_AFFINITY, GraphIndex
+from roamwise.knowledge_graph.build_graph import (CATEGORY_AFFINITY, SERVES_MAX_MIN,
+                                                  GraphIndex, archetype_node_id,
+                                                  shared_graph)
 from roamwise.pipeline.common import NOT_A_SIGHT_TYPES
 from roamwise.models.forecasting import forecast_city, best_months_to_visit
 from roamwise.models.segmentation import TravelerSegmenter
@@ -107,7 +109,57 @@ def test_knowledge_graph_builds_and_traverses():
     hop = idx.multi_hop_transport_to_poi(FULL_CITIES[0] if FULL_CITIES else MAIN_CITY,
                                          "landmark")
     assert len(hop) > 0
-    assert all("nearest_hub_km" in r for r in hop)
+    # Minutes, not kilometres: the hop walks `SERVES` edges carrying solved
+    # journey times now, rather than recomputing a haversine circle (#126).
+    assert all("nearest_hub_minutes" in r for r in hop)
+    assert all(r["nearest_hub_minutes"] <= SERVES_MAX_MIN for r in hop)
+
+
+def test_graph_holds_only_relations_something_reads():
+    """Issue #126. `NEAR` (65,838 edges) and `SAME_CATEGORY` (27,232) were 97%
+    of the graph and had no consumers -- `SAME_CATEGORY` re-encoded a field
+    already on the node, and `NEAR`'s only reader had no callers, tests
+    included. Asserted as an absence rather than as an edge count, because
+    what must not come back is the relation, at any threshold."""
+    relations = {data.get("relation")
+                 for _, _, data in shared_graph().edges(data=True)}
+    assert "NEAR" not in relations
+    assert "SAME_CATEGORY" not in relations
+    assert "SERVES" in relations
+
+
+def test_serves_edges_stay_inside_their_threshold_and_declare_their_source():
+    """`SERVES` carries a solved journey time, and says where the number came
+    from (#126).
+
+    The `source` check is the one that matters: minutes off a GTFS timetable
+    and minutes from dividing a straight line by a walking speed are different
+    claims, and an edge that did not distinguish them would let the fallback be
+    reported as the real thing.
+    """
+    seen = 0
+    for _, _, data in shared_graph().edges(data=True):
+        if data.get("relation") != "SERVES":
+            continue
+        seen += 1
+        assert data["source"] in ("transit", "haversine")
+        assert 0 <= data["minutes"] <= SERVES_MAX_MIN
+    assert seen
+
+
+def test_archetype_prefers_only_the_city_it_is_scoped_to():
+    """One profile node per (archetype, city), so the traversal is the filter
+    (#126). The single node used to hang `PREFERS` on every POI of every city
+    and rely on the caller re-filtering afterwards -- the graph carried an edge
+    in order for a Python loop to throw it away."""
+    graph = shared_graph()
+    for city in CITY_CODES:
+        node_id = archetype_node_id("Culture Enthusiast", city)
+        assert node_id in graph
+        for _, poi_id, data in graph.out_edges(node_id, data=True):
+            if data.get("relation") != "PREFERS":
+                continue
+            assert graph.nodes[poi_id]["destination_id"] == city
 
 
 @needs_full_city
