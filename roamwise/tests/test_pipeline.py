@@ -28,7 +28,7 @@ from roamwise.optimization.routing import (FOOD_CATEGORY, NIGHTLIFE_EARLIEST_HOU
 from roamwise.optimization.toptw import build_multi_day_itinerary
 from roamwise.optimization.travel_modes import get_travel_mode
 from roamwise.agents.llm_client import CHARS_PER_TOKEN, budget_for
-from roamwise.agents.orchestrator import RoamWiseOrchestrator
+from roamwise.agents.orchestrator import RETRIEVED_POIS_PER_DAY, RoamWiseOrchestrator
 from roamwise.agents.router_agent import DAY_START_HOURS, RouterAgent, start_hour_for
 from roamwise.evaluation import comparative_analysis
 from roamwise.evaluation.comparative_analysis import (
@@ -1263,7 +1263,17 @@ def test_query_set_is_powered_and_balanced_by_difficulty():
     by that easy half (#48).
     """
     assert len(TEST_QUERIES) >= 45
-    assert {q.tier for q in TEST_QUERIES} == {"handwritten", "grid"}
+    assert {q.tier for q in TEST_QUERIES} == {"handwritten", "grid", "chain"}
+
+    # The chain tier is graded against a key the traversal itself defines,
+    # gated on Wikivoyage (#126, K1). That gate is what stops recall measuring
+    # self-agreement, but the level is still the weakest of the four, so the
+    # tier has to stay a minority of the set -- a headline carried by
+    # traversal-defined keys would be the circularity #48 removed, returning
+    # under a new name.
+    chain = [q for q in TEST_QUERIES if q.tier == "chain"]
+    assert chain, "the relation the graph exists for should be measured"
+    assert len(chain) / len(TEST_QUERIES) < 0.15
 
     name_no_category = [q for q in TEST_QUERIES if dependence_level(q) != "subset"]
     assert len(name_no_category) >= 30
@@ -2184,7 +2194,7 @@ def test_transit_reads_the_timetable_even_with_real_routing_off():
 
 
 def test_transit_plans_a_whole_trip():
-    from roamwise.agents.orchestrator import RoamWiseOrchestrator
+    from roamwise.agents.orchestrator import RETRIEVED_POIS_PER_DAY, RoamWiseOrchestrator
 
     prefs = {"budget": 0.6, "culture": 0.9, "nature": 0.3, "nightlife": 0.3,
              "relax": 0.4, "adventure": 0.3}
@@ -2328,23 +2338,59 @@ def test_the_retrieval_anchor_is_the_gateway_when_named_and_the_centre_otherwise
         assert graph.anchor_for(MAIN_CITY, foreign.iloc[0].transport_id) == MAIN_CITY
 
 
-def test_the_chain_is_off_by_default_and_changes_nothing_while_it_is():
-    """#126 phase 4 ships behind `ROAMWISE_GRAPH_CHAIN`, default off.
+def test_the_chain_is_on_by_default_and_the_flag_can_still_turn_it_off():
+    """#126 phase 5. The chain shipped behind `ROAMWISE_GRAPH_CHAIN` default
+    off, and the flag gate (KN-3) passed, so the default moved.
 
-    The flag exists because the chain fires on the archetype query the
-    orchestrator actually sends -- the anchor is the city centre, not a
-    keyword -- so it would move every plan the moment it merged. Off, no chain
-    list reaches RRF at all; the assertion is on the absence of the retriever
-    rather than on a plan, because that is the property the flag promises.
+    Both halves are asserted. That it is on is the shipped behaviour. That the
+    flag still works is what keeps the measurement the decision rested on
+    reproducible -- a gate whose "before" arm can no longer be run is a gate
+    nobody can check.
     """
-    assert graph_search.CHAIN_ENABLED is False, "the flag must ship off"
+    assert graph_search.CHAIN_ENABLED is True, "the gate passed; the chain ships on"
 
     retriever = FusionRetriever()
-    results = retriever.retrieve(archetype_query("Culture Enthusiast"),
-                                 destination_id=MAIN_CITY,
-                                 archetype="Culture Enthusiast", top_k=8)
-    assert results
-    assert all("chain" not in r.get("retrieved_by", ()) for r in results)
+    query = archetype_query("Culture Enthusiast")
+    # The pool the orchestrator actually retrieves, not a round number: the
+    # chain's share of the top 8 depends on how long the lists RRF is fusing
+    # are, and phase 4 chose its weight at top_k=8 and got that wrong.
+    top_k = 3 * RETRIEVED_POIS_PER_DAY
+
+    on = retriever.retrieve(query, destination_id=MAIN_CITY,
+                            archetype="Culture Enthusiast", top_k=top_k)
+    assert any("chain" in r.get("retrieved_by", ()) for r in on)
+
+    graph_search.CHAIN_ENABLED = False
+    try:
+        off = retriever.retrieve(query, destination_id=MAIN_CITY,
+                                 archetype="Culture Enthusiast", top_k=top_k)
+    finally:
+        graph_search.CHAIN_ENABLED = True
+    assert all("chain" not in r.get("retrieved_by", ()) for r in off)
+
+
+def test_the_chain_weight_keeps_it_inside_the_band_kn2_set():
+    """K4, re-measured at the right pool size (#126 phase 5).
+
+    KN-2's band is 2-4 of the top 8. Phase 4 swept the weight at `top_k=8` and
+    picked 1.5; at the 72-POI pool a three-day trip actually retrieves, 1.5
+    puts the chain at 5.9 of 8 and at 8 of 8 in one cell -- the domination the
+    checkpoint exists to catch. 0.15 is the value whose every cell lands
+    inside the band.
+
+    Asserted as the property rather than the number, so re-tuning the weight
+    for a good reason does not have to edit a test, but breaking the band does.
+    """
+    retriever = FusionRetriever()
+    top_k = 3 * RETRIEVED_POIS_PER_DAY
+    shares = []
+    for archetype in ("Culture Enthusiast", "Family Traveler"):
+        results = retriever.retrieve(archetype_query(archetype), destination_id=MAIN_CITY,
+                                     archetype=archetype, top_k=top_k)
+        shares.append(sum(1 for r in results[:8] if "chain" in r.get("retrieved_by", ())))
+
+    assert max(shares) <= 4, f"the chain is deciding the answer on its own: {shares}"
+    assert sum(shares), f"the chain reaches nothing at all: {shares}"
 
 
 def test_the_chain_walks_two_real_edges_and_reports_the_path_it_walked():

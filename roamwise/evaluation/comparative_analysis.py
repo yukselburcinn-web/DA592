@@ -35,6 +35,8 @@ is optional and skipped by default.
 import json
 import os
 import sys
+import datetime
+import functools
 import time
 from pathlib import Path
 import warnings
@@ -57,7 +59,9 @@ from roamwise.retrieval.fusion import FusionRetriever
 # The evaluation reaches into the graph retriever's routing keywords on
 # purpose: dependence_level() below exists to measure how often the answer key
 # and the retriever end up walking the same path.
-from roamwise.retrieval.graph_search import TRANSPORT_KEYWORDS, categories_in
+from roamwise.retrieval import graph_search
+from roamwise.retrieval.graph_search import (TRANSPORT_KEYWORDS, GraphSearchIndex,
+                                             categories_in)
 
 HERE = Path(__file__).parent
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
@@ -82,6 +86,12 @@ class TestQuery(NamedTuple):
 
     `near_transport` is likewise per-query: the gold set only carries the
     "within reach of a hub" constraint when the question actually asks for it.
+
+    `chain_anchor` marks the third tier (#126). A chain query is not answered
+    by a category at all: it asks which places can be *sequenced* from where
+    the traveler starts the day, and its answer key comes from the graph
+    traversal rather than from a category filter. The value is the anchor --
+    a city code for the centre, a `transport.csv` id for a gateway.
     """
     destination_id: str
     archetype: str
@@ -89,6 +99,7 @@ class TestQuery(NamedTuple):
     near_transport: bool
     text: str
     tier: str = "handwritten"
+    chain_anchor: str = None
 
 
 # How close a POI must be to a transport hub to count, when a query asks for it.
@@ -219,6 +230,120 @@ _GRID_CATEGORIES = ["museum", "landmark", "history", "nature", "nightlife",
                     "shopping", "food", "culture", "religion"]
 
 
+# The day the chain queries are graded on. Fixed, because a chain is a claim
+# about opening hours and opening hours are a rule over weekdays (#70) -- an
+# answer key that moved with the calendar could not be compared against itself
+# a week later. 2026-09-24 is a Thursday, the ordinary case: no Monday
+# closures, no weekend hours.
+CHAIN_DATE = datetime.date(2026, 9, 24)
+
+# How many gateway-anchored chain queries to add per city, on top of the city
+# centre. The centre is the default anchor every plan uses, so it is the one
+# that has to be measured; the gateways are there because #126's K3 decision
+# rests on the two behaving differently, and a claim like that should be in the
+# evaluation rather than only in the issue.
+_CHAIN_HUBS_PER_CITY = 2
+
+
+def build_chain_queries(idx: GraphIndex = None) -> list[TestQuery]:
+    """One query per anchor: the city centre, plus its busiest gateways.
+
+    These ask the question the other two tiers cannot. A category query is
+    answered by a filter and a naturally-phrased one by a description, but
+    neither can express "and then" -- which is the relation #126 built the
+    `SERVES`/`REACHABLE` edges for, and the one the proposal argues flat
+    document retrieval cannot answer.
+
+    The text still reads like something a traveler would type, because the
+    other two configurations have to be able to compete: the chain is not
+    keyword-triggered (#126, K3), so `hybrid` and `standard` see the same words
+    and answer them however they can. A query whose text was a marker only the
+    chain recognised would be a rigged comparison.
+    """
+    idx = idx or GraphIndex()
+    # The traversal reads no archetype -- a chain is the same chain whoever is
+    # walking it -- so the archetype here only decides what the *other three*
+    # retrievers contribute to the same query. Rotated rather than fixed for
+    # exactly that reason: pinning the whole tier to Culture Enthusiast would
+    # make the comparison a property of one traveler, and would have pushed
+    # that archetype to 37% of the whole query set, near the 40% concentration
+    # the set's own balance test forbids.
+    archetypes = sorted(CATEGORY_AFFINITY)
+    queries = []
+    for city in _grid_cities():
+        name = idx.g.nodes[city].get("name", city)
+        queries.append(TestQuery(
+            city, archetypes[len(queries) % len(archetypes)], (), False,
+            f"we are staying in the middle of {name} -- what can we see in an afternoon "
+            "and still get somewhere else that is open afterwards?",
+            "chain", city))
+        # Mainline stations, not airports. An airport anchor correctly returns
+        # no chain at all -- Charles de Gaulle is 45 minutes out, and #126
+        # calls that the right answer -- but a query with an empty answer key
+        # is discarded rather than graded, so four of six chain queries would
+        # have measured nothing. The airport case is held by a test instead
+        # (`test_the_chain_anchor_follows_the_arrival_hub_when_one_is_named`),
+        # which is where a "returns nothing, on purpose" claim belongs. The
+        # rule is the gateway's own type rather than how many chains it
+        # produces: picking hubs by their score would be choosing the
+        # evaluation to suit the result.
+        stations = [h for h in idx.city_transport(city) if h.get("ttype") == "train_station"]
+        for hub in sorted(stations, key=lambda h: h["transport_id"])[:_CHAIN_HUBS_PER_CITY]:
+            queries.append(TestQuery(
+                city, archetypes[len(queries) % len(archetypes)], (), False,
+                f"we arrive at {hub['name']} in the morning -- what can we do first and "
+                "what is still open by the time we finish?",
+                "chain", hub["transport_id"]))
+    return queries
+
+
+def chain_gold(query: TestQuery) -> tuple[set, float]:
+    """Decision K1: the answer key for a chain query, and the key-free metric
+    that sits beside it.
+
+    The key is *the POIs in a valid chain from this anchor*, kept to those
+    Wikivoyage recommends. Both halves matter. Without the traversal there is
+    no way to say what "sequenceable from here" means; without the Wikivoyage
+    gate the retriever would be graded against its own output and recall would
+    measure that it agrees with itself -- the trap #48 spent an issue climbing
+    out of. Gated, a retriever can walk every edge in the graph and still score
+    zero for surfacing places nobody recommends.
+
+    The residual circularity is real and is reported rather than argued away:
+    these queries are labelled `traversal` in the dependence split, which is
+    the coarsest of the four levels on purpose.
+
+    The second value is the **invalid-chain rate**, and it needs no key at all:
+    of the pairs the two edges admit from this anchor, what share are not
+    actually doable in sequence -- the second place already shut by the time
+    you could reach it. It is what the hour constraint is worth, stated in a
+    number that no answer key can inflate.
+    """
+    graph = _chain_index()
+    valid = graph.chains(query.destination_id, arrival_hub_id=_hub_or_none(query),
+                         start_date=CHAIN_DATE)
+    admitted = graph.chains(query.destination_id, arrival_hub_id=_hub_or_none(query),
+                            start_date=CHAIN_DATE, enforce_hours=False)
+    gold = {poi["poi_id"] for chain in valid for poi in (chain[0], chain[2])}
+    invalid_rate = (1 - len(valid) / len(admitted)) if admitted else None
+    return gold & RECOMMENDED_POIS, invalid_rate
+
+
+def _hub_or_none(query: TestQuery) -> str:
+    """A chain anchor is either the city itself -- meaning the centre -- or a
+    gateway. Retrieval takes the gateway as `arrival_hub_id` and reads the
+    centre as the absence of one, so the city code becomes None here."""
+    return None if query.chain_anchor == query.destination_id else query.chain_anchor
+
+
+@functools.lru_cache(maxsize=1)
+def _chain_index() -> GraphSearchIndex:
+    """One graph-search index for the whole run. Chain gold is computed per
+    query and each computation walks thousands of edges; rebuilding the index
+    around that would dominate the evaluation."""
+    return GraphSearchIndex()
+
+
 def _grid_cities() -> list[str]:
     """The destinations actually in the catalogue, deepest first.
 
@@ -341,8 +466,11 @@ def gold_for(idx: GraphIndex, query: TestQuery) -> set:
     """POIs that would answer `query`.
 
     The union of its accepted categories, kept to those Wikivoyage recommends,
-    and narrowed to those near a hub only when the query asked for that.
+    and narrowed to those near a hub only when the query asked for that. A
+    chain query is answered by a traversal instead -- see `chain_gold`.
     """
+    if query.chain_anchor:
+        return chain_gold(query)[0]
     pois = [poi for category in query.categories
             for poi in idx.city_pois(query.destination_id, category=category)
             if poi["poi_id"] in RECOMMENDED_POIS]
@@ -373,6 +501,12 @@ def dependence_level(query: TestQuery) -> str:
     semantic layer to carry its weight. Reported per query so a headline number
     cannot be carried entirely by the easy half (issue #48).
     """
+    if query.chain_anchor:
+        # The key is the traversal's own output, gated on Wikivoyage (K1). The
+        # gate is what stops recall measuring self-agreement, but it does not
+        # make the key independent of the retriever the way the other three
+        # levels are, and calling it `superset` would have understated that.
+        return "traversal"
     text = query.text.lower()
     # The same router the retriever runs, synonyms included -- classifying with
     # a stricter rule than the code under test reported queries as
@@ -407,7 +541,7 @@ def _live_handwritten() -> list[TestQuery]:
     return kept
 
 
-TEST_QUERIES = _live_handwritten() + build_grid_queries()
+TEST_QUERIES = _live_handwritten() + build_grid_queries() + build_chain_queries()
 
 
 def recall_at_k(retrieved_ids: list, gold: set) -> float:
@@ -430,15 +564,25 @@ def run_comparative_analysis(top_k: int = 8, use_real_routing: bool = False) -> 
 
     for query_id, test_query in enumerate(TEST_QUERIES):
         dest_id, archetype, query = test_query.destination_id, test_query.archetype, test_query.text
-        gold = gold_for(idx, test_query)
+        if test_query.chain_anchor:
+            gold, invalid_chain_rate = chain_gold(test_query)
+        else:
+            gold, invalid_chain_rate = gold_for(idx, test_query), None
         level = dependence_level(test_query)
         preferred_categories = set(CATEGORY_AFFINITY[archetype])
+        # A chain query names where the day starts and which day it is; the
+        # other two tiers name neither, and passing them anyway would let the
+        # chain fire on queries that never asked to be sequenced.
+        anchor_kwargs = ({"arrival_hub_id": _hub_or_none(test_query),
+                          "start_date": CHAIN_DATE}
+                         if test_query.chain_anchor else {})
 
         for config in CONFIGS:
             # Timed around retrieve() only: routing runs on every config alike
             # and would bury the difference this table exists to show.
             started = time.perf_counter()
-            results = retriever.retrieve(query, config=config, destination_id=dest_id, archetype=archetype, top_k=top_k)
+            results = retriever.retrieve(query, config=config, destination_id=dest_id,
+                                         archetype=archetype, top_k=top_k, **anchor_kwargs)
             retrieval_ms = (time.perf_counter() - started) * 1000
             poi_results = [r for r in results if r.get("type") == "poi"]
             retrieved_ids = [r["poi_id"] for r in poi_results]
@@ -480,7 +624,35 @@ def run_comparative_analysis(top_k: int = 8, use_real_routing: bool = False) -> 
                 "query": test_query.text,
                 "category": "+".join(test_query.categories),
                 "near_transport": test_query.near_transport, "gold_size": len(gold),
-                "config": config, "recall_at_k": recall, "archetype_precision": round(precision, 3),
+                # `top_k` is written down because recall's own ceiling is
+                # `min(top_k, gold_size) / gold_size` and the System logs
+                # screen reports recall against it. Reading that ceiling off a
+                # constant somewhere else is how it went stale and got
+                # hardcoded at 49% in the first place (#126).
+                "top_k": top_k,
+                # Which anchor, and whether the traversal that answers it was
+                # switched on when the row was measured. A chain row taken with
+                # the flag off is a real measurement -- it is the "before" the
+                # flag decision is read against -- but it is not the same
+                # measurement as one taken with it on, and a table that did not
+                # say which would be unreadable.
+                "chain_anchor": test_query.chain_anchor,
+                "chain_enabled": graph_search.CHAIN_ENABLED if test_query.chain_anchor else None,
+                # Key-free, so no answer key can inflate it: of the pairs the
+                # two edges admit from this anchor, the share that are not
+                # actually doable in sequence (K1).
+                "invalid_chain_rate": (round(invalid_chain_rate, 3)
+                                       if invalid_chain_rate is not None else None),
+                "config": config, "recall_at_k": recall,
+                # Recall against what this query could actually have scored,
+                # not against 1.0. Only `top_k` places come back and most keys
+                # are larger, so raw recall reads as a failure that is mostly
+                # the key's size (#49). Stored per row rather than derived in
+                # the UI so the significance test can pair on it like any other
+                # metric.
+                "normalized_recall": (round(recall / (min(top_k, len(gold)) / len(gold)), 4)
+                                      if gold and recall is not None else None),
+                "archetype_precision": round(precision, 3),
                 "grounded_entity_rate": grounded_rate, "n_candidate_pois": len(candidate_pois),
                 "n_stops_day1": n_stops, "km_per_stop_day1": round(km_per_stop, 2) if km_per_stop else None,
                 "retrieval_ms": round(retrieval_ms, 2),
@@ -494,6 +666,7 @@ def summarize(df: pd.DataFrame) -> pd.DataFrame:
         df.groupby("config")
         .agg(
             mean_recall_at_k=("recall_at_k", "mean"),
+            mean_normalized_recall=("normalized_recall", "mean"),
             mean_archetype_precision=("archetype_precision", "mean"),
             mean_grounded_entity_rate=("grounded_entity_rate", "mean"),
             mean_km_per_stop=("km_per_stop_day1", "mean"),
@@ -510,6 +683,12 @@ ALPHA = 0.05
 # per-query difference counts as a win.
 METRICS_UNDER_TEST = [
     ("recall_at_k", True),
+    # Tested alongside raw recall rather than instead of it. The two can
+    # disagree: a config that wins on queries with small answer keys and loses
+    # on large ones moves them in opposite directions, and which of those is
+    # the better retriever is exactly the question the split is here to expose
+    # (#49, #126).
+    ("normalized_recall", True),
     ("archetype_precision", True),
     ("grounded_entity_rate", True),
     ("km_per_stop_day1", False),

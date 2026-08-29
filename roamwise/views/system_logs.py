@@ -155,8 +155,14 @@ SHORT_LABELS = {"fusion": "Fusion RAG", "hybrid": "Hybrid RAG", "standard": "Sta
 # have to travel together or the two tables cannot be joined.
 METRICS = [
     ("mean_recall_at_k", "recall_at_k", "Multi-hop recall", True,
-     "Share of the graph-verified answer set the retriever actually surfaced. This is the metric "
-     "graph traversal exists for, so it is where Fusion should separate from Hybrid."),
+     "Share of the answer key the retriever surfaced. Reads against 1.0 but cannot reach it: "
+     "only top_k places are retrieved and most keys are larger, so this measures the key's size "
+     "as much as the retrieval (#49). The row below is the same number against what was "
+     "actually attainable."),
+    ("mean_normalized_recall", "normalized_recall", "Recall vs attainable", True,
+     "Recall as a share of the most this query could have scored -- hits over min(top_k, key "
+     "size) rather than over the key. This is the one to read: 1.0 means the retriever found "
+     "everything the pool had room for."),
     ("mean_archetype_precision", "archetype_precision", "Archetype precision", True,
      "Fraction of surfaced places that match the traveler archetype's preferred categories."),
     ("mean_grounded_entity_rate", "grounded_entity_rate", "Grounded entities", True,
@@ -182,6 +188,12 @@ DEPENDENCE_TEXT = {
     "subset": "Circular — retrieval is a subset of the answer key",
     "superset": "Partly circular — same category filter",
     "independent": "Independent — key never uses the query's routed category",
+    # The chain tier (#126). Its key is the traversal's own output gated on
+    # Wikivoyage, which stops recall measuring self-agreement but does not make
+    # the key independent the way the three above are. Labelled as its own
+    # level rather than folded into "superset" so a reader is told, not left to
+    # infer it from the tier column.
+    "traversal": "Traversal-defined — key is the chain itself, gated on Wikivoyage",
 }
 
 # Compact cell for the breakdown tables: the verdict is what a reader acts on,
@@ -373,11 +385,13 @@ with results_tab:
     )
 
     st.markdown("##### Does it replicate?")
-    st.caption("The queries come in two tiers: hand-written ones phrased the way a traveler would "
-               "actually ask, and a generated grid that sweeps city x category cells evenly. A "
-               "claim that only holds in one tier is a property of those queries, not of the "
-               "architecture.")
-    tiers = [t for t in ("handwritten", "grid") if t in set(results_df.tier)]
+    st.caption("The queries come in three tiers: hand-written ones phrased the way a traveler "
+               "would actually ask, a generated grid that sweeps city x category cells evenly, "
+               "and chain queries that ask what can be *sequenced* from where the day starts -- "
+               "the relation the knowledge graph exists for, and the one neither of the other "
+               "two tiers can express. A claim that only holds in one tier is a property of "
+               "those queries, not of the architecture.")
+    tiers = [t for t in ("handwritten", "grid", "chain") if t in set(results_df.tier)]
     replication = pd.DataFrame([
         {"Metric": label,
          **{f"{tier.capitalize()} (n={results_df[results_df.tier == tier].query_id.nunique()})":
@@ -437,6 +451,52 @@ with results_tab:
 CEILING_CSV = Path(__file__).resolve().parents[1] / "evaluation" / "toptw_ceiling.csv"
 
 
+def _attainable_recall(row) -> float:
+    """The best recall@k this query could possibly score.
+
+    Recall is hits over the size of the answer key, and only `top_k` places are
+    retrieved -- so a query with 85 answers and 8 slots is capped at 0.094
+    however good the retriever is. Reporting raw recall against 1.0 therefore
+    measures the answer key's size as much as the retrieval (#49), which is why
+    the number beside it is the ratio to this.
+    """
+    gold = row.get("gold_size")
+    top_k = row.get("top_k")
+    if not gold or not top_k:
+        return None
+    return min(top_k, gold) / gold
+
+
+def _retrieval_ceiling_ratio(results_df, config: str = "fusion"):
+    """How much of the attainable recall the shipped config actually reached.
+
+    None when the committed results predate the `top_k` column, because the
+    ceiling cannot be computed without knowing how many slots there were, and a
+    guess here would be exactly the stale constant this replaced.
+    """
+    rows = results_df[results_df.config == config]
+    if rows.empty or "top_k" not in rows.columns:
+        return None
+    ceilings = rows.apply(_attainable_recall, axis=1)
+    if ceilings.isna().all() or not ceilings.mean():
+        return None
+    return rows.recall_at_k.mean() / ceilings.mean()
+
+
+def _normalized_recall(results_df) -> pd.Series:
+    """Per-row recall as a share of what that row could attain.
+
+    The second metric #49 left uncovered: mean recall reads as if 1.0 were
+    reachable, and on this query set the mean ceiling is about half that, so a
+    reader comparing 0.26 against 1.0 concludes the retriever is much worse
+    than it is. Computed per query and then averaged rather than as a ratio of
+    means, because the queries differ enormously in key size (1 to 85) and a
+    ratio of means lets the largest keys speak for the set.
+    """
+    ceilings = results_df.apply(_attainable_recall, axis=1)
+    return results_df.recall_at_k / ceilings
+
+
 @st.cache_data(show_spinner=False)
 def _load_ceiling():
     """None when there is nothing to show, including a measurement predating
@@ -493,8 +553,17 @@ with results_tab:
             "paid for in trip length."
         )
 
+        # Computed, not written down. This sentence used to carry a literal
+        # "49%" beside a router ratio that was live, so one half of a
+        # comparison went stale the day the answer key changed and the other
+        # could not -- and it was already stale when it was written (#77's own
+        # committed CSV said 50.4%). The tab has a re-run button three inches
+        # away, which made a hardcoded number in it indefensible (#126).
+        retrieval_ratio = _retrieval_ceiling_ratio(results_df)
         st.caption(
-            "Read this next to the retrieval ceiling above: recall sits at 49% of what was "
+            "Read this next to the retrieval ceiling above: recall sits at "
+            + (f"{retrieval_ratio:.0%}" if retrieval_ratio is not None else "an unknown share")
+            + " of what was "
             f"attainable, the router at {shipped / ceiling:.0%}. The router-side gap is the "
             "smaller problem, and saying so is better than leaving both numbers uncapped and "
             "equally unreadable."

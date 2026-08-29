@@ -42,30 +42,43 @@ RRF_K = 60
 # (`hybrid`) are unaffected -- both their retrievers stay at 1.0.
 # "chain" is the hour-aware traversal (#126, decision K4). Its weight was
 # swept rather than picked, because a short dense list stacks its votes in RRF
-# -- the same "head counting" problem #63 solved for the other three. Measured
-# over 8 cells (2 cities x 4 archetypes), how many of the top 8 the chain
-# surfaced:
+# -- the same "head counting" problem #63 solved for the other three.
 #
-#     weight   mean/8   range     verdict
-#      0.25     1.00     0-3      below the target band
-#      0.50     1.25     0-3
-#      1.00     1.25     0-3      below -- see the note under KN-2 below
-#      1.50     2.75     0-5   <- chosen: mid-band
-#      2.00     3.75     1-6      top of the band
-#      3.00     7.00     5-8      dominates
-#      4.00     8.00     8-8      the whole result is the chain
+# Measured over 8 cells (2 cities x 4 archetypes) at the pool the orchestrator
+# actually retrieves (`RETRIEVED_POIS_PER_DAY` x 3 days = 72), counting how
+# many of the top 8 the chain surfaced:
 #
-# KN-2's band is 2-4 of 8, so 1.5. Worth recording that #126 predicted the
-# chain would arrive *dominating* at weight 1.0 (7 of 8) and it does not: at
-# 1.0 it contributes 1.25, and domination starts at 3.0. The prediction came
-# from a standalone injection; against the shipped retriever most chain POIs
-# are already in the graph list, so the chain adds rank rather than new
-# documents until its weight can outrun `graph`'s 2.0.
+#     weight   mean/8   range   in the pool
+#      0.05     2.50     0-4       16.9
+#      0.10     2.50     0-4       17.2
+#      0.15     2.75     1-4       17.6   <- chosen
+#      0.20     3.00     1-5       17.9
+#      0.30     3.25     1-5       19.0
+#      0.50     3.62     1-6       20.5
+#      1.00     4.88     2-7       24.6
+#      1.50     5.88     2-8       29.9   <- dominates
+#
+# KN-2's band is 2-4 of 8, and 0.15 is the only value whose *every* cell lands
+# inside it rather than only its mean.
+#
+# It is far below the other three, and that is the shape of the list rather
+# than a judgement about the evidence: `retrieve` asks each retriever for
+# `top_k * 2`, so at a 72-POI pool the chain contributes 144 ranked documents
+# where the graph contributes a category and an archetype list. Per-document
+# weight has to be small for total influence to be comparable -- which is #63's
+# finding restated, not a new one.
+#
+# This value replaces the 1.5 that phase 4 shipped. That number was swept at
+# `top_k=8` -- eight retrieved POIs, not the seventy-two a three-day trip
+# retrieves -- so it measured the top 8 of a pool the app never builds. At the
+# real pool size 1.5 puts the chain at 5.88 of 8 and takes it to 8 of 8 in one
+# cell, which is the domination KN-2 exists to catch. The correction is
+# recorded here rather than quietly applied: the phase-4 measurement was wrong
+# about its own conditions, and the sweep above is the one that decides.
 #
 # Inert while ROAMWISE_GRAPH_CHAIN is off: with no chain list, this key is
-# never read. It is written down now because the value is what KN-2 decided,
-# and a measured number belongs next to the thing it decided.
-RETRIEVER_WEIGHTS = {"graph": 2.0, "chain": 1.5, "semantic": 1.0, "keyword": 1.0}
+# never read.
+RETRIEVER_WEIGHTS = {"graph": 2.0, "chain": 0.15, "semantic": 1.0, "keyword": 1.0}
 DEFAULT_RETRIEVER_WEIGHT = 1.0
 
 
