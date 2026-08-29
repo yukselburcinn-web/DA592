@@ -78,6 +78,7 @@ class PlanState(TypedDict, total=False):
     fusion_rag: dict
     routing: dict
     final_plan: str
+    final_plan_truncated: bool
 
 
 class RoamWiseLangGraphOrchestrator:
@@ -207,7 +208,7 @@ class RoamWiseLangGraphOrchestrator:
             f"Forecast: {state['forecast']['narrative']}",
             state["routing"]["facts"],
         ])
-        final_plan = self.llm.complete(
+        completion = self.llm.complete_verbose(
             system="You are RoamWise, an agentic travel-planning assistant. Write a coherent "
                    "recommendation for the itinerary below, describing its stops in the order "
                    "given and working in the forecast's timing advice. The itinerary is the "
@@ -215,7 +216,8 @@ class RoamWiseLangGraphOrchestrator:
                    "suggest any other place, attraction or venue.",
             prompt=prompt,
         )
-        return {"final_plan": final_plan}
+        return {"final_plan": completion.text,
+                "final_plan_truncated": completion.truncated}
 
     # ---- helpers (identical to orchestrator.py -- see that file's docstring
     # for why this small overlap is duplicated rather than shared: the two
@@ -227,7 +229,9 @@ class RoamWiseLangGraphOrchestrator:
         for _, d in self.destinations.iterrows():
             tag_overlap = self._tag_affinity(preferences, d.tags)
             budget_fit = 1 - abs(d.budget_level - budget_target) / 2
-            fc = self.forecaster.run(d.destination_id, travel_month=travel_month, horizon_months=6)
+            # Only crowding_level is read here, so this must not narrate.
+            fc = self.forecaster.run(d.destination_id, travel_month=travel_month,
+                                     horizon_months=6, narrate=False)
             crowd_penalty = {"low": 0.0, "medium": 0.15, "high": 0.35}[fc["crowding_level"]]
             score = 0.5 * tag_overlap + 0.3 * budget_fit - crowd_penalty
             scored.append((d.destination_id, score))

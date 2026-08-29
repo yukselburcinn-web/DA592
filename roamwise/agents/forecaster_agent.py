@@ -46,7 +46,8 @@ class ForecasterAgent:
         ahead = fc[fc.date >= pd.Timestamp.today().normalize().replace(day=1)]
         return ahead if len(ahead) else fc
 
-    def run(self, destination_id: str, travel_month: str = None, horizon_months: int = 12) -> dict:
+    def run(self, destination_id: str, travel_month: str = None, horizon_months: int = 12,
+            narrate: bool = True) -> dict:
         """travel_month: 'YYYY-MM' if the user already picked a month; otherwise
         the agent recommends the lowest-crowding month in the horizon."""
         horizon = self._horizon_for(destination_id, travel_month, horizon_months)
@@ -73,7 +74,14 @@ class ForecasterAgent:
         # whose source lags that start is in the past -- so the cheapest month
         # in the whole horizon was one that had already been and gone.
         best_alternatives = self._future(fc).sort_values("crowding_z").head(3)
-        narrative = self._narrate(destination_id, target, best_alternatives)
+        # narrate=False for the callers that only want a number. Destination
+        # selection scores every city in the catalogue through this method and
+        # reads `crowding_level` alone, so narrating there spent one full
+        # generation per candidate city and threw the prose away -- N+1
+        # generations per request, of which N were never shown to anyone.
+        # #57 gave FusionRAGAgent and RouterAgent this same flag; the
+        # forecaster was missed, which is where the cost came back (issue #125).
+        narrative = self._narrate(destination_id, target, best_alternatives) if narrate else None
 
         history = self._demand[self._demand.destination_id == destination_id]
         return {

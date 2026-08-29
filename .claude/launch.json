@@ -6,6 +6,17 @@
       "runtimeExecutable": "venv/bin/streamlit",
       "runtimeArgs": ["run", "roamwise/app.py", "--server.port", "8501", "--server.headless", "true"],
       "port": 8501
+    },
+    {
+      "name": "roamwise-local-llm",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "ROAMWISE_LOCAL_LLM=1",
+        "HF_HUB_OFFLINE=1",
+        "venv/bin/streamlit", "run", "roamwise/app.py",
+        "--server.port", "8502", "--server.headless", "true"
+      ],
+      "port": 8502
     }
   ]
 }
