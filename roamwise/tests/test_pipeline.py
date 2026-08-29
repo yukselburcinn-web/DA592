@@ -13,9 +13,9 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from roamwise.knowledge_graph.build_graph import (CATEGORY_AFFINITY, SERVES_MAX_MIN,
-                                                  GraphIndex, archetype_node_id,
-                                                  shared_graph)
+from roamwise.knowledge_graph.build_graph import (CATEGORY_AFFINITY, REACHABLE_MAX_MIN,
+                                                  SERVES_MAX_MIN, GraphIndex,
+                                                  archetype_node_id, shared_graph)
 from roamwise.pipeline.common import NOT_A_SIGHT_TYPES
 from roamwise.models.forecasting import forecast_city, best_months_to_visit
 from roamwise.models.segmentation import TravelerSegmenter
@@ -125,26 +125,40 @@ def test_graph_holds_only_relations_something_reads():
                  for _, _, data in shared_graph().edges(data=True)}
     assert "NEAR" not in relations
     assert "SAME_CATEGORY" not in relations
-    assert "SERVES" in relations
+    assert {"SERVES", "REACHABLE"} <= relations
 
 
-def test_serves_edges_stay_inside_their_threshold_and_declare_their_source():
-    """`SERVES` carries a solved journey time, and says where the number came
-    from (#126).
+def test_transit_edges_stay_inside_their_thresholds_and_declare_their_source():
+    """Both legs of the chain carry solved journey times, and both say where
+    the number came from (#126).
 
     The `source` check is the one that matters: minutes off a GTFS timetable
     and minutes from dividing a straight line by a walking speed are different
     claims, and an edge that did not distinguish them would let the fallback be
     reported as the real thing.
     """
-    seen = 0
+    limits = {"SERVES": SERVES_MAX_MIN, "REACHABLE": REACHABLE_MAX_MIN}
+    seen = collections.Counter()
     for _, _, data in shared_graph().edges(data=True):
-        if data.get("relation") != "SERVES":
+        relation = data.get("relation")
+        if relation not in limits:
             continue
-        seen += 1
+        seen[relation] += 1
         assert data["source"] in ("transit", "haversine")
-        assert 0 <= data["minutes"] <= SERVES_MAX_MIN
-    assert seen
+        assert 0 <= data["minutes"] <= limits[relation]
+    assert seen["SERVES"] and seen["REACHABLE"]
+
+
+def test_reachable_edges_are_directed():
+    """`matrix_min` is not symmetric -- a timetable is not a distance -- so the
+    second leg is checked and stored per direction. Over the committed
+    matrices 804 of 13,602 edges exist one way only; a symmetric build would
+    invent the return journeys."""
+    minutes = {(a, b): data["minutes"]
+               for a, b, data in shared_graph().edges(data=True)
+               if data.get("relation") == "REACHABLE"}
+    one_way = [pair for pair in minutes if (pair[1], pair[0]) not in minutes]
+    assert one_way, "a symmetric threshold would have hidden the asymmetry"
 
 
 def test_archetype_prefers_only_the_city_it_is_scoped_to():

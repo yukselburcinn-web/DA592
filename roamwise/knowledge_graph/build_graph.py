@@ -5,18 +5,22 @@ The schema, after #126:
 
     City      -[HAS_POI]->        POI
     City      -[HAS_TRANSPORT]->  Transport
-    City      -[SERVES {minutes, source}]->  POI
-    Transport -[SERVES {minutes, source}]->  POI
-    ArchetypeProfile -[PREFERS {weight}]->   POI      (one profile per city)
+    City      -[SERVES {minutes, source}]->     POI
+    Transport -[SERVES {minutes, source}]->     POI
+    POI       -[REACHABLE {minutes, source}]->  POI   (directed; see the constant)
+    ArchetypeProfile -[PREFERS {weight}]->      POI   (one profile per city)
 
-`SERVES` is the relation this module exists for: how long it takes to get from
-one of a city's starting points -- the centre, or the hub the traveler arrived
-at -- to a POI, on the public transport that actually runs there, solved over
-GTFS timetables. It replaced `NEAR` (a 2 km haversine circle between POIs) and
-`SAME_CATEGORY` (an equality on a field already stored on the node), which
-together were 97% of the graph's 95,845 edges and which nothing read:
-`SAME_CATEGORY` had no consumer at all, and `NEAR`'s only one had no callers,
-tests included.
+`SERVES` and `REACHABLE` are the two relations this module exists for, and
+between them they are the chain the retrieval layer walks:
+
+    anchor -[SERVES]-> POI_a -[REACHABLE]-> POI_b
+
+Both carry how long the journey takes on the public transport that actually
+runs there, solved over GTFS timetables. They replaced `NEAR` (a 2 km
+haversine circle between POIs) and `SAME_CATEGORY` (an equality on a field
+already stored on the node), which together were 97% of the graph's 95,845
+edges and which nothing read: `SAME_CATEGORY` had no consumer at all, and
+`NEAR`'s only one had no callers, tests included.
 
 That is the whole argument for holding this in a graph rather than in the
 document store the other retrievers use. A timetable is a relation between two
@@ -72,6 +76,28 @@ HUB_WALK_KM = 1.0
 # second leg (`REACHABLE`) is what has to discriminate, and it is held much
 # shorter for that reason.
 SERVES_MAX_MIN = 15.0
+
+# What "reachable from there" means on the `REACHABLE` edge, in minutes of the
+# same solved journey time. This is the chain's *second* leg -- one POI to the
+# next -- and it is the leg that has to discriminate, so it is held much
+# shorter than SERVES_MAX_MIN.
+#
+# Swept over the committed matrices rather than guessed. Directed edges, and
+# how much of the catalogue each threshold puts within reach of an average POI:
+#
+#     <=10 min   PAR 8,530 · BER 5,072    23 / 18 per POI   ~6% of the catalogue
+#     <=15 min   PAR 28,324 · BER 13,015  76 / 46 per POI
+#     <=20 min   PAR 56,379 · BER 25,823  152 / 91 per POI  40% of all pairs
+#
+# 20 minutes is #113's 3 km radius in a new unit: a relation that holds
+# two fifths of every pair distinguishes nothing, and a "multi-hop query"
+# answered with it is a catalogue dump. 10 is where the relation still says
+# something. Phase 5 sweeps it for real alongside SERVES_MAX_MIN; going above
+# 15 is already measured to be wrong.
+#
+# One constant, at module scope, deliberately: HUB_WALK_KM was split into two
+# copies and one of them went stale for an entire issue (#113).
+REACHABLE_MAX_MIN = 10.0
 
 CATEGORY_AFFINITY = {
     "Culture Enthusiast": {"museum": 1.0, "landmark": 0.9, "history": 0.9, "religion": 0.6, "culture": 0.8},
@@ -296,6 +322,68 @@ def serves_builder(destination_id: str, pois: pd.DataFrame):
     return edges
 
 
+def reachable_edges(destination_id: str, pois: pd.DataFrame):
+    """`(from_poi, to_poi, minutes, source)` for every ordered pair of this
+    city's POIs inside REACHABLE_MAX_MIN -- the chain's second leg.
+
+    **Directed, and the direction matters.** `matrix_min` is not symmetric:
+    over the committed matrices 25% of pairs differ by more than 5% between
+    the two directions and the worst gap is 10.8 minutes, because a timetable
+    is not a distance. The graph is a `MultiDiGraph` already, so each direction
+    is checked and stored on its own edge; assuming symmetry here would quietly
+    invent a return journey that no service makes.
+
+    **Data limit, which belongs in REPORT §5 rather than only here.**
+    `matrix_min` is the median over thirteen departures between 08:00 and
+    20:00 (`pipeline/build_transit_matrix.py`). Night service is outside it.
+    Measured: 96% of the chains this relation supports depart before 20:00, so
+    the remaining 4% are edge cases priced at a daytime rate -- small, but not
+    nothing, and not something the reader should have to discover.
+
+    `source` marks provenance exactly as `serves_builder` does, for the same
+    reason. The fallback radius is REACHABLE_MAX_MIN at walking speed rather
+    than a constant of its own: the two paths have to express the same rule,
+    and a second number here is a second number to go stale.
+    """
+    poi_ids = pois["poi_id"].to_numpy()
+    lats = pois["lat"].to_numpy(dtype=np.float64)
+    lons = pois["lon"].to_numpy(dtype=np.float64)
+    walk_km = REACHABLE_MAX_MIN / 60.0 * WALKING.speed_kmh
+
+    transit = _transit_minutes(destination_id)
+    if transit is None:
+        columns = np.full(len(poi_ids), -1)
+        index = minutes = None
+    else:
+        index, minutes = transit
+        columns = np.array([index.get(point_key(lat, lon), -1)
+                            for lat, lon in zip(lats, lons)])
+    known = columns >= 0
+
+    out = []
+    if known.any():
+        rows = columns[known]
+        block = minutes[np.ix_(rows, rows)].copy()
+        np.fill_diagonal(block, np.inf)
+        ids = poi_ids[known]
+        a, b = np.nonzero(block <= REACHABLE_MAX_MIN)
+        out += [(ids[i], ids[j], round(float(block[i, j]), 1), "transit")
+                for i, j in zip(a, b)]
+
+    # A POI the matrix does not hold still gets its pair, both ways, off the
+    # walking estimate -- see `serves_builder` on why these are marked rather
+    # than dropped.
+    for position in np.nonzero(~known)[0]:
+        km = _haversine_km_array(lats[position], lons[position], lats, lons)
+        km[position] = np.inf
+        for other in np.nonzero(km <= walk_km)[0]:
+            travel = round(float(km[other]) / WALKING.speed_kmh * 60.0, 1)
+            out.append((poi_ids[position], poi_ids[other], travel, "haversine"))
+            if known[other]:
+                out.append((poi_ids[other], poi_ids[position], travel, "haversine"))
+    return out
+
+
 def build_graph() -> nx.MultiDiGraph:
     destinations = pd.read_csv(DATA_DIR / "destinations.csv")
     pois = pd.read_csv(DATA_DIR / "poi.csv")
@@ -360,6 +448,9 @@ def build_graph() -> nx.MultiDiGraph:
             for poi_id, minutes, source in serves(origin):
                 g.add_edge(origin_id, poi_id, relation="SERVES",
                            minutes=minutes, source=source)
+        for from_id, to_id, minutes, source in reachable_edges(d.destination_id, city_pois):
+            g.add_edge(from_id, to_id, relation="REACHABLE",
+                       minutes=minutes, source=source)
 
     # One profile node per (archetype, city), not one per archetype. The single
     # node used to hang `PREFERS` edges on every POI of *every* city, so the
