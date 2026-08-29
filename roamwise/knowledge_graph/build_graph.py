@@ -1,5 +1,30 @@
 """
 Knowledge graph construction (Graph-RAG substrate).
+
+The schema, after #126:
+
+    City      -[HAS_POI]->        POI
+    City      -[HAS_TRANSPORT]->  Transport
+    City      -[SERVES {minutes, source}]->     POI
+    Transport -[SERVES {minutes, source}]->     POI
+    POI       -[REACHABLE {minutes, source}]->  POI   (directed; see the constant)
+    ArchetypeProfile -[PREFERS {weight}]->      POI   (one profile per city)
+
+`SERVES` and `REACHABLE` are the two relations this module exists for, and
+between them they are the chain the retrieval layer walks:
+
+    anchor -[SERVES]-> POI_a -[REACHABLE]-> POI_b
+
+Both carry how long the journey takes on the public transport that actually
+runs there, solved over GTFS timetables. They replaced `NEAR` (a 2 km
+haversine circle between POIs) and `SAME_CATEGORY` (an equality on a field
+already stored on the node), which together were 97% of the graph's 95,845
+edges and which nothing read: `SAME_CATEGORY` had no consumer at all, and
+`NEAR`'s only one had no callers, tests included.
+
+That is the whole argument for holding this in a graph rather than in the
+document store the other retrievers use. A timetable is a relation between two
+places that neither place's own text can state; a category is not.
 """
 import functools
 import json
@@ -7,28 +32,72 @@ import math
 from pathlib import Path
 
 import networkx as nx
+import numpy as np
 import pandas as pd
 from neo4j import GraphDatabase
+
+from roamwise.optimization.street_network import load_city_network, point_key
+from roamwise.optimization.travel_modes import WALKING
 
 HERE = Path(__file__).parent
 DATA_DIR = HERE.parent / "data"
 
-# What "near a transport hub" means, in kilometres -- 1.0, not the 3.0 this
-# used to default to (#113). The radius has to be small enough that the
-# relation separates some POIs from the rest, and 3.0 no longer did: against a
-# 7 km-radius catalogue with real interchanges in it, 96% of Paris POIs and 92%
-# of Berlin's sat inside 3 km, so `multi_hop_transport_to_poi` returned nearly
-# the whole city and distinguished nothing. It is geometry rather than a data
-# problem -- a 3 km circle covers most of the disc whatever hubs you pick. 1.0
-# keeps roughly a fifth of Paris and half of Berlin (18% / 54% over the
-# committed catalogue and hubs), and it is also what the queries actually ask
-# for: a hub "within walking distance", which 3 km is not.
+# What "near a transport hub" means for a city we hold no timetable for, in
+# kilometres. This is now the *fallback* rule, not the rule: where a
+# `{CITY}_transit.npz` exists, `SERVES` is built from solved journey times
+# instead (see SERVES_MAX_MIN). It stays at 1.0 rather than the 3.0 it once
+# defaulted to (#113), for the reason it was lowered: against a 7 km-radius
+# catalogue with real interchanges in it, 96% of Paris POIs and 92% of
+# Berlin's sat inside 3 km, so the traversal returned nearly the whole city
+# and distinguished nothing. It is geometry rather than a data problem -- a
+# 3 km circle covers most of the disc whatever hubs you pick.
 #
 # It lives here, at module scope, because `pipeline/build_transport.py` reports
 # the same share when it selects hubs and had its own copy of the number. That
 # copy said 3.0 long after this one moved, so every run of the hub pipeline
 # printed a warning about a radius nothing used.
 HUB_WALK_KM = 1.0
+
+# What "reachable from here" means on the `SERVES` edge, in minutes of solved
+# public-transport journey time (`data/street_network/{CITY}_transit.npz`,
+# built by `pipeline/build_transit_matrix.py`).
+#
+# The graph used to answer "near a transport hub" with a 1 km haversine circle,
+# which is a different question -- and a worse one. Measured over the committed
+# catalogue, the two rules overlap by a Jaccard of 0.17 (Paris) and 0.34
+# (Berlin); 15 minutes lifts POI coverage from 18% to 70% in Paris and 54% to
+# 74% in Berlin, and the 372 / 325 POIs that only the transit rule finds are
+# exactly the "not walkable but reachable" ones the old rule had no way to
+# express. The Louvre is the example worth remembering: over a kilometre from
+# any mainline station, twelve minutes from Saint-Lazare.
+#
+# 15 rather than something tighter because this is the *first* leg of the
+# chain -- the traveler getting from where they arrived into the city. The
+# second leg (`REACHABLE`) is what has to discriminate, and it is held much
+# shorter for that reason.
+SERVES_MAX_MIN = 15.0
+
+# What "reachable from there" means on the `REACHABLE` edge, in minutes of the
+# same solved journey time. This is the chain's *second* leg -- one POI to the
+# next -- and it is the leg that has to discriminate, so it is held much
+# shorter than SERVES_MAX_MIN.
+#
+# Swept over the committed matrices rather than guessed. Directed edges, and
+# how much of the catalogue each threshold puts within reach of an average POI:
+#
+#     <=10 min   PAR 8,530 · BER 5,072    23 / 18 per POI   ~6% of the catalogue
+#     <=15 min   PAR 28,324 · BER 13,015  76 / 46 per POI
+#     <=20 min   PAR 56,379 · BER 25,823  152 / 91 per POI  40% of all pairs
+#
+# 20 minutes is #113's 3 km radius in a new unit: a relation that holds
+# two fifths of every pair distinguishes nothing, and a "multi-hop query"
+# answered with it is a catalogue dump. 10 is where the relation still says
+# something. Phase 5 sweeps it for real alongside SERVES_MAX_MIN; going above
+# 15 is already measured to be wrong.
+#
+# One constant, at module scope, deliberately: HUB_WALK_KM was split into two
+# copies and one of them went stale for an entire issue (#113).
+REACHABLE_MAX_MIN = 10.0
 
 CATEGORY_AFFINITY = {
     "Culture Enthusiast": {"museum": 1.0, "landmark": 0.9, "history": 0.9, "religion": 0.6, "culture": 0.8},
@@ -163,6 +232,158 @@ def haversine_km(lat1, lon1, lat2, lon2):
     a = math.sin(dphi / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
     return 2 * r * math.asin(math.sqrt(a))
 
+
+def archetype_node_id(archetype: str, destination_id: str) -> str:
+    """The profile node for one archetype *in one city*. See `build_graph` for
+    why the pair is the identity rather than the archetype alone."""
+    return f"ARCH::{archetype}::{destination_id}"
+
+
+def _transit_minutes(destination_id: str):
+    """The solved journey-time matrix for one city, or None if we hold none.
+
+    Returns `(key -> row index, minutes)` where the key is
+    `street_network.point_key(lat, lon)`. Going through that function rather
+    than formatting the coordinate here is deliberate: a matrix keyed one way
+    and read another shows up as "the graph quietly has no SERVES edges", not
+    as a crash.
+    """
+    net = load_city_network(destination_id, "transit")
+    if net is None:
+        return None
+    return net["index"], np.asarray(net["data"]["matrix_min"], dtype=np.float64)
+
+
+def _haversine_km_array(lat, lon, lats, lons):
+    """`haversine_km` from one point to many, in one numpy expression."""
+    r = 6371.0
+    p1 = math.radians(lat)
+    p2 = np.radians(lats)
+    dphi = np.radians(lats - lat)
+    dl = np.radians(lons - lon)
+    a = np.sin(dphi / 2) ** 2 + math.cos(p1) * np.cos(p2) * np.sin(dl / 2) ** 2
+    return 2 * r * np.arcsin(np.sqrt(a))
+
+
+def serves_builder(destination_id: str, pois: pd.DataFrame):
+    """Returns `origin -> [(poi_id, minutes, source), ...]` for one city.
+
+    The city's POIs are resolved against the transit matrix once, here, rather
+    than per origin: there are eleven origins per city (ten hubs and the
+    centre) and 371 POIs, so keying every POI once per origin meant formatting
+    four thousand coordinate strings to answer a question already answered.
+    Each origin is then a single row slice and a comparison.
+
+    Two sources, and the edge says which. `"transit"` is a journey time solved
+    over the GTFS timetable (`pipeline/build_transit_matrix.py`). `"haversine"`
+    is the old 1 km circle at walking speed, kept for a city with no committed
+    timetable and *marked*, because minutes from dividing a straight line by a
+    speed are a different claim from minutes off a timetable, and a graph that
+    presented them identically would let the weaker one be reported as the
+    stronger. A POI the matrix does not hold falls back the same way rather
+    than dropping out: catalogue and matrix are built by separate pipelines and
+    can drift, and a silently missing edge is the failure mode hardest to
+    notice.
+    """
+    poi_ids = pois["poi_id"].to_numpy()
+    lats = pois["lat"].to_numpy(dtype=np.float64)
+    lons = pois["lon"].to_numpy(dtype=np.float64)
+
+    transit = _transit_minutes(destination_id)
+    if transit is None:
+        index, minutes = None, None
+        columns = np.full(len(poi_ids), -1)
+    else:
+        index, minutes = transit
+        columns = np.array([index.get(point_key(lat, lon), -1)
+                            for lat, lon in zip(lats, lons)])
+    known = columns >= 0
+
+    def edges(origin: dict):
+        row = (index.get(point_key(origin["lat"], origin["lon"]), -1)
+               if index is not None else -1)
+        out = []
+        if row >= 0:
+            travel = minutes[row, columns[known]]
+            close = travel <= SERVES_MAX_MIN
+            out += [(poi_id, round(float(m), 1), "transit")
+                    for poi_id, m in zip(poi_ids[known][close], travel[close])]
+            missed = ~known
+        else:
+            missed = np.ones(len(poi_ids), dtype=bool)
+        if missed.any():
+            km = _haversine_km_array(origin["lat"], origin["lon"],
+                                     lats[missed], lons[missed])
+            walk = km <= HUB_WALK_KM
+            out += [(poi_id, round(float(d) / WALKING.speed_kmh * 60.0, 1), "haversine")
+                    for poi_id, d in zip(poi_ids[missed][walk], km[walk])]
+        return out
+
+    return edges
+
+
+def reachable_edges(destination_id: str, pois: pd.DataFrame):
+    """`(from_poi, to_poi, minutes, source)` for every ordered pair of this
+    city's POIs inside REACHABLE_MAX_MIN -- the chain's second leg.
+
+    **Directed, and the direction matters.** `matrix_min` is not symmetric:
+    over the committed matrices 25% of pairs differ by more than 5% between
+    the two directions and the worst gap is 10.8 minutes, because a timetable
+    is not a distance. The graph is a `MultiDiGraph` already, so each direction
+    is checked and stored on its own edge; assuming symmetry here would quietly
+    invent a return journey that no service makes.
+
+    **Data limit, which belongs in REPORT §5 rather than only here.**
+    `matrix_min` is the median over thirteen departures between 08:00 and
+    20:00 (`pipeline/build_transit_matrix.py`). Night service is outside it.
+    Measured: 96% of the chains this relation supports depart before 20:00, so
+    the remaining 4% are edge cases priced at a daytime rate -- small, but not
+    nothing, and not something the reader should have to discover.
+
+    `source` marks provenance exactly as `serves_builder` does, for the same
+    reason. The fallback radius is REACHABLE_MAX_MIN at walking speed rather
+    than a constant of its own: the two paths have to express the same rule,
+    and a second number here is a second number to go stale.
+    """
+    poi_ids = pois["poi_id"].to_numpy()
+    lats = pois["lat"].to_numpy(dtype=np.float64)
+    lons = pois["lon"].to_numpy(dtype=np.float64)
+    walk_km = REACHABLE_MAX_MIN / 60.0 * WALKING.speed_kmh
+
+    transit = _transit_minutes(destination_id)
+    if transit is None:
+        columns = np.full(len(poi_ids), -1)
+        index = minutes = None
+    else:
+        index, minutes = transit
+        columns = np.array([index.get(point_key(lat, lon), -1)
+                            for lat, lon in zip(lats, lons)])
+    known = columns >= 0
+
+    out = []
+    if known.any():
+        rows = columns[known]
+        block = minutes[np.ix_(rows, rows)].copy()
+        np.fill_diagonal(block, np.inf)
+        ids = poi_ids[known]
+        a, b = np.nonzero(block <= REACHABLE_MAX_MIN)
+        out += [(ids[i], ids[j], round(float(block[i, j]), 1), "transit")
+                for i, j in zip(a, b)]
+
+    # A POI the matrix does not hold still gets its pair, both ways, off the
+    # walking estimate -- see `serves_builder` on why these are marked rather
+    # than dropped.
+    for position in np.nonzero(~known)[0]:
+        km = _haversine_km_array(lats[position], lons[position], lats, lons)
+        km[position] = np.inf
+        for other in np.nonzero(km <= walk_km)[0]:
+            travel = round(float(km[other]) / WALKING.speed_kmh * 60.0, 1)
+            out.append((poi_ids[position], poi_ids[other], travel, "haversine"))
+            if known[other]:
+                out.append((poi_ids[other], poi_ids[position], travel, "haversine"))
+    return out
+
+
 def build_graph() -> nx.MultiDiGraph:
     destinations = pd.read_csv(DATA_DIR / "destinations.csv")
     pois = pd.read_csv(DATA_DIR / "poi.csv")
@@ -202,26 +423,53 @@ def build_graph() -> nx.MultiDiGraph:
         )
         g.add_edge(t.destination_id, t.transport_id, relation="HAS_TRANSPORT")
 
-    pois_by_dest = pois.groupby("destination_id")
-    for dest_id, group in pois_by_dest:
-        recs = group.to_dict("records")
-        for i, a in enumerate(recs):
-            for b in recs[i + 1:]:
-                dist = haversine_km(a["lat"], a["lon"], b["lat"], b["lon"])
-                if dist <= 2.0:
-                    g.add_edge(a["poi_id"], b["poi_id"], relation="NEAR", distance_km=round(dist, 3))
-                    g.add_edge(b["poi_id"], a["poi_id"], relation="NEAR", distance_km=round(dist, 3))
-                if a["category"] == b["category"]:
-                    g.add_edge(a["poi_id"], b["poi_id"], relation="SAME_CATEGORY")
-                    g.add_edge(b["poi_id"], a["poi_id"], relation="SAME_CATEGORY")
+    # The first leg of the chain: what each of a city's starting points reaches
+    # inside SERVES_MAX_MIN. Two kinds of origin, and the traversal treats them
+    # the same way:
+    #
+    #   Transport -[SERVES]-> POI   the hub the traveler arrived at, when
+    #                               `arrival_hub_id` names one
+    #   City      -[SERVES]-> POI   the city centre, which is where the router
+    #                               already starts every other day (#32)
+    #
+    # This is the pair of relations that replaces `NEAR` and `SAME_CATEGORY`.
+    # Those two were 97% of the graph's edges and nothing read either of them:
+    # `SAME_CATEGORY` re-encoded a field already on the node, and `NEAR`'s only
+    # consumer -- `nearby_pois` -- had no callers at all, tests included. What
+    # the graph is *for* is the relation a document store cannot express, and a
+    # timetable is that relation; a category equality is not.
+    for _, d in destinations.iterrows():
+        city_pois = pois[pois.destination_id == d.destination_id]
+        serves = serves_builder(d.destination_id, city_pois)
+        origins = [(d.destination_id, {"lat": d.lat, "lon": d.lon})]
+        origins += [(t.transport_id, {"lat": t.lat, "lon": t.lon})
+                    for t in transport[transport.destination_id == d.destination_id].itertuples()]
+        for origin_id, origin in origins:
+            for poi_id, minutes, source in serves(origin):
+                g.add_edge(origin_id, poi_id, relation="SERVES",
+                           minutes=minutes, source=source)
+        for from_id, to_id, minutes, source in reachable_edges(d.destination_id, city_pois):
+            g.add_edge(from_id, to_id, relation="REACHABLE",
+                       minutes=minutes, source=source)
 
+    # One profile node per (archetype, city), not one per archetype. The single
+    # node used to hang `PREFERS` edges on every POI of *every* city, so the
+    # relation said "a Culture Enthusiast prefers the Louvre and the Pergamon",
+    # which is not a preference anybody holds -- a traveler is in one city. It
+    # only looked harmless because the one consumer re-filtered on the POI's
+    # `destination_id` after traversing, i.e. the graph carried an edge in
+    # order for a Python loop to throw it away. Scoping the node makes the
+    # traversal itself the filter, which is the whole point of holding this in
+    # a graph.
     for archetype, affinities in CATEGORY_AFFINITY.items():
-        node_id = f"ARCH::{archetype}"
-        g.add_node(node_id, type="ArchetypeProfile", name=archetype, affinities=affinities)
-        for category, weight in affinities.items():
-            matches = pois[pois.category == category]["poi_id"].tolist()
-            for poi_id in matches:
-                g.add_edge(node_id, poi_id, relation="PREFERS", weight=weight)
+        for dest_id in destinations.destination_id:
+            node_id = archetype_node_id(archetype, dest_id)
+            g.add_node(node_id, type="ArchetypeProfile", name=archetype,
+                       destination_id=dest_id, affinities=affinities)
+            city_pois = pois[pois.destination_id == dest_id]
+            for category, weight in affinities.items():
+                for poi_id in city_pois[city_pois.category == category]["poi_id"]:
+                    g.add_edge(node_id, poi_id, relation="PREFERS", weight=weight)
 
     return g
 
@@ -230,8 +478,8 @@ def build_graph() -> nx.MultiDiGraph:
 def shared_graph() -> nx.MultiDiGraph:
     """The graph a plain `GraphIndex()` reads, built once per process.
 
-    `build_graph` re-reads three CSVs and rebuilds ~5k nodes and their NEAR /
-    SAME_CATEGORY / PREFERS edges every call, about 1.2s. A single
+    `build_graph` re-reads three CSVs and rebuilds every node and edge on each
+    call. A single
     `RoamWiseOrchestrator` builds two of these (its own and the one inside
     GraphSearchIndex), and the test suite builds 19 orchestrators, so the same
     graph was being constructed dozens of times per run from the same files.
@@ -292,19 +540,6 @@ class GraphIndex:
                 out.append({"transport_id": tid, **self.g.nodes[tid]})
         return out
 
-    def nearby_pois(self, poi_id: str, max_km: float = 2.0):
-        if self.backend == "neo4j":
-            query = "MATCH (p1:POI {id: $poi_id})-[r:NEAR]->(p2:POI) WHERE r.distance_km <= $max_km RETURN p2, r.distance_km AS dist ORDER BY dist"
-            with self.driver.session() as session:
-                result = session.run(query, poi_id=poi_id, max_km=max_km)
-                return [{"poi_id": record["p2"].element_id, "distance_km": record["dist"], **record["p2"]} for record in result]
-
-        out = []
-        for _, other_id, data in self.g.out_edges(poi_id, data=True):
-            if data.get("relation") == "NEAR" and data.get("distance_km", 999) <= max_km:
-                out.append({"poi_id": other_id, "distance_km": data["distance_km"], **self.g.nodes[other_id]})
-        return sorted(out, key=lambda x: x["distance_km"])
-
     def archetype_preferred_pois(self, archetype: str, destination_id: str = None, top_k: int = 20):
         """The POIs this archetype prefers, ranked so every category it asks
         for is actually represented (issue #113).
@@ -317,7 +552,7 @@ class GraphIndex:
         if self.backend == "neo4j":
             query = "MATCH (a:ArchetypeProfile {name: $arch})-[r:PREFERS]->(p:POI) "
             if destination_id:
-                query += "WHERE p.destination_id = $dest_id "
+                query += "WHERE a.destination_id = $dest_id "
             query += "RETURN p, r.weight AS weight"
             with self.driver.session() as session:
                 result = session.run(query, arch=archetype, dest_id=destination_id)
@@ -325,47 +560,79 @@ class GraphIndex:
                         **record["p"]} for record in result]
             return rank_preferred(out, top_k)
 
-        node_id = f"ARCH::{archetype}"
-        if node_id not in self.g:
-            return []
+        # The profile node is per (archetype, city), so naming a destination is
+        # a node lookup rather than a filter over the other city's edges. With
+        # no destination the archetype's nodes are unioned, which is what the
+        # single node used to return -- callers that want one city pass one.
+        if destination_id is not None:
+            nodes = [archetype_node_id(archetype, destination_id)]
+        else:
+            nodes = [n for n, data in self.g.nodes(data=True)
+                     if data.get("type") == "ArchetypeProfile"
+                     and data.get("name") == archetype]
         out = []
-        for _, poi_id, data in self.g.out_edges(node_id, data=True):
-            if data.get("relation") != "PREFERS":
+        for node_id in nodes:
+            if node_id not in self.g:
                 continue
-            node = self.g.nodes[poi_id]
-            if destination_id and node.get("destination_id") != destination_id:
-                continue
-            out.append({"poi_id": poi_id, "weight": data["weight"], **node})
+            for _, poi_id, data in self.g.out_edges(node_id, data=True):
+                if data.get("relation") != "PREFERS":
+                    continue
+                out.append({"poi_id": poi_id, "weight": data["weight"],
+                            **self.g.nodes[poi_id]})
         return rank_preferred(out, top_k)
 
-    # See HUB_WALK_KM for why the radius is 1.0 km and not the 3.0 this used to
-    # default to.
-    def multi_hop_transport_to_poi(self, destination_id: str, category: str,
-                                   max_km: float = HUB_WALK_KM):
-        if self.backend == "neo4j":
-            hubs = self.city_transport(destination_id)
-            pois = self.city_pois(destination_id, category=category)
-            results = []
-            for poi in pois:
-                best = min(
-                    (haversine_km(poi["lat"], poi["lon"], h["lat"], h["lon"]) for h in hubs),
-                    default=999,
-                )
-                if best <= max_km:
-                    results.append({**poi, "nearest_hub_km": round(best, 2)})
-            return sorted(results, key=lambda x: x["nearest_hub_km"])
+    def multi_hop_transport_to_poi(self, destination_id: str, category: str = None,
+                                   max_minutes: float = SERVES_MAX_MIN):
+        """POIs a transport hub of this city reaches, nearest in time first.
 
-        hubs = self.city_transport(destination_id)
-        pois = self.city_pois(destination_id, category=category)
-        results = []
-        for poi in pois:
-            best = min(
-                (haversine_km(poi["lat"], poi["lon"], h["lat"], h["lon"]) for h in hubs),
-                default=999,
-            )
-            if best <= max_km:
-                results.append({**poi, "nearest_hub_km": round(best, 2)})
-        return sorted(results, key=lambda x: x["nearest_hub_km"])
+        `City -[HAS_TRANSPORT]-> Transport -[SERVES]-> POI`: two hops, both of
+        them edges. It used to be two one-hop fetches and a haversine cross
+        product computed in Python -- 371 x 10 great-circle distances per call,
+        recomputed every call, over a relation the graph did not hold. Calling
+        that "multi-hop traversal" was the single largest gap between what the
+        proposal claims Graph-RAG does here and what the code did.
+
+        `nearest_hub_minutes` rather than `nearest_hub_km`, because the answer
+        now comes from a timetable. The unit change is the finding: measured
+        over the committed catalogue, "museums near a Paris transport hub" goes
+        from 6 results to 36, and the ones it gains are places like the Louvre
+        -- over a kilometre from any mainline station, twelve minutes from
+        Saint-Lazare. An edge built by `serves_builder`'s haversine fallback
+        still reports minutes, but says `source="haversine"`; see there.
+        """
+        if self.backend == "neo4j":
+            query = ("MATCH (c:City {id: $dest_id})-[:HAS_TRANSPORT]->(:Transport)"
+                     "-[r:SERVES]->(p:POI) WHERE r.minutes <= $max_minutes ")
+            if category:
+                query += "AND p.category = $category "
+            query += ("RETURN p, min(r.minutes) AS minutes ORDER BY minutes")
+            with self.driver.session() as session:
+                result = session.run(query, dest_id=destination_id, category=category,
+                                     max_minutes=max_minutes)
+                return [{"poi_id": record["p"].element_id,
+                         "nearest_hub_minutes": record["minutes"], **record["p"]}
+                        for record in result]
+
+        # Hub ids straight off the edge, not `city_transport` -- this hop only
+        # needs the identity, and materialising each hub's node attributes to
+        # throw them away is most of what the traversal would cost.
+        hubs = [tid for _, tid, data in self.g.out_edges(destination_id, data=True)
+                if data.get("relation") == "HAS_TRANSPORT"]
+        best: dict[str, float] = {}
+        for hub_id in hubs:
+            for _, poi_id, data in self.g.out_edges(hub_id, data=True):
+                if data.get("relation") != "SERVES":
+                    continue
+                minutes = data["minutes"]
+                if minutes > max_minutes:
+                    continue
+                if category and self.g.nodes[poi_id].get("category") != category:
+                    continue
+                if minutes < best.get(poi_id, math.inf):
+                    best[poi_id] = minutes
+        results = [{"poi_id": poi_id, "nearest_hub_minutes": minutes,
+                    **self.g.nodes[poi_id]} for poi_id, minutes in best.items()]
+        return sorted(results, key=lambda x: x["nearest_hub_minutes"])
 
     def stats(self):
         if self.backend == "neo4j":
@@ -393,9 +660,9 @@ if __name__ == "__main__":
     # Was hardcoded to "IST", which prints nothing once the catalogue no longer
     # ships Istanbul. Take whichever city the graph actually holds.
     demo_city = next(n for n, d in g.nodes(data=True) if d.get("type") == "City")
-    print(f"Sample: landmark POIs near {demo_city} transport hubs ->")
+    print(f"Sample: landmark POIs served by {demo_city} transport hubs ->")
     for r in idx.multi_hop_transport_to_poi(demo_city, "landmark")[:3]:
-        print(" ", r["name"], f"{r['nearest_hub_km']}km from nearest hub")
+        print(" ", r["name"], f"{r['nearest_hub_minutes']}min from nearest hub")
     out_path = DATA_DIR / "knowledge_graph.gml"
     save_graph(g, out_path)
     print("Saved graph to", out_path)
