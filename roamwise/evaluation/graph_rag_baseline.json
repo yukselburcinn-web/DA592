@@ -1,0 +1,234 @@
+{
+  "start_date": "2026-09-25",
+  "n_days": 3,
+  "cities": [
+    "PAR",
+    "BER"
+  ],
+  "archetypes": [
+    "Culture Enthusiast",
+    "Family Traveler",
+    "Nightlife Seeker",
+    "Nature & Adventure"
+  ],
+  "graph": {
+    "nodes": 681,
+    "edges": 95845,
+    "node_types": {
+      "ArchetypeProfile": 7,
+      "City": 2,
+      "POI": 654,
+      "Transport": 18
+    },
+    "relations": {
+      "HAS_POI": 654,
+      "HAS_TRANSPORT": 18,
+      "NEAR": 65838,
+      "PREFERS": 2103,
+      "SAME_CATEGORY": 27232
+    },
+    "build_graph_s": 0.13,
+    "graph_index_s": 0.219,
+    "multi_hop_ms": 0.301,
+    "multi_hop_museum_count": 6,
+    "multi_hop_museum_names": [
+      "Musée Bourdelle",
+      "Musée Gustave Moreau",
+      "Musée Nissim de Camondo",
+      "Musée de la Vie romantique",
+      "Muséum national d'histoire naturelle",
+      "Villa La Roche"
+    ]
+  },
+  "retrieval": {
+    "retriever_init_s": 8.084,
+    "archetypes": {
+      "Culture Enthusiast": {
+        "top8_doc_ids": [
+          "poi::POI0002",
+          "poi::POI0030",
+          "poi::POI0092",
+          "poi::POI0053",
+          "poi::POI0017",
+          "poi::POI0010",
+          "poi::POI0093",
+          "poi::POI0118"
+        ],
+        "top8_sources": {
+          "graph": 8,
+          "keyword": 8,
+          "semantic": 7
+        },
+        "chain_in_top8": null,
+        "chain_in_pool": null,
+        "pool_size": 72
+      },
+      "Family Traveler": {
+        "top8_doc_ids": [
+          "poi::POI0088",
+          "poi::POI0024",
+          "poi::POI0002",
+          "poi::POI0035",
+          "poi::POI0014",
+          "poi::POI0046",
+          "poi::POI0118",
+          "poi::POI0092"
+        ],
+        "top8_sources": {
+          "graph": 8,
+          "keyword": 8,
+          "semantic": 7
+        },
+        "chain_in_top8": null,
+        "chain_in_pool": null,
+        "pool_size": 72
+      },
+      "Nightlife Seeker": {
+        "top8_doc_ids": [
+          "poi::POI0062",
+          "poi::POI0007",
+          "poi::POI0049",
+          "poi::POI0014",
+          "poi::POI0019",
+          "poi::POI0095",
+          "poi::POI0024",
+          "poi::POI0034"
+        ],
+        "top8_sources": {
+          "graph": 8,
+          "keyword": 8,
+          "semantic": 8
+        },
+        "chain_in_top8": null,
+        "chain_in_pool": null,
+        "pool_size": 72
+      },
+      "Nature & Adventure": {
+        "top8_doc_ids": [
+          "poi::POI0088",
+          "poi::POI0046",
+          "poi::POI0021",
+          "poi::POI0013",
+          "poi::POI0149",
+          "poi::POI0035",
+          "poi::POI0076",
+          "poi::POI0102"
+        ],
+        "top8_sources": {
+          "graph": 8,
+          "keyword": 8,
+          "semantic": 8
+        },
+        "chain_in_top8": null,
+        "chain_in_pool": null,
+        "pool_size": 72
+      }
+    },
+    "retrieve_ms": 18.474
+  },
+  "plan": {
+    "preferences": {
+      "budget": 0.5,
+      "culture": 0.9,
+      "nature": 0.3,
+      "nightlife": 0.2,
+      "relax": 0.3,
+      "adventure": 0.3
+    },
+    "archetype": "Culture Enthusiast",
+    "day_start_hour": 9.0,
+    "days": [
+      [
+        "POI0063",
+        "POI0154",
+        "POI0087",
+        "POI0033",
+        "POI0056",
+        "POI0340",
+        "POI0122",
+        "POI0009",
+        "POI0090"
+      ],
+      [
+        "POI0093",
+        "POI0037",
+        "POI0099",
+        "POI0075",
+        "POI0080",
+        "POI0026",
+        "POI0169",
+        "POI0126",
+        "POI0025",
+        "POI0041"
+      ],
+      [
+        "POI0003",
+        "POI0023",
+        "POI0094",
+        "POI0061",
+        "POI0136",
+        "POI0014",
+        "POI0053",
+        "POI0074",
+        "POI0104",
+        "POI0034"
+      ]
+    ],
+    "km_per_day": [
+      5.91,
+      6.07,
+      3.72
+    ]
+  },
+  "pool": {
+    "budget_hours": [
+      12,
+      15,
+      18
+    ],
+    "cells": 24,
+    "preference_vectors": {
+      "Culture Enthusiast": {
+        "budget": 0.6162,
+        "culture": 0.9435,
+        "nature": 0.3059,
+        "nightlife": 0.197,
+        "relax": 0.3172,
+        "adventure": 0.2078
+      },
+      "Family Traveler": {
+        "budget": 0.5912,
+        "culture": 0.5015,
+        "nature": 0.5869,
+        "nightlife": 0.106,
+        "relax": 0.5736,
+        "adventure": 0.3173
+      },
+      "Nightlife Seeker": {
+        "budget": 0.4864,
+        "culture": 0.3004,
+        "nature": 0.188,
+        "nightlife": 0.9361,
+        "relax": 0.2167,
+        "adventure": 0.5217
+      },
+      "Nature & Adventure": {
+        "budget": 0.5205,
+        "culture": 0.1985,
+        "nature": 0.9023,
+        "nightlife": 0.1796,
+        "relax": 0.3022,
+        "adventure": 0.9026
+      }
+    },
+    "stops_per_day": 9.375,
+    "km_per_stop": 0.661,
+    "mean_pref_match": 0.5953,
+    "mean_quality": 0.7314,
+    "categories_per_day": 3.194,
+    "closed_violations": 0,
+    "budget_overruns": 0,
+    "days_with_meals": 72,
+    "days_total": 72
+  }
+}
