@@ -16,6 +16,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+from roamwise.agents.llm_client import describe_client, fallback_reason
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
 from roamwise.models.forecasting import forecast_city
 from roamwise.optimization.routing import route_geometry
@@ -619,6 +620,21 @@ if run:
             )
 
         st.markdown("##### Agent narrative")
+        # Which engine wrote this, said where the writing is rather than on the
+        # System logs screen. A run that fell back to the template produces
+        # text that reads like an answer but is the prompt echoed back, and
+        # nothing on this page used to distinguish the two (issue #133).
+        llm = get_orchestrator(RETRIEVAL_CONFIG).llm
+        missing = fallback_reason(llm)
+        if missing:
+            st.error(
+                f"**No model is running.** {missing}, but the client behind it could not "
+                f"be started, so this text is the prompt echoed back rather than generated "
+                f"prose. See the System logs screen for the reason, and treat nothing below "
+                f"as model output."
+            )
+        else:
+            st.caption(f"Written by: {describe_client(llm)}")
         st.info(result["final_plan"])
         # A generation that ran out of room stops mid-sentence and otherwise
         # reads like a finished answer, so the reader is told rather than left

@@ -158,6 +158,7 @@ class LocalHuggingFaceLLMClient(LLMClient):
 
     def __init__(self, model_id: str = LOCAL_LLM_MODEL_ID):
         from mlx_lm import load  # imported lazily so the dependency is optional
+        self.model_id = model_id
         self.model, self.tokenizer = load(model_id)
 
     def complete_verbose(self, system: str, prompt: str,
@@ -180,12 +181,57 @@ class LocalHuggingFaceLLMClient(LLMClient):
         return Completion("".join(parts).strip(), truncated)
 
 
+def describe_client(client: LLMClient) -> str:
+    """Short human label for whichever client is actually running.
+
+    The UI shows this because "am I really on the local model?" was previously
+    answerable only by finding the `llm=` field of one step on the System logs
+    screen (issue #133).
+    """
+    if isinstance(client, LocalHuggingFaceLLMClient):
+        return f"local open-weight model ({getattr(client, 'model_id', LOCAL_LLM_MODEL_ID)})"
+    if isinstance(client, AnthropicLLMClient):
+        return f"Anthropic API ({client.model})"
+    return "deterministic template (no model)"
+
+
+def fallback_reason(client: LLMClient) -> str:
+    """The opt-in that was set but did not take effect, or None.
+
+    Recomputed from the environment rather than remembered at construction:
+    `views/itinerary.py` caches the orchestrator with `st.cache_resource`, so
+    the client is shared across sessions and must not carry per-run state.
+
+    Returns None when the template is running because nobody asked for
+    anything else -- that is the deliberate default and must stay silent, or
+    the warning that matters becomes background noise.
+    """
+    if not isinstance(client, TemplateLLMClient):
+        return None
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        return "ANTHROPIC_API_KEY is set"
+    if os.environ.get("ROAMWISE_LOCAL_LLM"):
+        return "ROAMWISE_LOCAL_LLM is set"
+    return None
+
+
+def _warn_construction_failed(wanted: str, opt_in: str, exc: Exception) -> None:
+    log.warning(
+        "%s was requested via %s but could not be constructed (%s: %s)",
+        wanted, opt_in, type(exc).__name__, exc,
+        extra={"roamwise_fields": {"wanted_client": wanted, "opt_in": opt_in,
+                                   "error": f"{type(exc).__name__}: {exc}"}},
+    )
+
+
 def get_default_llm_client() -> LLMClient:
     if os.environ.get("ANTHROPIC_API_KEY"):
         try:
             return AnthropicLLMClient()
-        except Exception:
-            pass
+        except Exception as exc:
+            # Swallowing this whole was how a missing package or a broken model
+            # cache turned into "the app works fine" (issue #133).
+            _warn_construction_failed("AnthropicLLMClient", "ANTHROPIC_API_KEY", exc)
     # Explicit opt-in, not just "mlx-lm happens to be importable": the first
     # construction downloads a multi-gigabyte model to the user's Hugging
     # Face cache, which must never happen as a surprise side effect of
@@ -193,6 +239,20 @@ def get_default_llm_client() -> LLMClient:
     if os.environ.get("ROAMWISE_LOCAL_LLM"):
         try:
             return LocalHuggingFaceLLMClient()
-        except Exception:
-            pass
-    return TemplateLLMClient()
+        except Exception as exc:
+            _warn_construction_failed("LocalHuggingFaceLLMClient", "ROAMWISE_LOCAL_LLM", exc)
+
+    client = TemplateLLMClient()
+    reason = fallback_reason(client)
+    if reason:
+        # The consequence, not just the fact: the template returns the prompt
+        # verbatim, so a run that lands here silently reports a hallucination
+        # rate of exactly 0.0 and a narrative that is not model output at all.
+        log.warning(
+            "Falling back to TemplateLLMClient even though %s -- it echoes the prompt "
+            "back instead of generating text, so no narrative or measurement from this "
+            "run is model output", reason,
+            extra={"roamwise_fields": {"client": "TemplateLLMClient",
+                                       "requested_but_unavailable": reason}},
+        )
+    return client
