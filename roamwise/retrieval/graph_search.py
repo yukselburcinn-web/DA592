@@ -90,7 +90,38 @@ class GraphSearchIndex:
     def __init__(self, graph_index: GraphIndex = None):
         self.idx = graph_index if graph_index is not None else GraphIndex()
 
-    def search(self, query: str, top_k: int = 10, destination_id: str = None, archetype: str = None) -> list[dict]:
+    def anchor_for(self, destination_id: str, arrival_hub_id: str = None) -> str:
+        """Where the traveler's day starts, as a graph node id.
+
+        The gateway they land at when they named one, the city centre
+        otherwise. Both carry `SERVES` edges, so the traversal that reads this
+        does not care which it got -- which is the point of resolving it here
+        rather than branching at the call site.
+
+        The centre is the right default rather than a placeholder: `Arriving
+        at` defaults to "Already in the city", so most sessions name no hub at
+        all, and the router already starts every day but the first from the
+        centre (#32). It is where the trip actually begins.
+
+        An id this city does not hold falls back to the centre rather than
+        raising. That is the same rule `RouterAgent` applies to a stale hub id
+        (a city switched after the gateway was picked) and the same rule an
+        unknown travel mode gets: planning continues.
+        """
+        if arrival_hub_id and any(hub["transport_id"] == arrival_hub_id
+                                  for hub in self.idx.city_transport(destination_id)):
+            return arrival_hub_id
+        return destination_id
+
+    def search(self, query: str, top_k: int = 10, destination_id: str = None,
+               archetype: str = None, arrival_hub_id: str = None) -> list[dict]:
+        """`arrival_hub_id` is carried but not yet dispatched on: the anchored
+        chain traversal it selects lands in #126 phase 4, behind a flag. It is
+        wired ahead of that traversal because the wire is the part this repo
+        keeps getting wrong -- `day_start_hour` (#59) and `start_date` on the
+        LangGraph path (#76) were both parameters that existed on the agent
+        below and could not be reached from the app above.
+        """
         if destination_id is None:
             return []
         q = query.lower()
