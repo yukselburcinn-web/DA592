@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(roamwise/data/knowledge_graph.gml)",
+      "Read(roamwise/data/street_network/**)"
+    ]
+  }
+}

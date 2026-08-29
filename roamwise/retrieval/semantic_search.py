@@ -14,6 +14,7 @@ takes an optional `documents` list -- this is the same public interface the
 TF-IDF+LSA version had, so `retrieval/fusion.py` and everything upstream of
 it needed zero changes.
 """
+import functools
 from pathlib import Path
 
 import faiss
@@ -24,16 +25,49 @@ from roamwise.retrieval.corpus import load_documents
 DEFAULT_MODEL = "all-MiniLM-L6-v2"
 
 
+@functools.lru_cache(maxsize=2)
+def _load_model(model_name: str):
+    """One SentenceTransformer per model name, for the life of the process.
+
+    Loading the model reads ~80MB off disk (or downloads it on a cold cache)
+    and takes ~4s. Nothing about it depends on the corpus, so a second
+    SemanticIndex in the same process was paying that again for a byte-for-byte
+    identical object. The test suite builds 19 orchestrators, each of which
+    builds a FusionRetriever, each of which builds one of these.
+    """
+    from sentence_transformers import SentenceTransformer
+
+    return SentenceTransformer(model_name)
+
+
+@functools.lru_cache(maxsize=2)
+def _embed_corpus(model_name: str, texts: tuple[str, ...]) -> np.ndarray:
+    """Embeddings for a corpus, keyed on the corpus itself.
+
+    Encoding the 656-document catalogue takes ~4s and is deterministic, so
+    every SemanticIndex over the same texts was recomputing the same matrix.
+    Keying on the texts rather than on "the default corpus" keeps that true for
+    a caller that passes its own `documents`: a different corpus simply misses
+    the cache instead of silently getting the wrong vectors.
+
+    The returned array is shared and marked read-only. FAISS copies it into the
+    index on `add`, and nothing else writes to it; the flag makes an accidental
+    in-place write fail loudly here rather than corrupt another index later.
+    """
+    model = _load_model(model_name)
+    embeddings = model.encode(list(texts), normalize_embeddings=True, show_progress_bar=False)
+    embeddings = np.asarray(embeddings, dtype="float32")
+    embeddings.flags.writeable = False
+    return embeddings
+
+
 class SemanticIndex:
     def __init__(self, documents: list[dict] = None, model_name: str = DEFAULT_MODEL):
-        from sentence_transformers import SentenceTransformer
-
         self.documents = documents if documents is not None else load_documents()
-        self.model = SentenceTransformer(model_name)
+        self.model = _load_model(model_name)
 
-        texts = [d["text"] for d in self.documents]
-        embeddings = self.model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
-        self.embeddings = np.asarray(embeddings, dtype="float32")
+        self.embeddings = _embed_corpus(
+            model_name, tuple(d["text"] for d in self.documents))
 
         self.index = faiss.IndexFlatIP(self.embeddings.shape[1])
         self.index.add(self.embeddings)

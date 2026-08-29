@@ -3,8 +3,19 @@ name: Tests
 on:
   push:
     branches: [main]
+    # A commit that only edits documentation cannot break the suite, and this
+    # repo makes a lot of them -- 15 of the last 60 non-merge commits touched
+    # nothing but .md, and each one spent a full run (~17 min) proving it.
+    paths-ignore: ['**.md']
   pull_request:
     branches: [main]
+    paths-ignore: ['**.md']
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Superseded PR runs are cancelled; pushes to main are not, so every commit
+  # on the default branch still gets its own recorded result.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   test:
@@ -19,6 +30,15 @@ jobs:
           cache-dependency-path: |
             roamwise/requirements.txt
             roamwise/requirements-langgraph.txt
+
+      # retrieval/semantic_search.py downloads all-MiniLM-L6-v2 (~80MB) on
+      # first use. Without this it came down on every single run.
+      - name: Cache the sentence-transformers model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-${{ hashFiles('roamwise/requirements.txt') }}
+          restore-keys: hf-
 
       - name: Install dependencies
         run: |

@@ -22,3 +22,11 @@ roamwise/data/missed_*.csv
 # Issue #71: Google Maps kazıma yerel bir deney. Çıktısı da aracı da
 # depoya girmiyor — poi.csv temiz kalıyor, ToS ihlali commit edilmiyor.
 local/
+
+# Claude Code'un geliştiriciye özel izin dosyası. Paylaşılan kurallar
+# .claude/settings.json'da ve commit edilir; bu dosya edilmez.
+.claude/settings.local.json
+
+# Oturum devir notları — tek bir günün fotoğrafı, hızla bayatlıyor. Kalıcı
+# olması gereken kısmı CLAUDE.md'ye, ölçüm olan kısmı REPORT.md'ye yazın.
+HANDOFF.md

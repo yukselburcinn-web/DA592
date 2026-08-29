@@ -1,6 +1,7 @@
 """
 Knowledge graph construction (Graph-RAG substrate).
 """
+import functools
 import json
 import math
 from pathlib import Path
@@ -225,6 +226,27 @@ def build_graph() -> nx.MultiDiGraph:
     return g
 
 
+@functools.lru_cache(maxsize=1)
+def shared_graph() -> nx.MultiDiGraph:
+    """The graph a plain `GraphIndex()` reads, built once per process.
+
+    `build_graph` re-reads three CSVs and rebuilds ~5k nodes and their NEAR /
+    SAME_CATEGORY / PREFERS edges every call, about 1.2s. A single
+    `RoamWiseOrchestrator` builds two of these (its own and the one inside
+    GraphSearchIndex), and the test suite builds 19 orchestrators, so the same
+    graph was being constructed dozens of times per run from the same files.
+
+    Sharing one object is safe because nothing mutates the graph after
+    construction: every query method copies node attributes out
+    (`{"poi_id": poi_id, **node}`) rather than handing back the live dict, and
+    the only writers are inside `build_graph` itself. Callers that do want an
+    independent graph -- the pipeline, or a caller pointing at rewritten CSVs
+    in the same process -- still call `build_graph()` directly, or clear this
+    with `shared_graph.cache_clear()`.
+    """
+    return build_graph()
+
+
 class GraphIndex:
     """Query surface over the knowledge graph supporting NetworkX and Neo4j backends."""
 
@@ -233,7 +255,7 @@ class GraphIndex:
         if self.backend == "neo4j":
             self.driver = GraphDatabase.driver(neo4j_uri, auth=neo4j_auth)
         else:
-            self.g = graph if graph is not None else build_graph()
+            self.g = graph if graph is not None else shared_graph()
 
     def close(self):
         if self.backend == "neo4j":
