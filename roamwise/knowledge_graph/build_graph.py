@@ -111,6 +111,41 @@ def score_by_affinity_and_prominence(pois: list[dict]) -> list[dict]:
     return pois
 
 
+# How sharply the merge in `rank_preferred` favours the categories an archetype
+# weights highest. Each category emits its i-th POI at position
+# `i / weight ** PREFERENCE_QUOTA_EXPONENT`, so 1.0 is proportional to the
+# stated preference, above 1.0 concentrates the cut on the favourites, and
+# below 1.0 flattens towards equal shares.
+#
+# It exists as a knob because the retrieval pool is zero-sum and #123 proved it:
+# giving `museum` and `landmark` query phrasings the corpus actually uses buys
+# reachable POIs and costs `religion` 7 of the 29 that #113 had just won back.
+# Phrasing and quota therefore have to be swept together -- tuning either alone
+# trades one category for another and calls it an improvement.
+#
+# Swept jointly with the phrasings (`evaluation/category_phrase_sweep.py`).
+# Holding the shipped phrasings and moving only this knob, reachable POIs in
+# total and for `religion`, at all three trip lengths the coverage report uses:
+#
+#     exponent   1-day          3-day          5-day
+#       1.00     170  rel 12     419  rel 33   543  rel 52   <- religion regresses
+#       0.80     169  rel 13     421  rel 36   545  rel 54   <- still regresses
+#       0.70     168  rel 13     422  rel 37   545  rel 54
+#       0.60     169  rel 13     425  rel 39   546  rel 55   <- still, by one
+#       0.50     168  rel 13     426  rel 39   546  rel 56   <- chosen
+#       0.40     164  rel 13     425  rel 39   549  rel 59
+#
+# (today: 173 / rel 10, 403 / rel 30, 532 / rel 56)
+#
+# 0.50 is the largest value that leaves `religion` at or above where it is
+# today at *every* trip length. That constraint is what decides it: the
+# three-day pool is what the app retrieves and it is flat from 0.6 down, but
+# the five-day pool keeps falling until 0.5, and a fix measured only at the
+# default trip length would have shipped a regression nobody looked for.
+# Below 0.5 the one-day pool starts paying instead -- 164 against today's 173.
+PREFERENCE_QUOTA_EXPONENT = 0.5
+
+
 def rank_preferred(pois: list[dict], top_k: int) -> list[dict]:
     """Rank an archetype's preferred POIs so every category it asks for is
     represented, in proportion to how much it is asked for (issue #113).
@@ -147,7 +182,7 @@ def rank_preferred(pois: list[dict], top_k: int) -> list[dict]:
         group.sort(key=lambda p: (p["affinity_prominence"], p["popularity_score"]),
                    reverse=True)
         for i, poi in enumerate(group):
-            weight = poi["weight"] or 1e-9
+            weight = (poi["weight"] or 1e-9) ** PREFERENCE_QUOTA_EXPONENT
             # Ties resolve towards the more-wanted category, then the
             # better-known POI, so the order stays deterministic.
             merged.append(((i + 1) / weight, -weight, -poi["affinity_prominence"], poi))

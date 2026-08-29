@@ -308,24 +308,60 @@ def test_the_best_known_church_in_the_city_can_actually_be_retrieved():
         "Culture Enthusiast still cannot be shown it")
 
 
-def test_the_religion_query_asks_for_words_the_corpus_actually_uses():
+def test_every_category_query_asks_for_words_the_corpus_actually_uses():
     """`tokenize` does no stemming, so a query matches only the words it
-    literally contains. The phrase asked for `worship` (4 of 654 documents) and
-    `places` (5) while the documents say `church` (69) -- the category was
-    invisible to BM25 for a reason that reads as a wording detail (#113)."""
+    literally contains. `religion` asked for `worship` (4 of 654 documents) and
+    `places` (5) while the documents said `church` (69), and the category was
+    invisible to BM25 for a reason that reads as a wording detail (#113).
+
+    Asserted for every category the catalogue holds rather than for `religion`
+    alone, because two more were in the same state and nobody had looked
+    (#123): `landmarks` matched 2 documents against `landmark`'s 117, and
+    `museums` 17 against `museum`'s 127. They stayed hidden because the graph
+    carries both at 0.9 and 1.0 affinity, so something always came back --
+    `religion` surfaced only because 0.6 could not carry it.
+
+    Tokens the whole corpus contains are excluded before the check. `and`
+    appears in 462 of 654 documents and `of` in 546, so counting them would let
+    any phrase pass by containing a conjunction -- which is exactly how the
+    earlier version of this test passed while `religion`'s phrase was the
+    thing under repair. It is also what BM25 itself does: a term in most
+    documents has almost no inverse document frequency.
+    """
     from roamwise.retrieval.corpus import load_documents, tokenize
-    from roamwise.retrieval.query import CATEGORY_PHRASE
+    from roamwise.retrieval.query import CATEGORY_PHRASE, _catalogue_categories
 
     docs = [d for d in load_documents() if d.get("type") == "poi"]
     frequency = collections.Counter()
     for doc in docs:
         frequency.update(set(tokenize(doc["text"])))
+    too_common = len(docs) / 2
 
-    phrase_tokens = tokenize(CATEGORY_PHRASE["religion"])
-    best = max(frequency[t] for t in phrase_tokens)
-    assert best >= 50, (
-        f"the religion phrase {CATEGORY_PHRASE['religion']!r} matches no common "
-        f"corpus word: {[(t, frequency[t]) for t in phrase_tokens]}")
+    for category in sorted(_catalogue_categories()):
+        phrase = CATEGORY_PHRASE.get(category)
+        if phrase is None:
+            continue
+        carrying = {t: frequency[t] for t in tokenize(phrase)
+                    if frequency[t] < too_common}
+        assert carrying and max(carrying.values()) >= 30, (
+            f"{category!r} asks for {phrase!r}, which carries no word the corpus "
+            f"uses: {sorted(carrying.items(), key=lambda kv: -kv[1])}")
+
+
+def test_the_category_quota_was_swept_with_the_phrasings_not_after_them():
+    """#123's finding, locked in: the retrieval pool is zero-sum at a fixed
+    `top_k`, so giving `museum` and `landmark` phrasings that actually match
+    pushes `religion` out of the fused top-72 -- from the 30 POIs #113 won back
+    down to 23.
+
+    `PREFERENCE_QUOTA_EXPONENT` is the counterweight, and it is below 1.0 for
+    that reason and no other. The sweep over both knobs together is
+    `evaluation/category_phrase_sweep.py`; of its 100 configurations exactly
+    one costs no category anything, and that one is the baseline.
+    """
+    from roamwise.knowledge_graph.build_graph import PREFERENCE_QUOTA_EXPONENT
+
+    assert 0 < PREFERENCE_QUOTA_EXPONENT < 1.0
 
 
 def test_the_graph_router_understands_words_travelers_actually_use():

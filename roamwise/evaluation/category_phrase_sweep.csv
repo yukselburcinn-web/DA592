@@ -1,0 +1,95 @@
+stage,n_days,quota_exponent,museum_phrase,landmark_phrase,religion_phrase,total_reachable,iconic_reachable,reachable_culture,reachable_food,reachable_history,reachable_landmark,reachable_museum,reachable_nature,reachable_nightlife,reachable_religion,reachable_shopping,categories_below_baseline,losses
+1,3,1.0,museums,landmarks,church buildings and places of worship,403,24,57,47,55,23,46,75,41,30,29,0,-
+1,3,1.0,museums,landmark sights,church buildings and places of worship,407,24,56,47,55,33,44,75,41,28,28,4,culture -1; museum -2; religion -2; shopping -1
+1,3,1.0,museums,landmark monuments,church buildings and places of worship,407,24,56,47,55,35,46,75,41,25,27,3,culture -1; religion -5; shopping -2
+1,3,1.0,museums,landmarks and landmark monuments,church buildings and places of worship,405,24,57,47,55,36,42,75,41,26,26,3,museum -4; religion -4; shopping -3
+1,3,1.0,museum collections,landmarks,church buildings and places of worship,413,24,56,47,55,23,62,75,41,26,28,3,culture -1; religion -4; shopping -1
+1,3,1.0,museum collections,landmark sights,church buildings and places of worship,415,24,56,47,55,28,61,75,41,23,29,2,culture -1; religion -7
+1,3,1.0,museum collections,landmark monuments,church buildings and places of worship,413,24,56,47,55,28,59,75,41,25,27,3,culture -1; religion -5; shopping -2
+1,3,1.0,museum collections,landmarks and landmark monuments,church buildings and places of worship,418,24,56,47,55,33,60,75,41,24,27,3,culture -1; religion -6; shopping -2
+1,3,1.0,museum exhibitions,landmarks,church buildings and places of worship,410,24,56,47,55,21,63,75,41,24,28,4,culture -1; landmark -2; religion -6; shopping -1
+1,3,1.0,museum exhibitions,landmark sights,church buildings and places of worship,413,24,56,47,55,27,61,75,41,23,28,3,culture -1; religion -7; shopping -1
+1,3,1.0,museum exhibitions,landmark monuments,church buildings and places of worship,411,24,56,47,55,26,61,75,41,23,27,3,culture -1; religion -7; shopping -2
+1,3,1.0,museum exhibitions,landmarks and landmark monuments,church buildings and places of worship,414,24,56,47,55,30,61,75,41,22,27,3,culture -1; religion -8; shopping -2
+1,3,1.0,museums and museum collections,landmarks,church buildings and places of worship,414,24,56,47,55,22,66,75,41,24,28,4,culture -1; landmark -1; religion -6; shopping -1
+1,3,1.0,museums and museum collections,landmark sights,church buildings and places of worship,419,24,56,47,55,28,66,75,41,23,28,3,culture -1; religion -7; shopping -1
+1,3,1.0,museums and museum collections,landmark monuments,church buildings and places of worship,418,24,56,47,55,29,64,75,41,23,28,3,culture -1; religion -7; shopping -1
+1,3,1.0,museums and museum collections,landmarks and landmark monuments,church buildings and places of worship,412,24,56,47,55,30,59,75,41,21,28,3,culture -1; religion -9; shopping -1
+1,3,1.0,museum art collections,landmarks,church buildings and places of worship,410,24,56,47,55,17,67,75,41,24,28,4,culture -1; landmark -6; religion -6; shopping -1
+1,3,1.0,museum art collections,landmark sights,church buildings and places of worship,418,24,56,47,55,25,67,75,41,24,28,3,culture -1; religion -6; shopping -1
+1,3,1.0,museum art collections,landmark monuments,church buildings and places of worship,418,24,56,47,55,27,67,75,41,24,26,3,culture -1; religion -6; shopping -3
+1,3,1.0,museum art collections,landmarks and landmark monuments,church buildings and places of worship,416,24,56,47,55,29,65,75,41,22,26,3,culture -1; religion -8; shopping -3
+1,3,0.5,museums,landmarks,church buildings and places of worship,408,24,59,46,56,22,46,74,41,36,28,4,food -1; landmark -1; nature -1; shopping -1
+1,3,0.5,museums,landmark sights,church buildings and places of worship,410,24,58,46,56,27,45,74,41,35,28,4,food -1; museum -1; nature -1; shopping -1
+1,3,0.5,museums,landmark monuments,church buildings and places of worship,411,24,58,46,56,31,44,74,41,34,27,4,food -1; museum -2; nature -1; shopping -2
+1,3,0.5,museums,landmarks and landmark monuments,church buildings and places of worship,410,24,58,46,56,35,42,74,41,32,26,4,food -1; museum -4; nature -1; shopping -3
+1,3,0.5,museum collections,landmarks,church buildings and places of worship,416,24,58,46,56,20,60,74,41,33,28,4,food -1; landmark -3; nature -1; shopping -1
+1,3,0.5,museum collections,landmark sights,church buildings and places of worship,420,24,58,46,56,27,60,74,41,30,28,3,food -1; nature -1; shopping -1
+1,3,0.5,museum collections,landmark monuments,church buildings and places of worship,420,24,58,46,56,29,59,74,41,31,26,3,food -1; nature -1; shopping -3
+1,3,0.5,museum collections,landmarks and landmark monuments,church buildings and places of worship,419,24,58,46,56,29,58,74,41,31,26,3,food -1; nature -1; shopping -3
+1,3,0.5,museum exhibitions,landmarks,church buildings and places of worship,418,24,58,46,56,20,64,74,41,31,28,4,food -1; landmark -3; nature -1; shopping -1
+1,3,0.5,museum exhibitions,landmark sights,church buildings and places of worship,420,24,58,46,56,26,61,74,41,30,28,3,food -1; nature -1; shopping -1
+1,3,0.5,museum exhibitions,landmark monuments,church buildings and places of worship,416,24,58,46,56,25,60,74,41,30,26,3,food -1; nature -1; shopping -3
+1,3,0.5,museum exhibitions,landmarks and landmark monuments,church buildings and places of worship,417,24,58,46,56,28,60,74,41,28,26,4,food -1; nature -1; religion -2; shopping -3
+1,3,0.5,museums and museum collections,landmarks,church buildings and places of worship,417,24,58,46,56,18,64,74,41,32,28,4,food -1; landmark -5; nature -1; shopping -1
+1,3,0.5,museums and museum collections,landmark sights,church buildings and places of worship,422,24,58,46,56,25,64,74,41,30,28,3,food -1; nature -1; shopping -1
+1,3,0.5,museums and museum collections,landmark monuments,church buildings and places of worship,421,24,58,46,56,26,63,74,41,31,26,3,food -1; nature -1; shopping -3
+1,3,0.5,museums and museum collections,landmarks and landmark monuments,church buildings and places of worship,415,24,58,46,56,28,58,74,41,26,28,4,food -1; nature -1; religion -4; shopping -1
+1,3,0.5,museum art collections,landmarks,church buildings and places of worship,412,24,58,46,56,15,65,74,41,30,27,4,food -1; landmark -8; nature -1; shopping -2
+1,3,0.5,museum art collections,landmark sights,church buildings and places of worship,423,24,58,46,56,25,64,74,41,31,28,3,food -1; nature -1; shopping -1
+1,3,0.5,museum art collections,landmark monuments,church buildings and places of worship,420,24,58,46,56,25,63,74,41,32,25,3,food -1; nature -1; shopping -4
+1,3,0.5,museum art collections,landmarks and landmark monuments,church buildings and places of worship,419,24,58,46,56,28,64,74,41,27,25,4,food -1; nature -1; religion -3; shopping -4
+2,1,1.0,museum collections,landmark sights,church buildings and places of worship,169,21,7,18,7,9,24,47,35,8,14,5,culture -3; food -1; history -1; religion -2; shopping -2
+2,3,1.0,museum collections,landmark sights,church buildings and places of worship,415,24,56,47,55,28,61,75,41,23,29,2,culture -1; religion -7
+2,5,1.0,museum collections,landmark sights,church buildings and places of worship,539,24,78,61,58,57,92,76,41,46,30,1,religion -10
+2,1,1.0,museum collections,landmark sights,church buildings cathedrals and chapels,168,21,7,18,8,8,22,47,35,9,14,5,culture -3; food -1; landmark -1; religion -1; shopping -2
+2,3,1.0,museum collections,landmark sights,church buildings cathedrals and chapels,418,24,56,47,55,30,60,75,41,25,29,2,culture -1; religion -5
+2,5,1.0,museum collections,landmark sights,church buildings cathedrals and chapels,538,24,78,61,58,56,93,76,41,45,30,1,religion -11
+2,1,1.0,museum collections,landmark sights,church cathedral basilica and chapel buildings,170,19,7,18,7,8,22,47,35,12,14,5,culture -3; food -1; history -1; landmark -1; shopping -2
+2,3,1.0,museum collections,landmark sights,church cathedral basilica and chapel buildings,419,24,56,47,55,27,56,75,41,33,29,1,culture -1
+2,5,1.0,museum collections,landmark sights,church cathedral basilica and chapel buildings,543,24,78,61,58,54,93,76,41,52,30,1,religion -4
+2,1,0.8,museum collections,landmark sights,church buildings and places of worship,168,21,8,19,8,10,22,46,34,8,13,5,culture -2; nature -1; nightlife -1; religion -2; shopping -3
+2,3,0.8,museum collections,landmark sights,church buildings and places of worship,416,24,57,46,55,27,60,75,41,27,28,3,food -1; religion -3; shopping -1
+2,5,0.8,museum collections,landmark sights,church buildings and places of worship,542,24,79,61,58,57,93,76,41,47,30,1,religion -9
+2,1,0.8,museum collections,landmark sights,church buildings cathedrals and chapels,167,21,9,19,8,8,21,46,34,9,13,6,culture -1; landmark -1; nature -1; nightlife -1; religion -1; shopping -3
+2,3,0.8,museum collections,landmark sights,church buildings cathedrals and chapels,419,24,57,46,55,28,60,75,41,29,28,3,food -1; religion -1; shopping -1
+2,5,0.8,museum collections,landmark sights,church buildings cathedrals and chapels,540,24,79,61,58,55,93,76,41,47,30,1,religion -9
+2,1,0.8,museum collections,landmark sights,church cathedral basilica and chapel buildings,169,21,8,19,8,8,20,46,34,13,13,5,culture -2; landmark -1; nature -1; nightlife -1; shopping -3
+2,3,0.8,museum collections,landmark sights,church cathedral basilica and chapel buildings,421,24,57,46,55,27,56,75,41,36,28,2,food -1; shopping -1
+2,5,0.8,museum collections,landmark sights,church cathedral basilica and chapel buildings,545,24,79,61,58,54,92,76,41,54,30,1,religion -2
+2,1,0.7,museum collections,landmark sights,church buildings and places of worship,167,21,8,19,10,10,22,44,32,8,14,5,culture -2; nature -3; nightlife -3; religion -2; shopping -2
+2,3,0.7,museum collections,landmark sights,church buildings and places of worship,417,24,57,46,55,27,60,75,41,28,28,3,food -1; religion -2; shopping -1
+2,5,0.7,museum collections,landmark sights,church buildings and places of worship,542,24,79,61,58,56,93,76,41,48,30,1,religion -8
+2,1,0.7,museum collections,landmark sights,church buildings cathedrals and chapels,166,21,9,19,10,8,21,44,32,9,14,6,culture -1; landmark -1; nature -3; nightlife -3; religion -1; shopping -2
+2,3,0.7,museum collections,landmark sights,church buildings cathedrals and chapels,420,24,57,46,55,28,60,75,41,30,28,2,food -1; shopping -1
+2,5,0.7,museum collections,landmark sights,church buildings cathedrals and chapels,539,24,79,61,58,55,92,76,41,47,30,1,religion -9
+2,1,0.7,museum collections,landmark sights,church cathedral basilica and chapel buildings,168,21,8,19,10,8,20,44,32,13,14,5,culture -2; landmark -1; nature -3; nightlife -3; shopping -2
+2,3,0.7,museum collections,landmark sights,church cathedral basilica and chapel buildings,422,24,57,46,55,27,56,75,41,37,28,2,food -1; shopping -1
+2,5,0.7,museum collections,landmark sights,church cathedral basilica and chapel buildings,545,24,79,61,58,54,92,76,41,54,30,1,religion -2
+2,1,0.6,museum collections,landmark sights,church buildings and places of worship,168,21,8,23,10,10,22,42,31,8,14,5,culture -2; nature -5; nightlife -4; religion -2; shopping -2
+2,3,0.6,museum collections,landmark sights,church buildings and places of worship,419,24,58,46,56,27,59,74,41,30,28,3,food -1; nature -1; shopping -1
+2,5,0.6,museum collections,landmark sights,church buildings and places of worship,542,24,79,61,58,56,93,76,41,48,30,1,religion -8
+2,1,0.6,museum collections,landmark sights,church buildings cathedrals and chapels,167,21,9,23,10,8,21,42,31,9,14,6,culture -1; landmark -1; nature -5; nightlife -4; religion -1; shopping -2
+2,3,0.6,museum collections,landmark sights,church buildings cathedrals and chapels,421,24,58,46,56,28,58,74,41,32,28,3,food -1; nature -1; shopping -1
+2,5,0.6,museum collections,landmark sights,church buildings cathedrals and chapels,539,24,79,61,58,55,92,76,41,47,30,1,religion -9
+2,1,0.6,museum collections,landmark sights,church cathedral basilica and chapel buildings,169,21,8,23,10,8,20,42,31,13,14,5,culture -2; landmark -1; nature -5; nightlife -4; shopping -2
+2,3,0.6,museum collections,landmark sights,church cathedral basilica and chapel buildings,425,24,58,46,56,27,56,74,41,39,28,3,food -1; nature -1; shopping -1
+2,5,0.6,museum collections,landmark sights,church cathedral basilica and chapel buildings,546,24,79,61,58,54,92,76,41,55,30,1,religion -1
+2,1,0.5,museum collections,landmark sights,church buildings and places of worship,167,21,8,24,11,10,22,41,30,8,13,5,culture -2; nature -6; nightlife -5; religion -2; shopping -3
+2,3,0.5,museum collections,landmark sights,church buildings and places of worship,420,24,58,46,56,27,60,74,41,30,28,3,food -1; nature -1; shopping -1
+2,5,0.5,museum collections,landmark sights,church buildings and places of worship,542,24,79,61,58,56,91,76,41,51,29,2,religion -5; shopping -1
+2,1,0.5,museum collections,landmark sights,church buildings cathedrals and chapels,166,21,9,24,11,8,21,41,30,9,13,6,culture -1; landmark -1; nature -6; nightlife -5; religion -1; shopping -3
+2,3,0.5,museum collections,landmark sights,church buildings cathedrals and chapels,422,24,58,46,56,28,59,74,41,32,28,3,food -1; nature -1; shopping -1
+2,5,0.5,museum collections,landmark sights,church buildings cathedrals and chapels,538,24,79,61,58,54,92,76,41,48,29,2,religion -8; shopping -1
+2,1,0.5,museum collections,landmark sights,church cathedral basilica and chapel buildings,168,21,8,24,11,8,20,41,30,13,13,5,culture -2; landmark -1; nature -6; nightlife -5; shopping -3
+2,3,0.5,museum collections,landmark sights,church cathedral basilica and chapel buildings,426,24,58,46,56,27,57,74,41,39,28,3,food -1; nature -1; shopping -1
+2,5,0.5,museum collections,landmark sights,church cathedral basilica and chapel buildings,546,24,79,61,58,54,92,76,41,56,29,1,shopping -1
+2,1,0.4,museum collections,landmark sights,church buildings and places of worship,163,21,9,24,11,10,20,40,29,8,12,5,culture -1; nature -7; nightlife -6; religion -2; shopping -4
+2,3,0.4,museum collections,landmark sights,church buildings and places of worship,421,24,58,45,57,27,60,74,41,31,28,3,food -2; nature -1; shopping -1
+2,5,0.4,museum collections,landmark sights,church buildings and places of worship,542,24,79,61,58,54,91,76,41,53,29,2,religion -3; shopping -1
+2,1,0.4,museum collections,landmark sights,church buildings cathedrals and chapels,162,21,9,24,11,9,19,40,29,9,12,5,culture -1; nature -7; nightlife -6; religion -1; shopping -4
+2,3,0.4,museum collections,landmark sights,church buildings cathedrals and chapels,422,24,58,45,57,28,58,74,41,33,28,3,food -2; nature -1; shopping -1
+2,5,0.4,museum collections,landmark sights,church buildings cathedrals and chapels,540,24,79,61,58,55,92,76,41,49,29,2,religion -7; shopping -1
+2,1,0.4,museum collections,landmark sights,church cathedral basilica and chapel buildings,164,21,9,24,11,8,18,40,29,13,12,6,culture -1; landmark -1; museum -1; nature -7; nightlife -6; shopping -4
+2,3,0.4,museum collections,landmark sights,church cathedral basilica and chapel buildings,425,24,58,45,57,27,56,74,41,39,28,3,food -2; nature -1; shopping -1
+2,5,0.4,museum collections,landmark sights,church cathedral basilica and chapel buildings,549,24,79,61,58,54,92,76,41,59,29,1,shopping -1
