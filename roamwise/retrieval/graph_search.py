@@ -10,9 +10,11 @@ dispatches to the matching GraphIndex traversal; results are wrapped into the
 same doc-like shape (doc_id/text/score) as the other two retrievers so
 fusion.py can merge all three with reciprocal rank fusion.
 """
+import os
 import re
 
 from roamwise.knowledge_graph.build_graph import GraphIndex
+from roamwise.optimization.routing import _opening_intervals
 
 ARCHETYPE_KEYWORDS = {
     "Culture Enthusiast": ["culture", "museum", "history", "art"],
@@ -55,6 +57,51 @@ CATEGORY_SYNONYMS = {
 TRANSPORT_KEYWORDS = ["near", "walk", "close to", "airport", "station", "transport", "hub"]
 
 
+def _env_flag(name: str, default: bool = False) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in ("1", "true", "yes", "on")
+
+
+# The hour-aware chain, off by default (#126 phase 4).
+#
+# It ships behind a flag because it changes *every* plan rather than only the
+# queries that name a transport word: the anchor defaults to the city centre,
+# so the chain fires on the archetype query the orchestrator actually sends.
+# There is no "opt-in, therefore zero regression" story to lean on, and the
+# measurement that decides whether the new default is better (#126 phase 5,
+# KN-3) has not been made. Merging behind a flag keeps those two things apart
+# -- the code lands, the default moves only once it is earned.
+CHAIN_ENABLED = _env_flag("ROAMWISE_GRAPH_CHAIN", default=False)
+
+# Only POIs whose hours were actually observed take part. 277 of the
+# catalogue's 654 rows carry a category default -- "a museum is usually open
+# 10-18" -- which no one checked; against those, a sequencing constraint is
+# satisfied for free and therefore says nothing. Measured: without this filter
+# the chain reaches 48-57% of the catalogue and separates nothing; with it,
+# 18-28%. Coverage of the filter itself is PAR 237/371 (64%), BER 140/283
+# (49%) -- a real limit, written up in REPORT section 5 rather than left for a
+# reader to find.
+CHAIN_REAL_HOURS_SOURCES = ("osm", "gmaps")
+
+# `matrix_min` is the median over departures between 08:00 and 20:00
+# (`pipeline/build_transit_matrix.py`), so a second leg departing at 22:00
+# would be priced at a daytime rate that no night service delivers. Chains
+# leaving after the matrix's own sample window are dropped rather than shipped
+# mispriced: the graph should decline to make a claim its data cannot support.
+# #126 records this limit as a REPORT footnote and measures 96% of chains
+# departing before 20:00; enforcing it makes that 100% by construction, and
+# costs the 4% rather than pricing them wrong.
+CHAIN_LATEST_DEPARTURE_HOUR = 20.0
+
+# Nightlife is excluded from the *second* leg for the same reason: an evening
+# venue is exactly the one whose journey the daytime matrix cannot price. It
+# stays eligible as the first leg, where the traveler arrives during the
+# sampled window.
+CHAIN_EXCLUDED_SECOND_LEG = ("nightlife",)
+
+
 _TERM_PATTERNS: dict[str, "re.Pattern"] = {}
 
 
@@ -72,6 +119,15 @@ def _names(term: str, text: str) -> bool:
     if pattern is None:
         pattern = _TERM_PATTERNS[term] = re.compile(rf"\b{re.escape(term)}s?\b")
     return pattern.search(text) is not None
+
+
+def _clock(hour: float) -> str:
+    """An itinerary-clock hour as HH:MM. 26.0 is 02:00 the next morning, which
+    is how `_opening_intervals` represents a venue open past midnight; it is
+    shown as 02:00 rather than 26:00 because that is what a sign on the door
+    would say."""
+    hour = hour % 24
+    return f"{int(hour):02d}:{int(round((hour % 1) * 60)) % 60:02d}"
 
 
 def categories_in(text: str) -> list[str]:
@@ -112,6 +168,111 @@ class GraphSearchIndex:
                                   for hub in self.idx.city_transport(destination_id)):
             return arrival_hub_id
         return destination_id
+
+    def chain_search(self, destination_id: str = None, top_k: int = 10,
+                     arrival_hub_id: str = None, start_date=None) -> list[dict]:
+        """The hour-aware chain, as a ranked list of ordinary POI documents.
+
+            anchor -[SERVES <=15min]-> POI_a -[REACHABLE <=10min]-> POI_b
+
+        valid only when **POI_b is still open once POI_a closes** -- the
+        proposal's "sequencing constraint-aware activities", stated over two
+        real edges rather than recomputed in Python (#126).
+
+        A separate ranked list rather than more entries in `search`'s: it is a
+        different kind of evidence, and RRF has to be able to weight it
+        separately (`fusion.RETRIEVER_WEIGHTS["chain"]`). What it is *not* is a
+        new document type -- both POIs come out as plain `type: "poi"` docs
+        inheriting the chain's rank, so nothing downstream of fusion learns a
+        new shape (decision K2).
+
+        **Not raw two-hop expansion.** Taking the union of the two hops was
+        measured and rejected: from Gare du Nord it returns 186 of Paris's 371
+        POIs, from Gare de Lyon 200 -- half the catalogue, which is #113's 3 km
+        radius wearing a different unit. The hour constraint is what makes this
+        a query rather than a dump.
+
+        Ranked by how well-known the pair is, not by how fast the chain is.
+        The minutes are the *constraint* -- a chain either satisfies it or is
+        not returned -- while relevance is which places these are, and RRF
+        reads rank as relevance. Ranking by journey time would put the
+        catalogue's most obscure adjacent pair first.
+
+        `start_date` is what lets `_opening_intervals` resolve the verbatim OSM
+        tag, which is the only thing that knows a venue shuts on Mondays; with
+        no date it falls back to the coarse open/close pair, same as the
+        router. That function is used rather than reimplemented: OSM grammar,
+        lunchtime closures and past-midnight hours are solved there (#70).
+        """
+        if destination_id is None:
+            return []
+        anchor_id = self.anchor_for(destination_id, arrival_hub_id)
+
+        # Opening hours are parsed from a text tag, and one anchor produces
+        # thousands of chains over a few hundred POIs -- so each POI's day is
+        # resolved once per call rather than once per chain it appears in.
+        day_cache: dict[str, list] = {}
+
+        def intervals(poi):
+            cached = day_cache.get(poi["poi_id"])
+            if cached is None:
+                # Only what opens on the itinerary day itself: the coarse
+                # fallback also describes tomorrow, and "come back tomorrow"
+                # is not a sequence.
+                cached = day_cache[poi["poi_id"]] = [
+                    (s, e) for s, e in _opening_intervals(poi, day_date=start_date) if s < 24]
+            return cached
+
+        ranked = []
+        for poi_a, to_a, poi_b, a_to_b in self.idx.chains_from(anchor_id):
+            if poi_b.get("category") in CHAIN_EXCLUDED_SECOND_LEG:
+                continue
+            if (poi_a.get("hours_source") not in CHAIN_REAL_HOURS_SOURCES
+                    or poi_b.get("hours_source") not in CHAIN_REAL_HOURS_SOURCES):
+                continue
+            open_a = intervals(poi_a)
+            if not open_a:
+                continue
+            closes_a = max(end for _, end in open_a)
+            if closes_a > CHAIN_LATEST_DEPARTURE_HOUR:
+                continue
+            arrival = closes_a + a_to_b / 60.0
+            stay = poi_b.get("avg_visit_minutes", 0) / 60.0
+            # Open on arrival *and* still open long enough to be visited.
+            # Arriving five minutes before the doors shut is not "you can do
+            # this one after that one", which is the whole claim of the edge.
+            if not any(start <= arrival and arrival + stay <= end for start, end in intervals(poi_b)):
+                continue
+            ranked.append((
+                -max(poi_a.get("popularity_score", 0.0), poi_b.get("popularity_score", 0.0)),
+                to_a + a_to_b, poi_a["poi_id"], poi_b["poi_id"],
+                poi_a, to_a, poi_b, a_to_b))
+
+        ranked.sort(key=lambda row: row[:4])
+        anchor_name = self.idx.g.nodes[anchor_id]["name"] if anchor_id in self.idx.g else anchor_id
+
+        results = []
+        for _, _, _, _, poi_a, to_a, poi_b, a_to_b in ranked:
+            # The path itself, not a claim about it. This text reaches the
+            # traveler through "What the plan was grounded in"
+            # (`views/itinerary.py`), so provenance becomes something they can
+            # follow rather than something the report asserts.
+            path = (f"{anchor_name} \u2192{to_a:.1f}min\u2192 {poi_a['name']} "
+                    f"(closes {_clock(max(e for _, e in intervals(poi_a)))}) "
+                    f"\u2192{a_to_b:.1f}min\u2192 {poi_b['name']}")
+            results.append(self._poi_to_doc(poi_a, path))
+            results.append(self._poi_to_doc(poi_b, path))
+
+        seen = set()
+        deduped = []
+        for r in results:
+            if r["poi_id"] in seen:
+                continue
+            seen.add(r["poi_id"])
+            deduped.append(r)
+        for rank, r in enumerate(deduped[:top_k]):
+            r["score"] = 1.0 - rank / max(len(deduped), 1)
+        return deduped[:top_k]
 
     def search(self, query: str, top_k: int = 10, destination_id: str = None,
                archetype: str = None, arrival_hub_id: str = None) -> list[dict]:

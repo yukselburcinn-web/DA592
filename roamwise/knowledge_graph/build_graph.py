@@ -413,6 +413,15 @@ def build_graph() -> nx.MultiDiGraph:
             # would write the string "nan" into every untagged node.
             opening_hours_raw=("" if pd.isna(p.get("opening_hours_raw"))
                                else str(p["opening_hours_raw"]).strip()),
+            # Where those hours came from: "osm", "gmaps", or
+            # "category_default" -- the last meaning nobody ever observed this
+            # venue and the catalogue filled in what a museum usually does.
+            # Carried onto the node because the chain traversal has to be able
+            # to *exclude* the defaults: 277 of 654 rows hold them, they are
+            # effectively "always open", and a sequencing constraint every one
+            # of them satisfies for free is not a constraint (#126).
+            hours_source=("" if pd.isna(p.get("hours_source"))
+                          else str(p["hours_source"]).strip()),
         )
         g.add_edge(p.destination_id, p.poi_id, relation="HAS_POI")
 
@@ -633,6 +642,48 @@ class GraphIndex:
         results = [{"poi_id": poi_id, "nearest_hub_minutes": minutes,
                     **self.g.nodes[poi_id]} for poi_id, minutes in best.items()]
         return sorted(results, key=lambda x: x["nearest_hub_minutes"])
+
+    def chains_from(self, anchor_id: str, max_serves_min: float = SERVES_MAX_MIN,
+                    max_reachable_min: float = REACHABLE_MAX_MIN):
+        """Every `anchor -[SERVES]-> POI_a -[REACHABLE]-> POI_b` in this city.
+
+        Two edges, both walked -- this is the traversal the proposal's
+        Graph-RAG claim rests on, and until #126 the graph held neither of
+        them. Returns `(poi_a, minutes_to_a, poi_b, minutes_a_to_b)` with the
+        POIs as node dicts, unranked and unfiltered: whether a chain is *usable*
+        depends on opening hours and on what the traveler asked for, and
+        neither of those is something the graph knows. `retrieval/graph_search.py`
+        decides that.
+
+        `anchor_id` is a `City` or a `Transport` node -- both carry `SERVES`,
+        which is why `GraphSearchIndex.anchor_for` can hand over either without
+        the caller branching.
+        """
+        if self.backend == "neo4j":
+            query = ("MATCH (anchor {id: $anchor_id})-[s:SERVES]->(a:POI)"
+                     "-[r:REACHABLE]->(b:POI) "
+                     "WHERE s.minutes <= $max_serves AND r.minutes <= $max_reachable "
+                     "RETURN a, s.minutes AS to_a, b, r.minutes AS a_to_b")
+            with self.driver.session() as session:
+                result = session.run(query, anchor_id=anchor_id, max_serves=max_serves_min,
+                                     max_reachable=max_reachable_min)
+                return [({"poi_id": record["a"].element_id, **record["a"]}, record["to_a"],
+                         {"poi_id": record["b"].element_id, **record["b"]}, record["a_to_b"])
+                        for record in result]
+
+        if anchor_id not in self.g:
+            return []
+        out = []
+        for _, a_id, first in self.g.out_edges(anchor_id, data=True):
+            if first.get("relation") != "SERVES" or first["minutes"] > max_serves_min:
+                continue
+            node_a = {"poi_id": a_id, **self.g.nodes[a_id]}
+            for _, b_id, second in self.g.out_edges(a_id, data=True):
+                if second.get("relation") != "REACHABLE" or second["minutes"] > max_reachable_min:
+                    continue
+                out.append((node_a, first["minutes"],
+                            {"poi_id": b_id, **self.g.nodes[b_id]}, second["minutes"]))
+        return out
 
     def stats(self):
         if self.backend == "neo4j":

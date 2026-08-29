@@ -180,7 +180,7 @@ class RoamWiseOrchestrator:
             # narrates from the itinerary (issues #56, #57).
             rag = self.fusion_rag.run(
                 query, destination_id=destination_id, archetype=seg["archetype"], config=self.retrieval_config, top_k=top_k_pois,
-                narrate=False, arrival_hub_id=arrival_hub_id,
+                narrate=False, arrival_hub_id=arrival_hub_id, start_date=start_date,
             )
             state["fusion_rag"] = rag
             detail["query"] = query
