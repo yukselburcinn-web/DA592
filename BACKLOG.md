@@ -29,22 +29,33 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 
 ---
 
-## Durum özeti (2026-08-28)
+## Durum özeti (2026-08-29)
 
 | Alan | Açık | Kapalı |
 |---|---|---|
-| A — Veri & Modeller | — | 11 (#1, #2, #3, #27, #30, #33, #65, #70, #71, #79, #92) |
-| B — Retrieval & Bilgi Grafiği | — | 11 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85, #113) |
-| C — Ajanlar, Orkestrasyon & UI | 1 (#7) | 25 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #76, #77, #78, #80, #81, #83, #94, #109) |
-| D — Altyapı | — | 7 (#11, #12, #26, #31, #32, #93, #101) |
+| A — Veri & Modeller | 1 (#124) | 11 (#1, #2, #3, #27, #30, #33, #65, #70, #71, #79, #92) |
+| B — Retrieval & Bilgi Grafiği | 2 (#123, #126) | 12 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85, #113, #128) |
+| C — Ajanlar, Orkestrasyon & UI | 6 (#7, #122, #129, #130, #131, #132) | 27 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #76, #77, #78, #80, #81, #83, #94, #109, #125, #133) |
+| D — Altyapı | 1 (#136) | 7 (#11, #12, #26, #31, #32, #93, #101) |
 
 İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
 listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
 
-Toplam 55 issue: **1 açık, 54 kapalı.** Sayılar ve durumlar 2026-08-28 itibarıyla
-`gh issue list` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
+Toplam 67 issue: **10 açık, 57 kapalı.** Sayılar ve durumlar 2026-08-29 itibarıyla
+`gh issue list --state all` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
 
-**Bu güncellemede ne değişti:** #32 üç parçasıyla kapandı (self-hosted sokak mesafesi, GTFS
+**Bu güncellemede ne değişti (2026-08-29):** Backlog on bir issue geride kalmıştı — #122-#133
+aralığı hiç yazılmamıştı ve tablo "1 açık" diyordu. Hepsi eklendi. İki kapanış: **#125** (anlatı
+son güne kadar sürüyor, kesildiyse söylüyor — PR #127) ve **#133** (lokal LLM opt-in'i tutmazsa
+sessizce template'e düşmüyor, duyuruyor — PR #135). **#128** kapandı ama *çözülmedi*: "erken
+açılmıştı" gerekçesiyle ertelendi, bulguları (çalışamaz Neo4j dalları, bayat router log etiketi,
+`knowledge_graph.gml`'in rolü) hâlâ geçerli ve #126 ile LLM işleri kapandıktan sonra tek bir
+issue'da toplanacak. Yedi yeni açık iş: #122 (Eyfel Kulesi hiçbir plana girmiyor), #123, #124,
+#126, #129, #130/#131 (lokal LLM doğrulaması, kişi başına), #132 (halüsinasyon oranı). Yani
+**A, B ve D'de açık iş kalmadı iddiası artık geçerli değil**; dört alanın hepsinde açık iş var.
+Bir de #136 açıldı: CI süresi ve bağlam maliyeti (Alan D).
+
+**Önceki güncellemede (2026-08-28):** #32 üç parçasıyla kapandı (self-hosted sokak mesafesi, GTFS
 transit, varış hub'ı), #81 kapandı (`POIZoner` kaldırıldı) ve #30 kapandı — ölçüldüğü 47 ikonluk
 sekiz şehir listesi iki şehirlik katalog geçişiyle emekli oldu. #32'nin kapsam dışı bıraktıkları
 #93'e taşındı ve #93 aynı gün kapandı: 3. maddesi (`use_real_routing` varsayılanı) #94'e
@@ -56,9 +67,9 @@ ve tutmadı. Son üç kapanış: **#101** (Quickstart artık veri üretmiyor, RE
 çelişkileri giderildi — PR #104), **#71** (Google Maps kazıma, veri commit edilmeden; kalan %5,0
 yanlışlık REPORT §5'te yazılı) ve **#76** (LangGraph yolu da `start_date`'i router'a ve forecaster'a
 geçiriyor; iki davranış testiyle korunuyor — PR #115) ve **#77** (router artık durak sayısını
-ulaşılabilir tavana karşı raporluyor — PR #117). Bununla birlikte **A, B ve D alanlarında açık iş
-kalmadı**: geriye kalan tek iş C'de (#7). Ayrıca daha önce backlog'a hiç
-yazılmamış iki kapalı issue (#83, #85) eklendi. Önceki güncellemede: #70 ve #72 kapandı. #72 (TOPTW router) altı yeni bulgu doğurdu —
+ulaşılabilir tavana karşı raporluyor — PR #117). O gün itibarıyla A, B ve D'de açık iş kalmamıştı;
+yukarıdaki güncelleme bunun artık doğru olmadığını kaydediyor. Ayrıca daha önce backlog'a hiç
+yazılmamış iki kapalı issue (#83, #85) eklendi. Ondan önceki güncellemede: #70 ve #72 kapandı. #72 (TOPTW router) altı yeni bulgu doğurdu —
 #76–#81 — ve iki issue'nun (#32, #71) varsayımlarını geçersiz kıldığı için ikisi de yeniden yazıldı.
 Açık iş sayısı 8'den 12'ye çıktı; bu bir gerileme değil, tek bir büyük issue'nun içinden çıkan
 işlerin ayrıştırılması.
@@ -303,6 +314,17 @@ Regresyon testi: `test_every_airport_hub_stands_where_the_footway_network_can_pl
 REPORT §5 güncellendi. Testler: 123 geçti, 1 atlandı.
 [#92](https://github.com/yukselburcinn-web/DA592/issues/92) — ilişkili: #32
 
+### #124. Kişiselleştirmenin iki ayağı da uydurma ankete dayanıyor — 🔓 Açık
+*(enhancement, `area:data`, `priority:medium`)* `user_survey.csv` 420 satırlık **sentetik** veri;
+`data/generate_data.py` üretiyor ve depo o betiği kendi docstring'ine göre sırf bunun için tutuyor.
+Buna doğrudan dayanan iki şey var ve ikisi de kişiselleştirmenin merkezinde:
+`optimization/scoring.PREFERENCE_CATEGORY_WEIGHTS` (anket ile `CATEGORY_AFFINITY` arasından NNLS ile
+fit ediliyor — puanın tercih çarpanı bu) ve `models/segmentation.TravelerSegmenter` (anket üzerinde
+KMeans, k=7 — gezginin hangi arketip olduğuna, dolayısıyla `archetype_query`'nin ne arayacağına bu
+karar veriyor). Yani hem "hangi POI ne kadar isteniyor" hem de "bu gezgin kim" sorusunun temeli
+uydurma. İşin ilk adımı ankete duyarlılık ölçmek: sonuçlar ankete ne kadar bağlı, önce o.
+[#124](https://github.com/yukselburcinn-web/DA592/issues/124) — ilişkili: #1, #79
+
 ---
 
 ## Alan B — Retrieval & Bilgi Grafiği
@@ -384,6 +406,44 @@ sorgu tablosu tavanı söylüyor, metrik başlığı söylemiyor. Normalize reca
 gösterilmesi ve nDCG/MAP geçişi de yapılmadı. Normalize edilecekse toplulaştırma seçilmeli:
 oranların ortalaması (%56.6) ile ortalamaların oranı (%49) aynı şey değil, REPORT ikincisini kullanıyor.
 [#49](https://github.com/yukselburcinn-web/DA592/issues/49) — ilişkili: #46, #48, #85, #77 (açık)
+
+### #123. Kategori ifadelerinin korpus denetimi: `landmark` ve `museum` da BM25'e görünmez — 🔓 Açık
+*(enhancement, `area:retrieval`, `priority:low`)* #113 `religion` için bir ilke kurdu: sorgu ifadesi
+korpusun gerçekten kullandığı kelimeyi taşımalı, çünkü tokenizer kök almıyor. Aynı denetim bütün
+`CATEGORY_PHRASE` girdilerine uygulandığında iki tanesinin daha aynı durumda olduğu çıktı: 654 POI
+belgesi üzerinde `landmarks` yalnızca **2**, `museums` **17** belgede geçiyor — karşılaştırma için
+`culture` 92, `history` 83, `nature` 76. Yani kataloğun en kalabalık iki kategorisi BM25'e neredeyse
+görünmez. #113'ün düzeltmesinin genelleştirilmesi.
+[#123](https://github.com/yukselburcinn-web/DA592/issues/123) — ilişkili: #113, #63
+
+### #126. Graph-RAG kenar yürümüyor: ulaşım ilişkisini gerçek transit verisine bağla — 🔓 Açık
+*(enhancement, `area:retrieval`, `priority:high`)* Proposal'ın Motivation bölümünün tamamı tek bir
+iddiaya dayanıyor: bağımsız belge muamelesi gören bir retrieval bu ilişki ağını yakalayamaz,
+dolayısıyla Graph-RAG kritik bir mimari bileşen. Şu an grafiğin kenarları o iddiayı taşımıyor.
+Fazlı bir iş: `SERVES` / `REACHABLE` kenarları geliyor, `NEAR` / `SAME_CATEGORY` gidiyor, ve saat
+uyumlu zincir sorgusu ekleniyor. **Grafiğin şemasını değiştirdiği için iki yan etkisi var:**
+`data/knowledge_graph.gml` yeniden üretilmezse teslim artefaktı bayatlar (#128'in 4. maddesi), ve
+`build_graph.shared_graph` önbelleği (#136) gözden geçirilmeli.
+[#126](https://github.com/yukselburcinn-web/DA592/issues/126) — ilişkili: #128, #136, #5
+
+### #128. Kod kendisi hakkında yanlış şey söylüyor — 🔒 Kapalı (çözülmeden, ertelendi)
+*(bug, documentation, `area:retrieval`, `priority:medium`)* Üç bulgu, tek sınıf: kod ve commit'li
+artefaktlar kendileri hakkında yanlış şey söylüyor. **(1)** `GraphIndex`'in `backend="neo4j"`
+dalları çalışamaz — grafiği Neo4j'ye yazan hiçbir şey yok (`CREATE`/`MERGE` kod tabanında hiç
+geçmiyor), dallar `element_id` döndürüyor ama downstream `PAR001` bekliyor, sıfır test var, ve
+`neo4j` `requirements.txt`'te tek pinsiz paket. Proposal *"Neo4j **or** NetworkX"* diyor, yani
+silmek kapsam eksiği değil. **(2)** `orchestrator.py`'nin `log_step` etiketi hâlâ
+"zoning + 2-opt" diyor; router #72'den beri TOPTW çözüyor ve `POIZoner` #81'de silindi — üstelik
+bu etiket System logs ekranında kullanıcıya görünüyor. **(3)** `data/knowledge_graph.gml`
+okunmuyor: `load_graph`'ın çağıranı yok, `GraphIndex()` her seferinde CSV'den kuruyor (0,23s;
+`read_gml` 1,97s, yani 8× yavaş). **Karar: silinmiyor** — proposal'ın dördüncü teslim maddesi
+"Knowledge Graph" ve bu dosya onun somut artefaktı; export olarak kalıyor, runtime girdisi
+olmadığı yazılıyor.
+
+**"Erken açılmıştı" gerekçesiyle kapatıldı — bulgular hâlâ geçerli.** #126 ve LLM tarafındaki
+işler aynı dosyalara dokunduğu için, kapsamları netleşmeden temizlik yapmak erken görüldü. Onlar
+kapandıktan sonra geriye kalan tek bir güncel issue'da toplanacak.
+[#128](https://github.com/yukselburcinn-web/DA592/issues/128) — ilişkili: #126, #5, #72, #81, #136
 
 ---
 
@@ -849,6 +909,66 @@ Model deterministik olduğu için aynı girdi aynı işi yapar; fark makinedendi
 ortalama değil medyan raporluyor.
 [#109](https://github.com/yukselburcinn-web/DA592/issues/109) — ilişkili: #33, #20, #29, REPORT §5
 
+### #125. Agent narrative 3 günlük gezide sadece 2 günü anlatıyor — ✅ Kapalı
+*(bug, `area:agents`, `priority:high` — PR #127)* Rota üç günü de doğru üretiyordu ama anlatı
+ikinci günün ortasında kesiliyordu: hata yok, log'da uyarı yok, UI metni tamamlanmış gösteriyordu.
+Çıktı üst sınırı düz 1024 token'dı, oysa synthesis prompt'u gezi uzadıkça büyüyor — bir günde ~520,
+üçte 1348, beşte 1982 token. Yani üç günlük olgular üst sınırın içinde *yeniden ifade bile*
+edilemiyordu. İki günün 966 token ölçmesi semptomun neden "son gün eksik" olduğunu açıklıyor.
+Issue tek satırlık düzeltme olarak değil, **LLM katmanının tamamının denetlenmesi** olarak açıldı:
+bütçe gezi uzunluğuyla ölçekleniyor, ve üst sınıra çarpan bir üretim artık bitmiş gibi
+döndürülmüyor — bildiriliyor ve operatörün görebileceği bir uyarı logluyor.
+[#125](https://github.com/yukselburcinn-web/DA592/issues/125) — ilişkili: #56, #57, #133, #132
+
+### #122. Eyfel Kulesi hiçbir Paris planına girmiyor: çözücü için her durak aynı değerde — 🔓 Açık
+*(bug, `area:agents`, `priority:high`)* Ölçüldü: şehir başına en bilinen 12 POI'nin 7 arketip
+gezisinin kaçında **planda** olduğu (3 gün, 12 saat, `top_k=72`). Eiffel Tower **0/7**, Berlin Wall
+**0/7**, Musée d'Orsay 0/7, Reichstag 0/7, Sacré-Cœur 0/7, Panthéon 0/7. Her iki şehrin en ünlü
+yapısı hiçbir gezide plana girmiyor. Kayıp retrieval'da değil router'da: çözücü için her durak aynı
+değerde, dolayısıyla ünlü olan ile olmayan arasında seçim yapacak bir sinyali yok. Bir Paris
+planında Eyfel Kulesi'nin olmaması savunulabilir değil.
+[#122](https://github.com/yukselburcinn-web/DA592/issues/122) — ilişkili: #72, #63, #79
+
+### #129. LangGraph orkestratörü uygulamadan erişilemiyor — 🔓 Açık
+*(enhancement, `area:ui`, `priority:medium`)* Proposal orkestrasyonu "Core Focus" diye adlandırıyor
+ve proje istenenden fazlasını yaptı: aynı beş düğümlü akış iki kez yazıldı — elle yazılmış durum
+makinesi (`agents/orchestrator.py`) ve `langgraph.graph.StateGraph` üzerinde
+(`agents/orchestrator_langgraph.py`, #9), ikisini karşılaştırılabilir kılmak için. Ama
+`views/itinerary.py` yalnızca birincisini import ediyor, yani proposal'ın "core focus" maddesi
+uygulamadan erişilemiyor — sadece testlerde çalışıyor.
+[#129](https://github.com/yukselburcinn-web/DA592/issues/129) — ilişkili: #9, #76, #133
+
+### #130 / #131. Lokal LLM kurulumu ve doğrulaması (Burçin / Berk) — 🔓 Açık
+*(`area:agents`, `priority:high` — kişi başına bir issue)* LLM tarafında **hiçbir API kullanmama**
+kararı alındı: narration tamamen lokal ve açık ağırlıklı modelle çalışacak (#54, Qwen3-4B-Instruct,
+Apache-2.0, MLX üzerinden). Üçümüz de Apple Silicon kullandığımız için yol herkese açık, ama
+herkesin kendi makinesinde çalıştığını **doğrulaması** gerekiyor: `get_default_llm_client()`
+lokal client kurulamazsa hatayı yutuyordu, yani çalışmadığında çalışıyormuş gibi görünüyordu.
+#133 bunu duyulur hale getirdi; bu iki issue doğrulamanın kendisi.
+[#130](https://github.com/yukselburcinn-web/DA592/issues/130) ·
+[#131](https://github.com/yukselburcinn-web/DA592/issues/131) — ilişkili: #54, #133, #132
+
+### #132. Halüsinasyon oranı proposal'ın istediği gibi ölçülmüyor — 🔓 Açık
+*(`area:agents`, `priority:high`)* Proposal §5 üç metrik istiyor: **coğrafi halüsinasyon oranı**,
+multi-hop çözüm doğruluğu, itinerary tutarlılığı. İkisi ölçülüyor, halüsinasyon oranı ölçülmüyor.
+Elimizdeki `grounded_entity_rate` yapı gereği 1.0: `comparative_analysis.py` onu
+`1.0 if poi_results else 0.0` diye hesaplıyor, yani "retrieval satır döndürdü mü" sorusunun cevabı
+— kodun kendi yorumu da böyle diyor. **#133 bunun önkoşuluydu:** `TemplateLLMClient` prompt'u
+aynen döndürdüğü için, sessizce template'e düşmüş bir ölçümde anlatı yalnızca prompt'taki
+yerlerden oluşur ve halüsinasyon oranı tam olarak 0.0 çıkar — mükemmel görünen, tamamen geçersiz
+bir manşet rakam.
+[#132](https://github.com/yukselburcinn-web/DA592/issues/132) — ilişkili: #133, #7, #46, #50
+
+### #133. Lokal LLM kurulamazsa sessizce template'e düşüyor — ✅ Kapalı
+*(bug, `area:agents`, `priority:high` — PR #135)* `ROAMWISE_LOCAL_LLM=1` verilmiş olmasına rağmen
+client kurulamadığında `except Exception: pass` hatayı tamamen yutuyordu; uygulama template ile
+çalışıyor ama bunu söylemiyordu. Üç canlı tetikleyici vardı: `mlx-lm` kurulu değil, HF cache
+yok/bozuk + `HF_HUB_OFFLINE=1`, ya da bir bağımlılık yükseltmesinin import'u kırması. Artık
+opt-in verilip client kurulamadığında WARNING logluyor (hangi client istendi, hangi istisnayla,
+neye düşüldü) ve aktif client uygulamada görünüyor. Opt-in *verilmemişse* uyarı yok — template
+kasıtlı varsayılan. İki davranış testiyle korunuyor.
+[#133](https://github.com/yukselburcinn-web/DA592/issues/133) — ilişkili: #54, #132, #130, #131, #125
+
 ---
 
 ## Alan D — Altyapı
@@ -1079,10 +1199,41 @@ zorunlu hale gelen kısım yapıldı — §3.1 artık `pipeline/build_catalogue.
 sayılarını anlatıyor (654 satır), aşılmış `fetch_real_pois.py`'ye atıf değil.
 [#101](https://github.com/yukselburcinn-web/DA592/issues/101) — ilişkili: `fed173e`, #80 (kapalı), #33, #77, #71 (kapalı)
 
+### #136. CI 17 dakikaya çıktı ve her oturum 55k token'lık keşifle başlıyor — 🔓 Açık
+*(enhancement, `area:infra`, `priority:high`)* CI 7 günde 3,4 dakikadan 17 dakikaya çıktı ve süre
+test **sayısından** gelmiyor: 142 testin 110'u toplam ~100 saniye sürüyor, kalan 32 test 943 saniye
+(%90). Son çalışmanın 17d53s'inin 16d00s'i (%89) tek başına test adımı; kurulum sorun değil.
+Kök neden tekrar: `RoamWiseOrchestrator()` sıcak hâlde 5,6-8,6s sürüyor ve süitte **19 kez**
+kuruluyor — her seferinde MiniLM yükleme (4,0s), aynı 656 dokümanı encode (4,2s), iki `GraphIndex()`
+(2,4s). Girdi her çağrıda aynı, çıktı deterministik. Buna ek olarak son 60 non-merge commit'in 15'i
+yalnızca `.md` değiştiriyor ve her biri tam süiti tetikliyor.
+
+Aynı ölçüm bağlam maliyetini de açıklıyor: depoda `CLAUDE.md` yoktu, dolayısıyla her oturum
+`REPORT.md` + `BACKLOG.md` + `README.md` + `HANDOFF.md` ≈ **55k token** okuyarak başlıyordu.
+
+**Test silmek kapsamda değil** — silinecek gereksiz test bulunamadı. Kapsam üç kaldıraç: modül
+düzeyinde önbellek (`semantic_search._embed_corpus`, `build_graph.shared_graph`), boşa giden CI
+çalışmalarını kesme (`paths-ignore`, `concurrency`, HF önbelleği), ve `CLAUDE.md` + `Read` deny
+kuralları. Kapsam dışı ve sonraki issue'lara: `@pytest.mark.slow` ile katmanlama,
+`_synthesis_prompt()`'ın fixture'a taşınması (tek başına süitin %23'ü), `test_pipeline.py`'nin
+bölünmesi, `pytest-xdist`.
+[#136](https://github.com/yukselburcinn-web/DA592/issues/136) — ilişkili: #11, #128, #126
+
 ---
 
-## Öncelik sırası (2026-08-28 itibarıyla açık işler)
+## Öncelik sırası (2026-08-29 itibarıyla açık işler)
 
 | Öncelik | Issue | Neden |
 |---|---|---|
-| 1 | #7 | `priority:high` etiketli, final rapor için gerçek LLM sonucu eksik |
+| 1 | #133 → #132 | #133 kapandı ve #132'nin önkoşuluydu. Halüsinasyon oranı proposal'ın üç metriğinden ölçülmeyen tek maddesi; sessiz fallback düzeltilmeden ölçüm başlatılmamalı |
+| 2 | #130, #131 | Herkesin lokal LLM'i kendi makinesinde doğrulaması. #132'nin ölçümü buna bağlı ve kişi başına iş |
+| 3 | #122 | `priority:high` bug. Bir Paris planında Eyfel Kulesi'nin olmaması savunulabilir değil; ölçülmüş ve 0/7 |
+| 4 | #126 | `priority:high`. Proposal'ın Motivation bölümünün dayandığı iddiayı grafiğin kenarları şu an taşımıyor. Şema değiştirdiği için #128 ve #136'yı da etkiliyor |
+| 5 | #7 | `priority:high`, final rapor için gerçek LLM sonucu eksik. #130/#131 ile birlikte değerlendirilmeli — API'siz karar alındığı için kapsamı yeniden okunmalı |
+| 6 | #136 | CI 17 dakika; üçümüzün de her PR'da ödediği bedel. Kapsamı dar ve ölçülmüş |
+| 7 | #129 | Proposal'ın "core focus"u uygulamadan erişilemiyor — tez savunmasında gösterilebilir olması gerekir |
+| 8 | #124 | Kişiselleştirmenin temeli sentetik ankette; ilk adım duyarlılık ölçmek, sonuç ona göre |
+| 9 | #123 | `priority:low`. #113'ün düzeltmesinin genelleştirilmesi, dar ve iyi tanımlı |
+
+**Ayrıca:** #128 kapalı ama çözülmedi. #126 ve LLM işleri kapandıktan sonra kalanları (Neo4j
+dalları, router log etiketi, `knowledge_graph.gml`'in rolü) tek bir güncel issue'da toplanacak.
