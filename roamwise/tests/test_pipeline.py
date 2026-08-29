@@ -2714,3 +2714,75 @@ def test_hitting_the_cap_logs_a_warning_an_operator_can_see(caplog):
     with caplog.at_level(logging.WARNING, logger="roamwise.agents.llm_client"):
         _warn_if_truncated(False, "LocalHuggingFaceLLMClient", 2048)
     assert not caplog.records, "a generation that finished must not warn"
+
+
+# --- issue #133: an opt-in that did not take effect must be audible ---
+
+def test_a_failed_local_llm_optin_warns_instead_of_falling_back_silently(monkeypatch, caplog):
+    """Issue #133: `except Exception: pass` turned a missing package or a
+    broken model cache into "the app works fine". TemplateLLMClient returns
+    the prompt verbatim, so the run still produces confident-looking text --
+    and a hallucination measurement taken on it would report exactly 0.0
+    (#132). Asking for a model and not getting one has to be audible.
+    """
+    import logging
+    from roamwise.agents import llm_client as mod
+
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setenv("ROAMWISE_LOCAL_LLM", "1")
+
+    def explode(*a, **kw):
+        raise ImportError("No module named 'mlx_lm'")
+
+    monkeypatch.setattr(mod, "LocalHuggingFaceLLMClient", explode)
+
+    with caplog.at_level(logging.WARNING, logger="roamwise.agents.llm_client"):
+        client = mod.get_default_llm_client()
+
+    assert isinstance(client, mod.TemplateLLMClient), "it must still fall back, just not quietly"
+    messages = " ".join(r.getMessage() for r in caplog.records)
+    assert "mlx_lm" in messages, "the swallowed exception must reach the log"
+    assert "ROAMWISE_LOCAL_LLM" in messages, "the log must name the opt-in that did not take"
+    # And the consequence, not only the fact -- this is what stops a template
+    # run from being written up as a model run.
+    assert "echoes the prompt" in messages
+
+
+def test_the_deliberate_template_default_stays_silent(monkeypatch, caplog):
+    """The other half, and the one that keeps the warning worth reading:
+    running offline with no opt-in is the intended default (#54), so it must
+    not warn. A warning on every start would make the real one invisible."""
+    import logging
+    from roamwise.agents.llm_client import TemplateLLMClient, get_default_llm_client
+
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("ROAMWISE_LOCAL_LLM", raising=False)
+
+    with caplog.at_level(logging.WARNING, logger="roamwise.agents.llm_client"):
+        client = get_default_llm_client()
+
+    assert isinstance(client, TemplateLLMClient)
+    assert not caplog.records, f"the default path must not warn, got: {[r.getMessage() for r in caplog.records]}"
+
+
+def test_the_ui_can_tell_a_silent_fallback_from_the_intended_default(monkeypatch):
+    """`fallback_reason` is what the itinerary page branches on, so the
+    distinction it draws is worth asserting directly: template-because-nobody-
+    asked is normal, template-despite-an-opt-in is a failure to surface."""
+    from roamwise.agents.llm_client import (TemplateLLMClient, describe_client,
+                                            fallback_reason)
+
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("ROAMWISE_LOCAL_LLM", raising=False)
+    assert fallback_reason(TemplateLLMClient()) is None
+
+    monkeypatch.setenv("ROAMWISE_LOCAL_LLM", "1")
+    assert fallback_reason(TemplateLLMClient()) == "ROAMWISE_LOCAL_LLM is set"
+    # A real client is never a fallback, whatever the environment says.
+
+    class NotATemplate(TemplateLLMClient.__bases__[0]):
+        def complete_verbose(self, system, prompt, max_tokens=None):
+            raise NotImplementedError
+
+    assert fallback_reason(NotATemplate()) is None
+    assert "template" in describe_client(TemplateLLMClient())
