@@ -52,11 +52,59 @@ from roamwise.knowledge_graph.build_graph import CATEGORY_AFFINITY, DATA_DIR
 # against this phrase's 1 to 4 on its own). Both are kept because they are
 # independent faults, and this one is what the docstring above already asked
 # for: the category word present to be matched.
+# #113's principle, applied to every entry rather than only to `religion`
+# (#123). `tokenize` does no stemming, so a phrase matches only the words it
+# literally contains, and two more entries turned out to be in exactly the
+# state `religion` had been in. Document frequency over the 654-POI corpus:
+#
+#     category    phrase             most common token   docs
+#     landmark    landmarks          landmarks              2   <- invisible
+#     museum      museums            museums               17   <- invisible
+#     nightlife   nightlife venues   nightlife             42
+#     culture     culture venues     culture               92
+#     history     history sites      history               83
+#     nature      nature spots       nature                76
+#     shopping    shopping           shopping              32
+#
+# The singular is what the documents use -- `museum` 127, `landmark` 117 --
+# and neither plural reached it. They went unnoticed because the graph carries
+# both at 0.9 and 1.0 affinity; `religion` surfaced only because 0.6 could not
+# carry it.
+#
+# The fix is not free, and that is the part worth writing down. The pool is
+# strictly zero-sum at a fixed `top_k`: adding the singular forms is worth 27
+# newly reachable POIs and costs 11, and left alone it takes `religion` from
+# 30 back to 23 -- a quarter of what #113 had just won. The phrasings below
+# ship together with `build_graph.PREFERENCE_QUOTA_EXPONENT`, swept jointly;
+# see `evaluation/category_phrase_sweep.py` and that constant.
+#
+# `religion` moved too, and not because it was broken -- #113 had already fixed
+# it. It moved because it is what the museum and landmark fixes were about to
+# break. Naming the specific buildings the corpus names (`cathedral` 15,
+# `basilica` 7, `chapel` 9 alongside `church` 69) is what let the category hold
+# its ground against a stronger `museum`: without it, `religion` fell to 23 of
+# the 30 POIs #113 won at the three-day pool and to 48 of 56 at five days. With
+# it, 39 and 56.
+#
+# `history`, `nature`, `nightlife`, `culture`, `shopping` and `food` were
+# audited too and left alone: each already carries a token the corpus uses
+# often (83, 76, 42, 92, 32, 62 documents), and the sweep measured every
+# candidate replacement as a net loss -- "history and historic sites" costs
+# `history` 5 reachable POIs by pulling the pool towards `site`. Their dead
+# tokens (`spots` 0, `venues` 3, `sites` 7, `markets` 1) are harmless rather
+# than worth fixing: BM25 scores what matches, and a token nothing contains
+# adds nothing instead of subtracting.
+#
+# None of these strings is ever shown to a traveler -- they go from the
+# orchestrator straight into retrieval -- which is why a clumsy phrase that
+# matches beats a fluent one that does not.
 CATEGORY_PHRASE = {
-    "museum": "museums", "landmark": "landmarks", "history": "history sites",
+    "museum": "museum collections", "landmark": "landmark sights",
+    "history": "history sites",
     "nature": "nature spots", "nightlife": "nightlife venues", "shopping": "shopping",
     "food": "food markets and restaurants", "beach": "beaches",
-    "culture": "culture venues", "religion": "church buildings and places of worship",
+    "culture": "culture venues",
+    "religion": "church cathedral basilica and chapel buildings",
 }
 _CATALOGUE_CATEGORIES = None
 
