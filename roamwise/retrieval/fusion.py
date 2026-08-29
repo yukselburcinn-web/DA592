@@ -89,7 +89,13 @@ class FusionRetriever:
         self.graph = GraphSearchIndex()
 
     def retrieve(self, query: str, config: str = "fusion", destination_id: str = None,
-                 archetype: str = None, top_k: int = 8) -> list[dict]:
+                 archetype: str = None, top_k: int = 8,
+                 arrival_hub_id: str = None) -> list[dict]:
+        """`arrival_hub_id` reaches only the graph retriever: it names where
+        the traveler's day starts, and the graph is the only component that
+        holds a relation from a starting point to anything (#126). The
+        semantic and keyword indexes read POI text, which says nothing about
+        where anyone arrived."""
         if config == "standard":
             return []
 
@@ -99,7 +105,8 @@ class FusionRetriever:
         ]
         if config == "fusion":
             lists.append(("graph", self.graph.search(
-                query, top_k=top_k * 2, destination_id=destination_id, archetype=archetype)))
+                query, top_k=top_k * 2, destination_id=destination_id, archetype=archetype,
+                arrival_hub_id=arrival_hub_id)))
         elif config != "hybrid":
             raise ValueError(f"unknown retrieval config: {config}")
 

@@ -2172,6 +2172,58 @@ def test_arrival_hub_reaches_the_router_from_plan_trip():
     assert planned["routing"]["itinerary"][0]["starts_from"] == hub.name
 
 
+def test_arrival_hub_reaches_retrieval_from_plan_trip():
+    """The other half of the same wire (#126). `arrival_hub_id` reached the
+    router and stopped there, so the one component holding a relation from a
+    starting point -- the graph -- never learned where the traveler started.
+
+    Asserted on `GraphSearchIndex.search`'s keyword rather than on the plan,
+    because at this phase the anchor is carried and not yet dispatched on; the
+    traversal that reads it lands behind a flag. Plumbing, tested as plumbing,
+    for the reason the test above exists.
+    """
+    hub = _arrival_hub(MAIN_CITY)
+    seen = []
+    original = GraphSearchIndex.search
+
+    def spy(self, *args, **kwargs):
+        seen.append(kwargs.get("arrival_hub_id"))
+        return original(self, *args, **kwargs)
+
+    orch = RoamWiseOrchestrator()
+    prefs = {"budget": 0.6, "culture": 0.9, "nature": 0.2, "nightlife": 0.2, "relax": 0.3, "adventure": 0.2}
+    GraphSearchIndex.search = spy
+    try:
+        orch.plan_trip(prefs, destination_id=MAIN_CITY, n_days=2,
+                       daily_minutes_budget=12 * 60,
+                       arrival_hub_id=hub.transport_id)
+    finally:
+        GraphSearchIndex.search = original
+
+    assert seen, "the graph retriever was never reached"
+    assert seen[0] == hub.transport_id
+
+
+def test_the_retrieval_anchor_is_the_gateway_when_named_and_the_centre_otherwise():
+    """`anchor_for` is the one place the two starting points are reconciled, so
+    the traversal reading it never has to branch (#126).
+
+    A hub belonging to another city, or one `transport.csv` no longer holds,
+    resolves to the centre rather than raising -- the same rule a stale hub id
+    already gets in the router, and the same rule an unknown travel mode gets.
+    """
+    graph = GraphSearchIndex()
+    hubs = pd.read_csv(DATA_DIR / "transport.csv")
+    own = hubs[hubs.destination_id == MAIN_CITY].iloc[0].transport_id
+    foreign = hubs[hubs.destination_id != MAIN_CITY]
+
+    assert graph.anchor_for(MAIN_CITY) == MAIN_CITY
+    assert graph.anchor_for(MAIN_CITY, own) == own
+    assert graph.anchor_for(MAIN_CITY, "TR-does-not-exist") == MAIN_CITY
+    if not foreign.empty:
+        assert graph.anchor_for(MAIN_CITY, foreign.iloc[0].transport_id) == MAIN_CITY
+
+
 def test_an_unknown_arrival_hub_is_ignored_rather_than_raised():
     """A stale id from the UI -- a city switched after the gateway was picked --
     must plan a normal trip, the same way an unknown travel mode falls back to

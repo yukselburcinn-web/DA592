@@ -23,16 +23,23 @@ class FusionRAGAgent:
         self.llm = llm or get_default_llm_client()
 
     def run(self, query: str, destination_id: str, archetype: str = None,
-            config: str = "fusion", top_k: int = 8, narrate: bool = True) -> dict:
+            config: str = "fusion", top_k: int = 8, narrate: bool = True,
+            arrival_hub_id: str = None) -> dict:
         """narrate=False skips the LLM paraphrase and returns only `facts`.
 
         The orchestrator passes narrate=False because it feeds this straight
         into another LLM prompt: paraphrasing structured facts with one
         generation just to hand the result to a second generation costs a
         full model pass and loses information twice over (issue #57).
+
+        arrival_hub_id is passed through to retrieval, where the graph
+        component uses it to anchor its traversal (issue #126). It reached the
+        router already; retrieval was the half of the wire that was never
+        pulled.
         """
         results = self.retriever.retrieve(
             query, config=config, destination_id=destination_id, archetype=archetype, top_k=top_k,
+            arrival_hub_id=arrival_hub_id,
         )
         facts = self._facts(query, results)
         return {

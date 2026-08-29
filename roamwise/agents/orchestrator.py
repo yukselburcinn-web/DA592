@@ -125,7 +125,11 @@ class RoamWiseOrchestrator:
         arrival_hub_id: a `transport.csv` id -- the gateway the traveler lands at.
         Day 1 then starts from the airport/station rather than from the city
         centre, which is the single arrival leg issue #32 asks for. Left None,
-        the trip begins in the city (right for someone already there)."""
+        the trip begins in the city (right for someone already there). It also
+        reaches retrieval, where it anchors the graph component's traversal
+        (issue #126) -- it used to stop at the router, so the one component
+        holding a relation from a starting point never learned where the
+        traveler started."""
         if top_k_pois is None:
             top_k_pois = max(MIN_RETRIEVED_POIS, n_days * RETRIEVED_POIS_PER_DAY)
         # One control, two consumers: a date carries the month the forecaster
@@ -176,11 +180,19 @@ class RoamWiseOrchestrator:
             # narrates from the itinerary (issues #56, #57).
             rag = self.fusion_rag.run(
                 query, destination_id=destination_id, archetype=seg["archetype"], config=self.retrieval_config, top_k=top_k_pois,
-                narrate=False,
+                narrate=False, arrival_hub_id=arrival_hub_id,
             )
             state["fusion_rag"] = rag
             detail["query"] = query
             detail["n_results"] = len(rag["results"])
+            # Logged next to the query because the anchor is retrieval input
+            # now, not only routing input (#126): reading the System Logs tab
+            # should show what the graph was asked from, not just what it was
+            # asked for. Only when there is one -- `Arriving at` defaults to
+            # "Already in the city", so an unconditional key would print
+            # `arrival_hub_id=None` on nearly every plan.
+            if arrival_hub_id:
+                detail["arrival_hub_id"] = arrival_hub_id
 
         candidate_pois = [
             self.graph.g.nodes[r["poi_id"]] | {"poi_id": r["poi_id"]}
