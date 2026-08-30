@@ -1,0 +1,202 @@
+query_id,tier,config,destination_id,archetype,prompt_key,rows_represented,places_named,grounded,wrong_city,unshown_same_city,geographical_hallucination_rate,ungrounded_mention_rate,wrong_city_names,unshown_names
+0,handwritten,fusion,BER,Culture Enthusiast,bfbf29d2b2af2487e1dfbee5c9f0f3fa34cee541,1,8,7,0,1,0.0,0.125,,Pariser Platz
+0,handwritten,hybrid,BER,Culture Enthusiast,54a3678c6bd7a87dea12eee2beb63b1fbc1a1044,1,7,7,0,0,0.0,0.0,,
+0,handwritten,standard,BER,Culture Enthusiast,5b708d5b57b44585a40bd3ef5637e13e789adf9f,9,8,8,0,0,0.0,0.0,,
+1,handwritten,fusion,PAR,Culture Enthusiast,2c589a1f4860fa25467f4386ab97d0d9f2279ae1,4,7,7,0,0,0.0,0.0,,
+1,handwritten,hybrid,PAR,Culture Enthusiast,d2e505cf9faa387c2400b98a4b293d8b267f5755,3,7,7,0,0,0.0,0.0,,
+1,handwritten,standard,PAR,Culture Enthusiast,a0c2e5bcf0c06b24789b19ad10b9adb0ff50e957,13,6,5,0,1,0.0,0.16666666666666666,,Place de la Bastille
+2,handwritten,fusion,BER,Culture Enthusiast,9116d53b715767c80775cbd14e8ee30b84e2da77,3,6,6,0,0,0.0,0.0,,
+2,handwritten,hybrid,BER,Culture Enthusiast,fff7b2358b4d67af8849622533396d6248bf463e,1,8,7,0,1,0.0,0.125,,Pariser Platz
+2,handwritten,standard,BER,Culture Enthusiast,5b708d5b57b44585a40bd3ef5637e13e789adf9f,9,8,8,0,0,0.0,0.0,,
+3,handwritten,fusion,PAR,Nightlife Seeker,d10aae21ab7009a05d17850d5d6c7fafe76838ba,5,6,5,0,1,0.0,0.16666666666666666,,Latin Quarter
+3,handwritten,hybrid,PAR,Nightlife Seeker,d10aae21ab7009a05d17850d5d6c7fafe76838ba,5,6,5,0,1,0.0,0.16666666666666666,,Latin Quarter
+3,handwritten,standard,PAR,Nightlife Seeker,87d4ec46a82660e4793baf6d7482f3e634f84c4c,3,5,5,0,0,0.0,0.0,,
+4,handwritten,fusion,BER,Nature & Adventure,504192c37e31ed5746c546ad24f10d614628eb09,1,7,7,0,0,0.0,0.0,,
+4,handwritten,hybrid,BER,Nature & Adventure,987d9c05098e27879e41fa458abb364edbea263e,1,7,7,0,0,0.0,0.0,,
+4,handwritten,standard,BER,Nature & Adventure,0385d11f912b7eb94131ea6c377adb1bba0521ed,4,9,9,0,0,0.0,0.0,,
+5,handwritten,fusion,PAR,Budget Backpacker,4991026f4c08c695bfdee2c34e1431236bcc88cc,5,9,8,0,1,0.0,0.1111111111111111,,île de la Cité
+5,handwritten,hybrid,PAR,Budget Backpacker,4991026f4c08c695bfdee2c34e1431236bcc88cc,5,9,8,0,1,0.0,0.1111111111111111,,île de la Cité
+5,handwritten,standard,PAR,Budget Backpacker,38c3f296e3c4ed49a6f7504e06cf2a3775299eb9,7,6,6,0,0,0.0,0.0,,
+6,handwritten,fusion,BER,Luxury Traveler,8052701b7a21846dc0c25b2b329f89af444262fe,1,8,8,0,0,0.0,0.0,,
+6,handwritten,hybrid,BER,Luxury Traveler,01255cb8b68d529a52894610d17157a265942f91,3,9,8,0,1,0.0,0.1111111111111111,,Pariser Platz
+6,handwritten,standard,BER,Luxury Traveler,f943813b2cb5124ba8f3bed2e2df3f464cac5dee,6,8,8,0,0,0.0,0.0,,
+7,handwritten,fusion,PAR,Beach & Relax,96a9c2979622a133ce2cf63a4d170645f989275f,4,5,5,0,0,0.0,0.0,,
+7,handwritten,hybrid,PAR,Beach & Relax,96a9c2979622a133ce2cf63a4d170645f989275f,4,5,5,0,0,0.0,0.0,,
+7,handwritten,standard,PAR,Beach & Relax,4d026d481a004447a231b91adb4e727cfdec9416,4,6,6,0,0,0.0,0.0,,
+8,handwritten,fusion,BER,Family Traveler,dafad1e3b962160cf12974ee2d26fb7f65bde6aa,5,6,6,0,0,0.0,0.0,,
+8,handwritten,hybrid,BER,Family Traveler,99046991cc175224093fe7fcd020ebc0dca26581,1,7,7,0,0,0.0,0.0,,
+8,handwritten,standard,BER,Family Traveler,60be78d096fbfd2f824969e00bf67756172a1a2a,6,8,8,0,0,0.0,0.0,,
+9,handwritten,fusion,PAR,Culture Enthusiast,d2e505cf9faa387c2400b98a4b293d8b267f5755,3,7,7,0,0,0.0,0.0,,
+9,handwritten,hybrid,PAR,Culture Enthusiast,2c589a1f4860fa25467f4386ab97d0d9f2279ae1,4,7,7,0,0,0.0,0.0,,
+9,handwritten,standard,PAR,Culture Enthusiast,a0c2e5bcf0c06b24789b19ad10b9adb0ff50e957,13,6,5,0,1,0.0,0.16666666666666666,,Place de la Bastille
+10,handwritten,fusion,BER,Culture Enthusiast,9116d53b715767c80775cbd14e8ee30b84e2da77,3,6,6,0,0,0.0,0.0,,
+10,handwritten,hybrid,BER,Culture Enthusiast,f7b885d0631e867d780e3d24652e47a740e167b5,4,7,7,0,0,0.0,0.0,,
+10,handwritten,standard,BER,Culture Enthusiast,5b708d5b57b44585a40bd3ef5637e13e789adf9f,9,8,8,0,0,0.0,0.0,,
+11,handwritten,fusion,PAR,Nightlife Seeker,d10aae21ab7009a05d17850d5d6c7fafe76838ba,5,6,5,0,1,0.0,0.16666666666666666,,Latin Quarter
+11,handwritten,hybrid,PAR,Nightlife Seeker,91fe0c4278fd66cc2eb5de0c3c685a69aa7d287c,1,8,8,0,0,0.0,0.0,,
+11,handwritten,standard,PAR,Nightlife Seeker,87d4ec46a82660e4793baf6d7482f3e634f84c4c,3,5,5,0,0,0.0,0.0,,
+12,handwritten,fusion,BER,Luxury Traveler,909a06749a90d846366011528e41b78857d80022,1,8,8,0,0,0.0,0.0,,
+12,handwritten,hybrid,BER,Luxury Traveler,9db7b97f8f5a3bcf7bc7267d99a103e5b8080c8f,1,6,6,0,0,0.0,0.0,,
+12,handwritten,standard,BER,Luxury Traveler,f943813b2cb5124ba8f3bed2e2df3f464cac5dee,6,8,8,0,0,0.0,0.0,,
+13,handwritten,fusion,PAR,Nature & Adventure,eb62b33bb7fd5728ca2fd7bd1210f0e367ebb688,2,6,6,0,0,0.0,0.0,,
+13,handwritten,hybrid,PAR,Nature & Adventure,6912121c6f81c84d3c583523ea2a742ebda80340,1,7,7,0,0,0.0,0.0,,
+13,handwritten,standard,PAR,Nature & Adventure,bf55944ba95b046d81cca46ac3a0ac6e3606e280,3,5,5,0,0,0.0,0.0,,
+14,handwritten,fusion,BER,Culture Enthusiast,be0e4a6d88bcbe283084d28237a915ae364a40dd,1,7,7,0,0,0.0,0.0,,
+14,handwritten,hybrid,BER,Culture Enthusiast,f7b885d0631e867d780e3d24652e47a740e167b5,4,7,7,0,0,0.0,0.0,,
+14,handwritten,standard,BER,Culture Enthusiast,5b708d5b57b44585a40bd3ef5637e13e789adf9f,9,8,8,0,0,0.0,0.0,,
+15,handwritten,fusion,PAR,Budget Backpacker,d47566176b1756a9fffb88980ee30a44407fde66,1,9,8,0,1,0.0,0.1111111111111111,,île de la Cité
+15,handwritten,hybrid,PAR,Budget Backpacker,d43334fa59d653b913dd2dcd050567a6ff9dcf1f,1,3,3,0,0,0.0,0.0,,
+15,handwritten,standard,PAR,Budget Backpacker,38c3f296e3c4ed49a6f7504e06cf2a3775299eb9,7,6,6,0,0,0.0,0.0,,
+16,handwritten,fusion,BER,Culture Enthusiast,9116d53b715767c80775cbd14e8ee30b84e2da77,3,6,6,0,0,0.0,0.0,,
+16,handwritten,hybrid,BER,Culture Enthusiast,f7b885d0631e867d780e3d24652e47a740e167b5,4,7,7,0,0,0.0,0.0,,
+16,handwritten,standard,BER,Culture Enthusiast,5b708d5b57b44585a40bd3ef5637e13e789adf9f,9,8,8,0,0,0.0,0.0,,
+17,handwritten,fusion,PAR,Culture Enthusiast,a0c2e5bcf0c06b24789b19ad10b9adb0ff50e957,13,6,5,0,1,0.0,0.16666666666666666,,Place de la Bastille
+17,handwritten,hybrid,PAR,Culture Enthusiast,70d92c7544d010c20ba872447345478a206a935b,1,7,7,0,0,0.0,0.0,,
+17,handwritten,standard,PAR,Culture Enthusiast,a0c2e5bcf0c06b24789b19ad10b9adb0ff50e957,13,6,5,0,1,0.0,0.16666666666666666,,Place de la Bastille
+18,handwritten,fusion,BER,Beach & Relax,08e96c7c3f9d6358e243e1b033df5330fa9b540d,1,8,8,0,0,0.0,0.0,,
+18,handwritten,hybrid,BER,Beach & Relax,ba6398858ad56ce724c7dedd7f8f891f089b345d,1,7,7,0,0,0.0,0.0,,
+18,handwritten,standard,BER,Beach & Relax,6d72119270694c523799dc93c74cc2b94aa094cd,2,9,9,0,0,0.0,0.0,,
+19,handwritten,fusion,PAR,Culture Enthusiast,a0c2e5bcf0c06b24789b19ad10b9adb0ff50e957,13,6,5,0,1,0.0,0.16666666666666666,,Place de la Bastille
+19,handwritten,hybrid,PAR,Culture Enthusiast,2c589a1f4860fa25467f4386ab97d0d9f2279ae1,4,7,7,0,0,0.0,0.0,,
+19,handwritten,standard,PAR,Culture Enthusiast,a0c2e5bcf0c06b24789b19ad10b9adb0ff50e957,13,6,5,0,1,0.0,0.16666666666666666,,Place de la Bastille
+20,handwritten,fusion,PAR,Culture Enthusiast,8d6e2acbc96bec85365e0c1a3e7d559a99a2ec97,1,8,7,0,1,0.0,0.125,,île de la Cité
+20,handwritten,hybrid,PAR,Culture Enthusiast,ee1400a77c31c3e39e38480c41ce96dda57e5947,1,8,8,0,0,0.0,0.0,,
+20,handwritten,standard,PAR,Culture Enthusiast,a0c2e5bcf0c06b24789b19ad10b9adb0ff50e957,13,6,5,0,1,0.0,0.16666666666666666,,Place de la Bastille
+21,handwritten,fusion,BER,Nightlife Seeker,fd45867c3bd40df210facd57c5148e8a216490a1,1,6,6,0,0,0.0,0.0,,
+21,handwritten,hybrid,BER,Nightlife Seeker,592c4647f163504b63911e1610420cc73ae5a30d,1,7,7,0,0,0.0,0.0,,
+21,handwritten,standard,BER,Nightlife Seeker,342b63e29eefefb5a1ef023eb9b266fa4cc8a7fa,3,9,9,0,0,0.0,0.0,,
+22,handwritten,fusion,PAR,Luxury Traveler,ea2d34237265a72888d3aad46ba8c51c70505646,1,7,7,0,0,0.0,0.0,,
+22,handwritten,hybrid,PAR,Luxury Traveler,0579eec1ef0d0439ceab372da072a87c4d7e1a8e,1,9,8,0,1,0.0,0.1111111111111111,,île de la Cité
+22,handwritten,standard,PAR,Luxury Traveler,b6c68f039651b8c6b2fcdc3f1660ea6c0fdf5c3f,3,8,7,0,1,0.0,0.125,,île de la Cité
+23,handwritten,fusion,BER,Family Traveler,3719dac7c06b9701144a5b81324281bac1cdd161,3,6,6,0,0,0.0,0.0,,
+23,handwritten,hybrid,BER,Family Traveler,0ffc1eb4b366fcb1a8a205a037db2d350ee7f8c9,1,6,6,0,0,0.0,0.0,,
+23,handwritten,standard,BER,Family Traveler,60be78d096fbfd2f824969e00bf67756172a1a2a,6,8,8,0,0,0.0,0.0,,
+24,handwritten,fusion,BER,Nature & Adventure,880247caa4878653d575544ee4aeca78a8043283,1,6,6,0,0,0.0,0.0,,
+24,handwritten,hybrid,BER,Nature & Adventure,65e68590a71ebf965c76fbd0171c6a8ba8c6c0ec,1,7,7,0,0,0.0,0.0,,
+24,handwritten,standard,BER,Nature & Adventure,0385d11f912b7eb94131ea6c377adb1bba0521ed,4,9,9,0,0,0.0,0.0,,
+25,grid,fusion,PAR,Culture Enthusiast,2c589a1f4860fa25467f4386ab97d0d9f2279ae1,4,7,7,0,0,0.0,0.0,,
+25,grid,hybrid,PAR,Culture Enthusiast,fee13d450386f4a021f150c24a1f3e8fd446f70e,1,6,6,0,0,0.0,0.0,,
+25,grid,standard,PAR,Culture Enthusiast,a0c2e5bcf0c06b24789b19ad10b9adb0ff50e957,13,6,5,0,1,0.0,0.16666666666666666,,Place de la Bastille
+26,grid,fusion,PAR,Family Traveler,32b9a09a6de4d3e08a0af802303898e129cbb95f,1,8,7,0,1,0.0,0.125,,île de la Cité
+26,grid,hybrid,PAR,Family Traveler,f34f115dd1b29bf9c0d6a89845ea627e1caf3992,1,7,7,0,0,0.0,0.0,,
+26,grid,standard,PAR,Family Traveler,d5a01330976eb6dfcfcd316c57318c86c63219c4,2,7,6,0,1,0.0,0.14285714285714285,,île de la Cité
+27,grid,fusion,PAR,Culture Enthusiast,ea5f75f06b109009c29c96101ca6fabf7f5c626b,1,6,6,0,0,0.0,0.0,,
+27,grid,hybrid,PAR,Culture Enthusiast,b4538cfdf95f1ee7fb5572e0ea05a1379f289906,1,8,7,0,1,0.0,0.125,,île de la Cité
+27,grid,standard,PAR,Culture Enthusiast,a0c2e5bcf0c06b24789b19ad10b9adb0ff50e957,13,6,5,0,1,0.0,0.16666666666666666,,Place de la Bastille
+28,grid,fusion,PAR,Nature & Adventure,eb62b33bb7fd5728ca2fd7bd1210f0e367ebb688,2,6,6,0,0,0.0,0.0,,
+28,grid,hybrid,PAR,Nature & Adventure,e44583b8e696dabf3441c6e55f180b10a96ca86e,1,11,9,0,2,0.0,0.18181818181818182,,île de la Cité; Tuileries Garden
+28,grid,standard,PAR,Nature & Adventure,bf55944ba95b046d81cca46ac3a0ac6e3606e280,3,5,5,0,0,0.0,0.0,,
+29,grid,fusion,PAR,Budget Backpacker,4991026f4c08c695bfdee2c34e1431236bcc88cc,5,9,8,0,1,0.0,0.1111111111111111,,île de la Cité
+29,grid,hybrid,PAR,Budget Backpacker,84b3a251dd97c589cbd7cc48eea2be9d92103c6e,2,5,5,0,0,0.0,0.0,,
+29,grid,standard,PAR,Budget Backpacker,38c3f296e3c4ed49a6f7504e06cf2a3775299eb9,7,6,6,0,0,0.0,0.0,,
+30,grid,fusion,PAR,Luxury Traveler,a95043f7726d67012ba5597ca34b49ca0396f95d,1,8,8,0,0,0.0,0.0,,
+30,grid,hybrid,PAR,Luxury Traveler,b36f75874ef27803b6f3bc1d6d4bbd9570c66792,1,7,7,0,0,0.0,0.0,,
+30,grid,standard,PAR,Luxury Traveler,b6c68f039651b8c6b2fcdc3f1660ea6c0fdf5c3f,3,8,7,0,1,0.0,0.125,,île de la Cité
+31,grid,fusion,PAR,Budget Backpacker,d0d52178205ea96f88634d4cc51fe61318a6188c,1,7,7,0,0,0.0,0.0,,
+31,grid,hybrid,PAR,Budget Backpacker,4991026f4c08c695bfdee2c34e1431236bcc88cc,5,9,8,0,1,0.0,0.1111111111111111,,île de la Cité
+31,grid,standard,PAR,Budget Backpacker,38c3f296e3c4ed49a6f7504e06cf2a3775299eb9,7,6,6,0,0,0.0,0.0,,
+32,grid,fusion,PAR,Budget Backpacker,4991026f4c08c695bfdee2c34e1431236bcc88cc,5,9,8,0,1,0.0,0.1111111111111111,,île de la Cité
+32,grid,hybrid,PAR,Budget Backpacker,84b3a251dd97c589cbd7cc48eea2be9d92103c6e,2,5,5,0,0,0.0,0.0,,
+32,grid,standard,PAR,Budget Backpacker,38c3f296e3c4ed49a6f7504e06cf2a3775299eb9,7,6,6,0,0,0.0,0.0,,
+33,grid,fusion,PAR,Culture Enthusiast,14241aff966f9800b5659028e9a91d36308a75a5,1,9,9,0,0,0.0,0.0,,
+33,grid,hybrid,PAR,Culture Enthusiast,7cc7475135002305a9f1a95146c75572db817b6b,1,8,8,0,0,0.0,0.0,,
+33,grid,standard,PAR,Culture Enthusiast,a0c2e5bcf0c06b24789b19ad10b9adb0ff50e957,13,6,5,0,1,0.0,0.16666666666666666,,Place de la Bastille
+34,grid,fusion,PAR,Culture Enthusiast,d2e505cf9faa387c2400b98a4b293d8b267f5755,3,7,7,0,0,0.0,0.0,,
+34,grid,hybrid,PAR,Culture Enthusiast,884dfe26b48f2567d8dde91a2cea0044dc39001f,1,7,7,0,0,0.0,0.0,,
+34,grid,standard,PAR,Culture Enthusiast,a0c2e5bcf0c06b24789b19ad10b9adb0ff50e957,13,6,5,0,1,0.0,0.16666666666666666,,Place de la Bastille
+35,grid,fusion,PAR,Family Traveler,36ea3c189333b1d2fabbeb249c4d6885919da314,1,10,8,0,2,0.0,0.2,,Tuileries Garden; île de la Cité
+35,grid,hybrid,PAR,Family Traveler,5f7fe0ee0d5ca2a8b97de4ecc033b19a63fb1e23,1,8,7,0,1,0.0,0.125,,île de la Cité
+35,grid,standard,PAR,Family Traveler,d5a01330976eb6dfcfcd316c57318c86c63219c4,2,7,6,0,1,0.0,0.14285714285714285,,île de la Cité
+36,grid,fusion,PAR,Nature & Adventure,fdb0371c07bfc62f9a9b6f19de4e96f5757cb3ed,1,10,10,0,0,0.0,0.0,,
+36,grid,hybrid,PAR,Nature & Adventure,784305c0ed776fe39a3545795efe16b70fb0e2ce,1,6,6,0,0,0.0,0.0,,
+36,grid,standard,PAR,Nature & Adventure,bf55944ba95b046d81cca46ac3a0ac6e3606e280,3,5,5,0,0,0.0,0.0,,
+37,grid,fusion,PAR,Beach & Relax,96a9c2979622a133ce2cf63a4d170645f989275f,4,5,5,0,0,0.0,0.0,,
+37,grid,hybrid,PAR,Beach & Relax,1b0224f70b1f43c1cdfd9e63312a1f6f2e668cde,1,8,7,0,1,0.0,0.125,,île de la Cité
+37,grid,standard,PAR,Beach & Relax,4d026d481a004447a231b91adb4e727cfdec9416,4,6,6,0,0,0.0,0.0,,
+38,grid,fusion,PAR,Nightlife Seeker,d10aae21ab7009a05d17850d5d6c7fafe76838ba,5,6,5,0,1,0.0,0.16666666666666666,,Latin Quarter
+38,grid,hybrid,PAR,Nightlife Seeker,d10aae21ab7009a05d17850d5d6c7fafe76838ba,5,6,5,0,1,0.0,0.16666666666666666,,Latin Quarter
+38,grid,standard,PAR,Nightlife Seeker,87d4ec46a82660e4793baf6d7482f3e634f84c4c,3,5,5,0,0,0.0,0.0,,
+39,grid,fusion,PAR,Budget Backpacker,61937da3ef0e843004c4a888f567304e316f5cd5,2,7,7,0,0,0.0,0.0,,
+39,grid,hybrid,PAR,Budget Backpacker,61937da3ef0e843004c4a888f567304e316f5cd5,2,7,7,0,0,0.0,0.0,,
+39,grid,standard,PAR,Budget Backpacker,38c3f296e3c4ed49a6f7504e06cf2a3775299eb9,7,6,6,0,0,0.0,0.0,,
+40,grid,fusion,PAR,Beach & Relax,aa4e294007ccf11d520466a4897d5bd5ff65fdf5,2,7,7,0,0,0.0,0.0,,
+40,grid,hybrid,PAR,Beach & Relax,eab991a410c21d80f064336dd354a2fd908d57d5,1,7,7,0,0,0.0,0.0,,
+40,grid,standard,PAR,Beach & Relax,4d026d481a004447a231b91adb4e727cfdec9416,4,6,6,0,0,0.0,0.0,,
+41,grid,fusion,PAR,Luxury Traveler,727dfc4794b815ac5361a1dea1257d293688f0d2,2,6,6,0,0,0.0,0.0,,
+41,grid,hybrid,PAR,Luxury Traveler,727dfc4794b815ac5361a1dea1257d293688f0d2,2,6,6,0,0,0.0,0.0,,
+41,grid,standard,PAR,Luxury Traveler,b6c68f039651b8c6b2fcdc3f1660ea6c0fdf5c3f,3,8,7,0,1,0.0,0.125,,île de la Cité
+42,grid,fusion,PAR,Culture Enthusiast,b5630a347e45ba15c859a361548be805e8a44203,1,8,7,0,1,0.0,0.125,,île de la Cité
+42,grid,hybrid,PAR,Culture Enthusiast,db33454fe8011f6fa90e9088975d0e0faa2bad5a,1,8,8,0,0,0.0,0.0,,
+42,grid,standard,PAR,Culture Enthusiast,a0c2e5bcf0c06b24789b19ad10b9adb0ff50e957,13,6,5,0,1,0.0,0.16666666666666666,,Place de la Bastille
+43,grid,fusion,BER,Family Traveler,dafad1e3b962160cf12974ee2d26fb7f65bde6aa,5,6,6,0,0,0.0,0.0,,
+43,grid,hybrid,BER,Family Traveler,c2decbf9d5f577324128cfbb546a7662a12ef7d7,1,8,8,0,0,0.0,0.0,,
+43,grid,standard,BER,Family Traveler,60be78d096fbfd2f824969e00bf67756172a1a2a,6,8,8,0,0,0.0,0.0,,
+44,grid,fusion,BER,Luxury Traveler,3e8ff2b68bbfea79b608bd057ca429bc30463523,1,7,7,0,0,0.0,0.0,,
+44,grid,hybrid,BER,Luxury Traveler,01255cb8b68d529a52894610d17157a265942f91,3,9,8,0,1,0.0,0.1111111111111111,,Pariser Platz
+44,grid,standard,BER,Luxury Traveler,f943813b2cb5124ba8f3bed2e2df3f464cac5dee,6,8,8,0,0,0.0,0.0,,
+45,grid,fusion,BER,Nature & Adventure,bbc7e5f59087c4143ac6867271642efd5d677893,1,8,8,0,0,0.0,0.0,,
+45,grid,hybrid,BER,Nature & Adventure,4ef6105d0d03c3f6fea6fe203d955c146da72558,1,6,6,0,0,0.0,0.0,,
+45,grid,standard,BER,Nature & Adventure,0385d11f912b7eb94131ea6c377adb1bba0521ed,4,9,9,0,0,0.0,0.0,,
+46,grid,fusion,BER,Beach & Relax,c8c179d01b30384b3da43e21e1a447e2ed0f0e20,1,6,6,0,0,0.0,0.0,,
+46,grid,hybrid,BER,Beach & Relax,058750717b377e8f75760cdb89dbf5701f48a92e,1,8,8,0,0,0.0,0.0,,
+46,grid,standard,BER,Beach & Relax,6d72119270694c523799dc93c74cc2b94aa094cd,2,9,9,0,0,0.0,0.0,,
+47,grid,fusion,BER,Nightlife Seeker,4d0ee039cad5ea012fe7ad8dd4af60eb31789686,1,7,7,0,0,0.0,0.0,,
+47,grid,hybrid,BER,Nightlife Seeker,aaa20c8b8e0df1a988a56f427fd807b5ce4746af,2,7,7,0,0,0.0,0.0,,
+47,grid,standard,BER,Nightlife Seeker,342b63e29eefefb5a1ef023eb9b266fa4cc8a7fa,3,9,9,0,0,0.0,0.0,,
+48,grid,fusion,BER,Budget Backpacker,6eafb9c6ed3461705ee7553dd302d08d99339f87,1,7,7,0,0,0.0,0.0,,
+48,grid,hybrid,BER,Budget Backpacker,ee6188e350cd36d84410e01442502bd1bf18d3d4,4,9,8,0,1,0.0,0.1111111111111111,,Alexa
+48,grid,standard,BER,Budget Backpacker,ddf615888763341618644c7d6db018a31cbe1d15,4,8,8,0,0,0.0,0.0,,
+49,grid,fusion,BER,Family Traveler,3719dac7c06b9701144a5b81324281bac1cdd161,3,6,6,0,0,0.0,0.0,,
+49,grid,hybrid,BER,Family Traveler,dafad1e3b962160cf12974ee2d26fb7f65bde6aa,5,6,6,0,0,0.0,0.0,,
+49,grid,standard,BER,Family Traveler,60be78d096fbfd2f824969e00bf67756172a1a2a,6,8,8,0,0,0.0,0.0,,
+50,grid,fusion,BER,Culture Enthusiast,b47e9cd99454f5998a7c4c5b1d3241a75c559cf8,1,9,7,0,2,0.0,0.2222222222222222,,Pergamon Museum; Neues Museum
+50,grid,hybrid,BER,Culture Enthusiast,f7b885d0631e867d780e3d24652e47a740e167b5,4,7,7,0,0,0.0,0.0,,
+50,grid,standard,BER,Culture Enthusiast,5b708d5b57b44585a40bd3ef5637e13e789adf9f,9,8,8,0,0,0.0,0.0,,
+51,grid,fusion,BER,Culture Enthusiast,e57a811de67f0428db961b664327e17864253332,1,8,8,0,0,0.0,0.0,,
+51,grid,hybrid,BER,Culture Enthusiast,bb4bcc5ee77c98ace0db521a42fa4ad4952c5cfa,1,9,9,0,0,0.0,0.0,,
+51,grid,standard,BER,Culture Enthusiast,5b708d5b57b44585a40bd3ef5637e13e789adf9f,9,8,8,0,0,0.0,0.0,,
+52,grid,fusion,BER,Family Traveler,605efaab3711ef11d8475d6737227ee5f45308bf,1,8,8,0,0,0.0,0.0,,
+52,grid,hybrid,BER,Family Traveler,dafad1e3b962160cf12974ee2d26fb7f65bde6aa,5,6,6,0,0,0.0,0.0,,
+52,grid,standard,BER,Family Traveler,60be78d096fbfd2f824969e00bf67756172a1a2a,6,8,8,0,0,0.0,0.0,,
+53,grid,fusion,BER,Luxury Traveler,01255cb8b68d529a52894610d17157a265942f91,3,9,8,0,1,0.0,0.1111111111111111,,Pariser Platz
+53,grid,hybrid,BER,Luxury Traveler,b867b519b460a4a536b7d2ca10188682b00138a7,1,7,7,0,0,0.0,0.0,,
+53,grid,standard,BER,Luxury Traveler,f943813b2cb5124ba8f3bed2e2df3f464cac5dee,6,8,8,0,0,0.0,0.0,,
+54,grid,fusion,BER,Culture Enthusiast,c34061aa5c071920d0e98c9e9636cdd74b80e395,1,7,7,0,0,0.0,0.0,,
+54,grid,hybrid,BER,Culture Enthusiast,0f415536e8d4914f72f7942197a1845df0d4fd0b,1,7,7,0,0,0.0,0.0,,
+54,grid,standard,BER,Culture Enthusiast,5b708d5b57b44585a40bd3ef5637e13e789adf9f,9,8,8,0,0,0.0,0.0,,
+55,grid,fusion,BER,Budget Backpacker,ee6188e350cd36d84410e01442502bd1bf18d3d4,4,9,8,0,1,0.0,0.1111111111111111,,Alexa
+55,grid,hybrid,BER,Budget Backpacker,ee6188e350cd36d84410e01442502bd1bf18d3d4,4,9,8,0,1,0.0,0.1111111111111111,,Alexa
+55,grid,standard,BER,Budget Backpacker,ddf615888763341618644c7d6db018a31cbe1d15,4,8,8,0,0,0.0,0.0,,
+56,grid,fusion,BER,Budget Backpacker,e76496323ac3a3d7ac2c0ee7345f6ac59502919f,2,7,7,0,0,0.0,0.0,,
+56,grid,hybrid,BER,Budget Backpacker,e76496323ac3a3d7ac2c0ee7345f6ac59502919f,2,7,7,0,0,0.0,0.0,,
+56,grid,standard,BER,Budget Backpacker,ddf615888763341618644c7d6db018a31cbe1d15,4,8,8,0,0,0.0,0.0,,
+57,grid,fusion,BER,Luxury Traveler,6baf2a4d08338a06e2db87590dc6f9c9cd1e5626,2,7,7,0,0,0.0,0.0,,
+57,grid,hybrid,BER,Luxury Traveler,6baf2a4d08338a06e2db87590dc6f9c9cd1e5626,2,7,7,0,0,0.0,0.0,,
+57,grid,standard,BER,Luxury Traveler,f943813b2cb5124ba8f3bed2e2df3f464cac5dee,6,8,8,0,0,0.0,0.0,,
+58,grid,fusion,BER,Budget Backpacker,ea57d4d9615fc9691a8a395372c2264b802d730e,1,7,7,0,0,0.0,0.0,,
+58,grid,hybrid,BER,Budget Backpacker,ee6188e350cd36d84410e01442502bd1bf18d3d4,4,9,8,0,1,0.0,0.1111111111111111,,Alexa
+58,grid,standard,BER,Budget Backpacker,ddf615888763341618644c7d6db018a31cbe1d15,4,8,8,0,0,0.0,0.0,,
+59,grid,fusion,BER,Nightlife Seeker,4b54f76a3733390021dd51204457bddc9d2cc051,1,7,7,0,0,0.0,0.0,,
+59,grid,hybrid,BER,Nightlife Seeker,aaa20c8b8e0df1a988a56f427fd807b5ce4746af,2,7,7,0,0,0.0,0.0,,
+59,grid,standard,BER,Nightlife Seeker,342b63e29eefefb5a1ef023eb9b266fa4cc8a7fa,3,9,9,0,0,0.0,0.0,,
+60,grid,fusion,BER,Culture Enthusiast,61879101596fb4f8067ed803b2e61df16937c7d4,1,8,8,0,0,0.0,0.0,,
+60,grid,hybrid,BER,Culture Enthusiast,34a5cc6aff5e59451fbc928f3fe54449779b3987,1,7,7,0,0,0.0,0.0,,
+60,grid,standard,BER,Culture Enthusiast,5b708d5b57b44585a40bd3ef5637e13e789adf9f,9,8,8,0,0,0.0,0.0,,
+61,chain,fusion,PAR,Beach & Relax,aa4e294007ccf11d520466a4897d5bd5ff65fdf5,2,7,7,0,0,0.0,0.0,,
+61,chain,hybrid,PAR,Beach & Relax,96a9c2979622a133ce2cf63a4d170645f989275f,4,5,5,0,0,0.0,0.0,,
+61,chain,standard,PAR,Beach & Relax,4d026d481a004447a231b91adb4e727cfdec9416,4,6,6,0,0,0.0,0.0,,
+62,chain,fusion,PAR,Budget Backpacker,bfda42b99bd15b85060f4be2b37ce2fd216db29d,1,9,7,0,2,0.0,0.2222222222222222,,île de la Cité; Sacré-Cœur
+62,chain,hybrid,PAR,Budget Backpacker,9c592776ee1655b25eda7c92ab06c4e562766c2d,1,8,8,0,0,0.0,0.0,,
+62,chain,standard,PAR,Budget Backpacker,38c3f296e3c4ed49a6f7504e06cf2a3775299eb9,7,6,6,0,0,0.0,0.0,,
+63,chain,fusion,PAR,Culture Enthusiast,7d27d51dee00c6542cd733a5c0db5b3837fcd981,1,8,7,0,1,0.0,0.125,,Place de la Bastille
+63,chain,hybrid,PAR,Culture Enthusiast,5e993a4afea5f4c62b742dea2dfd8e395b64e6d0,1,8,8,0,0,0.0,0.0,,
+63,chain,standard,PAR,Culture Enthusiast,a0c2e5bcf0c06b24789b19ad10b9adb0ff50e957,13,6,5,0,1,0.0,0.16666666666666666,,Place de la Bastille
+64,chain,fusion,BER,Family Traveler,3719dac7c06b9701144a5b81324281bac1cdd161,3,6,6,0,0,0.0,0.0,,
+64,chain,hybrid,BER,Family Traveler,dafad1e3b962160cf12974ee2d26fb7f65bde6aa,5,6,6,0,0,0.0,0.0,,
+64,chain,standard,BER,Family Traveler,60be78d096fbfd2f824969e00bf67756172a1a2a,6,8,8,0,0,0.0,0.0,,
+65,chain,fusion,BER,Luxury Traveler,b43a6b349aca273199f0df1d408b3dbe0581caab,1,7,6,0,1,0.0,0.14285714285714285,,Pariser Platz
+65,chain,hybrid,BER,Luxury Traveler,e5e9f62e82136a5aac7500c4f8d6de658bfb98fb,1,8,8,0,0,0.0,0.0,,
+65,chain,standard,BER,Luxury Traveler,f943813b2cb5124ba8f3bed2e2df3f464cac5dee,6,8,8,0,0,0.0,0.0,,
+66,chain,fusion,BER,Nature & Adventure,0c9418e2506b9ff54f6669b780d4a815075b34d3,1,7,7,0,0,0.0,0.0,,
+66,chain,hybrid,BER,Nature & Adventure,c2837b8667f1a26ec2721c314af3c50dab56f8ab,1,6,6,0,0,0.0,0.0,,
+66,chain,standard,BER,Nature & Adventure,0385d11f912b7eb94131ea6c377adb1bba0521ed,4,9,9,0,0,0.0,0.0,,
