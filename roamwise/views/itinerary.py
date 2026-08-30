@@ -321,8 +321,22 @@ def _level_slider(label: str, default: str, **kwargs) -> float:
 
 with st.sidebar:
     st.header("Traveler preferences")
+    # All five read "<what> interest", because that is what all five are: a
+    # weight on a group of categories, on the same Low/Medium/High scale (#163).
+    # The two that did not were the two nobody could read a direction off.
+    # "Everyday or upmarket" named both ends and let the level pick one, so Low
+    # was either "everyday" or "not very upmarket" depending on the reader; and
+    # "Relaxed pace" sounded like a setting for how full a day is, which is
+    # what "Time out per day" does -- this one is an interest in cafes and easy
+    # stops, and moves the same kind of weight the other four do.
+    #
+    # Still not "Budget", and that is deliberate rather than squeamish: the
+    # slider never reads price. `price_level` reaches the free/paid label on a
+    # stop and the free-entry share in the summary, and neither is the score
+    # (REPORT §5). Calling it a budget control would promise filtering the app
+    # does not do.
     budget = _level_slider(
-        "Everyday or upmarket", "Medium",
+        "Upmarket / luxury interest", "Medium",
         help="Shifts the plan between everyday stops and upmarket ones -- it reaches "
              "the score through shopping and landmarks. It does not filter by what "
              "things cost: the catalogue records free-or-paid rather than a price, so "
@@ -331,8 +345,9 @@ with st.sidebar:
     nature = _level_slider("Nature / outdoors interest", "Medium")
     nightlife = _level_slider("Nightlife interest", "Low")
     relax = _level_slider(
-        "Relaxed pace", "Low",
-        help="Slower days built around cafes, restaurants and easy culture stops.")
+        "Relaxation interest", "Low",
+        help="Slower days built around cafes, restaurants and easy culture stops. It "
+             "weights those categories; how long a day runs is set by Time out per day.")
     # No "Adventure interest" slider, and its absence is the honest answer
     # rather than an oversight (#79). The catalogue has no adventure-ish
     # category -- `beach` was the nearest one the affinity table offered and it
