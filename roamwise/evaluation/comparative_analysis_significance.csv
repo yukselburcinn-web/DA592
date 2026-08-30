@@ -3,11 +3,11 @@ recall_at_k,fusion,hybrid,67,0.116,52,3,12,0.0,better
 normalized_recall,fusion,hybrid,67,0.2688,52,3,12,0.0,better
 archetype_precision,fusion,hybrid,67,0.2958,50,1,16,0.0,better
 grounded_entity_rate,fusion,hybrid,67,0.0,0,0,67,,identical
-km_per_stop_day1,fusion,hybrid,67,0.2543,42,20,5,6e-05,better
-retrieval_ms,fusion,hybrid,67,-14.0434,0,67,0,0.0,worse
+km_per_stop_day1,fusion,hybrid,67,0.1475,38,19,10,0.00274,better
+retrieval_ms,fusion,hybrid,67,-8.3049,0,67,0,0.0,worse
 recall_at_k,fusion,standard,67,0.2362,64,0,3,0.0,better
 normalized_recall,fusion,standard,67,0.517,64,0,3,0.0,better
 archetype_precision,fusion,standard,67,0.528,66,1,0,0.0,better
 grounded_entity_rate,fusion,standard,67,1.0,67,0,0,0.0,better
-km_per_stop_day1,fusion,standard,67,0.0015,35,30,2,0.75869,no difference
-retrieval_ms,fusion,standard,67,-23.0637,0,67,0,0.0,worse
+km_per_stop_day1,fusion,standard,67,-0.1401,19,45,3,0.00011,worse
+retrieval_ms,fusion,standard,67,-18.8191,0,67,0,0.0,worse

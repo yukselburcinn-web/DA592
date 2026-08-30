@@ -52,7 +52,7 @@ from ortools.util.optional_boolean_pb2 import BOOL_TRUE as _BOOL_TRUE
 from roamwise.optimization.routing import (
     DEFAULT_DAY_START_HOUR, FOOD_CATEGORY, NIGHTLIFE_EARLIEST_HOUR,
     _build_distance_functions, _is_food, _is_nightlife, _opening_intervals)
-from roamwise.optimization.scoring import busyness_over, expected_busyness
+from roamwise.optimization.scoring import busyness_over, expected_busyness, quality
 from roamwise.optimization.travel_modes import DEFAULT_MODE
 
 # What a stop is worth, in metres of extra walking, when nothing says
@@ -62,6 +62,53 @@ from roamwise.optimization.travel_modes import DEFAULT_MODE
 # binding constraint. 8000 is the cheapest point on the flat part -- it takes
 # every stop the pool can offer without paying for stops nobody asked for.
 DEFAULT_DROP_PENALTY_M = 8000
+# What a landmark is worth keeping, on top of that (issue #122).
+#
+# One scalar penalty means the solver values every stop the same, so a stop
+# that sits away from the centre is always the cheapest thing to drop --
+# measured, the Eiffel Tower reached the shortlist in 3 of 7 archetypes and the
+# plan in 0 of 7, and so did the Berlin Wall. Nothing upstream can fix that:
+# widening the pool to the whole catalogue leaves it dropped, and makes iconic
+# coverage *worse*, because more candidates means more competition under a
+# score that does not favour fame (#122's own measurement).
+#
+# This is not the idea `evaluation/toptw_scoring_ablation.py` rejected at #72.
+# That one reweighted *every* node with the selection score, and cost stops and
+# distance for a 4% move in its own objective. Here a handful of POIs -- the
+# ones whose within-pool prominence clears the threshold -- cost more to skip,
+# and everything else keeps the flat price. The two knobs are swept together in
+# `evaluation/iconic_penalty_sweep.py`, over 2 cities x 7 archetypes x 3 days:
+#
+#   thresh  mult   iconic kept   stops/day   km/stop
+#     -      1.0      33/168      8.071       0.624     <- before
+#    0.99    1.5      65/168      7.976       0.763
+#    0.97    1.5      80/168      8.095       0.755     <- shipped
+#    0.97    2.0      84/168      8.048       0.815
+#    0.95    3.0      84/168      7.929       0.983
+#
+# 0.97 x 1.5 because it dominates: more landmarks kept than 0.99 (80 against
+# 65) at *less* distance per stop (+21.0% against +22.3%) and no cost in stops
+# at all (+0.3%). The pairs that keep another four (0.97 x 2.0, 0.95 x 2.0) buy
+# them at +30.6% and +54.5% km/stop, so this follows #63 and takes the setting
+# that gives back least of #72's -55.3% rather than the biggest headline count.
+#
+# **This pair was chosen twice, and the first choice is recorded rather than
+# quietly replaced.** Swept before `router_agent.ICONIC_GUARANTEED` existed --
+# when a landmark reached the pool for 3 of 7 archetypes rather than all 7 --
+# the answer was 0.99 x 1.5, and 0.97 looked like it cost half again as much
+# distance for its extra coverage. Widening which POIs are candidates changed
+# which threshold is efficient, because 0.99 admits about four POIs of a
+# working set and 0.97 about eight: with landmarks guaranteed, the second rank
+# is what 0.99 leaves on the table. A swept number is only worth the conditions
+# it was swept under -- the same lesson #126's chain weight recorded.
+#
+# The multiplier saturates: at 0.97 both 2.0 and 3.0 return 84/168, because a
+# landmark already costs more to skip than any detour to reach it is worth.
+#
+# What it spends is real and is not a rounding error: a landmark sits away from
+# the centre cluster, so keeping it means walking to it. See REPORT §5.
+ICONIC_QUALITY_THRESHOLD = 0.97
+ICONIC_DROP_MULTIPLIER = 1.5
 # At most this many stops of one category in a day, the diversity factor from
 # the issue's score formula. It cannot be a node weight -- "the third museum
 # today" is a property of a partial route, not of a POI -- so it lives here,
@@ -426,6 +473,7 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
           respect_opening_hours: bool = True, start_date=None,
           distance_fn=None, duration_fn=None, used_real_routing: bool = False,
           min_food_per_day: int = 0, drop_penalty_m: int = DEFAULT_DROP_PENALTY_M,
+          iconic_quality_threshold: float = None, iconic_drop_multiplier: float = None,
           max_same_category: int = DEFAULT_MAX_SAME_CATEGORY,
           hour_aware: bool = True) -> list[dict]:
     """One model, every day. Returns one dict per day in the shape the rest of
@@ -595,8 +643,25 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
     # Visit each POI once across the whole trip, or pay to skip it. Spanning
     # every copy -- all days, all sittings -- is also what stops the same
     # restaurant being booked twice.
+    # What it costs to skip each POI. Scalar until #122: every stop was worth
+    # the same 8 km of walking, so the ones furthest from the cluster were
+    # always the cheapest to lose however well known they were. Prominence is
+    # `scoring.quality` -- the same min-max of `popularity_score` retrieval
+    # ranks with, normalised within this working set, so "the best known here"
+    # means the best known among the candidates this trip actually has.
+    #
+    # None rather than the constants as default arguments: a default is bound
+    # once at import, and the sweep sets the module constants.
+    threshold = (ICONIC_QUALITY_THRESHOLD if iconic_quality_threshold is None
+                 else iconic_quality_threshold)
+    multiplier = (ICONIC_DROP_MULTIPLIER if iconic_drop_multiplier is None
+                  else iconic_drop_multiplier)
+    fame = quality(pois) if multiplier != 1.0 else None
     for poi_i in sorted(by_poi):
-        routing.AddDisjunction(by_poi[poi_i], max(int(drop_penalty_m), 1), 1)
+        penalty = drop_penalty_m
+        if fame is not None and fame[poi_i] >= threshold:
+            penalty = drop_penalty_m * multiplier
+        routing.AddDisjunction(by_poi[poi_i], max(int(penalty), 1), 1)
 
     for k, _, _ in meals:
         # One sitting filled per day, as a constraint of the model rather than
@@ -757,6 +822,8 @@ def build_multi_day_itinerary(pois: list[dict], n_days: int, start_hub: dict = N
                                food_pois: list[dict] = None, min_food_per_day: int = 0,
                                start_date=None,
                                drop_penalty_m: int = DEFAULT_DROP_PENALTY_M,
+                               iconic_quality_threshold: float = None,
+                               iconic_drop_multiplier: float = None,
                                max_same_category: int = DEFAULT_MAX_SAME_CATEGORY,
                                hour_aware: bool = True) -> list[dict]:
     """The router's entry point: candidates in, one routed day per trip day out.
@@ -803,4 +870,6 @@ def build_multi_day_itinerary(pois: list[dict], n_days: int, start_hub: dict = N
                  distance_fn=distance_fn, duration_fn=duration_fn,
                  used_real_routing=used_real_routing,
                  min_food_per_day=min_food_per_day, drop_penalty_m=drop_penalty_m,
+                 iconic_quality_threshold=iconic_quality_threshold,
+                 iconic_drop_multiplier=iconic_drop_multiplier,
                  max_same_category=max_same_category, hour_aware=hour_aware)

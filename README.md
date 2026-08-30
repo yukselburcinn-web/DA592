@@ -50,17 +50,17 @@ cd roamwise
 python evaluation/comparative_analysis.py
 ```
 
-Writes `evaluation/comparative_analysis_results.csv` (per-query), `evaluation/comparative_analysis_summary.csv` (aggregated) and `evaluation/comparative_analysis_significance.csv` (the pairwise tests below). It scores 55 queries across 2 cities and 7 archetypes on five metrics: multi-hop recall against a graph-computed gold set, archetype precision, grounded-entity rate, itinerary coherence (km per stop), and retrieval latency. Current summary:
+Writes `evaluation/comparative_analysis_results.csv` (per-query), `evaluation/comparative_analysis_summary.csv` (aggregated) and `evaluation/comparative_analysis_significance.csv` (the pairwise tests below). It scores 67 queries across 2 cities and 7 archetypes on five metrics: multi-hop recall against an independent Wikivoyage gold set, archetype precision, grounded-entity rate, itinerary coherence (km per stop), and retrieval latency. Current summary:
 
-| Config | Multi-hop recall | Archetype precision | Grounded | Km/stop | Latency |
-|---|---|---|---|---|---|
-| **Fusion RAG** | 0.162 | **0.837** | 1.000 | 0.88 | 11.3 ms |
-| Hybrid RAG | 0.154 | 0.716 | 1.000 | 0.90 | 8.8 ms |
-| Standard prompting | 0.000 | 0.500 | 0.000 | 0.69 | 0.0 ms |
+| Config | Multi-hop recall | Recall vs attainable | Archetype precision | Grounded | Km/stop | Latency |
+|---|---|---|---|---|---|---|
+| **Fusion RAG** | **0.236** | **0.517** | **0.968** | 1.000 | 0.91 | 18.8 ms |
+| Hybrid RAG | 0.120 | 0.248 | 0.672 | 1.000 | 1.06 | 10.5 ms |
+| Standard prompting | 0.000 | 0.000 | 0.440 | 0.000 | 0.77 | 0.0 ms |
 
-Because a gap between two averages can be noise, each metric is also tested pairwise (Wilcoxon signed-rank across the same queries — see the **Is the lead real?** table in the app). Against Hybrid RAG, Fusion RAG is significantly better on **archetype precision** (p<0.0001), *tied by construction* on grounded entities, and **not distinguishable** on multi-hop recall (p=0.49) or km per stop (p=0.45), at roughly 2 ms more per retrieval. Archetype precision is why the app pins Fusion rather than asking the traveler to choose.
+Because a gap between two averages can be noise, each metric is also tested pairwise (Wilcoxon signed-rank across the same queries — see the **Is the lead real?** table in the app). Against Hybrid RAG, Fusion RAG is significantly better on **multi-hop recall** (p<0.0001), **archetype precision** (p<0.0001) and **km per stop** (p=0.0027), *tied by construction* on grounded entities, and slower by roughly 8 ms per retrieval. Recall separates only since the gold set stopped being computed from the graph the retriever itself walks; see [`REPORT.md` §3.5](REPORT.md#35-comparative-analysis) for why the earlier version of this table reported no difference.
 
-**Read multi-hop recall against its ceiling, not against 1.0.** Recall is measured at k=8 while the median query's gold set holds 32 POIs, so even a perfectly ordered retriever tops out at **0.317**. Fusion's 0.162 is 51% of what is reachable. The number is lower than the 0.278 this table carried for the previous eight-city catalogue for the same reason: that catalogue held 150 POIs per city, so its gold sets — and its ceiling — were far smaller. The two figures are not comparable, and neither is evidence about retrieval quality on its own.
+**Read the second column, not the first.** Recall@k divides hits by the size of the answer key, but only `top_k` places are retrieved and the median key holds more than that, so the first column measures the key's size as much as the retrieval. *Recall vs attainable* divides by `min(top_k, key size)` instead, so 1.0 means the retriever found everything the pool had room for — Fusion reaches **0.517** of it. Figures from earlier revisions of this table are not comparable to these: the catalogue, the query set and the gold set have each been rebuilt since ([`REPORT.md` §3.5](REPORT.md#35-comparative-analysis)).
 
 The queries come in two tiers, and the split is the point: 19 are hand-written the way a traveler would phrase a question, and 36 are generated to sweep city × category cells evenly. Archetype precision holds in **both** tiers (p=0.0013 hand-written, p=0.0001 grid), so it is a property of the architecture. Multi-hop recall does not — it is indistinguishable in **both** tiers (p=0.13 hand-written, p=0.82 grid). An earlier 18-query set reported recall as a clear Fusion win; broadening and balancing the queries removed it. See [`#50`](https://github.com/yukselburcinn-web/DA592/issues/50) for how the query set is built and [`#48`](https://github.com/yukselburcinn-web/DA592/issues/48) for why some queries grade the graph retriever against its own traversal.
 

@@ -1,0 +1,169 @@
+city,archetype,poi_id,name,category,popularity_score,in_pool,in_shortlist,in_plan
+BER,Beach & Relax,POI0401,Berlin Wall,landmark,5.0,True,True,True
+BER,Beach & Relax,POI0406,Brandenburg Gate,landmark,4.99,True,True,True
+BER,Beach & Relax,POI0411,Reichstag,landmark,4.98,True,True,True
+BER,Beach & Relax,POI0403,Führerbunker,history,4.97,False,False,False
+BER,Beach & Relax,POI0409,Fernsehturm Berlin,history,4.96,False,False,False
+BER,Beach & Relax,POI0408,Berghain,nightlife,4.95,False,False,False
+BER,Beach & Relax,POI0416,Memorial to the Murdered Jews of Europe,history,4.94,False,False,False
+BER,Beach & Relax,POI0404,Pergamon Museum,museum,4.93,False,False,False
+BER,Beach & Relax,POI0420,Berlin Palace,landmark,4.92,False,False,False
+BER,Beach & Relax,POI0405,Berlin Cathedral,religion,4.92,False,False,False
+BER,Beach & Relax,POI0410,Museum Island,culture,4.91,True,True,True
+BER,Beach & Relax,POI0421,Siegessäule,history,4.9,False,False,False
+BER,Budget Backpacker,POI0401,Berlin Wall,landmark,5.0,True,True,True
+BER,Budget Backpacker,POI0406,Brandenburg Gate,landmark,4.99,True,True,True
+BER,Budget Backpacker,POI0411,Reichstag,landmark,4.98,True,True,True
+BER,Budget Backpacker,POI0403,Führerbunker,history,4.97,False,False,False
+BER,Budget Backpacker,POI0409,Fernsehturm Berlin,history,4.96,False,False,False
+BER,Budget Backpacker,POI0408,Berghain,nightlife,4.95,True,True,True
+BER,Budget Backpacker,POI0416,Memorial to the Murdered Jews of Europe,history,4.94,False,False,False
+BER,Budget Backpacker,POI0404,Pergamon Museum,museum,4.93,False,False,False
+BER,Budget Backpacker,POI0420,Berlin Palace,landmark,4.92,False,False,False
+BER,Budget Backpacker,POI0405,Berlin Cathedral,religion,4.92,False,False,False
+BER,Budget Backpacker,POI0410,Museum Island,culture,4.91,True,True,True
+BER,Budget Backpacker,POI0421,Siegessäule,history,4.9,False,False,False
+BER,Culture Enthusiast,POI0401,Berlin Wall,landmark,5.0,True,True,True
+BER,Culture Enthusiast,POI0406,Brandenburg Gate,landmark,4.99,True,True,True
+BER,Culture Enthusiast,POI0411,Reichstag,landmark,4.98,True,True,True
+BER,Culture Enthusiast,POI0403,Führerbunker,history,4.97,True,True,True
+BER,Culture Enthusiast,POI0409,Fernsehturm Berlin,history,4.96,True,True,True
+BER,Culture Enthusiast,POI0408,Berghain,nightlife,4.95,False,False,False
+BER,Culture Enthusiast,POI0416,Memorial to the Murdered Jews of Europe,history,4.94,True,True,True
+BER,Culture Enthusiast,POI0404,Pergamon Museum,museum,4.93,True,True,False
+BER,Culture Enthusiast,POI0420,Berlin Palace,landmark,4.92,True,True,True
+BER,Culture Enthusiast,POI0405,Berlin Cathedral,religion,4.92,True,True,True
+BER,Culture Enthusiast,POI0410,Museum Island,culture,4.91,True,True,True
+BER,Culture Enthusiast,POI0421,Siegessäule,history,4.9,True,True,False
+BER,Family Traveler,POI0401,Berlin Wall,landmark,5.0,True,True,True
+BER,Family Traveler,POI0406,Brandenburg Gate,landmark,4.99,True,True,True
+BER,Family Traveler,POI0411,Reichstag,landmark,4.98,True,True,True
+BER,Family Traveler,POI0403,Führerbunker,history,4.97,False,False,False
+BER,Family Traveler,POI0409,Fernsehturm Berlin,history,4.96,False,False,False
+BER,Family Traveler,POI0408,Berghain,nightlife,4.95,False,False,False
+BER,Family Traveler,POI0416,Memorial to the Murdered Jews of Europe,history,4.94,False,False,False
+BER,Family Traveler,POI0404,Pergamon Museum,museum,4.93,True,True,False
+BER,Family Traveler,POI0420,Berlin Palace,landmark,4.92,True,True,True
+BER,Family Traveler,POI0405,Berlin Cathedral,religion,4.92,False,False,False
+BER,Family Traveler,POI0410,Museum Island,culture,4.91,True,True,True
+BER,Family Traveler,POI0421,Siegessäule,history,4.9,False,False,False
+BER,Luxury Traveler,POI0401,Berlin Wall,landmark,5.0,True,True,True
+BER,Luxury Traveler,POI0406,Brandenburg Gate,landmark,4.99,True,True,True
+BER,Luxury Traveler,POI0411,Reichstag,landmark,4.98,True,True,True
+BER,Luxury Traveler,POI0403,Führerbunker,history,4.97,False,False,False
+BER,Luxury Traveler,POI0409,Fernsehturm Berlin,history,4.96,False,False,False
+BER,Luxury Traveler,POI0408,Berghain,nightlife,4.95,False,False,False
+BER,Luxury Traveler,POI0416,Memorial to the Murdered Jews of Europe,history,4.94,False,False,False
+BER,Luxury Traveler,POI0404,Pergamon Museum,museum,4.93,True,True,False
+BER,Luxury Traveler,POI0420,Berlin Palace,landmark,4.92,True,True,True
+BER,Luxury Traveler,POI0405,Berlin Cathedral,religion,4.92,False,False,False
+BER,Luxury Traveler,POI0410,Museum Island,culture,4.91,True,True,True
+BER,Luxury Traveler,POI0421,Siegessäule,history,4.9,False,False,False
+BER,Nature & Adventure,POI0401,Berlin Wall,landmark,5.0,True,True,True
+BER,Nature & Adventure,POI0406,Brandenburg Gate,landmark,4.99,True,True,True
+BER,Nature & Adventure,POI0411,Reichstag,landmark,4.98,True,True,True
+BER,Nature & Adventure,POI0403,Führerbunker,history,4.97,True,True,True
+BER,Nature & Adventure,POI0409,Fernsehturm Berlin,history,4.96,True,True,True
+BER,Nature & Adventure,POI0408,Berghain,nightlife,4.95,False,False,False
+BER,Nature & Adventure,POI0416,Memorial to the Murdered Jews of Europe,history,4.94,True,True,True
+BER,Nature & Adventure,POI0404,Pergamon Museum,museum,4.93,False,False,False
+BER,Nature & Adventure,POI0420,Berlin Palace,landmark,4.92,False,False,False
+BER,Nature & Adventure,POI0405,Berlin Cathedral,religion,4.92,False,False,False
+BER,Nature & Adventure,POI0410,Museum Island,culture,4.91,True,True,True
+BER,Nature & Adventure,POI0421,Siegessäule,history,4.9,True,True,True
+BER,Nightlife Seeker,POI0401,Berlin Wall,landmark,5.0,True,True,True
+BER,Nightlife Seeker,POI0406,Brandenburg Gate,landmark,4.99,True,True,True
+BER,Nightlife Seeker,POI0411,Reichstag,landmark,4.98,True,True,True
+BER,Nightlife Seeker,POI0403,Führerbunker,history,4.97,False,False,False
+BER,Nightlife Seeker,POI0409,Fernsehturm Berlin,history,4.96,False,False,False
+BER,Nightlife Seeker,POI0408,Berghain,nightlife,4.95,True,True,True
+BER,Nightlife Seeker,POI0416,Memorial to the Murdered Jews of Europe,history,4.94,False,False,False
+BER,Nightlife Seeker,POI0404,Pergamon Museum,museum,4.93,False,False,False
+BER,Nightlife Seeker,POI0420,Berlin Palace,landmark,4.92,False,False,False
+BER,Nightlife Seeker,POI0405,Berlin Cathedral,religion,4.92,False,False,False
+BER,Nightlife Seeker,POI0410,Museum Island,culture,4.91,True,True,True
+BER,Nightlife Seeker,POI0421,Siegessäule,history,4.9,False,False,False
+PAR,Beach & Relax,POI0001,Eiffel Tower,landmark,5.0,True,True,True
+PAR,Beach & Relax,POI0003,Notre-Dame de Paris,religion,4.99,True,True,True
+PAR,Beach & Relax,POI0002,Louvre Museum,museum,4.99,True,True,True
+PAR,Beach & Relax,POI0008,Musée d'Orsay,museum,4.98,False,False,False
+PAR,Beach & Relax,POI0009,Bastille,landmark,4.97,False,False,False
+PAR,Beach & Relax,POI0005,Père Lachaise Cemetery,history,4.97,False,False,False
+PAR,Beach & Relax,POI0006,Montmartre,nature,4.96,True,True,True
+PAR,Beach & Relax,POI0020,Catacombs of Paris,museum,4.95,False,False,False
+PAR,Beach & Relax,POI0011,Panthéon,religion,4.94,False,False,False
+PAR,Beach & Relax,POI0017,Sacré-Cœur,religion,4.93,False,False,False
+PAR,Beach & Relax,POI0007,Moulin Rouge,nightlife,4.92,False,False,False
+PAR,Beach & Relax,POI0030,Les Invalides,landmark,4.92,False,False,False
+PAR,Budget Backpacker,POI0001,Eiffel Tower,landmark,5.0,True,True,True
+PAR,Budget Backpacker,POI0003,Notre-Dame de Paris,religion,4.99,True,True,True
+PAR,Budget Backpacker,POI0002,Louvre Museum,museum,4.99,True,True,True
+PAR,Budget Backpacker,POI0008,Musée d'Orsay,museum,4.98,False,False,False
+PAR,Budget Backpacker,POI0009,Bastille,landmark,4.97,False,False,False
+PAR,Budget Backpacker,POI0005,Père Lachaise Cemetery,history,4.97,False,False,False
+PAR,Budget Backpacker,POI0006,Montmartre,nature,4.96,True,True,True
+PAR,Budget Backpacker,POI0020,Catacombs of Paris,museum,4.95,False,False,False
+PAR,Budget Backpacker,POI0011,Panthéon,religion,4.94,False,False,False
+PAR,Budget Backpacker,POI0017,Sacré-Cœur,religion,4.93,False,False,False
+PAR,Budget Backpacker,POI0007,Moulin Rouge,nightlife,4.92,True,True,True
+PAR,Budget Backpacker,POI0030,Les Invalides,landmark,4.92,False,False,False
+PAR,Culture Enthusiast,POI0001,Eiffel Tower,landmark,5.0,True,True,True
+PAR,Culture Enthusiast,POI0003,Notre-Dame de Paris,religion,4.99,True,True,True
+PAR,Culture Enthusiast,POI0002,Louvre Museum,museum,4.99,True,True,True
+PAR,Culture Enthusiast,POI0008,Musée d'Orsay,museum,4.98,True,True,True
+PAR,Culture Enthusiast,POI0009,Bastille,landmark,4.97,True,True,True
+PAR,Culture Enthusiast,POI0005,Père Lachaise Cemetery,history,4.97,True,True,True
+PAR,Culture Enthusiast,POI0006,Montmartre,nature,4.96,False,False,False
+PAR,Culture Enthusiast,POI0020,Catacombs of Paris,museum,4.95,True,True,True
+PAR,Culture Enthusiast,POI0011,Panthéon,religion,4.94,True,True,True
+PAR,Culture Enthusiast,POI0017,Sacré-Cœur,religion,4.93,True,True,True
+PAR,Culture Enthusiast,POI0007,Moulin Rouge,nightlife,4.92,False,False,False
+PAR,Culture Enthusiast,POI0030,Les Invalides,landmark,4.92,True,True,True
+PAR,Family Traveler,POI0001,Eiffel Tower,landmark,5.0,True,True,True
+PAR,Family Traveler,POI0003,Notre-Dame de Paris,religion,4.99,True,True,True
+PAR,Family Traveler,POI0002,Louvre Museum,museum,4.99,True,True,True
+PAR,Family Traveler,POI0008,Musée d'Orsay,museum,4.98,True,True,True
+PAR,Family Traveler,POI0009,Bastille,landmark,4.97,True,True,True
+PAR,Family Traveler,POI0005,Père Lachaise Cemetery,history,4.97,False,False,False
+PAR,Family Traveler,POI0006,Montmartre,nature,4.96,True,True,True
+PAR,Family Traveler,POI0020,Catacombs of Paris,museum,4.95,True,True,False
+PAR,Family Traveler,POI0011,Panthéon,religion,4.94,False,False,False
+PAR,Family Traveler,POI0017,Sacré-Cœur,religion,4.93,False,False,False
+PAR,Family Traveler,POI0007,Moulin Rouge,nightlife,4.92,False,False,False
+PAR,Family Traveler,POI0030,Les Invalides,landmark,4.92,True,True,True
+PAR,Luxury Traveler,POI0001,Eiffel Tower,landmark,5.0,True,True,True
+PAR,Luxury Traveler,POI0003,Notre-Dame de Paris,religion,4.99,True,True,True
+PAR,Luxury Traveler,POI0002,Louvre Museum,museum,4.99,True,True,True
+PAR,Luxury Traveler,POI0008,Musée d'Orsay,museum,4.98,True,True,True
+PAR,Luxury Traveler,POI0009,Bastille,landmark,4.97,True,True,True
+PAR,Luxury Traveler,POI0005,Père Lachaise Cemetery,history,4.97,False,False,False
+PAR,Luxury Traveler,POI0006,Montmartre,nature,4.96,False,False,False
+PAR,Luxury Traveler,POI0020,Catacombs of Paris,museum,4.95,False,False,False
+PAR,Luxury Traveler,POI0011,Panthéon,religion,4.94,False,False,False
+PAR,Luxury Traveler,POI0017,Sacré-Cœur,religion,4.93,False,False,False
+PAR,Luxury Traveler,POI0007,Moulin Rouge,nightlife,4.92,False,False,False
+PAR,Luxury Traveler,POI0030,Les Invalides,landmark,4.92,True,True,True
+PAR,Nature & Adventure,POI0001,Eiffel Tower,landmark,5.0,True,True,True
+PAR,Nature & Adventure,POI0003,Notre-Dame de Paris,religion,4.99,True,True,True
+PAR,Nature & Adventure,POI0002,Louvre Museum,museum,4.99,True,True,True
+PAR,Nature & Adventure,POI0008,Musée d'Orsay,museum,4.98,False,False,False
+PAR,Nature & Adventure,POI0009,Bastille,landmark,4.97,False,False,False
+PAR,Nature & Adventure,POI0005,Père Lachaise Cemetery,history,4.97,True,True,False
+PAR,Nature & Adventure,POI0006,Montmartre,nature,4.96,True,True,True
+PAR,Nature & Adventure,POI0020,Catacombs of Paris,museum,4.95,False,False,False
+PAR,Nature & Adventure,POI0011,Panthéon,religion,4.94,False,False,False
+PAR,Nature & Adventure,POI0017,Sacré-Cœur,religion,4.93,False,False,False
+PAR,Nature & Adventure,POI0007,Moulin Rouge,nightlife,4.92,False,False,False
+PAR,Nature & Adventure,POI0030,Les Invalides,landmark,4.92,False,False,False
+PAR,Nightlife Seeker,POI0001,Eiffel Tower,landmark,5.0,True,True,False
+PAR,Nightlife Seeker,POI0003,Notre-Dame de Paris,religion,4.99,True,True,True
+PAR,Nightlife Seeker,POI0002,Louvre Museum,museum,4.99,True,True,True
+PAR,Nightlife Seeker,POI0008,Musée d'Orsay,museum,4.98,False,False,False
+PAR,Nightlife Seeker,POI0009,Bastille,landmark,4.97,False,False,False
+PAR,Nightlife Seeker,POI0005,Père Lachaise Cemetery,history,4.97,False,False,False
+PAR,Nightlife Seeker,POI0006,Montmartre,nature,4.96,False,False,False
+PAR,Nightlife Seeker,POI0020,Catacombs of Paris,museum,4.95,False,False,False
+PAR,Nightlife Seeker,POI0011,Panthéon,religion,4.94,False,False,False
+PAR,Nightlife Seeker,POI0017,Sacré-Cœur,religion,4.93,False,False,False
+PAR,Nightlife Seeker,POI0007,Moulin Rouge,nightlife,4.92,True,True,True
+PAR,Nightlife Seeker,POI0030,Les Invalides,landmark,4.92,False,False,False
