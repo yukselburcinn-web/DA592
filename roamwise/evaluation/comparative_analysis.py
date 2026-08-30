@@ -28,9 +28,12 @@ each retrieval component concrete:
      merge where standard prompting runs nothing, so the comparison is only
      honest if the price is on the table next to the benefit.
 
-If ANTHROPIC_API_KEY is set, `run_llm_hallucination_probe()` additionally
-runs a real generative hallucination check (see its docstring) -- this part
-is optional and skipped by default.
+`run_llm_hallucination_probe()` additionally runs a real generative
+hallucination check (see its docstring). It is optional and skipped by
+default: as a script it needs `--probe` *and* ANTHROPIC_API_KEY, because
+rebuilding the committed CSVs -- the everyday reason to run this file -- costs
+no generations at all, and should not start costing them just because a key is
+exported (issue #7).
 """
 import json
 import os
@@ -762,7 +765,17 @@ def run_llm_hallucination_probe():
     describe a POI in each test city with zero retrieved context (true
     'standard prompting'), then check whether every named entity in the
     response matches a real KB node. Skipped (returns None) without a key
-    so the rest of the evaluation stays free/offline."""
+    so the rest of the evaluation stays free/offline.
+
+    One call per *city*, not per query. This used to iterate TEST_QUERIES and
+    unpack four fields from each -- which stopped working when TestQuery grew
+    past four, and raised ValueError on the first row (issue #7). The bug was
+    invisible because the key check above returns before it on every offline
+    run, so the only way to reach it was to configure the very integration it
+    then broke. Fixing the unpack alone would have left the loop asking the
+    same two questions 67 times: the prompt depends on nothing but the city,
+    and there are two cities in the catalogue.
+    """
     if not os.environ.get("ANTHROPIC_API_KEY"):
         return None
     from roamwise.agents.llm_client import AnthropicLLMClient
@@ -770,7 +783,7 @@ def run_llm_hallucination_probe():
     known_names = {data["name"].lower() for _, data in idx.g.nodes(data=True) if data.get("type") == "POI"}
     llm = AnthropicLLMClient()
     probe_rows = []
-    for dest_id, _, _, _ in TEST_QUERIES:
+    for dest_id in sorted({query.destination_id for query in TEST_QUERIES}):
         city = idx.g.nodes[dest_id]["name"]
         prompt = f"List 5 specific points of interest to visit in {city}, one per line, name only."
         text = llm.complete(system="You are a travel assistant.", prompt=prompt)
@@ -792,9 +805,18 @@ if __name__ == "__main__":
     print("\nIs the lead real? (Wilcoxon signed-rank, paired by query)\n",
           significance.to_string(index=False))
 
-    probe = run_llm_hallucination_probe()
-    if probe is not None:
-        probe.to_csv(HERE / "llm_hallucination_probe.csv", index=False)
-        print("\nLive LLM hallucination probe:\n", probe.to_string())
+    # Behind a flag as well as behind the key (issue #7). Rebuilding the
+    # committed CSVs is the everyday reason to run this file, and it needs no
+    # model at all -- run_comparative_analysis passes narrate=False throughout.
+    # Spending live API calls on it because a key happens to be exported is a
+    # cost nobody asked for, and the key alone cannot express the difference.
+    if "--probe" in sys.argv:
+        probe = run_llm_hallucination_probe()
+        if probe is not None:
+            probe.to_csv(HERE / "llm_hallucination_probe.csv", index=False)
+            print("\nLive LLM hallucination probe:\n", probe.to_string())
+        else:
+            print("\n(--probe given but no ANTHROPIC_API_KEY set -- skipped the live-LLM "
+                  "hallucination probe.)")
     else:
-        print("\n(No ANTHROPIC_API_KEY set -- skipped the optional live-LLM hallucination probe.)")
+        print("\n(Skipped the live-LLM hallucination probe; pass --probe to run it.)")

@@ -3258,3 +3258,46 @@ def test_the_ui_can_tell_a_silent_fallback_from_the_intended_default(monkeypatch
 
     assert fallback_reason(NotATemplate()) is None
     assert "template" in describe_client(TemplateLLMClient())
+
+
+def test_the_comparative_analysis_spends_no_generations(monkeypatch):
+    """The 201-call trap (issue #7).
+
+    `run_comparative_analysis` runs every query through three configurations
+    and routes a day from each one's candidates. It passes `narrate=False` at
+    every step, so the whole measurement costs zero generations -- and the
+    comment above that argument says why. But a comment is all that guards it:
+    drop the argument and the table quietly starts firing one generation per
+    query per configuration, which on the committed query set is 67 x 3 = 201
+    calls. Under a 40-per-minute quota that is five minutes of a rebuild spent
+    on prose nothing reads, and offline it is invisible, because
+    TemplateLLMClient answers instantly and for free (see CLAUDE.md).
+
+    The agents bind `get_default_llm_client` at import, so each module is
+    patched where it looks the name up rather than at its source.
+    """
+    from roamwise.agents import fusion_rag_agent, router_agent
+    from roamwise.agents.llm_client import Completion, LLMClient
+    from roamwise.evaluation import comparative_analysis as ca
+
+    calls = []
+
+    class CountingLLM(LLMClient):
+        def complete_verbose(self, system, prompt, max_tokens=None):
+            calls.append(system)
+            return Completion(prompt, truncated=False)
+
+    for module in (router_agent, fusion_rag_agent):
+        monkeypatch.setattr(module, "get_default_llm_client", lambda: CountingLLM())
+
+    # One query is enough: the rule is per-step, not per-query, and the full
+    # set costs minutes. Sliced rather than rewritten so the row still carries
+    # a real query with a real answer key.
+    committed_queries = len(ca.TEST_QUERIES)
+    monkeypatch.setattr(ca, "TEST_QUERIES", ca.TEST_QUERIES[:1])
+    results = ca.run_comparative_analysis()
+
+    assert len(results) == len(ca.CONFIGS), "the slice should still measure every configuration"
+    assert not calls, (
+        f"the comparative analysis must not generate prose -- got {len(calls)} call(s) for "
+        f"one query, which is {len(calls) * committed_queries} for the committed set")
