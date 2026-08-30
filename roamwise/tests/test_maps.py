@@ -77,3 +77,62 @@ def test_map_view_survives_a_single_stop():
 
     assert zoom == pytest.approx(_MAP_MAX_ZOOM)
     assert (center_lat, center_lon) == (41.9, 12.5)
+
+
+# --- issue #162: hiding a day hides all of it, and the ends are visible ---
+
+def _map_source() -> str:
+    from roamwise.views import itinerary
+    return open(itinerary.__file__).read()
+
+
+def test_every_trace_a_day_draws_shares_that_day_s_legend_group():
+    """Clicking "Day 2" in the legend used to remove Day 2's numbered circles
+    and leave its route drawn across the map, so isolating one day -- the only
+    thing the legend is for -- could not be done.
+
+    Plotly toggles by legend group, and only the marker trace was in one. The
+    line and the origin have to join it, without being listed themselves or the
+    legend grows a row per trace instead of per day (#83 is what a legend that
+    outgrows this column costs)."""
+    source = _map_source()
+    added = source.count("fig.add_trace(go.Scattermap(")
+    grouped = source.count("legendgroup=group")
+    assert added == grouped, \
+        f"{added} map traces but {grouped} in a legend group -- an ungrouped one ignores the legend"
+
+
+def test_only_one_trace_per_day_is_listed_in_the_legend():
+    """The grouping must not be bought by listing every trace: three rows per
+    day would overflow this half-width column, which is exactly what #83 fixed."""
+    source = _map_source()
+    block = source[source.index("group = f\"day"):source.index("if any(day[\"route\"]")]
+    assert block.count("showlegend=False") == 2, \
+        "the line and the origin must stay out of the legend; only the stops are listed"
+
+
+@pytest.mark.slow
+def test_a_day_carries_the_place_it_starts_from_so_the_map_can_mark_it():
+    """The origin was in the drawn line and in the map's framing but had no
+    marker, so day 1's route arrived from an empty point up to 23km away with
+    nothing to say what was there. The map can only mark it if the day carries
+    its coordinates.
+
+    Asked through `RouterAgent`, not `build_multi_day_itinerary` directly: the
+    origin is whatever start hub the caller supplies, and the router is what
+    supplies one -- the city centre on an ordinary day. Called bare the solver
+    has no origin to carry, and asserting on that would be asserting on a path
+    the app never takes."""
+    from roamwise.agents.router_agent import RouterAgent
+    from roamwise.knowledge_graph.build_graph import GraphIndex
+    from roamwise.tests.helpers import MAIN_CITY
+
+    idx = GraphIndex()
+    routed = RouterAgent(idx).run(MAIN_CITY, idx.city_pois(MAIN_CITY)[:30], n_days=2,
+                                  daily_minutes_budget=480)
+    drawn = [d for d in routed["itinerary"] if d["route"]]
+    assert drawn, "nothing was routed, so this proves nothing"
+    for day in drawn:
+        origin = day.get("origin")
+        assert origin and "lat" in origin and "lon" in origin, \
+            f"day {day['day']} cannot be drawn from anywhere"

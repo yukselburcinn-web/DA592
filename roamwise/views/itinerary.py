@@ -618,7 +618,11 @@ if st.session_state.get("plan"):
                     slot = schedule[i - 1] if i <= len(schedule) else None
                     when = f"{_clock(slot['arrival'])} &middot; " if slot else ""
                     kind = "meal stop" if poi.get("category") == "food" else _humanize_category(poi.get("category", ""))
-                    hover.append(f"<b>{poi['name']}</b><br>{when}Day {day['day']}, stop {i}<br><i>{kind}</i>")
+                    # "last stop" in words as well as in the marker size: the
+                    # size difference is legible next to its neighbours and
+                    # invisible on a day whose last stop sits alone (#162).
+                    where = f"stop {i} of {len(stops)}" + (" &middot; last" if i == len(stops) else "")
+                    hover.append(f"<b>{poi['name']}</b><br>{when}Day {day['day']}, {where}<br><i>{kind}</i>")
                 # The line used to be drawn straight from stop to stop whatever
                 # the mode said, so a day the panel reported as 6.85 km was
                 # drawn as 3.17 (#94). Where a street network priced the day,
@@ -645,15 +649,45 @@ if st.session_state.get("plan"):
                         line_lat += dashed_lat
                         line_lon += dashed_lon
                     drawn_real.append(is_real_route)
-                # Two traces, not one: a line whose vertices are the route and
-                # markers that stay on the stops. `markers+lines` would put a
-                # numbered circle on every vertex of the path.
+                # Three traces, not one: a line whose vertices are the route,
+                # markers that stay on the stops, and the place the day starts
+                # from. `markers+lines` as a single trace would put a numbered
+                # circle on every vertex of the path.
+                #
+                # All three share a legendgroup so one click on "Day 2" hides
+                # Day 2 entirely (#162). Only the markers carry `showlegend`,
+                # which keeps the legend at one row per day; the other two are
+                # in the group without being listed. Before this, clicking a day
+                # removed its numbers and left its route drawn -- so isolating a
+                # single day, which is the only thing the legend is for, could
+                # not be done.
+                group = f"day{day['day']}"
                 if line_lat:
                     fig.add_trace(go.Scattermap(
                         lat=line_lat, lon=line_lon, mode="lines",
                         line=dict(width=3, color=color),
                         hoverinfo="skip", showlegend=False,
+                        legendgroup=group,
                     ))
+                # Where the day begins. It was in the line and in the map's
+                # framing but had no marker of its own, so day 1's route came
+                # in from an empty point 23km away with nothing to say what was
+                # there (#32's arrival hub, #162). Hollow rather than filled,
+                # and unnumbered, because it is not a stop -- nobody visits it.
+                if origin:
+                    fig.add_trace(go.Scattermap(
+                        lat=[origin["lat"]], lon=[origin["lon"]], mode="markers",
+                        marker=dict(size=15, color=color, opacity=0.55),
+                        hovertext=[f"<b>{day.get('starts_from') or 'City centre'}</b>"
+                                   f"<br>Day {day['day']} starts here"],
+                        hoverinfo="text", showlegend=False, legendgroup=group,
+                    ))
+                # The last stop is where the day ends, and it looked like every
+                # other stop. A ring around it says which end of the route is
+                # which without adding a fourth colour to read (#162).
+                sizes = [20] * len(stops)
+                if sizes:
+                    sizes[-1] = 26
                 fig.add_trace(go.Scattermap(
                     lat=[p["lat"] for p in stops], lon=[p["lon"] for p in stops],
                     mode="markers+text",
@@ -662,7 +696,8 @@ if st.session_state.get("plan"):
                     textfont=dict(size=11, color="white", family="Arial Black"),
                     hovertext=hover, hoverinfo="text",
                     name=f"Day {day['day']}",
-                    marker=dict(size=20, color=color, opacity=0.95),
+                    legendgroup=group,
+                    marker=dict(size=sizes, color=color, opacity=0.95),
                 ))
             if any(day["route"] for day in result["routing"]["itinerary"]):
                 # Origins are in the fit because they are now drawn: leave them
@@ -718,7 +753,11 @@ if st.session_state.get("plan"):
                     route_note = ("Solid lines follow the real street network; dashed ones join "
                                   "stops directly and are not routes. ")
                 st.caption(route_note
-                           + "Numbers are the visiting order. Hover a stop for its name and arrival time. "
+                           + "Numbers are the visiting order, and the largest circle is where the day "
+                           "ends; the faded circle with no number is where it starts -- the city "
+                           "centre, or your arrival gateway on day 1. Clicking a day in the legend "
+                           "hides its route as well as its stops. "
+                           "Hover a stop for its name and arrival time. "
                            "Map tiles load from OpenStreetMap over the network -- give it a moment on first load.")
 
         free_share = result.get("free_entry_share")
