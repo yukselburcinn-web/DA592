@@ -185,15 +185,44 @@ def _haversine_distance_fn(a: dict, b: dict) -> float:
     return haversine_km(a["lat"], a["lon"], b["lat"], b["lon"])
 
 
+def hybrid_leg_walks(foot_km: float, mode: HybridTravelMode) -> bool:
+    """Whether a hybrid leg this long on foot is walked rather than driven.
+
+    One function because there are two readers and they must not drift: the
+    pricing (`_build_hybrid_matrix_functions`) and the drawing
+    (`route_geometry`) each asked `foot_km <= mode.threshold_km` on their own,
+    and #159 added a third reader -- the itinerary, which now tells the
+    traveler which legs it walks. Three copies of one rule is how HUB_WALK_KM
+    went stale for an entire issue (#113); a leg drawn as a walk and labelled a
+    drive would be the same failure in a place the traveler can see.
+    """
+    return foot_km <= mode.threshold_km
+
+
 def _build_distance_functions(points: list[dict], use_real_routing: bool, travel_mode=DEFAULT_MODE):
-    """Returns (distance_km_fn, duration_min_fn, used_real_routing). Falls
-    back to the mode's haversine estimate whenever real routing wasn't
+    """Returns (distance_km_fn, duration_min_fn, used_real_routing, leg_mode_fn).
+
+    Falls back to the mode's haversine estimate whenever real routing wasn't
     requested, or was requested for points no committed street network covers
-    -- callers never need to know which case they're in."""
+    -- callers never need to know which case they're in.
+
+    `leg_mode_fn(a, b)` names the mode a single leg is priced on, which only
+    hybrid answers per leg; every other mode returns its own name whatever the
+    leg is. It exists so the itinerary can report the mode it was *charged*
+    for rather than recomputing the choice (#159).
+    """
     mode = get_travel_mode(travel_mode)
 
     def haversine_duration_fn(a, b):
         return mode.leg_minutes(_haversine_distance_fn(a, b))
+
+    def haversine_leg_mode_fn(a, b):
+        # No matrix, so the hybrid split is made on the estimate itself --
+        # still one rule, read through the same function.
+        if isinstance(mode, HybridTravelMode):
+            return (mode.walk.key if hybrid_leg_walks(_haversine_distance_fn(a, b), mode)
+                    else mode.drive.key)
+        return mode.key
 
     # Transit is the one mode with no honest estimate behind it. A straight
     # line at an average speed is not "roughly the timetable" -- it is a
@@ -202,15 +231,16 @@ def _build_distance_functions(points: list[dict], use_real_routing: bool, travel
     # without one still falls through to haversine below and reports
     # used_real_routing=False, which is what the UI shows the traveler.
     if not use_real_routing and mode.network_profile != "transit":
-        return _haversine_distance_fn, haversine_duration_fn, False
+        return _haversine_distance_fn, haversine_duration_fn, False, haversine_leg_mode_fn
 
     if isinstance(mode, HybridTravelMode):
         built = _build_hybrid_matrix_functions(points, mode)
     else:
         built = _build_single_profile_matrix_functions(points, mode)
     if built is None:
-        return _haversine_distance_fn, haversine_duration_fn, False
-    return (*built, True)
+        return _haversine_distance_fn, haversine_duration_fn, False, haversine_leg_mode_fn
+    distance_fn, duration_fn, leg_mode_fn = built
+    return distance_fn, duration_fn, True, leg_mode_fn
 
 
 def _matrix_lookup(points: list[dict]):
@@ -235,7 +265,10 @@ def _build_single_profile_matrix_functions(points: list[dict], mode):
         # traveler spends and has to be added on top of it.
         return durations_min[index[id(a)]][index[id(b)]] + mode.stop_overhead_min
 
-    return matrix_distance_fn, matrix_duration_fn
+    def leg_mode_fn(a, b):
+        return mode.key
+
+    return matrix_distance_fn, matrix_duration_fn, leg_mode_fn
 
 
 def _build_hybrid_matrix_functions(points: list[dict], mode: HybridTravelMode):
@@ -253,11 +286,12 @@ def _build_hybrid_matrix_functions(points: list[dict], mode: HybridTravelMode):
 
     def _pick(a, b):
         i, j = index[id(a)], index[id(b)]
-        if foot_km[i][j] <= mode.threshold_km:
-            return foot_km[i][j], foot_min[i][j] + mode.walk.stop_overhead_min
-        return car_km[i][j], car_min[i][j] + mode.drive.stop_overhead_min
+        if hybrid_leg_walks(foot_km[i][j], mode):
+            return foot_km[i][j], foot_min[i][j] + mode.walk.stop_overhead_min, mode.walk.key
+        return car_km[i][j], car_min[i][j] + mode.drive.stop_overhead_min, mode.drive.key
 
-    return (lambda a, b: _pick(a, b)[0]), (lambda a, b: _pick(a, b)[1])
+    return ((lambda a, b: _pick(a, b)[0]), (lambda a, b: _pick(a, b)[1]),
+            (lambda a, b: _pick(a, b)[2]))
 
 
 def route_geometry(points: list[dict], use_real_routing: bool, travel_mode=DEFAULT_MODE):
@@ -301,7 +335,7 @@ def route_geometry(points: list[dict], use_real_routing: bool, travel_mode=DEFAU
         if walked is None or on_foot is None or driven is None:
             return straight
         foot_km = walked[0]
-        return [(on_foot[i] if foot_km[i][i + 1] <= mode.threshold_km else driven[i], True)
+        return [(on_foot[i] if hybrid_leg_walks(foot_km[i][i + 1], mode) else driven[i], True)
                 for i in range(len(points) - 1)]
 
     drawn = route_polylines(points, profile=mode.network_profile)
@@ -417,8 +451,11 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
 
     if distance_fn is None or duration_fn is None:
         all_points = ([start_hub] if start_hub else []) + pois
-        distance_fn, duration_fn, used_real_routing = _build_distance_functions(
+        distance_fn, duration_fn, used_real_routing, leg_mode_fn = _build_distance_functions(
             all_points, use_real_routing, travel_mode)
+    else:
+        _, _, _, leg_mode_fn = _build_distance_functions(
+            ([start_hub] if start_hub else []) + pois, use_real_routing, travel_mode)
 
     if preserve_order:
         ordered = list(pois)
@@ -465,7 +502,11 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
         active += leg_minutes + visit_minutes
         total_km += leg_km
         kept.append(poi)
-        schedule.append({"arrival": arrival, "finish": finish})
+        # The same per-leg record the TOPTW path writes (#159): what it cost
+        # to reach this stop, and -- on hybrid -- which mode it was charged at.
+        schedule.append({"arrival": arrival, "finish": finish,
+                         "leg_km": leg_km, "leg_minutes": leg_minutes,
+                         "leg_mode": None if not prev else leg_mode_fn(prev, poi)})
         prev = poi
 
     # Derived from each other rather than rounded independently, so the three

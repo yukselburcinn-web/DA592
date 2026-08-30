@@ -472,6 +472,7 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
           daily_minutes_budget: int = 480, day_start_hour: float = 9.0,
           respect_opening_hours: bool = True, start_date=None,
           distance_fn=None, duration_fn=None, used_real_routing: bool = False,
+          leg_mode_fn=None,
           min_food_per_day: int = 0, drop_penalty_m: int = DEFAULT_DROP_PENALTY_M,
           iconic_quality_threshold: float = None, iconic_drop_multiplier: float = None,
           max_same_category: int = DEFAULT_MAX_SAME_CATEGORY,
@@ -753,12 +754,24 @@ def solve(pois: list[dict], n_days: int, start_hub: dict = None,
                 poi = entry[0]
                 arrival = solution.Value(time_dim.CumulVar(index)) / 60 - v * 24
                 visit = _visit_minutes(poi)
-                if previous is not None:
-                    km += distance_fn(previous, poi)
-                    active += duration_fn(previous, poi)
-                active += visit
+                # Per leg, not just summed into the day's totals: the itinerary
+                # tells the traveler how each stop is reached (#159), and the
+                # only honest source for that is the leg the solver was
+                # actually charged for. `leg_mode` matters on hybrid, where it
+                # differs from stop to stop; the other modes report themselves.
+                leg_km = 0.0 if previous is None else distance_fn(previous, poi)
+                leg_min = 0.0 if previous is None else duration_fn(previous, poi)
+                km += leg_km
+                active += leg_min + visit
                 route.append(poi)
-                schedule.append({"arrival": arrival, "finish": arrival + visit / 60})
+                schedule.append({
+                    "arrival": arrival, "finish": arrival + visit / 60,
+                    "leg_km": leg_km, "leg_minutes": leg_min,
+                    # None when `solve` was called directly without one --
+                    # the evaluation scripts do that, and they never read it.
+                    "leg_mode": (None if previous is None or leg_mode_fn is None
+                                 else leg_mode_fn(previous, poi)),
+                })
                 previous = poi
             index = solution.Value(routing.NextVar(index))
         days_out[v] = _finish_day(v, start_date, route, schedule, km, active,
@@ -860,7 +873,7 @@ def build_multi_day_itinerary(pois: list[dict], n_days: int, start_hub: dict = N
     # still the right shape -- the days share a single set of points.
     points = ([start_hub] if start_hub else []) + \
         ([arrival_hub] if arrival_hub else []) + working_set
-    distance_fn, duration_fn, used_real_routing = _build_distance_functions(
+    distance_fn, duration_fn, used_real_routing, leg_mode_fn = _build_distance_functions(
         points, use_real_routing, travel_mode)
 
     return solve(working_set, n_days, start_hub=start_hub, arrival_hub=arrival_hub,
@@ -868,7 +881,7 @@ def build_multi_day_itinerary(pois: list[dict], n_days: int, start_hub: dict = N
                  day_start_hour=day_start_hour,
                  respect_opening_hours=respect_opening_hours, start_date=start_date,
                  distance_fn=distance_fn, duration_fn=duration_fn,
-                 used_real_routing=used_real_routing,
+                 used_real_routing=used_real_routing, leg_mode_fn=leg_mode_fn,
                  min_food_per_day=min_food_per_day, drop_penalty_m=drop_penalty_m,
                  iconic_quality_threshold=iconic_quality_threshold,
                  iconic_drop_multiplier=iconic_drop_multiplier,

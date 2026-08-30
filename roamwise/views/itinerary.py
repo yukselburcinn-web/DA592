@@ -25,6 +25,12 @@ from roamwise.optimization.travel_modes import TRAVEL_MODES
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 
 
+# What a leg of each mode is called in the itinerary. Hybrid never appears
+# here: it names the trip, not a leg -- every hybrid leg is priced as one of
+# walking or driving and reports that (#159).
+_LEG_VERBS = {"walking": "walk", "driving": "drive", "transit": "by transit"}
+
+
 def _clock(hour: float) -> str:
     """Fractional hour (13.5) -> wall clock ("13:30"), so the itinerary reads
     as a plan for a day rather than as an ordered list."""
@@ -192,13 +198,13 @@ def _arrival_transfer_hint(destination_id, arrival_hub_id, travel_mode):
     # thumb that could disagree with the itinerary it is warning about.
     from roamwise.optimization.routing import _build_distance_functions
 
-    distance_fn, duration_fn, real = _build_distance_functions(
+    distance_fn, duration_fn, real, _ = _build_distance_functions(
         points, use_real_routing=True, travel_mode=travel_mode)
     chosen = duration_fn(points[0], points[1])
     if not real or chosen < _LONG_TRANSFER_MINUTES:
         return None
 
-    _, transit_duration, by_timetable = _build_distance_functions(
+    _, transit_duration, by_timetable, _ = _build_distance_functions(
         points, use_real_routing=True, travel_mode="transit")
     if not by_timetable:
         return None
@@ -258,6 +264,32 @@ def _arrival_options(destination_id) -> dict:
     for tid, name, ttype in zip(hubs["transport_id"], hubs["name"], hubs["type"]):
         options[f"{name} ({_HUB_LABELS.get(ttype, ttype)})"] = tid
     return options
+
+
+
+def _leg_caption(slot: dict, trip_mode: str) -> str:
+    """"12 min walk &middot; 0.9 km" -- how the traveler got to this stop.
+
+    Reads `leg_minutes` / `leg_km` / `leg_mode` off the schedule entry, which
+    the router writes from the very leg it priced the day on (#159). Recomputing
+    them here would be a second opinion, and #94 is what a second opinion costs.
+
+    Distance is dropped for transit: the timetable solves a journey time, and
+    the kilometres alongside it are the straight-line distance between the two
+    stops rather than the route a service takes -- showing them would invite
+    the reader to divide one by the other.
+    """
+    if not slot or slot.get("leg_minutes") is None:
+        return ""
+    minutes = slot["leg_minutes"]
+    if minutes <= 0:
+        return ""
+    mode_key = slot.get("leg_mode") or trip_mode
+    verb = _LEG_VERBS.get(mode_key, "travel")
+    shown = f"{round(minutes)} min {verb}"
+    if mode_key != "transit" and slot.get("leg_km"):
+        shown += f" &middot; {slot['leg_km']:.1f} km"
+    return f"&darr;&nbsp; {shown}"
 
 
 def _humanize_category(category: str) -> str:
@@ -533,6 +565,19 @@ if st.session_state.get("plan"):
                             # read by a filter that could never fire and shown
                             # to nobody (#67).
                             free = " &middot; _free_" if poi.get("price_level", 0) == 0 else ""
+                            # How this stop is reached, before naming it. The
+                            # sidebar lets the traveler pick a mode and the
+                            # panel used to show only the day's total km, so
+                            # "on foot" never said how far, and hybrid never
+                            # said which legs were driven (#159). The numbers
+                            # are the ones the router was charged for, read off
+                            # the schedule -- not recomputed here, which is how
+                            # the map and the panel came to disagree in #94.
+                            leg = _leg_caption(slot, travel_mode)
+                            if leg:
+                                st.markdown(f"<div style='margin:-6px 0 2px 22px;opacity:.6;"
+                                            f"font-size:.85em'>{leg}</div>",
+                                            unsafe_allow_html=True)
                             st.markdown(f"{i}. {when}**{poi['name']}** _{label}_{free}")
                     else:
                         st.markdown("_No stops fit the time budget for this day._")

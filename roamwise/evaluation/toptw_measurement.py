@@ -432,7 +432,7 @@ def run_measurement() -> pd.DataFrame:
                              **measure(shipped, day_start, budget, prefs)})
 
                 pool = list(sightseeing) + list(food)
-                distance_fn, duration_fn, _ = _build_distance_functions(
+                distance_fn, duration_fn, _, _ = _build_distance_functions(
                     [hub] + pool, use_real_routing=False, travel_mode=TRAVEL_MODE)
                 scores = score_pois(pool, prefs)
                 for penalty in DROP_PENALTIES_M:

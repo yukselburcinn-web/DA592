@@ -468,7 +468,7 @@ def test_transit_reads_the_timetable_even_with_real_routing_off():
     from roamwise.optimization.routing import _build_distance_functions
 
     points = _transit_points("Eiffel Tower", "Sacré-Cœur")
-    _, duration, used_real = _build_distance_functions(points, use_real_routing=False,
+    _, duration, used_real, _ = _build_distance_functions(points, use_real_routing=False,
                                                        travel_mode="transit")
 
     assert used_real is True
