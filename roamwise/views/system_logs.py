@@ -249,8 +249,15 @@ with results_tab:
                 "or press **Re-run the analysis now** above.")
         st.stop()
 
+    # Every number in this line is read off the results, not written down
+    # (issue #157). The query count always was, which is why nobody noticed
+    # that the other two were not: "8 cities" outlived the two-city migration
+    # as a false claim on the first line of the screen that justifies the
+    # architecture, while the 67 beside it stayed right. The catalogue has been
+    # resized twice; a literal here is a statement waiting to go stale.
     n_queries = results_df.groupby("config").size().max()
-    st.caption(f"{n_queries} test queries across 8 cities and 7 traveler archetypes.")
+    st.caption(f"{n_queries} test queries across {results_df.destination_id.nunique()} cities "
+               f"and {results_df.archetype.nunique()} traveler archetypes.")
 
     # The queries themselves, not just their count. This tab exists to justify
     # pinning Fusion RAG, and that argument cannot be checked without reading
