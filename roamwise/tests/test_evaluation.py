@@ -8,6 +8,7 @@ there put the measurement work and the orchestrator work in one file.
 """
 
 import collections
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -196,3 +197,55 @@ def test_paired_significance_calls_a_coin_flip_no_difference():
     )
     verdict = paired_significance(df, champion="fusion").set_index("metric")
     assert verdict.loc["km_per_stop_day1", "verdict"] == "no difference"
+
+
+# --- issue #143: the quota exponent is a pool knob, not a plan knob ---
+
+def test_the_quota_sweeps_cover_the_exponent_the_code_ships():
+    """#143's argument only holds while the measurement describes this code.
+
+    Two committed sweeps decide `PREFERENCE_QUOTA_EXPONENT`: one over the
+    reachable pool (`quota_topk_sweep.csv`) and one over the plans built from
+    it (`quota_plan_impact.csv`). The conclusion -- that the knob moves the
+    pool and not the itinerary -- is only readable if the shipped value is
+    actually one of the rows. Change the constant without re-running them and
+    the constant's own comment starts citing numbers measured for a different
+    setting, which is how #123's shipped choice quietly stopped being optimal
+    once the catalogue moved underneath it.
+    """
+    from roamwise.knowledge_graph.build_graph import PREFERENCE_QUOTA_EXPONENT
+
+    here = Path(comparative_analysis.__file__).parent
+    for name in ("quota_topk_sweep.csv", "quota_plan_impact.csv"):
+        path = here / name
+        assert path.exists(), f"{name} is the measurement behind the constant; regenerate it"
+        swept = set(pd.read_csv(path).exponent)
+        assert PREFERENCE_QUOTA_EXPONENT in swept, (
+            f"{name} does not cover the shipped exponent "
+            f"{PREFERENCE_QUOTA_EXPONENT} (has {sorted(swept)}) -- re-run "
+            f"`python -m roamwise.evaluation.{name[:-4]}`")
+
+
+@pytest.mark.slow
+def test_the_quota_exponent_does_not_change_what_a_traveller_is_shown():
+    """The finding #143 shipped, guarded (`quota_plan_impact.csv`).
+
+    Over 84 plans -- 2 cities x 7 archetypes x 3 trip lengths -- moving the
+    exponent from 0.5 to 0.6 changes the aggregate stop count by zero, because
+    the POIs it moves sit in the tail the router never selects: a one-day plan
+    takes eight stops from twenty-four candidates. That is the whole reason
+    #123's unmet acceptance criterion was not chased with a code change.
+
+    Asserted with room, not exactly: the two arms differ on a handful of
+    individual trips in both directions, and pinning the sum to 0 would make
+    this test fail on a catalogue change that means nothing. What must not
+    happen is the pool knob quietly becoming a plan knob.
+    """
+    impact = pd.read_csv(Path(comparative_analysis.__file__).parent / "quota_plan_impact.csv")
+    totals = impact.groupby("exponent").stops.sum()
+    assert len(totals) == 2, "the measurement compares exactly two exponents"
+
+    spread = totals.max() - totals.min()
+    assert spread <= 2, (
+        f"the quota exponent moved {spread} stops across {len(impact) // 2} plans; it is "
+        f"documented as reaching none, so either the finding or the constant needs revisiting")
