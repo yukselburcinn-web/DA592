@@ -420,25 +420,24 @@ with st.sidebar:
     hint = _arrival_transfer_hint(destination_id, arrival_hub_id, travel_mode)
     if hint:
         st.warning(hint)
-    # On by default since #94. The reason it was off outlived its cause twice:
-    # first the public OSRM server's uptime (gone with #32, which committed the
-    # networks), then comparability with a report whose measurements were all
-    # taken with it off. The second reason is narrower than it looked --
-    # `comparative_analysis.py` run both ways returns bit-identical recall,
-    # archetype precision and candidate counts, because retrieval does not know
-    # the flag exists; only the two routing columns move. And the evaluations
-    # that do move pass `use_real_routing=False` themselves, so they keep their
-    # documented condition whatever this box says. What is left is a straight
-    # choice between a measured distance and an estimate that runs 16% short,
-    # at no cost -- and, since #94, between a map that draws the route and one
-    # that can only dash a line between stops.
-    use_real_routing = st.checkbox(
-        "Use real street routing", value=True,
-        help="Measures each leg along the real street network (walking or driving, matching "
-             "the mode above) instead of as a straight line, and draws the route it measured "
-             "on the map. Runs offline from OpenStreetMap data shipped with the app -- no "
-             "server, no wait. Turn it off to see the straight-line estimate instead.",
-    )
+    # Not a checkbox any more (#160). It had been on by default since #94, and
+    # the box asked the traveler a question they cannot answer: whether this
+    # city has a committed street network. `fetch_distance_duration_matrix`
+    # already answers it -- it returns None for a city we hold no network for
+    # and every caller falls back to the haversine estimate rather than
+    # raising, which is the "real road if we have one, straight line if not"
+    # behaviour the box appeared to be offering. So the box never switched a
+    # capability on; it switched measured distances *off*, and a day priced on
+    # straight lines fills its budget wrongly and brings back #94's
+    # contradiction between the route drawn and the distance reported.
+    #
+    # The parameter stays. `evaluation/toptw_measurement.py`,
+    # `toptw_scoring_ablation.py` and `comparative_analysis.py` pass
+    # `use_real_routing=False` explicitly to hold the condition REPORT
+    # documents, and #93/#94 needed to ask what the table looks like with it
+    # off. What is removed is the sidebar control, not the ability to answer
+    # that question.
+    use_real_routing = True
 
     run = st.button("Plan my trip", type="primary", width='stretch')
 
@@ -448,7 +447,10 @@ preferences = {"budget": budget, "culture": culture, "nature": nature,
 # What the plan on screen was built from. Kept beside the plan because the
 # sidebar keeps moving after it: rendering "3-day route" from a slider the
 # traveler has since dragged to 5 would describe the itinerary wrongly.
-_SHOWN_SETTINGS = ("n_days", "daily_hours", "auto_start", "use_real_routing", "travel_mode")
+# `use_real_routing` was here until #160 removed its control: a setting that
+# cannot change can never differ from the plan on screen, so watching it only
+# invited the list to drift out of step with the sidebar.
+_SHOWN_SETTINGS = ("n_days", "daily_hours", "auto_start", "travel_mode")
 
 if run:
     orch = get_orchestrator(RETRIEVAL_CONFIG)
@@ -456,7 +458,7 @@ if run:
         try:
             st.session_state["plan_settings"] = {
                 "n_days": n_days, "daily_hours": daily_hours, "auto_start": auto_start,
-                "use_real_routing": use_real_routing, "travel_mode": travel_mode,
+                "travel_mode": travel_mode,
             }
             st.session_state["plan"] = orch.plan_trip(
                 preferences, destination_id=destination_id, n_days=n_days,
@@ -497,8 +499,8 @@ if st.session_state.get("plan"):
     # was made with, not whatever the sidebar says now.
     _shown = st.session_state["plan_settings"]
     _live = {"n_days": n_days, "daily_hours": daily_hours, "auto_start": auto_start,
-             "use_real_routing": use_real_routing, "travel_mode": travel_mode}
-    n_days, daily_hours, auto_start, use_real_routing, travel_mode = (
+             "travel_mode": travel_mode}
+    n_days, daily_hours, auto_start, travel_mode = (
         _shown[name] for name in _SHOWN_SETTINGS)
 
     if _live != _shown:
@@ -517,20 +519,20 @@ if st.session_state.get("plan"):
             f"Days run {_clock(chosen_start)}–{_clock(chosen_start + daily_hours)}"
             + (f", set from your **{result['archetype']}** profile." if auto_start
                else ", as you set them."))
-        # Transit always reads the timetable, whatever the checkbox says (see
-        # routing._build_distance_functions), so it needs the same line -- a
-        # traveler should be able to tell measured times from estimated ones
-        # without knowing which flag implies which.
-        if use_real_routing or travel_mode == "transit":
-            any_real = any(d.get("used_real_routing") for d in result["routing"]["itinerary"])
-            if any_real and travel_mode == "transit":
-                st.caption("Times below are journeys on the published timetable, including the "
-                           "walk to the stop, the wait and any changes.")
-            elif any_real:
-                st.caption("Distances/times below follow the real street network.")
-            else:
-                st.caption("Real routing was requested but no street network covers this city -- "
-                           "showing the straight-line + flat-walking-speed estimate instead.")
+        # Real routing is always asked for since #160, so the only question
+        # left is whether this city had a network to answer with -- which is
+        # what `used_real_routing` records, per day, from the router itself.
+        # A traveler should be able to tell measured distances from estimated
+        # ones without knowing which flag implied which.
+        any_real = any(d.get("used_real_routing") for d in result["routing"]["itinerary"])
+        if any_real and travel_mode == "transit":
+            st.caption("Times below are journeys on the published timetable, including the "
+                       "walk to the stop, the wait and any changes.")
+        elif any_real:
+            st.caption("Distances/times below follow the real street network.")
+        else:
+            st.caption("No street network covers this city, so distances below are "
+                       "straight-line estimates at a flat walking speed.")
         col1, col2 = st.columns([1, 1])
         with col1:
             budget_minutes = daily_hours * 60
