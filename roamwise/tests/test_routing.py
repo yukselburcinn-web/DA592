@@ -577,3 +577,63 @@ def test_the_shown_mode_is_the_one_the_leg_was_drawn_with(monkeypatch):
     drawn = route_geometry(([day["origin"]] if day.get("origin") else []) + day["route"],
                            bool(day.get("used_real_routing")), "hybrid")
     assert drawn, "hybrid geometry should still be drawable"
+
+
+# --- issue #160: the app always asks for real routing ---
+
+def test_the_sidebar_no_longer_offers_to_turn_real_routing_off():
+    """The box asked the traveler a question they cannot answer -- whether this
+    city has a committed street network -- and answering it wrongly cost them a
+    day priced on straight lines.
+
+    Asserted on the module source because there is nothing else to assert on: a
+    Streamlit control leaves no object behind, and the property is that the
+    widget is gone rather than that some value is False."""
+    import roamwise.views.itinerary as itinerary
+
+    source = open(itinerary.__file__).read()
+    assert "Use real street routing" not in source, \
+        "the sidebar control is back; #160 removed it because it could only make plans worse"
+    assert '"use_real_routing"' not in source.split("_SHOWN_SETTINGS")[1].split(")")[0], \
+        "a setting that cannot change must not be watched for changes"
+
+
+def test_the_parameter_survives_the_control_being_removed():
+    """#160 removes the sidebar control, not the ability to price a trip on
+    straight lines. `evaluation/toptw_measurement.py`,
+    `toptw_scoring_ablation.py` and `comparative_analysis.py` all pass
+    `use_real_routing=False` explicitly to hold the condition REPORT documents,
+    and #93/#94 needed to ask what the table looks like with it off."""
+    import inspect
+
+    from roamwise.agents.orchestrator import RoamWiseOrchestrator
+    from roamwise.optimization.toptw import build_multi_day_itinerary
+
+    for fn in (RoamWiseOrchestrator.plan_trip, build_multi_day_itinerary):
+        assert "use_real_routing" in inspect.signature(fn).parameters, \
+            f"{fn.__qualname__} lost the parameter the evaluations depend on"
+
+
+@pytest.mark.slow
+def test_a_city_with_no_network_is_still_planned_rather_than_refused(monkeypatch):
+    """The behaviour the checkbox appeared to offer, which was never its to
+    offer: `fetch_distance_duration_matrix` returns None where we hold no
+    network and every caller falls back to haversine rather than raising. With
+    the box gone this is the only path such a city can take, so it has to work
+    with real routing *asked for*, not merely with it switched off."""
+    from roamwise.optimization import routing as routing_module
+    from roamwise.optimization.toptw import build_multi_day_itinerary
+
+    monkeypatch.setattr(routing_module, "fetch_distance_duration_matrix",
+                        lambda points, profile="foot": None)
+
+    idx = GraphIndex()
+    days = build_multi_day_itinerary(idx.city_pois(MAIN_CITY)[:30], 2,
+                                     daily_minutes_budget=480, use_real_routing=True,
+                                     travel_mode="walking")
+    planned = [d for d in days if d["route"]]
+    assert planned, "a city with no committed network must still come back with a plan"
+    for day in planned:
+        assert day["used_real_routing"] is False, \
+            "a day that fell back to haversine must say so -- the caption reads this"
+        assert day["distance_km"] > 0
