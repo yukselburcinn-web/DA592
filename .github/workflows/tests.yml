@@ -22,6 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The scope step below diffs against the PR's base commit.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -49,7 +52,38 @@ jobs:
           pip install -r roamwise/requirements-langgraph.txt
           pip install pytest
 
+      # The `slow` tests (#148) are the ones that run a full trip plan, and
+      # what they guard is the planning stack: retrieval, the graph, the
+      # agents, the solver. A pull request that leaves all four alone cannot
+      # break them, so it runs the fast subset and gets its answer in a
+      # fraction of the time. Anything else -- and every push to main -- runs
+      # all 161. Nothing reaches the default branch without the full suite.
+      - name: Decide which tests this change needs
+        id: scope
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "full=true" >> "$GITHUB_OUTPUT"
+            echo "Full suite: $GITHUB_EVENT_NAME, not a pull request."
+            exit 0
+          fi
+          changed=$(git diff --name-only "${{ github.event.pull_request.base.sha }}...HEAD")
+          echo "Changed files:"; echo "$changed"
+          if echo "$changed" | grep -qE '^roamwise/(knowledge_graph|retrieval|agents|optimization)/'; then
+            echo "full=true" >> "$GITHUB_OUTPUT"
+            echo "Full suite: this PR touches a layer the slow tests exist to guard."
+          else
+            echo "full=false" >> "$GITHUB_OUTPUT"
+            echo "Fast subset: nothing under knowledge_graph/ retrieval/ agents/ optimization/."
+          fi
+
       - name: Run test suite
+        if: steps.scope.outputs.full == 'true'
         run: |
           cd roamwise
           pytest tests/ -v
+
+      - name: Run test suite (fast subset)
+        if: steps.scope.outputs.full != 'true'
+        run: |
+          cd roamwise
+          pytest tests/ -v -m "not slow"

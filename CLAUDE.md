@@ -38,7 +38,7 @@ roamwise/
   agents/            ForecasterAgent, FusionRAGAgent, RouterAgent, orchestrator.py
   evaluation/        comparative_analysis.py + committed result CSVs
   views/             itinerary.py (traveler-facing), system_logs.py (operator-facing)
-  tests/             test_pipeline.py — one file, ~140 tests
+  tests/             one file per subject (#150); helpers.py holds the shared constants
 ```
 
 ## Where the truth lives
@@ -57,7 +57,12 @@ don't cite it as current; query `gh` instead.
 
 Some committed files are large enough to be worth avoiding whole:
 
-- `tests/test_pipeline.py` is ~2 800 lines. Grep it or read a range; don't read it entire.
+- `tests/` is one file per subject since #150 — `test_graph.py`, `test_retrieval.py`,
+  `test_routing.py`, `test_opening_hours.py`, `test_orchestration.py`, `test_maps.py`,
+  `test_transit.py`, `test_arrival.py`, `test_crowding.py`, `test_llm.py`. Read the one you
+  need instead of all of them, and run it on its own: `pytest tests/test_opening_hours.py`.
+  The catalogue-derived constants (`CITY_CODES`, `MAIN_CITY`, `needs_full_city`, …) live in
+  `tests/helpers.py`; a new test file imports them from there rather than re-deriving them.
 - `data/poi.csv`, `data/crowding.csv`, `evaluation/*_results.csv` — use `head`, `wc -l`, or
   pandas. Never `cat` them.
 - `data/knowledge_graph.gml` and `data/street_network/*.npz` are blocked by a `Read` deny
@@ -144,6 +149,17 @@ Each of these cost someone a debugging session.
 
     (#128's two "the code lies about itself" findings — the unrunnable `backend="neo4j"`
     branches and the "zoning + 2-opt" router label — were fixed in #145. Both are gone.)
+
+17. **`@pytest.mark.slow` is not a hint, it decides what CI runs.** 34 of the 161 tests carry
+    it: the ones that run a full trip plan, a multi-day TOPTW solve, a retriever build, or the
+    comparative analysis. A pull request that touches nothing under `knowledge_graph/`,
+    `retrieval/`, `agents/` or `optimization/` runs `-m "not slow"`; everything else, and
+    every push to `main`, runs all 161 (#148). Two consequences: **add the marker when you
+    add a test that plans a trip** — an unmarked heavy test silently lengthens every PR — and
+    **don't rely on the PR run alone** when you touch those four directories from a branch
+    that also edits them, because then you get the full suite anyway. Re-check the split with
+    `pytest tests/ -q --durations=25` after adding heavy tests. Measure on an idle machine:
+    a busy one doubles the numbers and the ordering is what matters.
 
 ## Working conventions
 
