@@ -3,9 +3,13 @@ turns them into a destination recommendation / crowding narrative."""
 import pandas as pd
 
 from roamwise.agents.llm_client import LLMClient, get_default_llm_client
-from roamwise.models.forecasting import forecast_city, load_demand
+from roamwise.models.forecasting import (
+    MAX_HORIZON_MONTHS, current_month, forecast_city, horizon_to_cover, load_demand,
+)
 
-MAX_HORIZON_MONTHS = 36
+# Re-exported: the ceiling now lives beside the forecaster it constrains, so
+# the chart and this agent cannot end up on two different limits (#161).
+__all__ = ["ForecasterAgent", "MAX_HORIZON_MONTHS"]
 
 
 class ForecasterAgent:
@@ -28,22 +32,33 @@ class ForecasterAgent:
         in Berlin where July is high. _recommend_destination turns crowding
         straight into a score penalty, so the stale city won every summer
         comparison it was in.
-        """
-        history = self._demand[self._demand.destination_id == destination_id]
-        if history.empty:
-            return horizon_months
-        end = pd.Period(history.date.max(), freq="M")
 
-        target = (pd.Period(travel_month, freq="M") if travel_month
-                  else pd.Period(pd.Timestamp.today(), freq="M") + horizon_months)
-        needed = (target - end).n
-        return max(horizon_months, min(needed, MAX_HORIZON_MONTHS))
+        The conversion itself is `horizon_to_cover` in models/forecasting.py:
+        the demand chart needs exactly the same one, and #161 was the two of
+        them disagreeing -- this agent reached the month it was asked about
+        while the chart beside it still counted twelve months from the end of
+        the data.
+        """
+        # The far end is whichever is later: the month asked about, or the end
+        # of the same `horizon_months` window the demand chart draws. Taking
+        # only the travel month collapsed `low_crowd_alternatives` for a city
+        # whose history lags -- Berlin's horizon stopped at the requested
+        # month, so "the lowest-crowding months" was chosen from the two
+        # months between today and the trip, and both of them were the trip
+        # (#161). Extending the horizon does not move the requested month's
+        # own value: Holt-Winters recurses forward from the fitted state, so
+        # month k is the same whether you ask for k or for k + 20.
+        window_end = current_month() + (horizon_months - 1)
+        target = max(pd.Period(travel_month, freq="M"), window_end) if travel_month else window_end
+        # 0 means the city has no history to fit -- no horizon to ask for.
+        needed = horizon_to_cover(destination_id, target, self._demand)
+        return max(horizon_months, needed)
 
     @staticmethod
     def _future(fc):
         """Forecast rows from the current month onward, or the whole frame if
         every row is already in the past (better a stale answer than none)."""
-        ahead = fc[fc.date >= pd.Timestamp.today().normalize().replace(day=1)]
+        ahead = fc[fc.date >= current_month().to_timestamp()]
         return ahead if len(ahead) else fc
 
     def run(self, destination_id: str, travel_month: str = None, horizon_months: int = 12,
@@ -103,11 +118,18 @@ class ForecasterAgent:
 
     def _narrate(self, destination_id: str, target, alternatives) -> str:
         alt_text = ", ".join(f"{r.date.strftime('%B %Y')} ({r.crowding_level})" for r in alternatives.itertuples())
+        # The span is read off the alternatives rather than written as "the
+        # next 12 months". The horizon is per-city -- Berlin's runs 21 months
+        # from the end of its history to cover the same calendar window Paris
+        # covers in 12 -- so a fixed 12 in this sentence described a window
+        # neither city was actually using (#161).
+        span = (f"{alternatives.date.min():%B %Y} to {alternatives.date.max():%B %Y}"
+                if len(alternatives) else "the forecast horizon")
         prompt = f"""
         Forecast for {destination_id} in {target.date.strftime('%B %Y')}: expected demand is
         {target.crowding_level} (~{int(target.forecast_visitors):,} monthly visitors, vs this
-        city's typical range). If your dates are flexible, the lowest-crowding months in the
-        next {12} months are: {alt_text}.
+        city's typical range). If your dates are flexible, the lowest-crowding months from
+        {span} are: {alt_text}.
         """
         return self.llm.complete(system="You are a concise travel-demand analyst.", prompt=prompt)
 
