@@ -57,12 +57,22 @@ don't cite it as current; query `gh` instead.
 
 Some committed files are large enough to be worth avoiding whole:
 
-- `tests/` is one file per subject since #150 — `test_graph.py`, `test_retrieval.py`,
-  `test_routing.py`, `test_opening_hours.py`, `test_orchestration.py`, `test_maps.py`,
-  `test_transit.py`, `test_arrival.py`, `test_crowding.py`, `test_llm.py`. Read the one you
-  need instead of all of them, and run it on its own: `pytest tests/test_opening_hours.py`.
-  The catalogue-derived constants (`CITY_CODES`, `MAIN_CITY`, `needs_full_city`, …) live in
-  `tests/helpers.py`; a new test file imports them from there rather than re-deriving them.
+- `tests/` is one file per subject since #150 — `test_graph.py`, `test_models.py`,
+  `test_retrieval.py`, `test_routing.py`, `test_opening_hours.py`, `test_orchestration.py`,
+  `test_evaluation.py`, `test_maps.py`, `test_transit.py`, `test_arrival.py`,
+  `test_crowding.py`, `test_llm.py`. Read the one you need instead of all of them, and run it
+  on its own: `pytest tests/test_opening_hours.py`. The catalogue-derived constants
+  (`CITY_CODES`, `MAIN_CITY`, `needs_full_city`, …) live in `tests/helpers.py`; a new test
+  file imports them from there rather than re-deriving them.
+
+  **A test file maps to a `roamwise/` subpackage, and that is what keeps parallel work
+  apart** (#164). Three people split the open issues by which source files they touch, and
+  the split only holds if the tests follow the same line. Two files exist for that reason:
+  `test_models.py` (forecasting and segmentation had been folded into `test_retrieval.py`,
+  putting the forecast work and the retrieval-tuning work in one file) and
+  `test_evaluation.py` (the comparative analysis had been folded into
+  `test_orchestration.py`, putting the measurement work and the orchestrator work in one).
+  Put a new test where its subject lives, not where a related one happens to sit.
 - `data/poi.csv`, `data/crowding.csv`, `evaluation/*_results.csv` — use `head`, `wc -l`, or
   pandas. Never `cat` them.
 - `data/knowledge_graph.gml` and `data/street_network/*.npz` are blocked by a `Read` deny
