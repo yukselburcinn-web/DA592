@@ -197,16 +197,33 @@ def classify(narrative: str, prompt: str, destination_id: str,
         else:
             unshown.append(places[key]["name"])
 
-    hallucinated = len(wrong_city) + len(unshown)
+    # Two rates, deliberately not summed into one.
+    #
+    # The proposal asks for a *geographical* hallucination rate, and the issue
+    # defines it as names that are (a) not in the catalogue or (b) not in this
+    # city. `wrong_city` is (b), measured exactly. Adding `unshown` to it would
+    # report a different, stricter thing under the proposal's name: every
+    # `unshown` place found in the first run was real and in the right city --
+    # "Ile de la Cite", "Pariser Platz", "Latin Quarter" -- so calling them
+    # geographical hallucinations would be false. They are the #56 failure
+    # instead: the system prompt says "never mention or suggest any other
+    # place", and the model did anyway. Correct, and still ungrounded: nothing
+    # in the pipeline put those names there or checked them.
+    #
+    # (a) is NOT measured here. Finding a name the catalogue has never heard of
+    # needs entity extraction over open text, which this module deliberately
+    # does not attempt -- everything above is exact lookup against a gazetteer.
+    # `run_zero_context_probe` gives the only signal available on it, by
+    # counting lines a no-context answer produced that match nothing.
     return {
         "places_named": len(named),
         "grounded": len(grounded),
         "wrong_city": len(wrong_city),
         "unshown_same_city": len(unshown),
-        "hallucinated": hallucinated,
         # None, not 0.0, when the narrative named no place at all: a rate over
         # an empty denominator is not 0% hallucination, it is no measurement.
-        "hallucination_rate": (hallucinated / len(named)) if named else None,
+        "geographical_hallucination_rate": (len(wrong_city) / len(named)) if named else None,
+        "ungrounded_mention_rate": (len(unshown) / len(named)) if named else None,
         "wrong_city_names": "; ".join(wrong_city),
         "unshown_names": "; ".join(unshown),
     }
@@ -347,19 +364,19 @@ def run_hallucination_measurement(top_k: int = 8, llm=None) -> tuple:
     for column in next(iter(graded.values())):
         out[column] = out.prompt_key.map(lambda k, c=column: graded[k][c])
 
-    measured = out[out.hallucination_rate.notna()]
+    measured = out[out.places_named > 0]
     summary = measured.groupby("config").agg(
         queries=("query_id", "size"),
         distinct_prompts=("prompt_key", "nunique"),
         places_named=("places_named", "sum"),
-        hallucinated=("hallucinated", "sum"),
         wrong_city=("wrong_city", "sum"),
         unshown_same_city=("unshown_same_city", "sum"),
     )
-    # The rate is a proportion over *place names*, not a mean of per-narrative
-    # rates: a narrative naming two places would otherwise weigh as much as one
-    # naming twelve. n for any claim about this number is `places_named`.
-    summary["hallucination_rate"] = (summary.hallucinated / summary.places_named).round(4)
+    # Proportions over *place names*, not means of per-narrative rates: a
+    # narrative naming two places would otherwise weigh as much as one naming
+    # twelve. n for any claim about either number is `places_named`.
+    summary["geographical_hallucination_rate"] = (summary.wrong_city / summary.places_named).round(4)
+    summary["ungrounded_mention_rate"] = (summary.unshown_same_city / summary.places_named).round(4)
     summary["model"] = describe_client(llm)
     print(f"{calls} generation(s), {hits} served from cache")
     return out, summary.reset_index()

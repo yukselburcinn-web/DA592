@@ -370,8 +370,9 @@ def test_a_place_the_prompt_introduced_is_not_counted_as_invention(gaz):
     prompt = "Day 1: Humboldt Forum -- a cultural centre on Museum Island."
     graded = classify("Visit the Humboldt Forum, on Museum Island.", prompt, "BER", places, pattern)
 
-    assert graded["hallucinated"] == 0
-    assert graded["hallucination_rate"] == 0.0
+    assert graded["unshown_same_city"] == 0
+    assert graded["geographical_hallucination_rate"] == 0.0
+    assert graded["ungrounded_mention_rate"] == 0.0
 
 
 def test_a_place_from_the_other_city_is_geographical_hallucination(gaz):
@@ -383,7 +384,7 @@ def test_a_place_from_the_other_city_is_geographical_hallucination(gaz):
 
     assert graded["wrong_city"] == 1
     assert graded["wrong_city_names"] == "Eiffel Tower"
-    assert graded["hallucination_rate"] == 0.5
+    assert graded["geographical_hallucination_rate"] == 0.5
 
 
 def test_a_narrative_that_names_no_place_is_not_a_zero_percent_score(gaz):
@@ -392,7 +393,8 @@ def test_a_narrative_that_names_no_place_is_not_a_zero_percent_score(gaz):
     graded = classify("A pleasant day out.", "Day 1: Humboldt Forum.", "BER", places, pattern)
 
     assert graded["places_named"] == 0
-    assert graded["hallucination_rate"] is None
+    assert graded["geographical_hallucination_rate"] is None
+    assert graded["ungrounded_mention_rate"] is None
 
 
 @pytest.mark.parametrize("run", [run_hallucination_measurement, run_zero_context_probe])
