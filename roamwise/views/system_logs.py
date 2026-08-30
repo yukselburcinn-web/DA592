@@ -53,9 +53,9 @@ with logs_tab:
                                help="Matches the message, the source module and the structured fields.")
     with action_col:
         st.write("")  # push the buttons down onto the inputs' baseline
-        if st.button("Refresh", use_container_width=True):
+        if st.button("Refresh", width='stretch'):
             st.rerun()
-        if st.button("Clear", use_container_width=True,
+        if st.button("Clear", width='stretch',
                      help="Empties the buffer for everyone using this server."):
             app_logging.clear()
             st.rerun()
@@ -104,7 +104,7 @@ with logs_tab:
         # under a block of empty ones. "Details" carries the structured payload
         # and is the column worth the width.
         st.dataframe(
-            table, use_container_width=True, hide_index=True,
+            table, width='stretch', hide_index=True,
             column_config={
                 "Time": st.column_config.TextColumn(width="small"),
                 "Level": st.column_config.TextColumn(width="small"),
@@ -274,7 +274,7 @@ with results_tab:
                     "Answers": asked.gold_size,
                     "Grading": asked.dependence.map(DEPENDENCE_TEXT),
                 }),
-                use_container_width=True, hide_index=True,
+                width='stretch', hide_index=True,
                 column_config={
                     "Tier": st.column_config.TextColumn(width="small"),
                     "City": st.column_config.TextColumn(width="small"),
@@ -326,7 +326,7 @@ with results_tab:
                  title="Quality metrics (higher is better, all on a 0-1 scale)")
     fig.update_layout(legend=dict(orientation="h", yanchor="bottom", y=-0.35, x=0),
                       margin=dict(l=0, r=0, t=40, b=0), height=380)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
     # The cost metrics are charted separately, not folded into the grouped bar
     # above: km and milliseconds share no scale with a 0-1 rate, and plotting
@@ -344,14 +344,14 @@ with results_tab:
                               margin=dict(l=0, r=0, t=40, b=0), height=300)
             fig.update_xaxes(tickvals=list(CONFIG_LABELS.values()),
                              ticktext=["Fusion", "Hybrid", "Standard"])
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
 
     st.markdown("##### Summary")
     table = summary_df.assign(Configuration=summary_df.config.map(SHORT_LABELS))[
         ["Configuration"] + [column for column, _, _, _, _ in METRICS]
     ].rename(columns={column: label for column, _, label, _, _ in METRICS})
     st.dataframe(
-        table, use_container_width=True, hide_index=True,
+        table, width='stretch', hide_index=True,
         column_config={
             "Configuration": st.column_config.TextColumn(width="small"),
             **{
@@ -375,7 +375,7 @@ with results_tab:
     )[["Metric", "Against", "mean_advantage", "Record", "p", "Verdict"]].rename(
         columns={"mean_advantage": "Mean advantage"})
     st.dataframe(
-        verdicts, use_container_width=True, hide_index=True,
+        verdicts, width='stretch', hide_index=True,
         column_config={
             "Mean advantage": st.column_config.NumberColumn(format="%.3f",
                                                             help="Fusion minus the opponent, signed so "
@@ -399,7 +399,7 @@ with results_tab:
             for tier in tiers}}
         for _, results_column, label, _, _ in METRICS
     ])
-    st.dataframe(replication, use_container_width=True, hide_index=True)
+    st.dataframe(replication, width='stretch', hide_index=True)
 
     st.markdown("##### How much of this rests on circular grading?")
     st.caption("The graph retriever routes on literal keywords. When a query names the answer "
@@ -414,7 +414,7 @@ with results_tab:
             if results_column in ("recall_at_k", "archetype_precision")}}
         for level, group in results_df.groupby("dependence")
     ])
-    st.dataframe(dependence, use_container_width=True, hide_index=True)
+    st.dataframe(dependence, width='stretch', hide_index=True)
 
     for _, results_column, label, higher_better, description in METRICS:
         arrow = "higher is better" if higher_better else "lower is better"
@@ -428,7 +428,7 @@ with results_tab:
         st.caption("One row per query and configuration. Every metric above is an average over "
                    "this table.")
         st.dataframe(
-            results_df, use_container_width=True, hide_index=True,
+            results_df, width='stretch', hide_index=True,
             # Without a width the query is squeezed to a few characters between
             # the id columns and the metrics, which is the state this table was
             # already in before it carried the question at all.
@@ -578,7 +578,7 @@ with results_tab:
         st.dataframe(
             by_pool.rename(columns={"top_k": "Pool", "configs": "Configs",
                                     "shipped": "Stops", "ceiling": "Ceiling"}),
-            use_container_width=True, hide_index=True,
+            width='stretch', hide_index=True,
             column_config={"Filled": st.column_config.ProgressColumn(
                 "Filled", min_value=0.0, max_value=1.0, format="%.1f%%")},
         )
@@ -590,4 +590,4 @@ with results_tab:
         )
 
         with st.expander("Per-configuration ceiling"):
-            st.dataframe(ceiling_df, use_container_width=True, hide_index=True)
+            st.dataframe(ceiling_df, width='stretch', hide_index=True)
