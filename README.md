@@ -75,7 +75,7 @@ export NVIDIA_API_KEY=nvapi-...
 export ROAMWISE_LLM=nvidia
 ```
 
-No extra package — the endpoint is one JSON POST over `requests`, which is already a dependency. The model defaults to `meta/llama-3.1-8b-instruct`; set `NVIDIA_LLM_MODEL` to anything else your account can reach, or `NVIDIA_BASE_URL` to point the same client at another OpenAI-compatible gateway.
+No extra package — the endpoint is one JSON POST over `requests`, which is already a dependency. The model defaults to `nvidia/nemotron-3.5-lightning-30b-a3b`; set `NVIDIA_LLM_MODEL` to anything else your account can reach, or `NVIDIA_BASE_URL` to point the same client at another OpenAI-compatible gateway.
 
 **Anthropic:**
 

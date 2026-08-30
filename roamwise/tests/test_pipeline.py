@@ -3500,3 +3500,33 @@ def test_the_nvidia_request_carries_the_prompt_and_a_budget(monkeypatch):
     assert body["max_tokens"] == budget_for(prompt)
     assert body["messages"][0] == {"role": "system", "content": "be brief"}
     assert body["messages"][1]["content"] == prompt
+
+
+def test_thinking_is_off_by_default_and_switchable(monkeypatch):
+    """Issue #7: the default model (nemotron-3.5-lightning) deliberates before
+    answering unless told not to, and that deliberation is billed like any
+    other output token while nothing downstream reads it. Off by default, but
+    a body field rather than a hardcoded False, because a model that needs it
+    should not need a new client."""
+    responses = [_FakeResponse(200, _ok_payload("Day 1: the Louvre."))]
+    client, sent = _nvidia_client(monkeypatch, responses)
+
+    client.complete_verbose(system="s", prompt="p")
+    assert sent[0]["chat_template_kwargs"] == {"enable_thinking": False}
+
+
+def test_a_model_that_only_reasons_is_a_failure_not_an_empty_plan(monkeypatch):
+    """The nastiest shape this endpoint can return: HTTP 200, finish_reason
+    'length', an empty `content` and a full `reasoning_content` -- the model
+    spent its whole budget thinking. Rendering that empty string would put a
+    blank narrative under a "Written by: NVIDIA API" label, which reads as a
+    finished plan (#125, #133)."""
+    from roamwise.agents.llm_client import LLMRequestFailed
+
+    payload = {"choices": [{"message": {"content": "",
+                                        "reasoning_content": "Let me consider the days..."},
+                            "finish_reason": "length"}]}
+    client, _ = _nvidia_client(monkeypatch, [_FakeResponse(200, payload)])
+
+    with pytest.raises(LLMRequestFailed, match="ROAMWISE_LLM_THINKING"):
+        client.complete_verbose(system="s", prompt="p")

@@ -220,8 +220,20 @@ class TemplateLLMClient(LLMClient):
 # (the free tier's catalogue changes), and the base URL lets the same client
 # talk to any other OpenAI-compatible gateway without a second class.
 NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
-NVIDIA_DEFAULT_MODEL = "meta/llama-3.1-8b-instruct"
+NVIDIA_DEFAULT_MODEL = "nvidia/nemotron-3.5-lightning-30b-a3b"
 _HTTP_TIMEOUT = 120  # a long synthesis on a busy free tier is slow, not hung
+
+# Nemotron-class models deliberate before answering, and return that
+# deliberation in a separate `reasoning_content` field. RoamWise wants the
+# narration, not the deliberation: nothing downstream reads reasoning, it is
+# billed like any other output token, and with thinking on, a model can spend
+# the whole budget reasoning and return an empty `content` -- which would reach
+# the traveler as a blank plan.
+#
+# Sent as a plain body field because this client posts raw JSON; it is what
+# the `openai` SDK's `extra_body` puts on the wire. Set ROAMWISE_LLM_THINKING=1
+# to leave it on for a model that needs it.
+NVIDIA_THINKING = os.environ.get("ROAMWISE_LLM_THINKING", "").strip() not in ("", "0")
 
 
 class NvidiaLLMClient(LLMClient):
@@ -259,6 +271,7 @@ class NvidiaLLMClient(LLMClient):
             "max_tokens": budget,
             "messages": [{"role": "system", "content": system},
                          {"role": "user", "content": prompt}],
+            "chat_template_kwargs": {"enable_thinking": NVIDIA_THINKING},
         }
         last_error = None
         for attempt in range(MAX_ATTEMPTS):
@@ -295,8 +308,25 @@ class NvidiaLLMClient(LLMClient):
                     f"{resp.text[:300]}")
 
             choice = resp.json()["choices"][0]
-            text = choice["message"]["content"] or ""
+            message = choice.get("message") or {}
+            text = (message.get("content") or "").strip()
             truncated = choice.get("finish_reason") == "length"
+
+            if not text:
+                # A reasoning model that spent the whole budget deliberating
+                # returns HTTP 200 with an empty `content` and a full
+                # `reasoning_content`. Returning that empty string would put a
+                # blank narrative on screen under a "Written by: NVIDIA API"
+                # label -- a confident-looking nothing, which is the failure
+                # #125 and #133 both exist to prevent. The reasoning itself is
+                # not a substitute: it is the model thinking, not the plan.
+                reasoned = len((message.get("reasoning_content") or "").strip())
+                raise LLMRequestFailed(
+                    f"{self.model} returned no narration"
+                    + (f" (only {reasoned} characters of reasoning; set "
+                       f"ROAMWISE_LLM_THINKING=0 or raise the token budget)" if reasoned
+                       else f" (finish_reason={choice.get('finish_reason')!r})"))
+
             _warn_if_truncated(truncated, "NvidiaLLMClient", budget)
             return Completion(text, truncated)
 
