@@ -26,11 +26,14 @@ from roamwise.retrieval.graph_search import GraphSearchIndex
 from roamwise.retrieval.query import archetype_query
 from roamwise.optimization.routing import (FOOD_CATEGORY, NIGHTLIFE_EARLIEST_HOUR,
                                            _opening_intervals, optimize_day_route)
-from roamwise.optimization.toptw import build_multi_day_itinerary
+from roamwise.optimization.scoring import quality
+from roamwise.optimization.toptw import (ICONIC_QUALITY_THRESHOLD,
+                                         build_multi_day_itinerary)
 from roamwise.optimization.travel_modes import get_travel_mode
 from roamwise.agents.llm_client import CHARS_PER_TOKEN, budget_for
 from roamwise.agents.orchestrator import RETRIEVED_POIS_PER_DAY, RoamWiseOrchestrator
-from roamwise.agents.router_agent import DAY_START_HOURS, RouterAgent, start_hour_for
+from roamwise.agents.router_agent import (DAY_START_HOURS, ICONIC_GUARANTEED,
+                                          RouterAgent, start_hour_for)
 from roamwise.evaluation import comparative_analysis
 from roamwise.evaluation.comparative_analysis import (
     TEST_QUERIES, dependence_level, gold_for, paired_significance,
@@ -746,6 +749,99 @@ def test_routing_uses_injected_real_routing_matrix(monkeypatch):
 def _daytime_poi(name, lat, lon, minutes=60):
     return {"name": name, "lat": lat, "lon": lon, "avg_visit_minutes": minutes,
             "open_hour": 8, "close_hour": 20}
+
+
+def test_a_landmark_far_from_the_cluster_survives_the_solver():
+    """Issue #122. One scalar `drop_penalty_m` prices every stop the same, so
+    the stop furthest from the cluster is always the cheapest to drop however
+    well known it is -- measured over 2 cities x 7 archetypes, the Eiffel Tower
+    reached the router's shortlist in 3 and the plan in 0, and so did the
+    Berlin Wall (`evaluation/iconic_coverage.py`).
+
+    The pool here is that shape in miniature: eight ordinary places within a few
+    hundred metres of each other, and one famous one 4 km away. With the
+    multiplier off the day takes the cluster and leaves the landmark; with the
+    shipped setting the landmark costs more to skip than the detour to reach it.
+
+    Asserted as a pair rather than as "the landmark is in the plan", because the
+    second half alone would also pass if the solver simply had time for
+    everything -- what this is about is which of the two the solver gives up.
+    """
+    cluster = [dict(_daytime_poi(f"Ordinary {i}", 48.860 + i * 0.001, 2.340,
+                                 minutes=40), popularity_score=1.0)
+               for i in range(8)]
+    # 8.8 km out: more than the flat 8 km a dropped stop costs, less than the
+    # 12 km it costs once the multiplier applies. The window is what the test
+    # is for, and it is narrow on purpose -- at 10 km even 1.5x leaves the
+    # landmark behind, which is the honest limit of a penalty that is priced
+    # in metres.
+    landmark = dict(_daytime_poi("Famous Tower", 48.860, 2.220, minutes=40),
+                    popularity_score=5.0)
+    pois = cluster + [landmark]
+
+    without = build_multi_day_itinerary(pois, 1, daily_minutes_budget=900,
+                                        day_start_hour=9.0,
+                                        iconic_drop_multiplier=1.0)
+    with_penalty = build_multi_day_itinerary(pois, 1, daily_minutes_budget=900,
+                                             day_start_hour=9.0)
+
+    names = lambda days: {p["name"] for day in days for p in day["route"]}
+    assert "Famous Tower" not in names(without), \
+        "the flat penalty is what this test is about; if it now keeps the " \
+        "landmark the fixture no longer reproduces #122"
+    assert "Famous Tower" in names(with_penalty)
+
+
+def test_a_landmark_stays_a_candidate_for_a_traveler_who_did_not_ask_for_one():
+    """Issue #122, item 4. The drop penalty can only keep what the router is
+    handed, and retrieval is archetype-driven: measured, the Eiffel Tower
+    reached the pool for 3 of 7 archetypes and the Berlin Wall for 3 of 7,
+    because a Nightlife Seeker's query asks for bars and gets them. So the city's
+    best-known places are completed into the working set from the graph -- the
+    same route `_food_pois` takes, and for the same reason: widening the query
+    instead would change what the Fusion/Hybrid/standard comparison measures.
+
+    Checked on the working set rather than on a plan, because what the guarantee
+    promises is candidacy. Whether a guaranteed landmark is then *kept* is the
+    drop penalty's job and is measured in `evaluation/iconic_coverage.py`.
+    """
+    idx = GraphIndex()
+    router = RouterAgent(idx)
+    iconic = router._iconic_pois(MAIN_CITY)
+    assert len(iconic) == ICONIC_GUARANTEED
+
+    # A working set the archetype's own preferences might plausibly produce:
+    # the city's least-known POIs, holding none of the landmarks.
+    iconic_ids = {p["poi_id"] for p in iconic}
+    obscure = [p for p in idx.city_pois(MAIN_CITY)
+               if p["poi_id"] not in iconic_ids][-20:]
+
+    completed = router._with_iconic(MAIN_CITY, obscure)
+    assert iconic_ids <= {p["poi_id"] for p in completed}
+
+    # Idempotent, and never twice: `routing.py` compares POIs by `id(p)`, so a
+    # landmark carried under two dicts would be schedulable twice.
+    again = router._with_iconic(MAIN_CITY, completed)
+    ids = [p["poi_id"] for p in again]
+    assert len(ids) == len(set(ids))
+    assert len(again) == len(completed)
+
+
+def test_the_iconic_penalty_only_touches_the_top_of_the_pool():
+    """The idea `toptw_scoring_ablation.py` rejected at #72 was reweighting
+    *every* node with the selection score; this is a handful of POIs paying
+    more. The threshold is what keeps those two different, so it is worth an
+    assertion: at the shipped 0.99, a pool with one clear leader must leave
+    everything else on the flat price.
+
+    Checked through `scoring.quality`, the same normalisation the solver reads,
+    rather than by counting solutions -- what a POI costs to drop is not
+    observable in the returned itinerary."""
+    pois = [{"name": f"P{i}", "popularity_score": score}
+            for i, score in enumerate([5.0, 4.5, 4.0, 3.0, 1.0])]
+    fame = quality(pois)
+    above = [p["name"] for p, f in zip(pois, fame) if f >= ICONIC_QUALITY_THRESHOLD]
+    assert above == ["P0"], f"expected one landmark above the threshold, got {above}"
 
 
 # --- issue #19: day balance, budget filling, and travel modes ---

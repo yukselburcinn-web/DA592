@@ -21,6 +21,19 @@ from roamwise.optimization.travel_modes import DEFAULT_MODE, get_travel_mode
 # Lunch and dinner: the itinerary should read like a day a person could
 # actually live, not a march between museums (issue #20).
 MIN_FOOD_PER_DAY = 2
+# How many of a city's best-known places are candidates whatever the traveler
+# asked for (issue #122, item 4 -- a product decision, taken explicitly).
+#
+# The measurement that prompted it: the Eiffel Tower reaches the retrieved pool
+# for 3 of 7 archetypes and the Berlin Wall for 3 of 7, because retrieval is
+# archetype-driven -- a Nightlife Seeker's query asks for bars and gets them.
+# #122's per-POI drop penalty can only keep what it is handed, so for the other
+# four archetypes the tower was never a candidate to keep.
+#
+# 3, not more: this is the "no Paris plan without the Eiffel Tower" floor, not
+# a second ranking. Every extra guaranteed slot is one the traveler's own
+# preferences did not ask for.
+ICONIC_GUARANTEED = 3
 
 # What time of day a traveler's day begins, by archetype. #59 made the start
 # hour settable and plumbed it through; this decides what it should *default*
@@ -151,6 +164,10 @@ class RouterAgent:
         food_pois = self._food_pois(destination_id, candidate_pois)
         sightseeing_pois, food_pois = self._select(
             sightseeing_pois, food_pois, n_days, preferences, min_food_per_day)
+        # After selection, not before it: the shortlist is where the traveler's
+        # sliders decide, and a landmark a Nightlife Seeker's vector scores low
+        # would be cut there -- which is exactly the case this exists for.
+        sightseeing_pois = self._with_iconic(destination_id, sightseeing_pois)
 
         # One model decides which of these to visit, on which day, in which
         # order and at what hour (issue #72). It replaces KMeans zoning plus
@@ -255,6 +272,42 @@ class RouterAgent:
             return sightseeing[:sight_limit], food[:food_limit]
         return (select_by_score(sightseeing, preferences, sight_limit),
                 select_by_score(food, preferences, food_limit))
+
+    def _iconic_pois(self, destination_id: str) -> list[dict]:
+        """The city's `ICONIC_GUARANTEED` best-known places, from the graph.
+
+        Sourced the same way and for the same reason as `_food_pois`: retrieval
+        is archetype-driven, so a query that never asks for landmarks never
+        surfaces one, and widening the query instead would change what the
+        Fusion/Hybrid/standard comparison is measuring. The retrieval layer is
+        left alone and the pool is completed here (#20's precedent, applied to
+        #122's item 4).
+
+        `popularity_score` is the same signal retrieval's prominence half and
+        the solver's drop penalty read -- a within-city percentile of Wikidata
+        sitelinks blended with Wikipedia pageviews (#63) -- so "best known"
+        means one thing across the three places that act on it.
+        """
+        pois = self.graph.city_pois(destination_id)
+        return sorted(pois, key=lambda p: -(p.get("popularity_score") or 0.0)
+                      )[:ICONIC_GUARANTEED]
+
+    def _with_iconic(self, destination_id: str, sightseeing: list[dict]) -> list[dict]:
+        """`sightseeing` plus any guaranteed landmark it does not already hold.
+
+        Appended rather than substituted: the shortlist is already capped by
+        `MAX_WORKING_SET`, and dropping the traveler's own lowest-scoring
+        candidate to make room would trade a preference for a landmark
+        silently. Three extra nodes is what this costs the solver.
+
+        Matched by identity of `poi_id` and the retrieved dict is kept, so a
+        landmark retrieval *did* surface is not carried twice under two dicts
+        -- `routing.py` compares POIs by `id(p)` (see its header).
+        """
+        already = {p.get("poi_id") for p in sightseeing}
+        missing = [p for p in self._iconic_pois(destination_id)
+                   if p.get("poi_id") not in already]
+        return sightseeing + missing
 
     def _food_pois(self, destination_id: str, candidate_pois: list[dict]) -> list[dict]:
         """Meal candidates come straight from the knowledge graph rather than
