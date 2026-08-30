@@ -71,7 +71,7 @@ def run() -> pd.DataFrame:
             for pool_name, sights, meal_pool in (("retrieval", retrieved, food),
                                                   ("score", ranked, all_food)):
                 pool = list(sights) + list(meal_pool)
-                distance_fn, duration_fn, _ = _build_distance_functions(
+                distance_fn, duration_fn, _, _ = _build_distance_functions(
                     [hub] + pool, use_real_routing=False, travel_mode=TRAVEL_MODE)
                 scores = score_pois(pool, prefs)
                 for weights, kwargs in (("uniform", {}),

@@ -8,7 +8,8 @@ import pytest
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
 from roamwise.agents.router_agent import ICONIC_GUARANTEED, RouterAgent
 from roamwise.knowledge_graph.build_graph import GraphIndex
-from roamwise.optimization.routing import NIGHTLIFE_EARLIEST_HOUR, optimize_day_route
+from roamwise.optimization.routing import (NIGHTLIFE_EARLIEST_HOUR, optimize_day_route,
+                                           route_geometry)
 from roamwise.optimization.scoring import quality
 from roamwise.optimization.toptw import ICONIC_QUALITY_THRESHOLD, build_multi_day_itinerary
 from roamwise.optimization.travel_modes import get_travel_mode
@@ -477,3 +478,102 @@ def test_router_agent_feeds_every_day_from_the_citys_own_restaurants():
         # meal away on a short day. The invariant this test actually guards
         # -- meals are sourced from the graph at all -- only needs >= 1.
         assert len(_meals_in(day)) >= 1, f"day {day['day']} has no meals"
+
+
+# --- issue #159: the itinerary says how each stop is reached ---
+
+@pytest.mark.slow
+def test_every_stop_says_what_it_cost_to_reach_it():
+    """The sidebar lets the traveler choose a mode and the panel used to report
+    only the day's total km, so "on foot" never said how far and hybrid never
+    said which legs were driven.
+
+    The numbers have to be the ones the router was *charged*, which is why they
+    are read off the schedule rather than recomputed for display -- #94 is what
+    recomputing costs."""
+    from roamwise.optimization.toptw import build_multi_day_itinerary
+
+    idx = GraphIndex()
+    pois = idx.city_pois(MAIN_CITY)[:40]
+    days = build_multi_day_itinerary(pois, 2, daily_minutes_budget=480,
+                                     use_real_routing=True, travel_mode="walking")
+    day = next(d for d in days if d["route"])
+    for i, slot in enumerate(day["schedule"]):
+        assert "leg_minutes" in slot and "leg_km" in slot, \
+            f"stop {i + 1} carries no leg record, so the itinerary cannot describe it"
+        assert slot["leg_minutes"] >= 0 and slot["leg_km"] >= 0
+
+
+@pytest.mark.slow
+def test_the_legs_shown_add_up_to_the_day_the_panel_reports():
+    """A breakdown that does not sum to its own total is worse than no
+    breakdown. `distance_km` and `active_minutes` are what the panel prints, so
+    the per-leg records have to reconcile with both."""
+    from roamwise.optimization.toptw import build_multi_day_itinerary
+
+    idx = GraphIndex()
+    pois = idx.city_pois(MAIN_CITY)[:40]
+    for mode in ("walking", "driving"):
+        days = build_multi_day_itinerary(pois, 2, daily_minutes_budget=480,
+                                         use_real_routing=True, travel_mode=mode)
+        for day in (d for d in days if d["route"]):
+            legs_km = sum(s["leg_km"] for s in day["schedule"])
+            assert legs_km == pytest.approx(day["distance_km"], abs=0.05), \
+                f"{mode}: legs sum to {legs_km:.2f} km, panel says {day['distance_km']}"
+
+            visits = sum(p.get("avg_visit_minutes", 60) for p in day["route"])
+            legs_min = sum(s["leg_minutes"] for s in day["schedule"])
+            assert legs_min + visits == pytest.approx(day["active_minutes"], abs=1.5), \
+                (f"{mode}: legs {legs_min:.0f} + visits {visits} != active "
+                 f"{day['active_minutes']}")
+
+
+@pytest.mark.slow
+def test_a_hybrid_day_reports_the_mode_each_leg_was_priced_at():
+    """Hybrid is the whole reason this is per leg: the trip is one mode and the
+    legs are two. A day that never drives would prove nothing, so the assertion
+    is that both appear."""
+    from roamwise.optimization.toptw import build_multi_day_itinerary
+
+    idx = GraphIndex()
+    pois = idx.city_pois(MAIN_CITY)[:40]
+    days = build_multi_day_itinerary(pois, 3, daily_minutes_budget=720,
+                                     use_real_routing=True, travel_mode="hybrid")
+    modes = {s["leg_mode"] for d in days for s in d["schedule"] if s["leg_mode"]}
+    assert modes <= {"walking", "driving"}, f"hybrid legs report {modes}"
+    assert modes == {"walking", "driving"}, \
+        "a hybrid trip that never switches modes cannot show the per-leg split works"
+
+
+@pytest.mark.slow
+def test_the_shown_mode_is_the_one_the_leg_was_drawn_with(monkeypatch):
+    """The pricing and the drawing each used to test `foot_km <= threshold_km`
+    on their own, and #159 adds a third reader -- the label. Three copies of one
+    rule is how HUB_WALK_KM went stale for an entire issue (#113); here the
+    failure would be a leg drawn as a walk and labelled a drive.
+
+    Asserted by moving the rule rather than by reading the source: forcing
+    `hybrid_leg_walks` to answer "never walk" has to change *both* the mode the
+    schedule reports and the path the map draws. A reader that kept its own
+    copy of the comparison would ignore this and fail the test."""
+    from roamwise.optimization import routing
+    from roamwise.optimization.toptw import build_multi_day_itinerary
+    from roamwise.optimization.travel_modes import get_travel_mode
+
+    mode = get_travel_mode("hybrid")
+    assert routing.hybrid_leg_walks(mode.threshold_km - 0.01, mode)
+    assert not routing.hybrid_leg_walks(mode.threshold_km + 0.01, mode)
+
+    monkeypatch.setattr(routing, "hybrid_leg_walks", lambda foot_km, mode: False)
+    idx = GraphIndex()
+    days = build_multi_day_itinerary(idx.city_pois(MAIN_CITY)[:40], 2,
+                                     daily_minutes_budget=480, use_real_routing=True,
+                                     travel_mode="hybrid")
+    day = next(d for d in days if d["route"])
+    priced = {s["leg_mode"] for s in day["schedule"] if s["leg_mode"]}
+    assert priced == {"driving"}, \
+        f"the pricing kept its own copy of the rule: {priced}"
+
+    drawn = route_geometry(([day["origin"]] if day.get("origin") else []) + day["route"],
+                           bool(day.get("used_real_routing")), "hybrid")
+    assert drawn, "hybrid geometry should still be drawable"
