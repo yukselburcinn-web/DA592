@@ -87,6 +87,7 @@ def test_later_days_still_start_in_the_city():
         assert from_centre < from_hub, f"day {day['day']} opens out by the gateway"
 
 
+@pytest.mark.slow
 def test_arrival_hub_reaches_the_router_from_plan_trip():
     """The failure mode this repo keeps hitting is a parameter that exists on
     the router and cannot be reached from the app (#59 for day_start_hour, #76
