@@ -96,6 +96,29 @@ SERVES_MAX_MIN = 15.0
 #
 # One constant, at module scope, deliberately: HUB_WALK_KM was split into two
 # copies and one of them went stale for an entire issue (#113).
+#
+# 15 was measured and rejected, and #144 is the record of it. Phase 5's own
+# table made 15 look defensible -- precision flat at 0.624 -> 0.631, recall up
+# 28% relative -- so the question was reopened with the measurement that table
+# was missing: the chain is a fourth ranked list, and growing it moves the
+# fused top-8 whatever weight it carries. Swept threshold x weight together
+# (`evaluation/chain_threshold_weight_sweep.py`), three answers agreed:
+#
+#   KN-2 band     at 10 min every weight from 0.02 to 0.15 keeps the chain
+#                 inside the 2-4 band. At 15 min *no weight does* -- 0.02 still
+#                 puts it at 5 of the top 8. The weight cannot buy the
+#                 threshold back, which is the thing phase 5 could not know.
+#   catalogue     PAR 28.3% -> 36.1%, BER 17.7% -> 22.3%.
+#   chain tier    normalized recall rises but discrimination falls: fusion
+#                 0.333 -> 0.375 while hybrid 0.042 -> 0.063, so the margin the
+#                 relation exists for narrows from 8.0x to 6.0x. The tier's
+#                 answer key *is* the traversal, so loosening the walk grows
+#                 the key along with the result -- which is why the gain is
+#                 read as a ratio and not as a level.
+#
+# So 10 stays, and it stays for a reason stronger than the coverage number
+# phase 4 wrote down: at 15 the relation stops discriminating, which is
+# #113's lesson in a different unit.
 REACHABLE_MAX_MIN = 10.0
 
 CATEGORY_AFFINITY = {
