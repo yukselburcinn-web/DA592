@@ -145,6 +145,17 @@ Each of these cost someone a debugging session.
     (#128's two "the code lies about itself" findings — the unrunnable `backend="neo4j"`
     branches and the "zoning + 2-opt" router label — were fixed in #145. Both are gone.)
 
+17. **`@pytest.mark.slow` is not a hint, it decides what CI runs.** 34 of the 161 tests carry
+    it: the ones that run a full trip plan, a multi-day TOPTW solve, a retriever build, or the
+    comparative analysis. A pull request that touches nothing under `knowledge_graph/`,
+    `retrieval/`, `agents/` or `optimization/` runs `-m "not slow"`; everything else, and
+    every push to `main`, runs all 161 (#148). Two consequences: **add the marker when you
+    add a test that plans a trip** — an unmarked heavy test silently lengthens every PR — and
+    **don't rely on the PR run alone** when you touch those four directories from a branch
+    that also edits them, because then you get the full suite anyway. Re-check the split with
+    `pytest tests/ -q --durations=25` after adding heavy tests. Measure on an idle machine:
+    a busy one doubles the numbers and the ordering is what matters.
+
 ## Working conventions
 
 Reviewers here read commit messages closely. These are not style rules.
