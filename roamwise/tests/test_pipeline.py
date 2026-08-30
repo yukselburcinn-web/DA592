@@ -248,6 +248,7 @@ def test_preference_levels_produce_distinct_archetypes():
     assert len(set(archetypes.values())) == len(archetypes)
 
 
+@pytest.mark.slow
 def test_fusion_retrieval_all_configs_run():
     fr = FusionRetriever()
     for config in ["fusion", "hybrid", "standard"]:
@@ -492,6 +493,7 @@ def test_the_graph_router_understands_words_travelers_actually_use():
         "and places of worship to visit in this city")) > 1
 
 
+@pytest.mark.slow
 def test_a_trip_gets_every_day_it_asked_for_even_from_a_food_only_pool():
     """A trip used to come back short of the days it was asked for whenever
     candidates ran thin -- day assignment produced one day per POI, so a 5-day
@@ -599,6 +601,7 @@ def test_fusion_beats_hybrid_on_archetype_grounding():
         f"Nightlife Seeker retrieval for {city} surfaced no nightlife text"
 
 
+@pytest.mark.slow
 def test_routing_respects_time_budget():
     idx = GraphIndex()
     pois = idx.city_pois(MAIN_CITY)
@@ -699,6 +702,7 @@ def test_a_long_day_still_gets_its_evening_stop():
     assert day["route"][-1].get("category") == "nightlife", "the bar should close the day"
 
 
+@pytest.mark.slow
 def test_day_start_hour_reaches_the_router_from_plan_trip():
     """day_start_hour sat only on RouterAgent.run()'s signature with nothing
     able to pass it, so every itinerary began at 09:00 (issue #59)."""
@@ -846,6 +850,7 @@ def test_the_iconic_penalty_only_touches_the_top_of_the_pool():
 
 # --- issue #19: day balance, budget filling, and travel modes ---
 
+@pytest.mark.slow
 def test_multi_day_itinerary_fills_every_day_near_its_budget():
     """The reported symptom: a multi-day plan where some days were empty and
     others held a two-hour route. Every day must now come back non-empty and
@@ -1030,6 +1035,7 @@ def test_meal_choice_prefers_a_venue_on_the_route_over_a_distant_one():
     assert "Distant Grill" not in names
 
 
+@pytest.mark.slow
 def test_the_same_restaurant_is_not_booked_twice_in_one_trip():
     zones = {0: _sights_along_a_line(3), 1: _sights_along_a_line(3, lat=48.23),
              2: _sights_along_a_line(3, lat=48.26)}
@@ -1042,6 +1048,7 @@ def test_the_same_restaurant_is_not_booked_twice_in_one_trip():
     assert len(booked) == len(set(booked))
 
 
+@pytest.mark.slow
 def test_router_agent_feeds_every_day_from_the_citys_own_restaurants():
     idx = GraphIndex()
     agent = RouterAgent(idx)
@@ -1201,6 +1208,7 @@ def test_day_start_defaults_to_the_archetypes_own_hour():
     assert start_hour_for("Nightlife Seeker", override=8.0) == 8.0
 
 
+@pytest.mark.slow
 def test_a_nightlife_trip_does_not_come_back_holding_one_bar():
     """The reported symptom. Nightlife is never scheduled before 18:00 (#59),
     so a day opening at 09:00 has nine hours with nothing schedulable in them
@@ -1225,6 +1233,7 @@ def test_a_nightlife_trip_does_not_come_back_holding_one_bar():
         "no day should come back holding a single stop"
 
 
+@pytest.mark.slow
 def test_every_day_reports_where_its_time_went():
     idx = GraphIndex()
     agent = RouterAgent(idx)
@@ -1239,6 +1248,7 @@ def test_every_day_reports_where_its_time_went():
         assert day["active_minutes"] + day["idle_minutes"] == day["total_minutes"]
         assert day["active_minutes"] <= day["total_minutes"]
 
+@pytest.mark.slow
 def test_orchestrator_end_to_end():
     orch = RoamWiseOrchestrator()
     prefs = {"budget": 0.7, "culture": 0.3, "nature": 0.2, "nightlife": 0.9, "relax": 0.2, "adventure": 0.3}
@@ -1277,6 +1287,7 @@ def ungrounded_places(result) -> list[str]:
                   if name in result["final_plan"] and name not in shown)
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize("city", CITY_CODES)
 def test_synthesis_prompt_offers_no_place_outside_the_itinerary(city):
     """Issue #56: retrieval returns candidates, and the router drops most of
@@ -1299,6 +1310,7 @@ def test_synthesis_prompt_offers_no_place_outside_the_itinerary(city):
         f"{city}: places not in the itinerary were offered to the narrator: {ungrounded_places(result)}"
 
 
+@pytest.mark.slow
 def test_planning_spends_one_generation_per_user_visible_narrative():
     """Issue #57: a trip used to cost four sequential generations, two of
     which produced text no user ever sees -- the retrieval and routing
@@ -1343,6 +1355,7 @@ def test_stop_descriptions_are_not_cut_at_an_abbreviation():
     assert _summarize("") == ""
 
 
+@pytest.mark.slow
 def test_itinerary_facts_describe_every_routed_stop():
     """The narrator can only describe stops from what it is given, so dropping
     the retrieval context (#56) is only safe if the itinerary carries each
@@ -1356,6 +1369,7 @@ def test_itinerary_facts_describe_every_routed_stop():
         assert name in facts, f"{name} is routed but missing from the itinerary facts"
 
 
+@pytest.mark.slow
 def test_comparative_analysis_shows_fusion_advantage():
     df = run_comparative_analysis(top_k=8)
     summary = summarize(df)
@@ -1527,6 +1541,7 @@ def test_paired_significance_calls_a_coin_flip_no_difference():
     assert verdict.loc["km_per_stop_day1", "verdict"] == "no difference"
 
 
+@pytest.mark.slow
 def test_langgraph_orchestrator_matches_custom_orchestrator_interface():
     """Skipped only where the langgraph extra is absent (see
     requirements-langgraph.txt); CI installs it, so this runs there. Confirms
@@ -1572,6 +1587,7 @@ def _stops_scheduled_while_closed(itinerary, start_date):
     return closed
 
 
+@pytest.mark.slow
 def test_the_router_reports_its_stops_against_a_ceiling():
     """Issue #77: a stop count has no scale on its own. `with_ceiling=True`
     re-solves the same shortlist with travel free and reports the trip against
@@ -1603,6 +1619,7 @@ def test_the_router_reports_its_stops_against_a_ceiling():
     assert f"of the {annotated['ceiling_stops']} stops" in annotated["facts"]
 
 
+@pytest.mark.slow
 def test_the_ceiling_is_solved_over_the_shortlist_not_the_whole_pool():
     """The shortlist is what `select_by_score` leaves, and what it leaves out
     it leaves out deliberately -- that is the only place the traveler's sliders
@@ -1641,6 +1658,7 @@ def test_the_ceiling_is_solved_over_the_shortlist_not_the_whole_pool():
     assert plan["ceiling_stops"] < len(pool)
 
 
+@pytest.mark.slow
 def test_both_orchestrators_honour_the_weekday_a_start_date_names():
     """Issue #76: `orchestrator.py` passed `start_date` to the router and
     `orchestrator_langgraph.py` did not, so the verbatim OSM tag could not be
@@ -2247,6 +2265,7 @@ def test_a_city_with_no_street_network_still_gets_a_drawable_line():
     assert len(geometry[0][0]) == 2
 
 
+@pytest.mark.slow
 def test_a_day_carries_the_place_its_first_leg_is_measured_from():
     """`distance_km` counts the journey from where the day starts to its first
     stop, and that place is not in `route`. Without it the map is short by the
@@ -2326,6 +2345,7 @@ def test_transit_reads_the_timetable_even_with_real_routing_off():
     assert duration(points[0], points[1]) < 60
 
 
+@pytest.mark.slow
 def test_transit_plans_a_whole_trip():
     from roamwise.agents.orchestrator import RETRIEVED_POIS_PER_DAY, RoamWiseOrchestrator
 
@@ -2358,6 +2378,7 @@ def _city_centre_hub(city_code):
     return {"lat": node["lat"], "lon": node["lon"], "name": node["name"]}
 
 
+@pytest.mark.slow
 def test_day_one_starts_from_the_arrival_hub():
     """`router_agent.py` has carried a comment promising this since #19 -- "the
     airport hub only matters for the single arrival leg" -- with no
@@ -2381,6 +2402,7 @@ def test_day_one_starts_from_the_arrival_hub():
         "day 1's distance does not include the leg in from the gateway"
 
 
+@pytest.mark.slow
 def test_later_days_still_start_in_the_city():
     """Anchoring every day at the gateway would walk the traveler back out to
     the edge of town each morning. Only day 1 moves."""
@@ -2644,6 +2666,7 @@ def test_the_chain_weight_is_recorded_where_rrf_reads_it():
     assert RETRIEVER_WEIGHTS["chain"] < RETRIEVER_WEIGHTS["graph"]
 
 
+@pytest.mark.slow
 def test_an_unknown_arrival_hub_is_ignored_rather_than_raised():
     """A stale id from the UI -- a city switched after the gateway was picked --
     must plan a normal trip, the same way an unknown travel mode falls back to
@@ -2966,6 +2989,7 @@ def test_both_kinds_of_meal_copy_count_as_the_same_sitting():
     assert _sitting_of(None) is None
 
 
+@pytest.mark.slow
 def test_the_router_schedules_stops_at_quieter_hours_than_it_used_to():
     """Issue #33's acceptance criterion. Before this, stops landed 11.1 points
     busier than the places' own averages across the measured trips -- the
@@ -3016,6 +3040,7 @@ def _synthesis_prompt(n_days, city=None):
                           n_days=n_days)["final_plan"]
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize("n_days", [1, 2, 3, 4, 5])
 def test_the_synthesis_budget_covers_every_trip_length(n_days):
     """Issue #125: the narrative described two days of a three-day route.
@@ -3043,6 +3068,7 @@ def test_the_synthesis_budget_covers_every_trip_length(n_days):
         f"~{approx_prompt_tokens:.0f} -- the narrative cannot restate every day it was given")
 
 
+@pytest.mark.slow
 def test_a_generation_that_hits_its_cap_is_reported_not_returned_as_finished():
     """Issue #125's second half: raising the cap alone would leave the same bug
     waiting at some longer trip. A cut generation returns well-formed prose
@@ -3066,6 +3092,7 @@ def test_a_generation_that_hits_its_cap_is_reported_not_returned_as_finished():
         prefs, destination_id=MAIN_CITY, n_days=3)["final_plan_truncated"] is False
 
 
+@pytest.mark.slow
 def test_choosing_a_destination_costs_no_generations():
     """Issue #125: #57 cut the two paraphrases nobody reads, but its test pins
     `destination_id`, which skips destination selection entirely -- and that is
@@ -3111,6 +3138,7 @@ def test_forecaster_can_score_without_narrating():
     assert agent.run(MAIN_CITY)["narrative"], "narration stays on by default"
 
 
+@pytest.mark.slow
 def test_both_orchestrators_issue_the_same_synthesis_call():
     """HANDOFF's standing warning, made checkable. `orchestrator_langgraph.py`
     reimplements the same five nodes and a test already asserts interface
@@ -3150,6 +3178,7 @@ def test_both_orchestrators_issue_the_same_synthesis_call():
         "the two orchestrators send the narrator different calls -- they have drifted"
 
 
+@pytest.mark.slow
 def test_the_langgraph_path_also_reports_a_truncated_narrative():
     """The truncation flag is only useful if both orchestrators set it; the
     LangGraph twin returns its state as a dict of node outputs, which is
