@@ -20,4 +20,3 @@ scipy==1.15.3
 sentence-transformers==6.0.0
 statsmodels==0.14.6
 streamlit==1.61.1
-neo4j

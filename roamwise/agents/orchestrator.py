@@ -16,8 +16,15 @@ Flow for a user request:
      travel window, and picks the winner.
   3. FusionRAGAgent retrieves grounded, archetype-aware POI context for that
      city (Semantic + Graph + Keyword, fused via RRF).
-  4. RouterAgent zones the retrieved POIs geographically and solves the
-     day-by-day route with the 2-opt optimization tool.
+  4. RouterAgent scores the retrieved POIs against the traveler's sliders and
+     hands them to the TOPTW solver, which decides which stops fit, on which
+     day, in what order and at what hour, all at once (#72).
+
+     This step said "zones the POIs geographically and solves with 2-opt" until
+     #145. Neither had been true since #72 replaced the zone-then-repair chain
+     with one optimisation, and #81 deleted `POIZoner` -- but the same wording
+     was also the `log_step` label below, so the operator screen was telling
+     travelers the router does something it does not.
   5. A final synthesis narrates the full plan from the three agents' outputs.
 """
 import json
@@ -104,7 +111,8 @@ class RoamWiseOrchestrator:
         top_k_pois: how many POIs to retrieve; defaults to scaling with trip length
         (see RETRIEVED_POIS_PER_DAY) so a longer trip actually has enough candidates
         to fill its days.
-        daily_minutes_budget: sightseeing time available per day, fed to the 2-opt router.
+        daily_minutes_budget: sightseeing time available per day; the solver's
+        time budget for each day (#72, #145 -- it used to say "2-opt router").
         day_start_hour: what time each day begins. Used to sit only on
         RouterAgent.run()'s signature with nothing able to reach it, so every
         itinerary began at 09:00 whatever the traveler wanted (issue #59).
@@ -212,7 +220,7 @@ class RoamWiseOrchestrator:
         # see `free_entry_share` below and REPORT.md section 5 (#67).
 
         # --- Node 4: Router Agent builds the optimized day-by-day route ---
-        with log_step(log, "Router Agent (zoning + 2-opt)",
+        with log_step(log, "Router Agent (scoring + TOPTW solve)",
                       n_candidate_pois=len(candidate_pois), travel_mode=travel_mode) as detail:
             # narrate=False for the same reason as the retrieval node above:
             # _synthesize narrates from this agent's `facts` directly, so an
