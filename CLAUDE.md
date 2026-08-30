@@ -38,7 +38,7 @@ roamwise/
   agents/            ForecasterAgent, FusionRAGAgent, RouterAgent, orchestrator.py
   evaluation/        comparative_analysis.py + committed result CSVs
   views/             itinerary.py (traveler-facing), system_logs.py (operator-facing)
-  tests/             test_pipeline.py — one file, ~140 tests
+  tests/             one file per subject (#150); helpers.py holds the shared constants
 ```
 
 ## Where the truth lives
@@ -57,7 +57,12 @@ don't cite it as current; query `gh` instead.
 
 Some committed files are large enough to be worth avoiding whole:
 
-- `tests/test_pipeline.py` is ~2 800 lines. Grep it or read a range; don't read it entire.
+- `tests/` is one file per subject since #150 — `test_graph.py`, `test_retrieval.py`,
+  `test_routing.py`, `test_opening_hours.py`, `test_orchestration.py`, `test_maps.py`,
+  `test_transit.py`, `test_arrival.py`, `test_crowding.py`, `test_llm.py`. Read the one you
+  need instead of all of them, and run it on its own: `pytest tests/test_opening_hours.py`.
+  The catalogue-derived constants (`CITY_CODES`, `MAIN_CITY`, `needs_full_city`, …) live in
+  `tests/helpers.py`; a new test file imports them from there rather than re-deriving them.
 - `data/poi.csv`, `data/crowding.csv`, `evaluation/*_results.csv` — use `head`, `wc -l`, or
   pandas. Never `cat` them.
 - `data/knowledge_graph.gml` and `data/street_network/*.npz` are blocked by a `Read` deny
