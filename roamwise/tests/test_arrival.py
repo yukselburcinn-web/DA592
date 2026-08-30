@@ -264,10 +264,22 @@ def test_the_chain_is_not_raw_two_hop_expansion():
     the catalogue, which is #113's 3 km radius in a new unit.
 
     Measured on the shipped data, the hour-constrained chain reaches 28% (PAR)
-    and 18% (BER). #126's acceptance criterion names 25%; the threshold here
-    is 30% and the gap is deliberate rather than hidden -- see the issue
-    comment on phase 4. What the test has to catch is the failure mode, and
-    that mode sits at 41-54%.
+    and 18% (BER).
+
+    The bound is 35%, and #144 is where that number stopped being provisional.
+    #126 phase 4 wrote 25% into its acceptance criterion and then measured
+    28.3% in Paris, so the test shipped at 30% with a comment admitting the
+    gap. Neither number was measured against the thing the bound protects.
+    The failure mode is raw two-hop expansion, and the sweep puts it at
+    41-54%: a bound has to sit below that and above what a working chain
+    actually returns.
+
+    35% is where two independent criteria agree. It clears the shipped 10-minute
+    threshold (28.3%) with room, it rejects 15 minutes (36.1%) -- and KN-2
+    rejects 15 minutes too, at every weight from 0.02 to 0.40, for the separate
+    reason that the chain then takes 5 of the fused top 8. A bound that lands in
+    the same place as an unrelated checkpoint is doing more than restating one
+    measurement (`evaluation/chain_threshold_weight_sweep.py`).
     """
     graph = GraphSearchIndex()
     day = datetime.date(2026, 9, 24)
@@ -278,7 +290,7 @@ def test_the_chain_is_not_raw_two_hop_expansion():
         reached = {d["poi_id"] for d in graph.chain_search(
             destination_id=city, top_k=len(catalogue), start_date=day)}
         share = len(reached) / len(catalogue)
-        assert share <= 0.30, f"{city}: chain returns {share:.0%} of the catalogue"
+        assert share <= 0.35, f"{city}: chain returns {share:.0%} of the catalogue"
 
 
 def test_the_chain_only_uses_hours_somebody_actually_observed():

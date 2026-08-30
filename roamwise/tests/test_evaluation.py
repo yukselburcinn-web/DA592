@@ -249,3 +249,33 @@ def test_the_quota_exponent_does_not_change_what_a_traveller_is_shown():
     assert spread <= 2, (
         f"the quota exponent moved {spread} stops across {len(impact) // 2} plans; it is "
         f"documented as reaching none, so either the finding or the constant needs revisiting")
+
+
+# --- issue #144: the chain threshold was decided, not just measured ---
+
+def test_the_chain_sweep_covers_the_threshold_the_code_ships():
+    """#144 rejected 15 minutes on three measurements at once; the file that
+    holds them has to describe this code.
+
+    `REACHABLE_MAX_MIN` is argued for in its own comment with numbers from
+    `chain_threshold_weight_sweep.csv` -- the KN-2 band, the catalogue share
+    and the chain tier's discrimination ratio. Move the constant without
+    re-running the sweep and that comment starts citing a configuration nobody
+    measured, which is exactly the state #126 left the threshold in.
+    """
+    from roamwise.retrieval.graph_search import REACHABLE_MAX_MIN
+
+    path = Path(comparative_analysis.__file__).parent / "chain_threshold_weight_sweep.csv"
+    assert path.exists(), "the sweep is the argument for the threshold; regenerate it"
+    swept = pd.read_csv(path)
+    assert REACHABLE_MAX_MIN in set(swept.reachable_max_min), (
+        f"the sweep does not cover the shipped threshold {REACHABLE_MAX_MIN} "
+        f"(has {sorted(set(swept.reachable_max_min))}) -- re-run "
+        f"`python -m roamwise.evaluation.chain_threshold_weight_sweep`")
+
+    # The finding itself: at the shipped threshold some weight holds KN-2's
+    # 2-4 band, and at 15 minutes none does. That asymmetry is the decision.
+    shipped = swept[swept.reachable_max_min == REACHABLE_MAX_MIN]
+    assert (shipped.kn2_band == "in band").any(), (
+        "no weight keeps the chain inside KN-2's band at the shipped threshold; "
+        "the threshold or RETRIEVER_WEIGHTS['chain'] needs revisiting")
