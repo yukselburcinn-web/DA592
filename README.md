@@ -66,14 +66,46 @@ The queries come in two tiers, and the split is the point: 19 are hand-written t
 
 ### Optional: real LLM narration
 
-By default every agent's "reasoning" step uses a deterministic template (see `agents/llm_client.py`) so the whole system runs offline with zero API cost. To use live Claude narration instead:
+By default every agent's "reasoning" step uses a deterministic template (see `agents/llm_client.py`) so the whole system runs offline with zero API cost. Every other engine is selected by one variable, `ROAMWISE_LLM` — a key sitting in your environment is never enough on its own ([`#7`](https://github.com/yukselburcinn-web/DA592/issues/7)). Exporting a key is how you configure the integration; it should not also bill your test runs and evaluation scripts, which need no model at all.
+
+**NVIDIA (hosted, OpenAI-compatible):**
+
+```bash
+export NVIDIA_API_KEY=nvapi-...
+export ROAMWISE_LLM=nvidia
+```
+
+No extra package — the endpoint is one JSON POST over `requests`, which is already a dependency. The model defaults to `nvidia/nemotron-3.5-lightning-30b-a3b`; set `NVIDIA_LLM_MODEL` to anything else your account can reach, or `NVIDIA_BASE_URL` to point the same client at another OpenAI-compatible gateway.
+
+**Anthropic:**
 
 ```bash
 pip install anthropic
 export ANTHROPIC_API_KEY=sk-...
+export ROAMWISE_LLM=anthropic
 ```
 
-No code changes needed — `get_default_llm_client()` detects the key automatically. This also unlocks a real generative-hallucination probe in `evaluation/comparative_analysis.py::run_llm_hallucination_probe`.
+Either one also unlocks the real generative-hallucination probe in `evaluation/comparative_analysis.py`, which needs `--probe` as well as a key.
+
+Both hosted clients keep to **40 requests per minute** by default — NVIDIA's free tier — waiting rather than colliding with the quota. Override with `ROAMWISE_LLM_RPM`, or set it to `0` to disable the limiter on a paid tier. A 429 or a 5xx is retried up to three times, honouring `Retry-After`; a 400 or 401 is not, since retrying a bad key just spends the quota three times. If the endpoint never answers, the itinerary screen says so instead of showing a traceback.
+
+For reference, one plan costs **two** generations regardless of trip length (the forecast blurb and the final synthesis), so 40/min is twenty plans a minute.
+
+#### Key hygiene — this repository is public
+
+Everyone runs on **their own key and their own quota**. Nothing in the repo carries a key, and nothing should.
+
+```bash
+cp .env.example .env       # .env is gitignored; .env.example is not
+$EDITOR .env               # your own key from build.nvidia.com
+set -a; source .env; set +a
+```
+
+Three things worth knowing before a key goes anywhere near this app:
+
+1. **A key committed once must be revoked, not deleted.** A push to a public repo is public the moment it lands; rewriting history afterwards does not un-publish it. `.env` and `.env.*` are gitignored (`.env.example` deliberately is not), so keep the key there rather than in a shell profile you might screenshot, in `launch.json`, or in a notebook cell.
+2. **A running RoamWise has no login.** If the process holding your key is reachable by anyone else, so is your quota — every visitor who presses *Plan my trip* spends two calls of yours. The launch configs bind to `127.0.0.1` for exactly this reason. Do not add `--server.address 0.0.0.0`, do not port-forward 8501, and if you deploy the container, leave `ROAMWISE_LLM` unset there: the app falls back to the offline template, which needs no key and cannot cost anything.
+3. **Set the engine per shell, not per machine.** `ROAMWISE_LLM` is what authorises spending (`#7`), and it should be exported in the terminal you are demoing from — not in `.zshrc`, where every later `pytest` run and evaluation script would inherit it.
 
 ### Optional: local LLM narration (no API key, Apple Silicon only)
 
@@ -81,10 +113,10 @@ A free alternative to the Anthropic path above ([`#54`](https://github.com/yukse
 
 ```bash
 pip install -r requirements-local-llm.txt
-export ROAMWISE_LOCAL_LLM=1
+export ROAMWISE_LLM=local        # ROAMWISE_LOCAL_LLM=1 still works
 ```
 
-The model (~2.1GB) downloads to your own Hugging Face cache on first use, not to this repo — see `requirements-local-llm.txt` for why. A 3-day plan takes roughly 80–140s of generation on an M3 MacBook Air against milliseconds for the template default, and a 5-day plan around 270s; see [`REPORT.md` §3.4.2](REPORT.md#342-a-live-non-template-llm-run-issues-54-56-57) for the measurements, and for the three bugs that only a real generative model could surface (issues #56, #57 and #125). Those figures are hardware-bound and sustained generation throttles on a fanless machine, so treat them as an order of magnitude rather than a benchmark. If `ANTHROPIC_API_KEY` is also set, Anthropic takes priority.
+The model (~2.1GB) downloads to your own Hugging Face cache on first use, not to this repo — see `requirements-local-llm.txt` for why. A 3-day plan takes roughly 80–140s of generation on an M3 MacBook Air against milliseconds for the template default, and a 5-day plan around 270s; see [`REPORT.md` §3.4.2](REPORT.md#342-a-live-non-template-llm-run-issues-54-56-57) for the measurements, and for the three bugs that only a real generative model could surface (issues #56, #57 and #125). Those figures are hardware-bound and sustained generation throttles on a fanless machine, so treat them as an order of magnitude rather than a benchmark. `ROAMWISE_LLM` names exactly one engine, so there is no priority order to remember.
 
 ### Optional: LangGraph orchestrator
 

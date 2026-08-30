@@ -30,3 +30,10 @@ local/
 # Oturum devir notları — tek bir günün fotoğrafı, hızla bayatlıyor. Kalıcı
 # olması gereken kısmı CLAUDE.md'ye, ölçüm olan kısmı REPORT.md'ye yazın.
 HANDOFF.md
+
+# API keys. Each developer keeps their own in .env (see .env.example) and
+# loads it into their own shell; nothing here is ever committed. The repo is
+# public, and a key pushed once is a key that has to be revoked (#7).
+.env
+.env.*
+!.env.example

@@ -16,7 +16,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from roamwise.agents.llm_client import describe_client, fallback_reason
+from roamwise.agents.llm_client import LLMRequestFailed, describe_client, fallback_reason
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
 from roamwise.models.forecasting import forecast_city
 from roamwise.optimization.routing import route_geometry
@@ -413,16 +413,65 @@ with st.sidebar:
 preferences = {"budget": budget, "culture": culture, "nature": nature,
                "nightlife": nightlife, "relax": relax, "adventure": adventure}
 
+# What the plan on screen was built from. Kept beside the plan because the
+# sidebar keeps moving after it: rendering "3-day route" from a slider the
+# traveler has since dragged to 5 would describe the itinerary wrongly.
+_SHOWN_SETTINGS = ("n_days", "daily_hours", "auto_start", "use_real_routing", "travel_mode")
+
 if run:
     orch = get_orchestrator(RETRIEVAL_CONFIG)
     with st.spinner("Agents at work: segmenting traveler, forecasting demand, retrieving grounded context, routing..."):
-        result = orch.plan_trip(preferences, destination_id=destination_id, n_days=n_days,
-                                 start_date=start_date,
-                                 daily_minutes_budget=daily_hours * 60,
-                                 day_start_hour=(None if day_start_hour is None
-                                                 else float(day_start_hour)),
-                                 use_real_routing=use_real_routing, travel_mode=travel_mode,
-                                 arrival_hub_id=arrival_hub_id)
+        try:
+            st.session_state["plan_settings"] = {
+                "n_days": n_days, "daily_hours": daily_hours, "auto_start": auto_start,
+                "use_real_routing": use_real_routing, "travel_mode": travel_mode,
+            }
+            st.session_state["plan"] = orch.plan_trip(
+                preferences, destination_id=destination_id, n_days=n_days,
+                start_date=start_date,
+                daily_minutes_budget=daily_hours * 60,
+                day_start_hour=(None if day_start_hour is None
+                                else float(day_start_hour)),
+                use_real_routing=use_real_routing, travel_mode=travel_mode,
+                arrival_hub_id=arrival_hub_id)
+        except LLMRequestFailed as exc:
+            # A hosted model that would not answer (issue #7). The plan itself
+            # is computed before the narration and does not depend on it, but
+            # plan_trip narrates last, so there is nothing to keep -- and a
+            # traceback is the wrong thing to show a traveler. Drop any stale
+            # plan so the screen cannot pair a new error with an old itinerary.
+            st.session_state.pop("plan", None)
+            st.session_state["plan_error"] = str(exc)
+        else:
+            st.session_state.pop("plan_error", None)
+
+if st.session_state.get("plan_error"):
+    st.error(
+        f"**The narration engine did not answer.** {st.session_state['plan_error']}\n\n"
+        f"Nothing was planned. Check the System logs screen for the retries, or unset "
+        f"`ROAMWISE_LLM` to fall back to the offline template."
+    )
+
+# Rendered from session state, not from the `run` branch, so the plan survives
+# the reruns Streamlit performs on every widget interaction (issue #7). It used
+# to live only inside `if run:` -- so nudging any sidebar slider silently threw
+# the itinerary away and made the traveler press the button again, which on a
+# hosted model is two more API calls and on the local one another eight minutes.
+if st.session_state.get("plan"):
+    orch = get_orchestrator(RETRIEVAL_CONFIG)
+    result = st.session_state["plan"]
+
+    # Everything below describes the plan, so it reads the settings the plan
+    # was made with, not whatever the sidebar says now.
+    _shown = st.session_state["plan_settings"]
+    _live = {"n_days": n_days, "daily_hours": daily_hours, "auto_start": auto_start,
+             "use_real_routing": use_real_routing, "travel_mode": travel_mode}
+    n_days, daily_hours, auto_start, use_real_routing, travel_mode = (
+        _shown[name] for name in _SHOWN_SETTINGS)
+
+    if _live != _shown:
+        st.info("Your settings have changed since this plan was made. "
+                "Press **Plan my trip** to rebuild it.")
 
     city_name = orch.destinations.set_index("destination_id").loc[result["destination_id"], "city"]
     st.success(f"Plan ready: **{city_name}** for a **{result['archetype']}**")
