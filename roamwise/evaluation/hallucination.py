@@ -289,6 +289,28 @@ def _forecast_line(forecaster, destination_id: str, travel_month: str = None) ->
     return FORECAST_TEMPLATE.format(month=fc["target_month"], level=fc["crowding_level"])
 
 
+def query_set_fingerprint() -> str:
+    """A hash of the query set the committed CSVs were measured on.
+
+    Written into the summary and asserted by a test, because this measurement
+    is the one number in the repo that CI cannot re-derive: it needs a key and
+    a live endpoint, so nothing would otherwise notice the day someone edits
+    TEST_QUERIES and leaves `hallucination_summary.csv` describing a question
+    set that no longer exists. That is exactly how `knowledge_graph.gml` went
+    stale for nineteen commits (#145 / CLAUDE.md gotcha 16); the fix there was
+    a guard, and this is the same guard.
+
+    It covers what changes the prompt -- the question, the city, the archetype
+    and the tier -- and deliberately not the gold set, which grades retrieval
+    and has no effect on what the narrator is shown.
+    """
+    from roamwise.evaluation.comparative_analysis import TEST_QUERIES
+    material = "\n".join(
+        f"{q.destination_id}|{q.archetype}|{q.tier}|{q.chain_anchor}|{q.text}"
+        for q in TEST_QUERIES)
+    return hashlib.sha1(material.encode()).hexdigest()[:12]
+
+
 def build_prompts(top_k: int = 8) -> pd.DataFrame:
     """One row per (query, config), carrying the prompt the narrator would see.
 
@@ -378,6 +400,7 @@ def run_hallucination_measurement(top_k: int = 8, llm=None) -> tuple:
     summary["geographical_hallucination_rate"] = (summary.wrong_city / summary.places_named).round(4)
     summary["ungrounded_mention_rate"] = (summary.unshown_same_city / summary.places_named).round(4)
     summary["model"] = describe_client(llm)
+    summary["query_set"] = query_set_fingerprint()
     print(f"{calls} generation(s), {hits} served from cache")
     return out, summary.reset_index()
 

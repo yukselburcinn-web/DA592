@@ -427,3 +427,26 @@ def test_generating_once_per_distinct_prompt_covers_every_row():
     cities = standard.destination_id.nunique()
     archetypes = standard.archetype.nunique()
     assert standard.prompt_key.nunique() == cities * archetypes
+
+
+def test_the_committed_hallucination_numbers_describe_today_s_query_set():
+    """The guard on a measurement CI cannot re-derive.
+
+    `hallucination_summary.csv` is produced by a run against a live endpoint,
+    so no test can regenerate it and nothing else would notice the day
+    TEST_QUERIES changes and leaves the committed numbers describing a question
+    set that no longer exists. `data/knowledge_graph.gml` went stale for
+    nineteen commits for exactly this reason (#145, CLAUDE.md gotcha 16).
+
+    When this goes red the fix is to re-run the measurement:
+    `set -a; source .env; set +a; python -m roamwise.evaluation.hallucination`.
+    It is cheaper than it looks -- generations are cached per prompt, so only
+    the queries whose routed itinerary actually changed cost anything.
+    """
+    from roamwise.evaluation.hallucination import SUMMARY_CSV, query_set_fingerprint
+
+    summary = pd.read_csv(SUMMARY_CSV)
+    committed = set(summary.query_set.astype(str))
+    assert committed == {query_set_fingerprint()}, (
+        f"hallucination_summary.csv olculdugu sorgu seti {committed}, bugunku set "
+        f"{query_set_fingerprint()} -- olcumu yeniden kostur")
