@@ -17,6 +17,22 @@
       "port": 8501
     },
     {
+      "_comment": [
+        "Same app, but with the narration engine loaded from .env (#7).",
+        "This carries no key: .env is gitignored and holds your own, and the",
+        "point of sourcing it here is that the key never has to live in this",
+        "file, which is committed. Bind stays on 127.0.0.1 -- a running",
+        "RoamWise has no login, so anyone who can reach it spends your quota."
+      ],
+      "name": "roamwise-nvidia",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "set -a; . ./.env; set +a; exec venv/bin/streamlit run roamwise/app.py --server.port 8503 --server.headless true --server.address 127.0.0.1"
+      ],
+      "port": 8503
+    },
+    {
       "name": "roamwise-local-llm",
       "runtimeExecutable": "env",
       "runtimeArgs": [
