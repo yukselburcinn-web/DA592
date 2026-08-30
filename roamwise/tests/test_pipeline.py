@@ -13,9 +13,10 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from roamwise.knowledge_graph.build_graph import (CATEGORY_AFFINITY, REACHABLE_MAX_MIN,
-                                                  SERVES_MAX_MIN, GraphIndex,
-                                                  archetype_node_id, shared_graph)
+from roamwise.knowledge_graph.build_graph import (CATEGORY_AFFINITY, DATA_DIR,
+                                                  REACHABLE_MAX_MIN, SERVES_MAX_MIN,
+                                                  GraphIndex, archetype_node_id,
+                                                  load_graph, shared_graph)
 from roamwise.pipeline.common import NOT_A_SIGHT_TYPES
 from roamwise.models.forecasting import forecast_city, best_months_to_visit
 from roamwise.models.segmentation import TravelerSegmenter
@@ -176,6 +177,42 @@ def test_archetype_prefers_only_the_city_it_is_scoped_to():
             if data.get("relation") != "PREFERS":
                 continue
             assert graph.nodes[poi_id]["destination_id"] == city
+
+
+def test_the_committed_graph_export_describes_the_graph_the_code_builds():
+    """`data/knowledge_graph.gml` is the concrete artifact behind the
+    proposal's "Knowledge Graph" deliverable (#128), and nothing reads it at
+    runtime -- `load_graph` has no callers, so a wrong file breaks nothing and
+    is therefore never noticed. It went stale exactly that way: #126 replaced
+    `NEAR`/`SAME_CATEGORY` with `SERVES`/`REACHABLE` and split the archetype
+    node per city, and the committed export kept describing the old schema for
+    four days and nineteen commits (#145).
+
+    Counts rather than the relation set alone, because the way this file goes
+    wrong is by being *old*: a catalogue change moves the counts while leaving
+    every relation name intact. Both sides are derived -- the expectation is
+    whatever `build_graph()` produces today -- so this fails when the export is
+    stale, never when the catalogue legitimately changes.
+    """
+    export_path = DATA_DIR / "knowledge_graph.gml"
+    assert export_path.exists(), (
+        "the deliverable artifact is missing; rebuild it with "
+        "`python -m roamwise.knowledge_graph.build_graph`")
+    exported = load_graph(export_path)
+    built = shared_graph()
+
+    def relations(graph):
+        return collections.Counter(data.get("relation")
+                                   for _, _, data in graph.edges(data=True))
+
+    def node_types(graph):
+        return collections.Counter(data.get("type") for _, data in graph.nodes(data=True))
+
+    stale = ("`data/knowledge_graph.gml` no longer matches what build_graph() "
+             "produces -- regenerate it with "
+             "`python -m roamwise.knowledge_graph.build_graph`")
+    assert relations(exported) == relations(built), stale
+    assert node_types(exported) == node_types(built), stale
 
 
 @needs_full_city

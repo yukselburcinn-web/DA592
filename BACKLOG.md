@@ -333,10 +333,13 @@ uydurma. İşin ilk adımı ankete duyarlılık ölçmek: sonuçlar ankete ne ka
 TF-IDF+LSA → `sentence-transformers` (`all-MiniLM-L6-v2`) + FAISS.
 [#4](https://github.com/yukselburcinn-web/DA592/issues/4)
 
-### #5. Neo4j'ye opsiyonel geçiş — ✅ Kapalı
-`GraphIndex` artık `backend="neo4j"` parametresiyle opsiyonel bir Neo4j backend'i destekliyor
-(varsayılan hâlâ NetworkX; canlı akışta hiçbir yerde `backend="neo4j"` ile çağrılmıyor).
-[#5](https://github.com/yukselburcinn-web/DA592/issues/5)
+### #5. Neo4j'ye opsiyonel geçiş — ✅ Kapalı, sonra geri alındı (#145)
+`GraphIndex` bir süre `backend="neo4j"` parametresiyle opsiyonel bir Neo4j backend'i sunuyordu,
+ama o yol hiçbir zaman çalışamazdı: grafiği Neo4j'ye yazan hiçbir kod yoktu, dallar `element_id`
+döndürüyordu (downstream `PAR001` bekliyor) ve tek bir test bile dokunmuyordu. #128 bunu kayda
+geçirdi, **#145 dalları, importu ve `requirements.txt`'teki pinsiz `neo4j` bağımlılığını
+kaldırdı.** Proposal *"Neo4j **or** NetworkX"* diyor; çalışan taraf NetworkX.
+[#5](https://github.com/yukselburcinn-web/DA592/issues/5) — ilişkili: #128, #145
 
 ### #6. Multi-hop sorgu seti genişlet — ✅ Kapalı
 `evaluation/comparative_analysis.py::TEST_QUERIES` genişletildi.

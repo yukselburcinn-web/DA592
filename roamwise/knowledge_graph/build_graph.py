@@ -34,7 +34,6 @@ from pathlib import Path
 import networkx as nx
 import numpy as np
 import pandas as pd
-from neo4j import GraphDatabase
 
 from roamwise.optimization.street_network import load_city_network, point_key
 from roamwise.optimization.travel_modes import WALKING
@@ -540,29 +539,22 @@ def shared_graph() -> nx.MultiDiGraph:
 
 
 class GraphIndex:
-    """Query surface over the knowledge graph supporting NetworkX and Neo4j backends."""
+    """Query surface over the knowledge graph, backed by NetworkX.
 
-    def __init__(self, graph: nx.MultiDiGraph = None, backend="networkx", neo4j_uri="bolt://localhost:7687", neo4j_auth=("neo4j", "password")):
-        self.backend = backend
-        if self.backend == "neo4j":
-            self.driver = GraphDatabase.driver(neo4j_uri, auth=neo4j_auth)
-        else:
-            self.g = graph if graph is not None else shared_graph()
+    There used to be a second backend here: every method carried a
+    `backend == "neo4j"` branch dispatching Cypher. It could never run. Nothing
+    in the project ever wrote to a Neo4j database, so one could not be
+    populated; the branches returned `element_id` ("4:abc:42") where the rest
+    of the code expects `PAR001`; and no test touched any of them. Issue #128
+    recorded that and #145 removed them, along with the unpinned `neo4j`
+    dependency every install was paying for. The proposal names "Neo4j **or**
+    NetworkX" -- this is the other one, and it is the one that runs.
+    """
 
-    def close(self):
-        if self.backend == "neo4j":
-            self.driver.close()
+    def __init__(self, graph: nx.MultiDiGraph = None):
+        self.g = graph if graph is not None else shared_graph()
 
     def city_pois(self, destination_id: str, category: str = None):
-        if self.backend == "neo4j":
-            query = "MATCH (c:City {id: $dest_id})-[:HAS_POI]->(p:POI) "
-            if category:
-                query += "WHERE p.category = $category "
-            query += "RETURN p"
-            with self.driver.session() as session:
-                result = session.run(query, dest_id=destination_id, category=category)
-                return [{"poi_id": record["p"].element_id, **record["p"]} for record in result]
-        
         out = []
         for _, poi_id, data in self.g.out_edges(destination_id, data=True):
             if data.get("relation") == "HAS_POI":
@@ -572,12 +564,6 @@ class GraphIndex:
         return out
 
     def city_transport(self, destination_id: str):
-        if self.backend == "neo4j":
-            query = "MATCH (c:City {id: $dest_id})-[:HAS_TRANSPORT]->(t:Transport) RETURN t"
-            with self.driver.session() as session:
-                result = session.run(query, dest_id=destination_id)
-                return [{"transport_id": record["t"].element_id, **record["t"]} for record in result]
-
         out = []
         for _, tid, data in self.g.out_edges(destination_id, data=True):
             if data.get("relation") == "HAS_TRANSPORT":
@@ -588,22 +574,10 @@ class GraphIndex:
         """The POIs this archetype prefers, ranked so every category it asks
         for is actually represented (issue #113).
 
-        Both backends now fetch the rows and rank them here, in one place. The
-        Cypher query used to do its own ordering and `LIMIT`, which meant the
-        two backends could drift apart on the thing that decides what a
-        traveler is shown.
+        Ranking lives here, in one place, rather than in whatever fetches the
+        rows -- the rule that decides what a traveler is shown should not be
+        restatable per backend.
         """
-        if self.backend == "neo4j":
-            query = "MATCH (a:ArchetypeProfile {name: $arch})-[r:PREFERS]->(p:POI) "
-            if destination_id:
-                query += "WHERE a.destination_id = $dest_id "
-            query += "RETURN p, r.weight AS weight"
-            with self.driver.session() as session:
-                result = session.run(query, arch=archetype, dest_id=destination_id)
-                out = [{"poi_id": record["p"].element_id, "weight": record["weight"],
-                        **record["p"]} for record in result]
-            return rank_preferred(out, top_k)
-
         # The profile node is per (archetype, city), so naming a destination is
         # a node lookup rather than a filter over the other city's edges. With
         # no destination the archetype's nodes are unioned, which is what the
@@ -644,19 +618,6 @@ class GraphIndex:
         Saint-Lazare. An edge built by `serves_builder`'s haversine fallback
         still reports minutes, but says `source="haversine"`; see there.
         """
-        if self.backend == "neo4j":
-            query = ("MATCH (c:City {id: $dest_id})-[:HAS_TRANSPORT]->(:Transport)"
-                     "-[r:SERVES]->(p:POI) WHERE r.minutes <= $max_minutes ")
-            if category:
-                query += "AND p.category = $category "
-            query += ("RETURN p, min(r.minutes) AS minutes ORDER BY minutes")
-            with self.driver.session() as session:
-                result = session.run(query, dest_id=destination_id, category=category,
-                                     max_minutes=max_minutes)
-                return [{"poi_id": record["p"].element_id,
-                         "nearest_hub_minutes": record["minutes"], **record["p"]}
-                        for record in result]
-
         # Hub ids straight off the edge, not `city_transport` -- this hop only
         # needs the identity, and materialising each hub's node attributes to
         # throw them away is most of what the traversal would cost.
@@ -694,18 +655,6 @@ class GraphIndex:
         which is why `GraphSearchIndex.anchor_for` can hand over either without
         the caller branching.
         """
-        if self.backend == "neo4j":
-            query = ("MATCH (anchor {id: $anchor_id})-[s:SERVES]->(a:POI)"
-                     "-[r:REACHABLE]->(b:POI) "
-                     "WHERE s.minutes <= $max_serves AND r.minutes <= $max_reachable "
-                     "RETURN a, s.minutes AS to_a, b, r.minutes AS a_to_b")
-            with self.driver.session() as session:
-                result = session.run(query, anchor_id=anchor_id, max_serves=max_serves_min,
-                                     max_reachable=max_reachable_min)
-                return [({"poi_id": record["a"].element_id, **record["a"]}, record["to_a"],
-                         {"poi_id": record["b"].element_id, **record["b"]}, record["a_to_b"])
-                        for record in result]
-
         if anchor_id not in self.g:
             return []
         out = []
@@ -721,13 +670,6 @@ class GraphIndex:
         return out
 
     def stats(self):
-        if self.backend == "neo4j":
-            query = "MATCH (n) RETURN labels(n)[0] AS type, count(n) AS count"
-            with self.driver.session() as session:
-                result = session.run(query)
-                by_type = {record["type"]: record["count"] for record in result}
-                return {"nodes": sum(by_type.values()), "edges": 0, "by_type": by_type} # Edge count requires separate query
-
         types = {}
         for _, data in self.g.nodes(data=True):
             types[data.get("type", "?")] = types.get(data.get("type", "?"), 0) + 1

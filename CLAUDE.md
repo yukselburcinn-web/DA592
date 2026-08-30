@@ -134,12 +134,16 @@ Each of these cost someone a debugging session.
 15. **`SOLUTION_LIMIT = 150` in `toptw.py` is a fixed iteration budget, deliberately**, so the
     same input gives the same itinerary on any machine. Don't "tune" it to make tests faster.
 
-16. **Two things in the code lie about themselves; #128 recorded both and deferred the fix.**
-    `GraphIndex`'s `backend="neo4j"` branches cannot work — nothing ever writes to Neo4j, the
-    branches return internal element ids where the rest of the code expects `PAR001`, and no
-    test touches them. And `orchestrator.py`'s `log_step` label still says
-    "zoning + 2-opt", which the router stopped doing at #72. Don't take either at face value;
-    the cleanup lands after #126 and the LLM work.
+16. **The graph export is guarded now, so regenerating it is not optional.**
+    `test_the_committed_graph_export_describes_the_graph_the_code_builds` compares
+    `data/knowledge_graph.gml` against what `build_graph()` produces today, per relation and
+    per node type. Change the catalogue or the graph schema and that test goes red until you
+    run `python -m roamwise.knowledge_graph.build_graph`. It exists because the file went stale
+    for nineteen commits after #126 and nothing noticed (#145) — `load_graph` has no callers,
+    so a wrong export breaks nothing at runtime.
+
+    (#128's two "the code lies about itself" findings — the unrunnable `backend="neo4j"`
+    branches and the "zoning + 2-opt" router label — were fixed in #145. Both are gone.)
 
 ## Working conventions
 
