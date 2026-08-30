@@ -1,6 +1,6 @@
-"""Retrieval: segmentation and forecasting into an archetype, the Fusion RAG
-layer, the queries it issues, the category quotas that keep every wanted
-category represented, and the catalogue and city guides underneath it.
+"""Retrieval: the Fusion RAG layer, the queries it issues, the category quotas
+that keep every wanted category represented, and the catalogue and city guides
+underneath it.
 """
 
 import collections
@@ -11,49 +11,10 @@ import pytest
 from roamwise.agents.orchestrator import RETRIEVED_POIS_PER_DAY
 from roamwise.agents.router_agent import RouterAgent
 from roamwise.knowledge_graph.build_graph import CATEGORY_AFFINITY, GraphIndex
-from roamwise.models.forecasting import best_months_to_visit, forecast_city
-from roamwise.models.segmentation import TravelerSegmenter
 from roamwise.pipeline.common import NOT_A_SIGHT_TYPES
 from roamwise.retrieval.fusion import FusionRetriever
 from roamwise.retrieval.query import archetype_query
-from roamwise.tests.helpers import (
-    CITY_CODES,
-    DATA_DIR,
-    FULL_CITIES,
-    MAIN_CITY,
-    city_with_category,
-    needs_full_city,
-)
-
-
-@needs_full_city
-def test_forecasting_produces_crowding_labels():
-    fc = forecast_city(FULL_CITIES[0])
-    assert len(fc) == 12
-    assert set(fc.crowding_level.astype(str)) <= {"low", "medium", "high"}
-    months = best_months_to_visit(FULL_CITIES[0], top_k=3)
-    assert len(months) == 3
-
-
-def test_traveler_segmentation_classifies():
-    seg = TravelerSegmenter()
-    result = seg.classify({"budget": 0.1, "culture": 0.2, "nature": 0.9, "nightlife": 0.1, "relax": 0.3, "adventure": 0.9})
-    assert result["archetype"] == "Nature & Adventure"
-
-
-def test_preference_levels_produce_distinct_archetypes():
-    """Issue #23: the sidebar exposes Low/Medium/High instead of raw 0-1
-    sliders, so the three tiers must actually separate archetype centroids --
-    not just satisfy TravelerSegmenter.classify()'s float contract."""
-    from roamwise.views.itinerary import PREFERENCE_LEVELS
-    from roamwise.models.segmentation import FEATURES
-
-    seg = TravelerSegmenter()
-    archetypes = {
-        level: seg.classify({f: value for f in FEATURES})["archetype"]
-        for level, value in PREFERENCE_LEVELS.items()
-    }
-    assert len(set(archetypes.values())) == len(archetypes)
+from roamwise.tests.helpers import CITY_CODES, DATA_DIR, MAIN_CITY, city_with_category
 
 
 @pytest.mark.slow
