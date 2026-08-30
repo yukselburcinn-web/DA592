@@ -36,7 +36,7 @@ def _clock(hour: float) -> str:
 # Mercator is defined against pixels, so framing an itinerary means asking how
 # many pixels its bounding box needs and picking the zoom where that fits.
 _MAP_HEIGHT_PX = 460
-# Width is fluid (use_container_width), so Python cannot measure it, and the
+# Width is fluid (width='stretch'), so Python cannot measure it, and the
 # fit has to assume a value. The two failure modes are not symmetric: assuming
 # too much width pushes stops off the edge and the user loses information,
 # while assuming too little only leaves unused margin. So this is the narrowest
@@ -408,7 +408,7 @@ with st.sidebar:
              "server, no wait. Turn it off to see the straight-line estimate instead.",
     )
 
-    run = st.button("Plan my trip", type="primary", use_container_width=True)
+    run = st.button("Plan my trip", type="primary", width='stretch')
 
 preferences = {"budget": budget, "culture": culture, "nature": nature,
                "nightlife": nightlife, "relax": relax, "adventure": adventure}
@@ -637,7 +637,7 @@ if st.session_state.get("plan"):
                                 borderwidth=0),
                     hoverlabel=dict(bgcolor="white", font_size=12),
                 )
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
                 # What the line between two stops is, said plainly. A solid
                 # line is a route; a dashed one is a straight connector and
                 # nothing more, which is all transit and all straight-line
@@ -701,7 +701,7 @@ if st.session_state.get("plan"):
         fig = px.bar(fc, x="date", y="forecast_visitors", color="crowding_level",
                      color_discrete_map={"low": "#4CAF50", "medium": "#FFC107", "high": "#F44336"},
                      title="Forecasted monthly visitors (next 12 months)")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         st.markdown(f"**Forecaster Agent:** {result['forecast']['narrative']}")
 
     with tab3:
