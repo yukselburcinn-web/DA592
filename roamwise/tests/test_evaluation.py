@@ -450,3 +450,43 @@ def test_the_committed_hallucination_numbers_describe_today_s_query_set():
     assert committed == {query_set_fingerprint()}, (
         f"hallucination_summary.csv olculdugu sorgu seti {committed}, bugunku set "
         f"{query_set_fingerprint()} -- olcumu yeniden kostur")
+
+
+def test_a_catalogue_name_that_is_also_a_common_word_needs_its_capital(gaz):
+    """Word boundaries do not help when the whole word is the name.
+
+    Paris holds a POI called "Nation"; Berlin holds a "Bunker", an "Eden", a
+    "Matrix" and a "Tresor". Matched case-insensitively, ordinary prose scored
+    a hallucination: "the heart of the nation's capital" in a Berlin narrative
+    came back `wrong_city=1` naming a Paris place -- a false positive on the
+    headline metric, produced by a sentence that names nothing at all. Found in
+    review of #132; the committed run was unaffected, which is exactly why it
+    needed a test rather than a re-measurement.
+    """
+    places, pattern = gaz
+    prompt = "Day 1: Brandenburg Gate -- a landmark."
+
+    prose = classify("The Brandenburg Gate stands at the heart of the nation's capital.",
+                     prompt, "BER", places, pattern)
+    assert prose["wrong_city"] == 0
+    assert prose["ungrounded_mention_rate"] == 0.0
+
+    # The proper noun still has to be caught, or the fix would be a mute button.
+    named = classify("Then on to Nation, in Paris.", prompt, "BER", places, pattern)
+    assert "Nation" in named["wrong_city_names"]
+
+
+def test_two_places_on_one_line_do_not_hide_an_unmatched_one(gaz):
+    """The probe counts lines, so its denominator has to be lines.
+
+    `len(lines) - len(distinct places)` mixed two denominators: a line naming
+    two known places cancelled out a line naming an invented one, and three
+    would have made the column negative.
+    """
+    places, pattern = gaz
+    text = "Brandenburg Gate and Berlin Cathedral\nFernsehturm Berlin\nSome Invented Place"
+    lines = [l for l in text.splitlines() if l.strip()]
+
+    matched_lines = sum(1 for line in lines if places_named(line, places, pattern))
+
+    assert len(lines) - matched_lines == 1, "uydurma satir gorunmez kaldi"

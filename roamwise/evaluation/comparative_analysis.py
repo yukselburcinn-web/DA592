@@ -44,7 +44,6 @@ at all, and should not start costing them just because a key is exported
 (issue #7).
 """
 import json
-import os
 import sys
 import datetime
 import functools

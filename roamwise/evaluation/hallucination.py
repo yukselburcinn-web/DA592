@@ -68,7 +68,6 @@ quota re-deriving it.
 """
 import hashlib
 import json
-import os
 import re
 from pathlib import Path
 
@@ -140,11 +139,27 @@ def _normalise(name: str) -> str:
     the end of a sentence. Normalising the name and anchoring on
     "not a word character" instead makes the dot irrelevant either way.
     """
-    return re.sub(r"\s+", " ", name.strip()).rstrip(".").lower()
+    return _normalise_spacing(name).lower()
+
+
+def _normalise_spacing(name: str) -> str:
+    """`_normalise` without the case fold, for building the pattern."""
+    return re.sub(r"\s+", " ", name.strip()).rstrip(".")
 
 
 def places_pattern(places: dict) -> re.Pattern:
     """One alternation over every known name, longest first.
+
+    Single-token names are matched **case-sensitively**; multi-token ones are
+    not. The catalogue holds places whose names are also ordinary English
+    words -- Paris has a "Nation", Berlin a "Bunker", an "Eden", a "Matrix"
+    and a "Tresor" -- and case-insensitively "the heart of the nation's
+    capital" in a Berlin narrative scored a Paris place in the wrong city:
+    a false positive on the headline metric, produced by prose that names
+    nothing at all. Word boundaries do not help when the whole word is the
+    name; capitalisation is the signal that separates the proper noun from
+    the common one. Multi-token names carry their own disambiguation and stay
+    case-insensitive, so "block house" still finds "BLOCK HOUSE".
 
     Longest-first is what makes the match unambiguous: "Museum of Asian Art"
     must win over "Asian Art", and "Academy of Arts, Berlin" over "Berlin".
@@ -158,9 +173,17 @@ def places_pattern(places: dict) -> re.Pattern:
     error class gotcha 8 is about. The apostrophe deliberately does not: a
     narrative saying "Berlin's cafe culture" is naming Berlin.
     """
-    alternatives = sorted(places, key=len, reverse=True)
-    body = "|".join(r"\s+".join(re.escape(tok) for tok in name.split()) for name in alternatives)
-    return re.compile(rf"(?<![A-Za-z0-9-])(?:{body})(?![A-Za-z0-9-])", re.IGNORECASE)
+    # Built from the original spelling, not the normalised key: the key is
+    # lower-cased, and case is exactly the signal the single-token rule needs.
+    originals = sorted((_normalise_spacing(v["name"]) for v in places.values()),
+                       key=len, reverse=True)
+    parts = []
+    for name in originals:
+        tokens = name.split()
+        escaped = r"\s+".join(re.escape(tok) for tok in tokens)
+        parts.append(escaped if len(tokens) == 1 else f"(?i:{escaped})")
+    body = "|".join(parts)
+    return re.compile(rf"(?<![A-Za-z0-9-])(?:{body})(?![A-Za-z0-9-])")
 
 
 def places_named(text: str, places: dict, pattern: re.Pattern) -> list:
@@ -383,6 +406,8 @@ def run_hallucination_measurement(top_k: int = 8, llm=None) -> tuple:
     # How many rows this one generation stands for. Written out so the
     # weighting is auditable rather than asserted in a docstring.
     out["rows_represented"] = out.groupby("prompt_key").prompt_key.transform("size")
+    if not graded:
+        raise RuntimeError("no prompts were built; TEST_QUERIES produced nothing to measure")
     for column in next(iter(graded.values())):
         out[column] = out.prompt_key.map(lambda k, c=column: graded[k][c])
 
@@ -431,14 +456,16 @@ def run_zero_context_probe(llm=None) -> pd.DataFrame:
         text, _ = generate(llm, system, prompt, cache)
         named = places_named(text, places, pattern)
         in_city = [k for k in named if dest_id in places[k]["cities"]]
-        # Every line the model produced, whether or not it names a place the
-        # catalogue knows. `named` can only ever find catalogue entries, so
-        # `lines - len(named)` is the count of places it offered that this
-        # knowledge base cannot vouch for either way.
+        # Counted per line, not as `len(lines) - len(named)`. That subtraction
+        # mixed two denominators -- distinct places anywhere in the text
+        # against lines -- so two known places on one line hid an invented line
+        # entirely, and three would have made the column negative.
         lines = [l for l in (text or "").splitlines() if l.strip()]
+        matched_lines = sum(1 for line in lines if places_named(line, places, pattern))
         rows.append({"destination_id": dest_id, "lines": len(lines),
                      "matched_catalogue": len(named), "in_this_city": len(in_city),
-                     "unmatched": len(lines) - len(named)})
+                     "lines_matching_catalogue": matched_lines,
+                     "unmatched_lines": len(lines) - matched_lines})
     save_cache(cache)
     return pd.DataFrame(rows)
 
