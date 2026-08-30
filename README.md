@@ -91,6 +91,22 @@ Both hosted clients keep to **40 requests per minute** by default — NVIDIA's f
 
 For reference, one plan costs **two** generations regardless of trip length (the forecast blurb and the final synthesis), so 40/min is twenty plans a minute.
 
+#### Key hygiene — this repository is public
+
+Everyone runs on **their own key and their own quota**. Nothing in the repo carries a key, and nothing should.
+
+```bash
+cp .env.example .env       # .env is gitignored; .env.example is not
+$EDITOR .env               # your own key from build.nvidia.com
+set -a; source .env; set +a
+```
+
+Three things worth knowing before a key goes anywhere near this app:
+
+1. **A key committed once must be revoked, not deleted.** A push to a public repo is public the moment it lands; rewriting history afterwards does not un-publish it. `.env` and `.env.*` are gitignored (`.env.example` deliberately is not), so keep the key there rather than in a shell profile you might screenshot, in `launch.json`, or in a notebook cell.
+2. **A running RoamWise has no login.** If the process holding your key is reachable by anyone else, so is your quota — every visitor who presses *Plan my trip* spends two calls of yours. The launch configs bind to `127.0.0.1` for exactly this reason. Do not add `--server.address 0.0.0.0`, do not port-forward 8501, and if you deploy the container, leave `ROAMWISE_LLM` unset there: the app falls back to the offline template, which needs no key and cannot cost anything.
+3. **Set the engine per shell, not per machine.** `ROAMWISE_LLM` is what authorises spending (`#7`), and it should be exported in the terminal you are demoing from — not in `.zshrc`, where every later `pytest` run and evaluation script would inherit it.
+
 ### Optional: local LLM narration (no API key, Apple Silicon only)
 
 A free alternative to the Anthropic path above ([`#54`](https://github.com/yukselburcinn-web/DA592/issues/54)): a small open-weight model (Qwen3-4B-Instruct, Apache-2.0) running entirely on-device via MLX, no key, no per-call cost.

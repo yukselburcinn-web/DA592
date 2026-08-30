@@ -4,7 +4,16 @@
     {
       "name": "roamwise-streamlit",
       "runtimeExecutable": "venv/bin/streamlit",
-      "runtimeArgs": ["run", "roamwise/app.py", "--server.port", "8501", "--server.headless", "true"],
+      "runtimeArgs": [
+        "run",
+        "roamwise/app.py",
+        "--server.port",
+        "8501",
+        "--server.headless",
+        "true",
+        "--server.address",
+        "127.0.0.1"
+      ],
       "port": 8501
     },
     {
@@ -13,8 +22,15 @@
       "runtimeArgs": [
         "ROAMWISE_LOCAL_LLM=1",
         "HF_HUB_OFFLINE=1",
-        "venv/bin/streamlit", "run", "roamwise/app.py",
-        "--server.port", "8502", "--server.headless", "true"
+        "venv/bin/streamlit",
+        "run",
+        "roamwise/app.py",
+        "--server.port",
+        "8502",
+        "--server.headless",
+        "true",
+        "--server.address",
+        "127.0.0.1"
       ],
       "port": 8502
     }
