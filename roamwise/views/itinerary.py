@@ -18,7 +18,7 @@ import streamlit as st
 
 from roamwise.agents.llm_client import LLMRequestFailed, describe_client, fallback_reason
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
-from roamwise.models.forecasting import forecast_city
+from roamwise.models.forecasting import forecast_window, history_end
 from roamwise.optimization.routing import route_geometry
 from roamwise.optimization.travel_modes import TRAVEL_MODES
 
@@ -742,11 +742,36 @@ if st.session_state.get("plan"):
 
     with tab2:
         st.subheader(f"Tourism demand forecast for {city_name}")
-        fc = forecast_city(result["destination_id"], horizon_months=12)
+        # Twelve months from *now*, and stretched if necessary to hold the
+        # month this trip actually starts in. Counting the horizon from the end
+        # of the city's series instead put all twelve of Berlin's "next 12
+        # months" in the past -- its source lags about 20 months, so the chart
+        # was showing 2025 to someone planning 2026 (#161). The forecaster read
+        # the right month all along; only the chart beside it did not.
+        target_month = result["forecast"]["target_month"]
+        fc = forecast_window(result["destination_id"], months=12, include_month=target_month)
+        first, last = fc.date.min(), fc.date.max()
         fig = px.bar(fc, x="date", y="forecast_visitors", color="crowding_level",
                      color_discrete_map={"low": "#4CAF50", "medium": "#FFC107", "high": "#F44336"},
-                     title="Forecasted monthly visitors (next 12 months)")
+                     # Built from the window rather than asserted over it, so the
+                     # title cannot outlive the thing it describes (#161).
+                     title=f"Forecasted monthly visitors ({first:%b %Y} – {last:%b %Y})")
         st.plotly_chart(fig, width='stretch')
+
+        # How far past its last real observation this city is being
+        # extrapolated. It differs per city and the reader cannot see it in the
+        # bars, which look equally confident either way.
+        end = history_end(result["destination_id"])
+        if end is not None:
+            lead = (pd.Period(first, freq="M") - end).n
+            st.caption(
+                f"Measured demand for this city ends {end}. Every month above is a "
+                f"Holt-Winters extrapolation {lead}–{lead + len(fc) - 1} months past that "
+                f"last observation, so read the level as a seasonal shape rather than a "
+                f"visitor count. Your trip starts in "
+                f"{pd.Period(target_month, freq='M').strftime('%B %Y')}, which is the "
+                f"month the Forecaster Agent's crowding call below is taken from."
+            )
         st.markdown(f"**Forecaster Agent:** {result['forecast']['narrative']}")
 
     with tab3:
