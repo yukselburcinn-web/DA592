@@ -32,8 +32,8 @@ def test_comparative_analysis_shows_fusion_advantage():
     df = run_comparative_analysis(top_k=8)
     summary = summarize(df)
     assert summary.loc["fusion", "mean_archetype_precision"] >= summary.loc["standard", "mean_archetype_precision"]
-    assert summary.loc["fusion", "mean_grounded_entity_rate"] == 1.0
-    assert summary.loc["standard", "mean_grounded_entity_rate"] == 0.0
+    assert summary.loc["fusion", "mean_structural_grounding_rate"] == 1.0
+    assert summary.loc["standard", "mean_structural_grounding_rate"] == 0.0
 
     # The headline on the Results tab is generated from these verdicts, so a
     # metric silently changing category would rewrite a user-facing claim.
@@ -41,8 +41,8 @@ def test_comparative_analysis_shows_fusion_advantage():
     assert verdicts[("archetype_precision", "hybrid")] == "better"
     # Grounded-entity rate is 1.0 by construction for anything that retrieves,
     # so it can separate Fusion from standard prompting but never from Hybrid.
-    assert verdicts[("grounded_entity_rate", "hybrid")] == "identical"
-    assert verdicts[("grounded_entity_rate", "standard")] == "better"
+    assert verdicts[("structural_grounding_rate", "hybrid")] == "identical"
+    assert verdicts[("structural_grounding_rate", "standard")] == "better"
 
 
 def test_every_test_query_has_an_answer():
@@ -170,10 +170,10 @@ def test_paired_significance_reads_direction_and_ties():
     Results tab or print a backwards verdict (issue #46)."""
     df = _synthetic_pairs(
         fusion={"archetype_precision": [0.9] * 10, "retrieval_ms": [20.0] * 10,
-                "grounded_entity_rate": [1.0] * 10, "km_per_stop_day1": [1.0] * 10,
+                "structural_grounding_rate": [1.0] * 10, "km_per_stop_day1": [1.0] * 10,
                 "recall_at_k": [0.5] * 10},
         hybrid={"archetype_precision": [0.5] * 10, "retrieval_ms": [5.0] * 10,
-                "grounded_entity_rate": [1.0] * 10, "km_per_stop_day1": [1.0] * 10,
+                "structural_grounding_rate": [1.0] * 10, "km_per_stop_day1": [1.0] * 10,
                 "recall_at_k": [0.5] * 10},
     )
     verdicts = paired_significance(df, champion="fusion").set_index("metric")
@@ -184,8 +184,8 @@ def test_paired_significance_reads_direction_and_ties():
     assert verdicts.loc["retrieval_ms", "verdict"] == "worse"
     assert verdicts.loc["retrieval_ms", "mean_advantage"] < 0
     # Identical columns: no test is possible, and it must not raise.
-    assert verdicts.loc["grounded_entity_rate", "verdict"] == "identical"
-    assert pd.isna(verdicts.loc["grounded_entity_rate", "p_value"])
+    assert verdicts.loc["structural_grounding_rate", "verdict"] == "identical"
+    assert pd.isna(verdicts.loc["structural_grounding_rate", "p_value"])
 
 
 def test_paired_significance_calls_a_coin_flip_no_difference():
@@ -279,3 +279,149 @@ def test_the_chain_sweep_covers_the_threshold_the_code_ships():
     assert (shipped.kn2_band == "in band").any(), (
         "no weight keeps the chain inside KN-2's band at the shipped threshold; "
         "the threshold or RETRIEVER_WEIGHTS['chain'] needs revisiting")
+
+
+# --- issue #132: the hallucination rate, measured rather than proxied ---
+#
+# `structural_grounding_rate` (this file's `mean_structural_grounding_rate`
+# assertions above) is 1.0 by construction for anything that retrieves, so it
+# cannot be the hallucination number the proposal asks for. These cover the
+# measurement that replaces it. None of them call a model: the grading is pure
+# text work, and the one thing that must happen when no model is configured is
+# a refusal.
+
+from roamwise.agents.llm_client import TemplateLLMClient  # noqa: E402
+from roamwise.evaluation.hallucination import (  # noqa: E402
+    TemplateClientRefused,
+    build_prompts,
+    classify,
+    gazetteer,
+    places_named,
+    places_pattern,
+    run_hallucination_measurement,
+    run_zero_context_probe,
+)
+
+SAMPLE_RUN = Path(__file__).resolve().parents[1] / "evaluation" / "local_llm_sample_run.md"
+
+
+@pytest.fixture(scope="module")
+def gaz():
+    places = gazetteer()
+    return places, places_pattern(places)
+
+
+def test_place_names_match_on_word_boundaries_not_substrings(gaz):
+    """CLAUDE.md gotcha 8, and the exact flaw in the probe this replaces.
+
+    The old matcher was `any(name in line or line in name for name in
+    known_names)`. The second direction is the worse one: a short line matches
+    many long names at once, so the match rate inflates and the hallucination
+    number comes out *lower* than the truth -- a measurement that fails safe in
+    the direction that flatters the system.
+    """
+    places = {"bar": {"name": "Bar", "cities": {"BER"}},
+              "station": {"name": "Station", "cities": {"BER"}}}
+    pattern = places_pattern(places)
+
+    assert places_named("a border barrier near a television station-house", places, pattern) == []
+    assert places_named("we ate at Bar, by the Station.", places, pattern) == ["bar", "station"]
+
+
+def test_the_longest_matching_name_wins(gaz):
+    """"Museum of Asian Art" is one place, not "Asian Art" inside something."""
+    places, pattern = gaz
+    named = places_named("Then the Museum of Asian Art, part of the Humboldt Forum.",
+                         places, pattern)
+    assert [places[k]["name"] for k in named] == ["Museum of Asian Art", "Humboldt Forum"]
+
+
+def test_every_routed_stop_is_recovered_from_a_real_generated_narrative(gaz):
+    """The extractor is checked against prose a model actually wrote.
+
+    `evaluation/local_llm_sample_run.md` is a committed, hand-checked run: 11
+    routed stops, all 11 named in the narrative. Recovering fewer than 11 would
+    mean the extractor misses real names, which inflates the rate's denominator
+    error in both directions. The hard cases are all in there -- a name ending
+    in a period ("Kila."), one with initials ("F. W. Borchardt"), one with a
+    comma inside it ("Academy of Arts, Berlin"), one in caps ("BLOCK HOUSE"),
+    and one the model expanded mid-sentence ("Wall Museum - Museum Haus am
+    Checkpoint Charlie").
+    """
+    import re
+    places, pattern = gaz
+    text = SAMPLE_RUN.read_text()
+    narrative = text.split("## Final plan (raw LLM output)")[1]
+    routed = re.findall(r"^- Day \d: (.+?) \[", text, re.M)
+    assert len(routed) == 11, "fixture changed; re-check the counts in the file's header"
+
+    found = {places[k]["name"] for k in places_named(narrative, places, pattern)}
+    assert set(routed) <= found
+
+
+def test_a_place_the_prompt_introduced_is_not_counted_as_invention(gaz):
+    """The Humboldt Forum's own description says it stands on Museum Island.
+
+    A narrative that repeats that is describing its stop correctly. Counting it
+    would make the metric fire hardest on good output -- the same distinction
+    `test_orchestration.ungrounded_places` draws.
+    """
+    places, pattern = gaz
+    prompt = "Day 1: Humboldt Forum -- a cultural centre on Museum Island."
+    graded = classify("Visit the Humboldt Forum, on Museum Island.", prompt, "BER", places, pattern)
+
+    assert graded["hallucinated"] == 0
+    assert graded["hallucination_rate"] == 0.0
+
+
+def test_a_place_from_the_other_city_is_geographical_hallucination(gaz):
+    """The proposal's own term: a real place, named for the wrong city."""
+    places, pattern = gaz
+    prompt = "Day 1: Humboldt Forum."
+    graded = classify("Visit the Humboldt Forum, then the Eiffel Tower.",
+                      prompt, "BER", places, pattern)
+
+    assert graded["wrong_city"] == 1
+    assert graded["wrong_city_names"] == "Eiffel Tower"
+    assert graded["hallucination_rate"] == 0.5
+
+
+def test_a_narrative_that_names_no_place_is_not_a_zero_percent_score(gaz):
+    """An empty denominator is no measurement, not a perfect one."""
+    places, pattern = gaz
+    graded = classify("A pleasant day out.", "Day 1: Humboldt Forum.", "BER", places, pattern)
+
+    assert graded["places_named"] == 0
+    assert graded["hallucination_rate"] is None
+
+
+@pytest.mark.parametrize("run", [run_hallucination_measurement, run_zero_context_probe])
+def test_the_measurement_refuses_to_run_without_a_model(run):
+    """A template run would report 0.0 hallucination -- a perfect score earned
+    by having no model. #133 made the fallback audible; for this one number it
+    has to be fatal, because the CSV it would write is indistinguishable from a
+    genuine result."""
+    with pytest.raises(TemplateClientRefused):
+        run(llm=TemplateLLMClient())
+
+
+@pytest.mark.slow
+def test_generating_once_per_distinct_prompt_covers_every_row():
+    """The dedup the quota budget rests on, asserted rather than assumed.
+
+    Identical prompt means identical generation, so one call per distinct
+    prompt reconstructs what a call per row would report -- provided every row
+    maps to a prompt that was actually generated. Standard prompting is the
+    clearest case: it retrieves nothing, so its candidate set does not depend
+    on the question and 67 queries collapse onto city x archetype.
+    """
+    prompts = build_prompts()
+
+    assert len(prompts) == len(TEST_QUERIES) * 3
+    assert prompts.prompt_key.nunique() < len(prompts), "no dedup means no saving to claim"
+    assert set(prompts.prompt_key) == set(prompts.groupby("prompt_key").prompt_key.first())
+
+    standard = prompts[prompts.config == "standard"]
+    cities = standard.destination_id.nunique()
+    archetypes = standard.archetype.nunique()
+    assert standard.prompt_key.nunique() == cities * archetypes

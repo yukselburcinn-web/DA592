@@ -89,6 +89,34 @@ def _free_entry_share(itinerary: list[dict]) -> float | None:
     return sum(1 for poi in stops if poi.get("price_level", 0) == 0) / len(stops)
 
 
+# What the narrator is told, and what it is shown. Module-level so the
+# hallucination measurement can generate against the real thing (#132): the
+# rate is a property of this exact system prompt and this exact facts block,
+# and re-typing either one into evaluation/ would measure a different pipeline
+# that happens to resemble ours.
+SYNTHESIS_SYSTEM = (
+    "You are RoamWise, an agentic travel-planning assistant. Write a coherent "
+    "recommendation for the itinerary below, describing its stops in the order "
+    "given and working in the forecast's timing advice. The itinerary is the "
+    "complete plan: describe only the stops it lists, and never mention or "
+    "suggest any other place, attraction or venue."
+)
+
+
+def synthesis_prompt(archetype: str, city: str, destination_id: str,
+                     forecast_narrative: str, routing_facts: str) -> str:
+    """Built as a join, not an indented triple-quoted f-string: the injected
+    facts are already flush-left, so splicing them into a further-indented
+    template leaves the template's own lines indented and TemplateLLMClient's
+    dedent cannot undo that -- which renders as a Markdown code block in the UI
+    instead of prose (issue #22)."""
+    return "\n\n".join([
+        f"Trip plan for a {archetype} traveler visiting {city} ({destination_id}).",
+        f"Forecast: {forecast_narrative}",
+        routing_facts,
+    ])
+
+
 class RoamWiseOrchestrator:
     def __init__(self, llm: LLMClient = None, retrieval_config: str = "fusion"):
         self.llm = llm or get_default_llm_client()
@@ -291,6 +319,15 @@ class RoamWiseOrchestrator:
     def _synthesize(self, state: dict) -> Completion:
         """Narrate the plan from the itinerary alone.
 
+        The prompt itself is built by the module-level `synthesis_prompt()`
+        below rather than inline, because the hallucination measurement has to
+        put a model in front of *this* prompt and not a copy of it (#132). A
+        copy drifts, and a measurement of a drifted copy says nothing about
+        what users are shown. `orchestrator_langgraph._synthesize` keeps its
+        own duplicate on purpose -- the two orchestrators are meant to be
+        independently comparable -- and that is why this is a shared function
+        rather than a shared base class.
+
         This deliberately does *not* include the Fusion RAG context. Retrieval
         returns candidates; the router then drops most of them on opening
         hours, travel time and the day budget -- on a measured 3-day Berlin
@@ -309,18 +346,10 @@ class RoamWiseOrchestrator:
         Markdown code block in the UI instead of prose (issue #22).
         """
         city = self.destinations.set_index("destination_id").loc[state["destination_id"], "city"]
-        prompt = "\n\n".join([
-            f"Trip plan for a {state['archetype']} traveler visiting {city} ({state['destination_id']}).",
-            f"Forecast: {state['forecast']['narrative']}",
-            state["routing"]["facts"],
-        ])
         return self.llm.complete_verbose(
-            system="You are RoamWise, an agentic travel-planning assistant. Write a coherent "
-                   "recommendation for the itinerary below, describing its stops in the order "
-                   "given and working in the forecast's timing advice. The itinerary is the "
-                   "complete plan: describe only the stops it lists, and never mention or "
-                   "suggest any other place, attraction or venue.",
-            prompt=prompt,
+            system=SYNTHESIS_SYSTEM,
+            prompt=synthesis_prompt(state["archetype"], city, state["destination_id"],
+                                    state["forecast"]["narrative"], state["routing"]["facts"]),
         )
 
 

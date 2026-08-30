@@ -165,10 +165,13 @@ METRICS = [
      "everything the pool had room for."),
     ("mean_archetype_precision", "archetype_precision", "Archetype precision", True,
      "Fraction of surfaced places that match the traveler archetype's preferred categories."),
-    ("mean_grounded_entity_rate", "grounded_entity_rate", "Grounded entities", True,
-     "Fraction of surfaced content traceable to a real knowledge-base node -- the structural "
-     "stand-in for hallucination risk. It is 1.0 by construction for anything that retrieves at "
-     "all, so it separates retrieval from no-retrieval and cannot rank Fusion against Hybrid."),
+    ("mean_structural_grounding_rate", "structural_grounding_rate",
+     "Structural grounding (by construction)", True,
+     "Whether retrieval returned anything traceable to a real knowledge-base node. Renamed in "
+     "#132 because the old label, \"Grounded entities\", read as a hallucination measurement: "
+     "it is 1.0 by construction for anything that retrieves at all, so it separates retrieval "
+     "from no-retrieval and cannot rank Fusion against Hybrid. The hallucination rate itself is "
+     "measured in evaluation/hallucination.py, against generated text."),
     ("mean_km_per_stop", "km_per_stop_day1", "Km per stop", False,
      "Average walking distance per stop once the router builds a day from each config's "
      "candidates. Lower means a more geographically coherent day."),

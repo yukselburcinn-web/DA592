@@ -28,12 +28,20 @@ each retrieval component concrete:
      merge where standard prompting runs nothing, so the comparison is only
      honest if the price is on the table next to the benefit.
 
-`run_llm_hallucination_probe()` additionally runs a real generative
-hallucination check (see its docstring). It is optional and skipped by
-default: as a script it needs `--probe` *and* ANTHROPIC_API_KEY, because
-rebuilding the committed CSVs -- the everyday reason to run this file -- costs
-no generations at all, and should not start costing them just because a key is
-exported (issue #7).
+The fifth metric this file used to claim, `grounded_entity_rate`, is renamed
+`structural_grounding_rate` here (#132). It asks whether retrieval returned a
+row, which is 1.0 by construction for anything that retrieves at all -- a
+hallucination *risk* proxy and never a hallucination measurement, however the
+old name read in a table. The measurement itself lives in
+`evaluation/hallucination.py`: it needs a generative model, and unlike this
+file it produces text for the model to be graded on.
+
+`run_llm_hallucination_probe()` here is the zero-context baseline from that
+module, kept under its old name because REPORT.md cites it. It is optional and
+skipped by default: as a script it needs `--probe`, because rebuilding the
+committed CSVs -- the everyday reason to run this file -- costs no generations
+at all, and should not start costing them just because a key is exported
+(issue #7).
 """
 import json
 import os
@@ -599,7 +607,14 @@ def run_comparative_analysis(top_k: int = 8, use_real_routing: bool = False) -> 
             relevant = sum(1 for p in candidate_pois if p.get("category") in preferred_categories)
             precision = relevant / len(candidate_pois) if candidate_pois else 0.0
 
-            grounded_rate = 1.0 if poi_results else 0.0
+            # Renamed from `grounded_entity_rate` in #132. The old name read
+            # as a hallucination measurement in every table it appeared in,
+            # and it is not one: it asks whether retrieval returned a row, so
+            # it is 1.0 for any retrieval-based config by construction and the
+            # Wilcoxon test on it can only ever answer "identical". The real
+            # measurement is evaluation/hallucination.py, which needs a
+            # generative model and generates text for it.
+            structural_grounding = 1.0 if poi_results else 0.0
 
             # narrate=False: only the day's geometry is scored below, never
             # the prose. Left on, this fires one generation per query per
@@ -656,7 +671,7 @@ def run_comparative_analysis(top_k: int = 8, use_real_routing: bool = False) -> 
                 "normalized_recall": (round(recall / (min(top_k, len(gold)) / len(gold)), 4)
                                       if gold and recall is not None else None),
                 "archetype_precision": round(precision, 3),
-                "grounded_entity_rate": grounded_rate, "n_candidate_pois": len(candidate_pois),
+                "structural_grounding_rate": structural_grounding, "n_candidate_pois": len(candidate_pois),
                 "n_stops_day1": n_stops, "km_per_stop_day1": round(km_per_stop, 2) if km_per_stop else None,
                 "retrieval_ms": round(retrieval_ms, 2),
             })
@@ -671,7 +686,7 @@ def summarize(df: pd.DataFrame) -> pd.DataFrame:
             mean_recall_at_k=("recall_at_k", "mean"),
             mean_normalized_recall=("normalized_recall", "mean"),
             mean_archetype_precision=("archetype_precision", "mean"),
-            mean_grounded_entity_rate=("grounded_entity_rate", "mean"),
+            mean_structural_grounding_rate=("structural_grounding_rate", "mean"),
             mean_km_per_stop=("km_per_stop_day1", "mean"),
             mean_retrieval_ms=("retrieval_ms", "mean"),
         )
@@ -693,7 +708,7 @@ METRICS_UNDER_TEST = [
     # (#49, #126).
     ("normalized_recall", True),
     ("archetype_precision", True),
-    ("grounded_entity_rate", True),
+    ("structural_grounding_rate", True),
     ("km_per_stop_day1", False),
     ("retrieval_ms", False),
 ]
@@ -739,7 +754,7 @@ def paired_significance(df: pd.DataFrame, champion: str = "fusion", alpha: float
 
             if ties == len(advantage):
                 # Wilcoxon cannot rank an all-zero difference vector, and there
-                # is nothing to test: grounded_entity_rate is 1.0 by
+                # is nothing to test: structural_grounding_rate is 1.0 by
                 # construction for every retrieval-based config, so fusion and
                 # hybrid are identical on it and it cannot separate them.
                 p_value, verdict = None, "identical"
@@ -761,36 +776,17 @@ def paired_significance(df: pd.DataFrame, champion: str = "fusion", alpha: float
 
 
 def run_llm_hallucination_probe():
-    """Optional, opt-in: if ANTHROPIC_API_KEY is set, ask the live LLM to
-    describe a POI in each test city with zero retrieved context (true
-    'standard prompting'), then check whether every named entity in the
-    response matches a real KB node. Skipped (returns None) without a key
-    so the rest of the evaluation stays free/offline.
+    """The zero-context generative baseline, delegated to evaluation/hallucination.py.
 
-    One call per *city*, not per query. This used to iterate TEST_QUERIES and
-    unpack four fields from each -- which stopped working when TestQuery grew
-    past four, and raised ValueError on the first row (issue #7). The bug was
-    invisible because the key check above returns before it on every offline
-    run, so the only way to reach it was to configure the very integration it
-    then broke. Fixing the unpack alone would have left the loop asking the
-    same two questions 67 times: the prompt depends on nothing but the city,
-    and there are two cities in the catalogue.
+    Kept under this name because REPORT.md §3.5 and §7 cite it. Everything
+    that made it unrunnable is gone: it was gated on `ANTHROPIC_API_KEY` and
+    constructed `AnthropicLLMClient` directly, so choosing NVIDIA (#7) left it
+    permanently skipped and `llm_hallucination_probe.csv` was never written
+    once. It goes through `get_default_llm_client()` now, and it refuses under
+    the offline template rather than reporting a score no model produced.
     """
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        return None
-    from roamwise.agents.llm_client import AnthropicLLMClient
-    idx = GraphIndex()
-    known_names = {data["name"].lower() for _, data in idx.g.nodes(data=True) if data.get("type") == "POI"}
-    llm = AnthropicLLMClient()
-    probe_rows = []
-    for dest_id in sorted({query.destination_id for query in TEST_QUERIES}):
-        city = idx.g.nodes[dest_id]["name"]
-        prompt = f"List 5 specific points of interest to visit in {city}, one per line, name only."
-        text = llm.complete(system="You are a travel assistant.", prompt=prompt)
-        lines = [l.strip("-* ").lower() for l in text.splitlines() if l.strip()]
-        matched = sum(any(name in line or line in name for name in known_names) for line in lines)
-        probe_rows.append({"destination_id": dest_id, "named": len(lines), "matched_kb": matched})
-    return pd.DataFrame(probe_rows)
+    from roamwise.evaluation.hallucination import run_zero_context_probe
+    return run_zero_context_probe()
 
 
 if __name__ == "__main__":
@@ -811,12 +807,14 @@ if __name__ == "__main__":
     # Spending live API calls on it because a key happens to be exported is a
     # cost nobody asked for, and the key alone cannot express the difference.
     if "--probe" in sys.argv:
-        probe = run_llm_hallucination_probe()
-        if probe is not None:
-            probe.to_csv(HERE / "llm_hallucination_probe.csv", index=False)
-            print("\nLive LLM hallucination probe:\n", probe.to_string())
+        from roamwise.evaluation.hallucination import PROBE_CSV, TemplateClientRefused
+        try:
+            probe = run_llm_hallucination_probe()
+        except TemplateClientRefused as exc:
+            print(f"\n(--probe given but {exc})")
         else:
-            print("\n(--probe given but no ANTHROPIC_API_KEY set -- skipped the live-LLM "
-                  "hallucination probe.)")
+            probe.to_csv(PROBE_CSV, index=False)
+            print("\nLive LLM hallucination probe:\n", probe.to_string())
     else:
-        print("\n(Skipped the live-LLM hallucination probe; pass --probe to run it.)")
+        print("\n(Skipped the live-LLM hallucination probe; pass --probe to run it. The full "
+              "per-config measurement is `python -m roamwise.evaluation.hallucination`.)")
