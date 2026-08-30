@@ -211,6 +211,40 @@ def score_by_affinity_and_prominence(pois: list[dict]) -> list[dict]:
 # the five-day pool keeps falling until 0.5, and a fix measured only at the
 # default trip length would have shipped a regression nobody looked for.
 # Below 0.5 the one-day pool starts paying instead -- 164 against today's 173.
+#
+# It stays a constant, and #143 is why. That issue asked whether one exponent
+# can serve three pool sizes, on the reasoning that flattening is free at 120
+# slots and expensive at 24. Swept per trip length over 0.4-2.0 -- the range
+# above 1.0 being the half #123 never tried, since it was looking for a
+# counterweight and had no reason to sharpen past proportional
+# (`evaluation/quota_topk_sweep.py`):
+#
+#     exponent   1-day        3-day        5-day      iconic (1-day)
+#       0.50     168          424          550        21
+#       0.60     171          426          551        22
+#       1.00     173          421          546        20
+#       1.20     174          420          545        20
+#
+# The one-day pool does prefer a sharper exponent, exactly as predicted. But
+# what it buys is a total, not a spread: at 1.2 `history` falls 10 -> 6 and
+# `food` 24 -> 20, and iconic coverage goes 22 -> 20. A `top_k`-dependent
+# exponent would therefore be trading the categories the quota exists to
+# protect for a headline number.
+#
+# And the number it trades them for does not reach anyone. Measured over 84
+# plans -- 2 cities x 7 archetypes x 3 trip lengths, both exponents
+# (`evaluation/quota_plan_impact.py`) -- moving 0.5 to 0.6 changes the stop
+# count by **zero** in aggregate: one-day trips differ on 2 of 14 and cancel
+# out, three-day on 1 of 14, five-day on 1 of 14. The three to five POIs this
+# knob moves sit in the tail the router never selects, because a one-day plan
+# takes eight stops from twenty-four candidates.
+#
+# So the exponent is a pool knob, not a plan knob, and #123's unmet acceptance
+# criterion was written against a number the traveller does not see. Left at
+# 0.5 rather than moved to the Pareto-better 0.6 for that reason: with the plan
+# unmoved, changing it would be optimising a measure we have just shown does
+# not carry to the itinerary, and 0.6 costs two categories-per-trip at one day
+# on the same grid.
 PREFERENCE_QUOTA_EXPONENT = 0.5
 
 
