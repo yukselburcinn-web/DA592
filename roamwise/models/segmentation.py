@@ -30,8 +30,13 @@ class TravelerSegmenter:
     closest archetype cluster, which the GraphIndex uses to fetch
     ArchetypeProfile -[PREFERS]-> POI edges."""
 
-    def __init__(self):
-        df = pd.read_csv(DATA_DIR / "user_survey.csv")
+    def __init__(self, survey: pd.DataFrame = None):
+        """`survey` overrides the shipped `user_survey.csv`, for one caller:
+        `evaluation/survey_sensitivity.py` refits this on resampled and
+        perturbed surveys to measure how much of the archetype assignment is
+        a property of that file rather than of the traveler (#124). Nothing in
+        the app passes it; the default path is unchanged."""
+        df = pd.read_csv(DATA_DIR / "user_survey.csv") if survey is None else survey
         self.df = df
         self.k = df.archetype.nunique()
         self.model = KMeans(n_clusters=self.k, n_init=10, random_state=42)
