@@ -9,6 +9,7 @@ there put the measurement work and the orchestrator work in one file.
 
 import collections
 from pathlib import Path
+from unittest import mock
 
 import pandas as pd
 import pytest
@@ -429,27 +430,63 @@ def test_generating_once_per_distinct_prompt_covers_every_row():
     assert standard.prompt_key.nunique() == cities * archetypes
 
 
-def test_the_committed_hallucination_numbers_describe_today_s_query_set():
+def test_the_committed_hallucination_numbers_describe_today_s_measurement():
     """The guard on a measurement CI cannot re-derive.
 
     `hallucination_summary.csv` is produced by a run against a live endpoint,
     so no test can regenerate it and nothing else would notice the day
-    TEST_QUERIES changes and leaves the committed numbers describing a question
-    set that no longer exists. `data/knowledge_graph.gml` went stale for
-    nineteen commits for exactly this reason (#145, CLAUDE.md gotcha 16).
+    TEST_QUERIES -- or the prompt those queries become -- changes and leaves
+    the committed numbers describing something that no longer exists.
+    `data/knowledge_graph.gml` went stale for nineteen commits for exactly
+    this reason (#145, CLAUDE.md gotcha 16).
 
     When this goes red the fix is to re-run the measurement:
     `set -a; source .env; set +a; python -m roamwise.evaluation.hallucination`.
     It is cheaper than it looks -- generations are cached per prompt, so only
-    the queries whose routed itinerary actually changed cost anything.
+    the queries whose prompt actually changed cost anything.
     """
-    from roamwise.evaluation.hallucination import SUMMARY_CSV, query_set_fingerprint
+    from roamwise.evaluation.hallucination import SUMMARY_CSV, measurement_fingerprint
 
     summary = pd.read_csv(SUMMARY_CSV)
-    committed = set(summary.query_set.astype(str))
-    assert committed == {query_set_fingerprint()}, (
-        f"hallucination_summary.csv olculdugu sorgu seti {committed}, bugunku set "
-        f"{query_set_fingerprint()} -- olcumu yeniden kostur")
+    # `.get`, not `summary.fingerprint`: the column was `query_set` until #173
+    # widened the hash to cover the prompt as well. A summary written before
+    # that rename has to fail this assertion with its message, not crash with
+    # a KeyError two lines above it.
+    committed = set(summary.get("fingerprint", pd.Series(dtype=str)).astype(str))
+    assert committed == {measurement_fingerprint()}, (
+        f"hallucination_summary.csv'nin parmak izi {committed}, bugunku parmak izi "
+        f"{measurement_fingerprint()} -- olcumu yeniden kostur")
+
+
+def test_the_fingerprint_moves_when_the_prompt_the_narrator_sees_moves():
+    """The half of the guard #173 had to add, and why it is not enough on its
+    own to say "the fingerprint covers the prompt".
+
+    #173 changed `RouterAgent._facts()` and touched no query. The old
+    fingerprint hashed only TEST_QUERIES, so it would not have moved, the
+    guard above would have stayed green, and the committed CSVs would have
+    gone on reporting numbers measured against a prompt the code no longer
+    builds -- the `knowledge_graph.gml` story again, one file over.
+
+    Two things are asserted, because either alone is satisfiable by an empty
+    list: that the real prompt-building code is what gets hashed, and that
+    changing any of it changes the hash.
+    """
+    from roamwise.agents.orchestrator import SYNTHESIS_SYSTEM
+    from roamwise.evaluation import hallucination
+
+    sources = hallucination.prompt_sources()
+    assert SYNTHESIS_SYSTEM in sources
+    for signature in ("def synthesis_prompt(", "def _facts(", "def _leg_clause("):
+        assert any(signature in s for s in sources), f"{signature} is not fingerprinted"
+
+    before = hallucination.measurement_fingerprint()
+    for i in range(len(sources)):
+        edited = list(sources)
+        edited[i] += "  # a comment is enough to invalidate a cached run"
+        with mock.patch.object(hallucination, "prompt_sources", lambda e=edited: e):
+            assert hallucination.measurement_fingerprint() != before, (
+                f"prompt_sources()[{i}] is hashed but does not move the fingerprint")
 
 
 def test_a_catalogue_name_that_is_also_a_common_word_needs_its_capital(gaz):

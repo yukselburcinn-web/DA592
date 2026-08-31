@@ -80,6 +80,62 @@ def _clock(hour: float) -> str:
     return f"{hours % 24:02d}:{minutes:02d}"
 
 
+# How a leg is named in the facts block. The same three modes the itinerary
+# view labels legs with (views/itinerary.py:_LEG_VERBS) -- a narrator and a
+# caption should not disagree about whether a leg was walked or driven.
+_LEG_VERBS = {"walking": "walk", "driving": "drive", "transit": "ride by transit"}
+# Below this, a gap between one stop's finish and the next one's arrival is
+# rounding rather than waiting, and saying "0 min of waiting" would add noise
+# to every line.
+_WAIT_FLOOR_MINUTES = 1.0
+
+
+def _minutes(value: float) -> str:
+    """Whole minutes, with a floor that never rounds a real leg down to "0 min"
+    -- the Reichstag-to-Brandenburg-Gate hop is 4 minutes, but a 200 m one is
+    not zero either."""
+    return "under 1 min" if round(value) < 1 else f"{round(value)} min"
+
+
+def _leg_clause(slot: dict, previous: dict, mode, starts_from: str = None) -> str:
+    """What it cost to reach this stop, and how long the visit lasts, in words.
+
+    The facts block used to give the narrator arrival times and nothing else,
+    so the only way to say how long the walk between two stops took was to
+    subtract one arrival from the next. That difference is the *previous
+    visit* plus the leg plus any wait, and the model spent it all on the walk:
+    280 m between the Reichstag and the Brandenburg Gate was narrated as a
+    "64-minute walk" (issue #173). Nothing new is computed here -- `leg_km`,
+    `leg_minutes` and `leg_mode` have been on the schedule since #159, and the
+    UI has been showing them all along; they were simply never written down
+    for the narrator.
+
+    Every span the line states is labelled with what it is spent on, so no
+    unattributed time difference is left for the model to name. Distance is
+    dropped for transit, for the reason `_leg_caption` gives: the kilometres
+    beside a timetabled journey are the straight line between two stops, not
+    the route a service takes.
+    """
+    parts = []
+    minutes = 0.0 if not slot else (slot.get("leg_minutes") or 0.0)
+    if minutes > 0:
+        key = slot.get("leg_mode") or getattr(mode, "key", None)
+        leg = f"{_minutes(minutes)} {_LEG_VERBS.get(key, 'travel')}"
+        if key != "transit" and slot.get("leg_km"):
+            leg += f", {slot['leg_km']:.1f} km"
+        origin = starts_from or ("the previous stop" if previous else "the day's start")
+        parts.append(f"{leg} from {origin}")
+    if slot and previous:
+        # Opening hours and the solver's time windows both make a stop wait,
+        # and the wait is the rest of the gap once the leg is accounted for.
+        wait = (slot["arrival"] - previous["finish"]) * 60 - minutes
+        if wait >= _WAIT_FLOOR_MINUTES:
+            parts.append(f"then {_minutes(wait)} of waiting")
+    if slot:
+        parts.append(f"visit until {_clock(slot['finish'])}")
+    return f" [{'; '.join(parts)}]" if parts else ""
+
+
 def _summarize(description) -> str:
     """First sentence of a POI description, bounded, as an inline clause."""
     if not description or not isinstance(description, str):
@@ -335,7 +391,9 @@ class RouterAgent:
         time/opening-hour constraints), and the model treated both lists as
         things to recommend (issue #56). Everything a narrator needs to
         describe this plan is therefore here, tied to a stop that is actually
-        in it.
+        in it. That now includes how each stop is *reached* -- see
+        `_leg_clause`: the times alone left the narrator subtracting one
+        arrival from the next and calling the remainder a walk (issue #173).
         """
         lines = [f"Optimized itinerary for {destination_id} ({mode.label.lower()}):"]
         for day in itinerary:
@@ -348,9 +406,15 @@ class RouterAgent:
             schedule = day.get("schedule", [])
             for i, poi in enumerate(day["route"], 1):
                 slot = schedule[i - 1] if i <= len(schedule) else None
+                previous = schedule[i - 2] if i > 1 and i - 1 <= len(schedule) else None
                 when = f"{_clock(slot['arrival'])} " if slot else ""
+                # The bracketed clause is where the leg lives (#173). It sits
+                # before the description so the line's one " -- " still marks
+                # where the plan ends and the prose about the place begins.
+                leg = _leg_clause(slot, previous, mode,
+                                  starts_from=day.get("starts_from") if i == 1 else None)
                 lines.append(f"  {i}. {when}{poi['name']} ({poi.get('category', 'stop')})"
-                             f"{_summarize(poi.get('description'))}")
+                             f"{leg}{_summarize(poi.get('description'))}")
         if stops_ratio is not None:
             # A count with its denominator, so a narrator cannot call nine
             # stops a full trip when eleven fit, or a thin one when nine was

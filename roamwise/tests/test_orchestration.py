@@ -118,6 +118,134 @@ def test_stop_descriptions_are_not_cut_at_an_abbreviation():
     assert _summarize("") == ""
 
 
+# --- issue #173: the narrator invented walking times, because the only
+# durations it was shown were arrival clocks ---
+
+def test_a_stop_line_names_the_leg_that_reached_it_rather_than_a_bare_arrival():
+    """The Reichstag case, reduced to the two schedule entries that produced
+    it.
+
+    The narrative said "a 64-minute walk brings you to the Brandenburg Gate":
+    280 m, about four minutes. The 64 was 13:11 minus 12:07 -- an hour inside
+    the Reichstag plus the walk -- because the facts block gave arrival times
+    and nothing else, and a time difference with no unit named is the only
+    thing the model had to work with.
+
+    Every span the line reports now says what it is spent on, so there is no
+    unattributed difference left to misread.
+    """
+    from roamwise.agents.router_agent import _leg_clause
+    from roamwise.optimization.travel_modes import get_travel_mode
+
+    walking = get_travel_mode("walking")
+    reichstag = {"arrival": 12.116, "finish": 13.116, "leg_km": 0.9,
+                 "leg_minutes": 12.0, "leg_mode": "walking"}
+    gate = {"arrival": 13.186, "finish": 13.686, "leg_km": 0.28,
+            "leg_minutes": 4.19, "leg_mode": "walking"}
+
+    clause = _leg_clause(gate, reichstag, walking)
+    assert "4 min walk" in clause and "0.3 km" in clause
+    assert "from the previous stop" in clause
+    assert "visit until 13:41" in clause
+    assert "64" not in clause
+
+
+def test_the_leg_clause_accounts_for_the_wait_as_well_as_the_walk():
+    """Leg plus visit does not always add up to the next arrival: a venue that
+    is not open yet makes the day wait (`_next_open_hour`, and the solver's
+    time windows on the TOPTW path). Left unnamed, that remainder is one more
+    span for a narrator to attribute to walking, so it is labelled too.
+
+    Below the floor it is dropped -- a one-second gap is rounding, and
+    "0 min of waiting" on every line is noise.
+    """
+    from roamwise.agents.router_agent import _leg_clause
+    from roamwise.optimization.travel_modes import get_travel_mode
+
+    walking = get_travel_mode("walking")
+    previous = {"arrival": 9.0, "finish": 10.0, "leg_km": 0.0, "leg_minutes": 0.0, "leg_mode": None}
+    waited = {"arrival": 11.0, "finish": 12.0, "leg_km": 0.5, "leg_minutes": 6.0, "leg_mode": "walking"}
+    prompt_arrival = {"arrival": 10.1, "finish": 11.0, "leg_km": 0.5,
+                      "leg_minutes": 6.0, "leg_mode": "walking"}
+
+    assert "then 54 min of waiting" in _leg_clause(waited, previous, walking)
+    assert "waiting" not in _leg_clause(prompt_arrival, previous, walking)
+
+
+def test_the_leg_clause_reports_the_mode_each_leg_was_actually_priced_on():
+    """Hybrid walks short legs and drives long ones, per leg (#159), and a
+    transit leg's kilometres are the straight line rather than the route a
+    service takes -- `_leg_caption` drops them in the UI for that reason, and
+    a narrator that divides one by the other would be worse than a caption
+    that invites it. `leg_mode` is None where `solve` was called without one,
+    which is when the trip's own mode is the honest answer."""
+    from roamwise.agents.router_agent import _leg_clause
+    from roamwise.optimization.travel_modes import get_travel_mode
+
+    hybrid, walking = get_travel_mode("hybrid"), get_travel_mode("walking")
+    driven = {"arrival": 10.0, "finish": 11.0, "leg_km": 4.0, "leg_minutes": 17.6, "leg_mode": "driving"}
+    ridden = {"arrival": 10.0, "finish": 11.0, "leg_km": 4.0, "leg_minutes": 22.0, "leg_mode": "transit"}
+    unnamed = {"arrival": 10.0, "finish": 11.0, "leg_km": 0.9, "leg_minutes": 12.0, "leg_mode": None}
+
+    assert "18 min drive, 4.0 km" in _leg_clause(driven, driven, hybrid)
+    assert "22 min ride by transit" in _leg_clause(ridden, ridden, hybrid)
+    assert "km" not in _leg_clause(ridden, ridden, hybrid)
+    assert "12 min walk" in _leg_clause(unnamed, unnamed, walking)
+
+
+def test_the_first_stop_of_a_day_is_reached_from_somewhere_or_from_nothing():
+    """Day one of an arrival-hub trip starts at the hub, and the leg in from
+    it is a real cost the traveler pays (#126). Every other day's first stop
+    has no leg priced before it, and inventing "0 min" for it would be the
+    same class of made-up duration this issue is about."""
+    from roamwise.agents.router_agent import _leg_clause
+    from roamwise.optimization.travel_modes import get_travel_mode
+
+    walking = get_travel_mode("walking")
+    from_hub = {"arrival": 9.4, "finish": 10.4, "leg_km": 1.8, "leg_minutes": 24.0,
+                "leg_mode": "walking"}
+    cold_start = {"arrival": 9.0, "finish": 10.0, "leg_km": 0.0, "leg_minutes": 0.0,
+                  "leg_mode": None}
+
+    assert "24 min walk, 1.8 km from Gare du Nord" in _leg_clause(
+        from_hub, None, walking, starts_from="Gare du Nord")
+    assert _leg_clause(cold_start, None, walking) == " [visit until 10:00]"
+
+
+@pytest.mark.slow
+def test_the_prompt_states_every_leg_the_schedule_priced(city=MAIN_CITY):
+    """The end of the chain: what the schedule holds reaches the text a real
+    model is shown.
+
+    Under TemplateLLMClient `final_plan` is the synthesis prompt verbatim
+    (CLAUDE.md gotcha 2), so this asserts on exactly what a model would see
+    with no download and no key -- the same gift
+    `test_synthesis_prompt_offers_no_place_outside_the_itinerary` uses.
+
+    The assertion is per leg against `leg_minutes` rather than against a
+    regex for "min walk": a format that printed the right words and the wrong
+    number would satisfy the second and is precisely the failure #173 is.
+    """
+    from roamwise.agents.router_agent import _clock
+
+    orch = RoamWiseOrchestrator()
+    prefs = {"budget": 0.6, "culture": 0.9, "nature": 0.2, "nightlife": 0.2, "relax": 0.3, "adventure": 0.2}
+    result = orch.plan_trip(prefs, destination_id=city, n_days=2)
+
+    plan = result["final_plan"]
+    legs = 0
+    for day in result["routing"]["itinerary"]:
+        for poi, slot in zip(day["route"], day["schedule"]):
+            line = next(l for l in plan.splitlines() if poi["name"] in l and l.strip()[0].isdigit())
+            assert f"visit until {_clock(slot['finish'])}" in line, line
+            if slot["leg_minutes"] <= 0:
+                continue
+            legs += 1
+            assert f"{round(slot['leg_minutes'])} min" in line, line
+            assert f"{slot['leg_km']:.1f} km" in line, line
+    assert legs, "a plan with no priced leg cannot show one"
+
+
 @pytest.mark.slow
 def test_itinerary_facts_describe_every_routed_stop():
     """The narrator can only describe stops from what it is given, so dropping
