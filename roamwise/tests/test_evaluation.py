@@ -527,3 +527,124 @@ def test_two_places_on_one_line_do_not_hide_an_unmatched_one(gaz):
     matched_lines = sum(1 for line in lines if places_named(line, places, pattern))
 
     assert len(lines) - matched_lines == 1, "uydurma satir gorunmez kaldi"
+
+
+# --- issue #124: how much of the personalization is the synthetic survey? ---
+
+def test_the_resampler_reproduces_the_shipped_survey_s_distribution():
+    """`survey_sensitivity.draw_survey` is a copy of `generate_data.py:262-281`,
+    and a copy is a thing that drifts.
+
+    It cannot import the original: that module writes five shipped files at
+    import time and leaves the app unable to start (CLAUDE.md). So the copy is
+    checked against the artefact the original produced instead -- same shape,
+    same per-archetype count, and per-archetype means within sampling error of
+    the committed ones. If someone retunes `ARCHETYPES` in `generate_data.py`
+    and regenerates `user_survey.csv`, this goes red and the measurement's
+    baseline stops being fictional.
+
+    The tolerance is five standard errors of the *difference* between two
+    independent 60-row means -- sigma * sqrt(2/60) = 0.0146, so 0.073. The
+    sqrt(2) matters: both sides of this comparison are sampled, and using the
+    standard error of one mean (0.0103) makes the bound too tight for the
+    largest of 42 cells to stay under, which is how this test failed when it
+    was first written. Loose enough that a fresh draw never trips it, tight
+    enough that a moved centre always does.
+    """
+    import numpy as np
+
+    from roamwise.evaluation.survey_sensitivity import (
+        ARCHETYPE_CENTRES, PREFERENCE_DIMS, ROWS_PER_ARCHETYPE, SHIPPED_SIGMA, draw_survey)
+    from roamwise.optimization.scoring import DATA_DIR
+
+    shipped = pd.read_csv(DATA_DIR / "user_survey.csv")
+    drawn = draw_survey(np.random.default_rng(0))
+
+    assert drawn.shape == shipped.shape
+    assert set(drawn.archetype) == set(shipped.archetype)
+    assert set(drawn.archetype.value_counts()) == {ROWS_PER_ARCHETYPE}
+    assert set(shipped.archetype.value_counts()) == {ROWS_PER_ARCHETYPE}
+
+    tolerance = 5 * SHIPPED_SIGMA * np.sqrt(2 / ROWS_PER_ARCHETYPE)
+    for archetype in ARCHETYPE_CENTRES:
+        theirs = shipped[shipped.archetype == archetype][PREFERENCE_DIMS].mean()
+        ours = drawn[drawn.archetype == archetype][PREFERENCE_DIMS].mean()
+        assert (theirs - ours).abs().max() < tolerance, (
+            f"{archetype}: the resampler and the committed survey disagree by more "
+            f"than sampling error -- generate_data.ARCHETYPES has moved")
+
+
+def test_the_sensitivity_control_moves_what_resampling_does_not():
+    """The guard on the measurement's own ability to see anything.
+
+    #124 can conclude "the survey does not matter" only if the same machinery
+    says "the survey matters" when it demonstrably does. `shuffle` is that
+    case: the feature rows are untouched and only the label association is
+    destroyed, which is the one thing both consumers read. If shuffling leaves
+    the matrix's rankings intact, every insensitive row above it in the table
+    is unreadable and the conclusion has to be withdrawn.
+
+    Asserted together with the resample, because the pair is the claim: one
+    moves, the other does not, and the same code produced both.
+    """
+    import numpy as np
+
+    from roamwise.evaluation.survey_sensitivity import (
+        draw_survey, matrix_deltas, shuffle_labels)
+    from roamwise.optimization.scoring import PREFERENCE_CATEGORY_WEIGHTS, _fit_preference_matrix
+
+    rng = np.random.default_rng(0)
+    survey = draw_survey(rng)
+    resampled = matrix_deltas(PREFERENCE_CATEGORY_WEIGHTS, _fit_preference_matrix(survey))
+    shuffled = matrix_deltas(PREFERENCE_CATEGORY_WEIGHTS,
+                             _fit_preference_matrix(shuffle_labels(rng, survey)))
+
+    assert resampled["matrix_top1_agreement"] == 1.0, \
+        "a fresh draw from the same centres reranked a category -- the baseline is not stable"
+    assert shuffled["matrix_top1_agreement"] < 0.5, \
+        "shuffling the labels barely moved the matrix -- this measurement cannot see dependence"
+    assert shuffled["matrix_mean_abs_delta"] > 10 * resampled["matrix_mean_abs_delta"]
+
+
+def test_swapping_the_preference_matrix_restores_both_globals():
+    """`preference_match` reads the matrix and the normaliser derived from it
+    as two separate module globals, so a swap that moves one and not the other
+    scores the new weights against the old maximum. The context manager has to
+    set both and put both back -- including when the block raises, since a
+    measurement that dies mid-variant would otherwise leave the process
+    scoring every later plan with a survey nobody asked for."""
+    from roamwise.evaluation.survey_sensitivity import preference_matrix
+    from roamwise.optimization import scoring
+
+    shipped, shipped_max = scoring.PREFERENCE_CATEGORY_WEIGHTS, scoring._MAX_MATCH
+    doubled = {d: {c: 2 * w for c, w in row.items()} for d, row in shipped.items()}
+
+    with preference_matrix(doubled):
+        assert scoring.PREFERENCE_CATEGORY_WEIGHTS == doubled
+        assert scoring._MAX_MATCH == pytest.approx(2 * shipped_max)
+
+    assert scoring.PREFERENCE_CATEGORY_WEIGHTS is shipped
+    assert scoring._MAX_MATCH == shipped_max
+
+    with pytest.raises(RuntimeError):
+        with preference_matrix(doubled):
+            raise RuntimeError("the variant blew up")
+    assert scoring.PREFERENCE_CATEGORY_WEIGHTS is shipped
+    assert scoring._MAX_MATCH == shipped_max
+
+
+def test_the_committed_sensitivity_table_covers_the_perturbations_the_module_defines():
+    """#124's conclusion is only readable while the committed CSV describes the
+    perturbations the code runs today. Add a sigma level or drop the control
+    and forget to re-run, and REPORT quotes a table with a missing row --
+    the `quota_topk_sweep.csv` failure mode one measurement over."""
+    from roamwise.evaluation.survey_sensitivity import SUMMARY_CSV, variants
+
+    assert SUMMARY_CSV.exists(), (
+        "survey_sensitivity.csv is the measurement behind REPORT 5's survey item; "
+        "run `python -m roamwise.evaluation.survey_sensitivity`")
+    committed = set(pd.read_csv(SUMMARY_CSV).variant)
+    defined = {label for label, _, _ in variants()}
+    assert committed == defined, (
+        f"survey_sensitivity.csv olculdugu varyant seti {sorted(committed - defined)} "
+        f"fazla / {sorted(defined - committed)} eksik -- olcumu yeniden kostur")

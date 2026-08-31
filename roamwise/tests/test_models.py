@@ -151,3 +151,33 @@ def test_preference_levels_produce_distinct_archetypes():
         for level, value in PREFERENCE_LEVELS.items()
     }
     assert len(set(archetypes.values())) == len(archetypes)
+
+
+def test_the_segmenter_can_be_fitted_on_a_survey_that_is_not_the_shipped_one():
+    """The injection point #124 needs, and the reason it is on the constructor
+    rather than on a module-level cache.
+
+    `survey_sensitivity.py` refits this on resampled surveys to ask how much of
+    a traveler's archetype is a property of `user_survey.csv`. That question
+    cannot be asked at all unless a second segmenter can exist beside the
+    shipped one without disturbing it -- the app builds one per orchestrator
+    and nothing may mutate it in place (CLAUDE.md gotcha 14).
+
+    The labels are permuted here, which is the strongest available check: the
+    feature rows are untouched, so a segmenter that quietly ignored `survey`
+    would return the shipped answer and pass.
+    """
+    import numpy as np
+
+    shipped = TravelerSegmenter()
+    survey = shipped.df.copy()
+    survey["archetype"] = np.random.default_rng(0).permutation(survey["archetype"].values)
+    permuted = TravelerSegmenter(survey=survey)
+
+    culture = {"budget": 0.6, "culture": 0.95, "nature": 0.3,
+               "nightlife": 0.2, "relax": 0.3, "adventure": 0.2}
+    assert shipped.classify(culture)["archetype"] == "Culture Enthusiast"
+    assert permuted.classify(culture)["archetype"] != "Culture Enthusiast", \
+        "a segmenter fitted on shuffled labels cannot still name the right archetype"
+    # The shipped one is untouched by the second fit.
+    assert shipped.classify(culture)["archetype"] == "Culture Enthusiast"

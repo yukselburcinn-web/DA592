@@ -368,3 +368,32 @@ def test_fusion_beats_hybrid_on_archetype_grounding():
     # test measures is archetype grounding, and that lives in the first half.
     assert any("nightlife" in t.lower() for t in fusion_categories), \
         f"Nightlife Seeker retrieval for {city} surfaced no nightlife text"
+
+
+def test_the_preference_matrix_can_be_fitted_on_a_survey_that_is_not_the_shipped_one():
+    """The other half of #124's injection point, and its round trip.
+
+    Two things have to hold for `survey_sensitivity.py` to mean anything.
+    Passing the shipped survey back in has to reproduce the shipped matrix
+    exactly -- otherwise the baseline the whole measurement is differenced
+    against is not the matrix the app uses. And passing a survey whose labels
+    are shuffled has to move it, because a fit that ignored its argument would
+    satisfy the first assertion and report a sensitivity of zero for every
+    perturbation.
+    """
+    import numpy as np
+    import pandas as pd
+
+    from roamwise.optimization.scoring import (DATA_DIR, PREFERENCE_CATEGORY_WEIGHTS,
+                                               _fit_preference_matrix)
+
+    survey = pd.read_csv(DATA_DIR / "user_survey.csv")
+    assert _fit_preference_matrix(survey) == PREFERENCE_CATEGORY_WEIGHTS
+
+    shuffled = survey.copy()
+    shuffled["archetype"] = np.random.default_rng(0).permutation(shuffled["archetype"].values)
+    refitted = _fit_preference_matrix(shuffled)
+
+    top = lambda m, dim: max(m[dim], key=m[dim].get)
+    moved = [d for d in PREFERENCE_CATEGORY_WEIGHTS if top(PREFERENCE_CATEGORY_WEIGHTS, d) != top(refitted, d)]
+    assert moved, "shuffling the survey's labels left every category ranking intact"

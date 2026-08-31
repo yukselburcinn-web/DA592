@@ -65,7 +65,7 @@ from roamwise.knowledge_graph.build_graph import (
 PREFERENCE_DIMS = ["budget", "culture", "nature", "nightlife", "relax", "adventure"]
 
 
-def _fit_preference_matrix() -> dict[str, dict[str, float]]:
+def _fit_preference_matrix(survey: pd.DataFrame = None) -> dict[str, dict[str, float]]:
     """Preference dimension -> category weight, fitted rather than invented.
 
     The repo already holds both halves of this mapping, just never joined:
@@ -115,7 +115,11 @@ def _fit_preference_matrix() -> dict[str, dict[str, float]]:
     """
     from scipy.optimize import nnls
 
-    survey = pd.read_csv(DATA_DIR / "user_survey.csv")
+    # `survey` is injected by `evaluation/survey_sensitivity.py` only (#124),
+    # which refits this matrix on resampled and perturbed surveys to measure
+    # how much of it is a property of that file. The app never passes it.
+    if survey is None:
+        survey = pd.read_csv(DATA_DIR / "user_survey.csv")
     in_catalogue = set(pd.read_csv(DATA_DIR / "poi.csv", usecols=["category"])
                        ["category"].unique())
     archetypes = sorted(CATEGORY_AFFINITY)
