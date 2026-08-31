@@ -82,6 +82,7 @@ CONFIGS = ["fusion", "hybrid", "standard"]
 RESULTS_CSV = HERE / "comparative_analysis_results.csv"
 SUMMARY_CSV = HERE / "comparative_analysis_summary.csv"
 SIGNIFICANCE_CSV = HERE / "comparative_analysis_significance.csv"
+GOLD_COVERAGE_CSV = HERE / "gold_coverage.csv"
 
 class TestQuery(NamedTuple):
     """One evaluation query and the specification of what counts as a correct answer.
@@ -440,11 +441,38 @@ def build_grid_queries(idx: GraphIndex = None) -> list[TestQuery]:
             phrase = _GRID_PHRASE[category]
             text = (f"{phrase} within easy reach of a transport hub" if near_transport
                     else f"the best {phrase} to visit in this city")
-            query = TestQuery(city, archetype, (category,), near_transport, text, tier="grid")
-            if gold_for(idx, query):  # a cell with no answer cannot be scored
-                queries.append(query)
+            # No gold filter here any more: it used to live on this line and
+            # covered the grid tier only, so a hand-written query with a
+            # one-POI key sailed past it (#175). `_scorable` applies MIN_GOLD
+            # to all three tiers where the set is assembled.
+            queries.append(
+                TestQuery(city, archetype, (category,), near_transport, text, tier="grid"))
     return queries
 
+
+# How many gold POIs a cell needs before `recall@k` measures anything (#175).
+#
+# The check this replaces was `if gold_for(...)`, i.e. a threshold of zero, and
+# a cell whose key held one POI passed it. Against a one-element key recall@8
+# takes exactly two values, 0.0 and 1.0, so such a query does not measure
+# retrieval quality -- it flips a coin and the table reads the result as a
+# retrieval failure. Three queries were in that state, all BER/food, two of
+# them scoring 0.00.
+#
+# 5, and the number is not fitted: over the committed per-query results the
+# thresholds 4, 5, 6 and 7 drop exactly the same three queries and produce
+# identical aggregates, because the next-smallest key in the set holds 7. The
+# measurement cannot distinguish them, so the choice has to come from what the
+# metric needs, and what it needs is resolution: at g gold POIs recall takes
+# g + 1 values, so 5 buys six levels and a single hit moves a query by at most
+# 0.2. It is deliberately *not* tied to k. At MIN_GOLD = k = 8 six queries go,
+# including three legitimate shopping cells with keys of 7, and fusion's
+# normalized recall falls from 0.536 to 0.523 -- a threshold that removes real
+# observations to chase a rounder rule.
+#
+# The sweep is in the PR for #175; it costs nothing to redo, because it is a
+# filter over `comparative_analysis_results.csv` rather than a re-run.
+MIN_GOLD = 5
 
 # The answer key's membership test, built by `pipeline/retrieval_gold.py` from
 # Wikivoyage listings and committed so the evaluation runs offline.
@@ -551,7 +579,80 @@ def _live_handwritten() -> list[TestQuery]:
     return kept
 
 
-TEST_QUERIES = _live_handwritten() + build_grid_queries() + build_chain_queries()
+def gold_coverage(idx: GraphIndex = None) -> pd.DataFrame:
+    """How much of each (city, category) cell the answer key actually covers.
+
+    `gold / in_catalogue` per cell, because the aggregate hides the shape: the
+    key covers 63% of the catalogue overall and the cell median is 56%, and
+    underneath that BER/food sits at 21%. Nobody knew that until #175 was
+    filed -- the number existed nowhere, so the three queries it produced read
+    as retrieval failures in the results table rather than as a hole in the
+    key.
+
+    The gap is not the gate's fault and not fixable here. Berlin's Wikivoyage
+    page lists 29 places to eat; the catalogue holds 14 food POIs for Berlin
+    against Paris's 47, so the match ceiling is 14 before the gate sees
+    anything. Widening the catalogue means re-running `build_catalogue.py`,
+    which reranks on a rolling pageview window and invalidates REPORT 3.1 and
+    every committed evaluation CSV for unrelated reasons (CLAUDE.md gotcha 3).
+    That is a separate and more expensive decision; this function only makes
+    the hole visible.
+    """
+    idx = idx or GraphIndex()
+    rows = []
+    for city in _grid_cities():
+        for category in sorted({c for a in CATEGORY_AFFINITY.values() for c in a}):
+            pois = idx.city_pois(city, category=category)
+            if not pois:
+                continue          # a category the catalogue does not hold here
+            gold = [p for p in pois if p["poi_id"] in RECOMMENDED_POIS]
+            rows.append({"destination_id": city, "category": category,
+                         "in_catalogue": len(pois), "gold": len(gold),
+                         "coverage_pct": round(100 * len(gold) / len(pois), 1)})
+    frame = pd.DataFrame(rows)
+    # Flagged against the median rather than an absolute bar: what counts as
+    # thin depends on how well the gate covers this catalogue overall, and that
+    # moves when either changes.
+    frame["below_half_median"] = frame.coverage_pct < frame.coverage_pct.median() / 2
+    return frame.sort_values("coverage_pct").reset_index(drop=True)
+
+
+def _scorable(queries: list[TestQuery], idx: GraphIndex = None) -> tuple:
+    """Split a query list into the ones `recall@k` can grade and the ones it
+    cannot, by `MIN_GOLD` (#175).
+
+    Returns (kept, rejected) where `rejected` carries each dropped query with
+    the size of its key. Both halves are returned rather than one filtered
+    list because a query that vanishes silently is as bad as a query that
+    silently scores 0.00: the first hides a hole in the answer key, the second
+    reports it as a retrieval failure. `UNDERCOVERED_QUERIES` publishes the
+    rejects, `gold_coverage()` says which cells they came from, and a test
+    asserts the kept half really is above the threshold.
+    """
+    idx = idx or GraphIndex()
+    kept, rejected = [], []
+    for query in queries:
+        size = len(gold_for(idx, query))
+        (kept if size >= MIN_GOLD else rejected).append(query if size >= MIN_GOLD
+                                                        else (query, size))
+    return kept, rejected
+
+
+TEST_QUERIES, UNDERCOVERED_QUERIES = _scorable(
+    _live_handwritten() + build_grid_queries() + build_chain_queries())
+
+if UNDERCOVERED_QUERIES:
+    # Loud rather than fatal. The cells are a property of the catalogue and the
+    # Wikivoyage gate, not a mistake in this file, and failing the import would
+    # take the whole evaluation down over three queries; but the count belongs
+    # in the report and in whoever's terminal is running this (#175).
+    warnings.warn(
+        f"{len(UNDERCOVERED_QUERIES)} queries dropped: their answer key holds "
+        f"fewer than MIN_GOLD={MIN_GOLD} POIs, so recall@k cannot grade them -- "
+        + "; ".join(f"{q.destination_id}/{'|'.join(q.categories or ())} "
+                    f"({q.tier}, gold={n})" for q, n in UNDERCOVERED_QUERIES)
+        + ". See gold_coverage() for the cells behind them.",
+        stacklevel=2)
 
 
 def recall_at_k(retrieved_ids: list, gold: set) -> float:
@@ -794,6 +895,13 @@ if __name__ == "__main__":
     summary = summarize(df)
     summary.to_csv(SUMMARY_CSV)
     print(summary.to_string())
+
+    coverage = gold_coverage()
+    coverage.to_csv(GOLD_COVERAGE_CSV, index=False)
+    thin = coverage[coverage.below_half_median]
+    print(f"\nAnswer-key coverage per cell (median {coverage.coverage_pct.median():.0f}%); "
+          f"{len(thin)} cell(s) under half of it:")
+    print(coverage.head(6).to_string(index=False))
 
     significance = paired_significance(df)
     significance.to_csv(SIGNIFICANCE_CSV, index=False)

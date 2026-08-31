@@ -648,3 +648,71 @@ def test_the_committed_sensitivity_table_covers_the_perturbations_the_module_def
     assert committed == defined, (
         f"survey_sensitivity.csv olculdugu varyant seti {sorted(committed - defined)} "
         f"fazla / {sorted(defined - committed)} eksik -- olcumu yeniden kostur")
+
+
+# --- issue #175: a cell whose answer key holds one POI is not a measurement ---
+
+def test_no_query_is_graded_against_a_key_too_small_to_grade_it():
+    """The guard `MIN_GOLD` exists to be. Goes red when the catalogue or the
+    Wikivoyage gate moves a cell under the threshold, which is the event that
+    put three BER/food queries into the table scoring 0.00 with nothing
+    anywhere saying why -- the same class of silent staleness as #145's graph
+    export and #132's query-set fingerprint.
+
+    Asserted on the assembled set rather than on the builders: the filter used
+    to sit inside `build_grid_queries` and covered one tier of three, so a
+    hand-written query with a one-POI key walked past it.
+    """
+    from roamwise.evaluation.comparative_analysis import MIN_GOLD, TEST_QUERIES, gold_for
+
+    idx = GraphIndex()
+    thin = [(q.destination_id, q.categories, q.tier, len(gold_for(idx, q)))
+            for q in TEST_QUERIES if len(gold_for(idx, q)) < MIN_GOLD]
+    assert not thin, (
+        f"queries kept with a key smaller than MIN_GOLD={MIN_GOLD}: {thin} -- "
+        f"recall@k cannot grade them")
+
+
+def test_the_queries_the_threshold_drops_are_published_rather_than_vanishing():
+    """A query that disappears silently hides a hole in the answer key; a query
+    that silently scores 0.00 reports that hole as a retrieval failure. #175 is
+    about the second, and this is the assertion that fixing it did not create
+    the first.
+
+    Each reject carries the size of the key it was rejected for, so the reader
+    can tell a cell that holds three from a cell that holds none.
+    """
+    from roamwise.evaluation.comparative_analysis import (
+        MIN_GOLD, UNDERCOVERED_QUERIES, gold_coverage)
+
+    for query, size in UNDERCOVERED_QUERIES:
+        assert size < MIN_GOLD
+        assert query.destination_id and query.tier
+
+    # Whatever was dropped has to be explainable from the coverage table -- the
+    # cell it came from must be one the key covers thinly. Without this the two
+    # halves of #175 could drift into disagreeing about which cells are thin.
+    if UNDERCOVERED_QUERIES:
+        coverage = gold_coverage().set_index(["destination_id", "category"])
+        for query, _ in UNDERCOVERED_QUERIES:
+            for category in query.categories or ():
+                cell = coverage.loc[(query.destination_id, category)]
+                assert cell.coverage_pct < coverage.coverage_pct.median(), (
+                    f"{query.destination_id}/{category} produced an ungradeable query "
+                    f"but reads as well covered ({cell.coverage_pct}%)")
+
+
+def test_the_committed_comparison_was_measured_on_the_queries_the_code_keeps():
+    """`comparative_analysis_results.csv` is the table REPORT 3.4 quotes, and
+    #175 changed which queries reach it. A committed CSV holding a query the
+    threshold now rejects is reporting a number the code no longer produces --
+    and unlike the hallucination measurement this one CI *could* re-derive, so
+    the guard is cheap to satisfy: re-run the module."""
+    from roamwise.evaluation.comparative_analysis import RESULTS_CSV, TEST_QUERIES
+
+    committed = pd.read_csv(RESULTS_CSV)
+    assert committed.query_id.nunique() == len(TEST_QUERIES), (
+        f"comparative_analysis_results.csv {committed.query_id.nunique()} sorgu tutuyor, "
+        f"kod bugun {len(TEST_QUERIES)} sorgu uretiyor -- "
+        f"`python -m roamwise.evaluation.comparative_analysis` ile yeniden kostur")
+    assert committed.gold_size.min() >= 5
