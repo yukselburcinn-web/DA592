@@ -1,4 +1,4 @@
 config,queries,distinct_prompts,places_named,wrong_city,unshown_same_city,geographical_hallucination_rate,ungrounded_mention_rate,model,fingerprint
-fusion,67,52,451,0,10,0.0,0.0222,NVIDIA API (nvidia/nemotron-3.5-lightning-30b-a3b),d7b6368a741e
-hybrid,67,53,460,0,6,0.0,0.013,NVIDIA API (nvidia/nemotron-3.5-lightning-30b-a3b),d7b6368a741e
-standard,67,14,427,0,5,0.0,0.0117,NVIDIA API (nvidia/nemotron-3.5-lightning-30b-a3b),d7b6368a741e
+fusion,64,51,433,0,10,0.0,0.0231,NVIDIA API (nvidia/nemotron-3.5-lightning-30b-a3b),3c0be105adda
+hybrid,64,52,440,0,6,0.0,0.0136,NVIDIA API (nvidia/nemotron-3.5-lightning-30b-a3b),3c0be105adda
+standard,64,14,405,0,5,0.0,0.0123,NVIDIA API (nvidia/nemotron-3.5-lightning-30b-a3b),3c0be105adda
