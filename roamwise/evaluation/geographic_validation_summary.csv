@@ -1,0 +1,4 @@
+config,claims,numeric_claims,vague_claims,unresolved,faithful_to_prompt,n_vs_prompt,true_of_street_network,n_vs_street,matches_some_stated_leg,faithful_when_resolved_by_heading,vague_true_of_street_network,n_vague_graded
+fusion,223,166,57,60,0.6316,133,0.2932,133,0.9639,0.8125,0.5333,30
+hybrid,237,165,72,65,0.6617,133,0.3759,133,0.9939,0.7872,0.359,39
+standard,197,147,50,59,0.789,109,0.5229,109,1.0,0.8511,0.5517,29

@@ -374,11 +374,21 @@ def measurement_fingerprint() -> str:
     return hashlib.sha1(material.encode()).hexdigest()[:12]
 
 
-def build_prompts(top_k: int = 8) -> pd.DataFrame:
+def build_prompts(top_k: int = 8, with_itinerary: bool = False) -> pd.DataFrame:
     """One row per (query, config), carrying the prompt the narrator would see.
 
     No model is called here, so this is free and testable offline. The dedup
     the measurement depends on is computed from this frame.
+
+    `with_itinerary` adds a `stops` column holding the routed POI ids in
+    order. Off by default, and deliberately: the frame this returns is what
+    `hallucination_results.csv` is built from, so a column added here would
+    land in a committed CSV and move its guard. `geographic_validation.py`
+    (#177) is the only caller that asks for it -- it needs the coordinates
+    behind each stop to price the leg the narrative describes against the
+    street network, and re-deriving the itinerary on its own side would be a
+    second copy of this loop, free to drift from the one that built the
+    prompt.
     """
     # Imported inside the function: comparative_analysis builds its query grid
     # at import time, which is slow enough that a test touching only the
@@ -410,12 +420,18 @@ def build_prompts(top_k: int = 8) -> pd.DataFrame:
             routing = router.run(query.destination_id, candidates, n_days=1,
                                  narrate=False, use_real_routing=False)
             city = destinations.loc[query.destination_id, "city"]
-            rows.append({
+            row = {
                 "query_id": query_id, "tier": query.tier, "config": config,
                 "destination_id": query.destination_id, "archetype": query.archetype,
                 "prompt": synthesis_prompt(query.archetype, city, query.destination_id,
                                            forecast, routing["facts"]),
-            })
+            }
+            if with_itinerary:
+                row["stops"] = [poi.get("poi_id") for day in routing["itinerary"]
+                                for poi in day["route"]]
+                row["schedule"] = [slot for day in routing["itinerary"]
+                                   for slot in day["schedule"]]
+            rows.append(row)
     frame = pd.DataFrame(rows)
     frame["prompt_key"] = [hashlib.sha1(p.encode()).hexdigest() for p in frame.prompt]
     return frame
