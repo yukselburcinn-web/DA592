@@ -269,6 +269,34 @@ def save_cache(cache: dict) -> None:
     CACHE_PATH.write_text(json.dumps(cache, indent=1, sort_keys=True, ensure_ascii=False) + "\n")
 
 
+# Every cache key this process reached, generated or hit. Recorded by
+# `generate()` rather than returned by the run functions, because the pruning
+# basis has to be the *union* over every run in the process and only the
+# function doing the lookups knows all of them -- see `prune_cache` (#183).
+KEYS_USED: set[str] = set()
+
+
+def prune_cache(cache: dict, keep: set) -> tuple[dict, int]:
+    """Drop entries nothing in this process reached.
+
+    The file was purely additive until #183: `save_cache` writes the whole dict
+    back and nothing ever removed a key, so every prompt change left its
+    predecessors behind. After #173, #175 and #176 the committed file held 222
+    entries of which about half answered prompts no code builds any more --
+    inert, since no run can hit them, but half the bytes and misleading to
+    anyone reading the file.
+
+    `keep` must be the union across the measurement *and* the zero-context
+    probe. Pruning inside the measurement to its own keys would delete the
+    probe's two entries, the probe would regenerate them, and
+    `llm_hallucination_probe.csv` would be rewritten from a fresh generation --
+    moving REPORT's probe numbers for no reason. That is why this is called
+    once, at the end of `__main__`, and not from either run function.
+    """
+    kept = {key: value for key, value in cache.items() if key in keep}
+    return kept, len(cache) - len(kept)
+
+
 def require_real_model(llm=None):
     """The configured client, or a refusal. Never a silent template run."""
     llm = llm or get_default_llm_client()
@@ -282,14 +310,25 @@ def require_real_model(llm=None):
 
 
 def generate(llm, system: str, prompt: str, cache: dict) -> tuple:
-    """One generation, cached by (model, system, prompt). Returns (text, hit)."""
+    """One generation, cached by (model, system, prompt). Returns (text, hit).
+
+    The entry carries the prompt it answered (#183). The file stores the output
+    of a generation and stored nothing about its input, so a reader of the
+    committed cache could not tell which plan any narrative described, and the
+    key is a hash that cannot be read backwards. Prompts are ~1.7 KB each and
+    the pruning in `prune_cache` pays for them.
+    """
     model = getattr(llm, "model", type(llm).__name__)
     key = _cache_key(model, system, prompt)
+    KEYS_USED.add(key)
     if key in cache:
+        # Backfill for entries written before #183, so one re-run is enough to
+        # make the whole committed file self-describing.
+        cache[key].setdefault("prompt", prompt)
         return cache[key]["text"], True
     completion = llm.complete_verbose(system=system, prompt=prompt)
     cache[key] = {"text": completion.text, "model": model,
-                  "truncated": completion.truncated}
+                  "truncated": completion.truncated, "prompt": prompt}
     return completion.text, False
 
 
@@ -537,3 +576,8 @@ if __name__ == "__main__":
     probe = run_zero_context_probe()
     probe.to_csv(PROBE_CSV, index=False)
     print(probe.to_string(index=False))
+
+    # Last, and over the union of both runs above (#183).
+    cache, dropped = prune_cache(load_cache(), KEYS_USED)
+    save_cache(cache)
+    print(f"\ncache: {len(cache)} live entries, {dropped} stale dropped")
