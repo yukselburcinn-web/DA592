@@ -82,6 +82,7 @@ CONFIGS = ["fusion", "hybrid", "standard"]
 RESULTS_CSV = HERE / "comparative_analysis_results.csv"
 SUMMARY_CSV = HERE / "comparative_analysis_summary.csv"
 SIGNIFICANCE_CSV = HERE / "comparative_analysis_significance.csv"
+BREAKDOWN_CSV = HERE / "comparative_analysis_breakdown.csv"
 GOLD_COVERAGE_CSV = HERE / "gold_coverage.csv"
 
 class TestQuery(NamedTuple):
@@ -253,7 +254,22 @@ CHAIN_DATE = datetime.date(2026, 9, 24)
 # that has to be measured; the gateways are there because #126's K3 decision
 # rests on the two behaving differently, and a claim like that should be in the
 # evaluation rather than only in the issue.
-_CHAIN_HUBS_PER_CITY = 2
+#
+# 4 since #176, which raised the tier from six queries to ten. Two rules were
+# in tension and neither had to give: the 15% ceiling on this tier is a
+# *proportion* -- it exists so a headline is never carried by traversal-defined
+# keys (#48) -- while statistical power is an *absolute count*, and
+# `test_query_set_is_powered_and_balanced_by_difficulty` argues that eighteen
+# queries detect a real effect about a third of the time. Six is a third of
+# that, on the tier the graph exists for. At today's set size the ceiling
+# allows ten, so the tier grew inside the rule rather than against it; it does
+# not shrink again if the set grows.
+#
+# The anchors are still the same rule, just more of them: mainline stations by
+# `transport_id`, airports excluded. All four per city clear #175's MIN_GOLD
+# comfortably -- the thinnest key is 14 against a threshold of 5 -- so the
+# tier really is ten queries and not ten minus whatever the guard drops.
+_CHAIN_HUBS_PER_CITY = 4
 
 
 def build_chain_queries(idx: GraphIndex = None) -> list[TestQuery]:
@@ -780,6 +796,25 @@ def run_comparative_analysis(top_k: int = 8, use_real_routing: bool = False) -> 
 
 
 def summarize(df: pd.DataFrame) -> pd.DataFrame:
+    """The headline table, **weighted by query count** (#176).
+
+    Every mean here is over queries, so the 34-query grid tier carries more of
+    the number than the 24-query hand-written tier and far more than the
+    10-query chain. That is a choice, not an accident, and it was unwritten
+    until #176 asked which weighting the report quotes.
+
+    Weighting the three tiers equally instead is defensible and gives a
+    different level -- fusion 0.471 against 0.536, hybrid 0.197 against 0.260,
+    both about 12% lower, with the ordering unchanged either way. Count
+    weighting is kept because the alternative hands the chain tier, the one
+    with the fewest observations and the weakest key (#48's dependence levels),
+    the same share of the headline as a tier three times its size: it would
+    import that tier's noise into the number rather than remove the grid's
+    influence from it.
+
+    `breakdown()` reports both, per tier, so the choice is visible rather than
+    only stated.
+    """
     return (
         df.groupby("config")
         .agg(
@@ -793,6 +828,43 @@ def summarize(df: pd.DataFrame) -> pd.DataFrame:
         .reindex(CONFIGS)
         .round(3)
     )
+
+
+def breakdown(df: pd.DataFrame) -> pd.DataFrame:
+    """Per tier and per archetype, with **n on every row** (#176).
+
+    Two failure modes, one shape. The headline is count-weighted, so a reader
+    cannot tell from it whether Fusion's lead is carried by the easy tier --
+    the grid names its own category and is the largest slice. And an archetype
+    is a legitimate thing to slice by, but the thinnest of the seven holds six
+    queries; no claim in REPORT rests on one today, and the point is that
+    whoever writes the first one should see the 6 rather than discover it
+    afterwards.
+
+    `n` is queries, not rows: a query appears once per config.
+    """
+    rows = []
+    for facet in ("tier", "archetype"):
+        counts = df.drop_duplicates("query_id").groupby(facet).size()
+        grouped = df.groupby([facet, "config"]).agg(
+            normalized_recall=("normalized_recall", "mean"),
+            recall_at_k=("recall_at_k", "mean"),
+            archetype_precision=("archetype_precision", "mean"),
+        ).round(4).reset_index()
+        grouped.insert(0, "facet", facet)
+        grouped = grouped.rename(columns={facet: "value"})
+        grouped["n"] = grouped.value.map(counts)
+        rows.append(grouped)
+    return pd.concat(rows, ignore_index=True)
+
+
+def tier_equal_weighting(df: pd.DataFrame) -> pd.DataFrame:
+    """The headline recomputed with each tier counting once. See `summarize`
+    for why this is reported beside the shipped number rather than instead of
+    it."""
+    return (df.groupby(["tier", "config"]).normalized_recall.mean()
+            .groupby("config").mean().reindex(CONFIGS).round(4)
+            .rename("normalized_recall_tier_equal").reset_index())
 
 
 ALPHA = 0.05
@@ -895,6 +967,13 @@ if __name__ == "__main__":
     summary = summarize(df)
     summary.to_csv(SUMMARY_CSV)
     print(summary.to_string())
+
+    facets = breakdown(df)
+    facets.to_csv(BREAKDOWN_CSV, index=False)
+    print("\nBy tier and archetype (n = queries; the headline above is count-weighted):")
+    print(facets[facets.facet == "tier"].to_string(index=False))
+    print("\nSame headline with each tier counting once:")
+    print(tier_equal_weighting(df).to_string(index=False))
 
     coverage = gold_coverage()
     coverage.to_csv(GOLD_COVERAGE_CSV, index=False)

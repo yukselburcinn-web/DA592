@@ -1,4 +1,4 @@
 config,claims,numeric_claims,vague_claims,unresolved,faithful_to_prompt,n_vs_prompt,true_of_street_network,n_vs_street,matches_some_stated_leg,faithful_when_resolved_by_heading,vague_true_of_street_network,n_vague_graded
-fusion,223,166,57,60,0.6316,133,0.2932,133,0.9639,0.8125,0.5333,30
-hybrid,237,165,72,65,0.6617,133,0.3759,133,0.9939,0.7872,0.359,39
-standard,197,147,50,59,0.789,109,0.5229,109,1.0,0.8511,0.5517,29
+fusion,247,185,62,65,0.6242,149,0.2953,149,0.9568,0.8065,0.5152,33
+hybrid,245,169,76,68,0.6131,137,0.3212,137,0.9882,0.7419,0.35,40
+standard,212,158,54,60,0.8017,121,0.5207,121,1.0,0.8679,0.5484,31

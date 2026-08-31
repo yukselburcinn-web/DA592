@@ -809,3 +809,78 @@ def test_the_geographic_validation_spends_no_quota():
             f"{forbidden} in geographic_validation.py -- this measurement must read the "
             f"committed cache, not produce new generations")
     assert "load_cache" in source
+
+
+# --- issue #176: what the query set weights, written down ---
+
+def test_the_chain_tier_is_large_enough_to_see_something_and_still_a_minority():
+    """#176 raised this tier from six queries to ten, and both halves of that
+    have to keep holding.
+
+    The 15% ceiling is a proportion and exists so a headline is never carried
+    by traversal-defined keys (#48). Statistical power is an absolute count,
+    and the set's own power argument -- eighteen queries detect a real effect
+    about a third of the time -- makes six a third of that, on the tier the
+    graph exists for. Ten sits inside the ceiling at today's set size, so the
+    tier grew within the rule rather than against it.
+
+    Asserted together, because either alone invites the wrong repair: raising
+    the tier past the ceiling would reintroduce the circularity, and defending
+    the ceiling without a floor is how it stayed at six.
+    """
+    chain = [q for q in TEST_QUERIES if q.tier == "chain"]
+
+    assert len(chain) >= 10, "the tier the graph exists for is the least measured one"
+    assert len(chain) / len(TEST_QUERIES) < 0.15
+    assert len({q.chain_anchor for q in chain}) == len(chain), \
+        "two chain queries share an anchor, so the tier measures fewer places than it counts"
+
+
+def test_every_sliced_number_carries_the_n_it_was_computed_on():
+    """#176's thin end. The headline is count-weighted, and an archetype is a
+    legitimate thing to slice by -- but the thinnest of the seven holds six
+    queries. No claim in REPORT rests on one today; the point is that the
+    person who writes the first one should see the 6 in the table rather than
+    discover it afterwards.
+
+    `n` counts queries, not rows: a query appears once per configuration, and
+    an n that silently tripled would defeat the purpose.
+    """
+    from roamwise.evaluation.comparative_analysis import RESULTS_CSV, breakdown
+
+    df = pd.read_csv(RESULTS_CSV)
+    facets = breakdown(df)
+
+    assert set(facets.facet) == {"tier", "archetype"}
+    assert facets.n.notna().all(), "a sliced row without its n is the failure #176 is about"
+    for facet in ("tier", "archetype"):
+        rows = facets[facets.facet == facet]
+        assert rows.n.sum() / rows.config.nunique() == df.query_id.nunique(), \
+            f"the {facet} slices do not partition the query set"
+    assert facets.n.min() < 10, "if the thin end is gone this test has stopped guarding anything"
+
+
+def test_the_two_weightings_disagree_on_level_and_agree_on_order():
+    """Which weighting the report quotes was unwritten until #176, and the
+    choice is only defensible while the reader can see what the other one
+    says. Count weighting lets the 34-query grid carry more of the headline
+    than the 10-query chain; tier-equal gives the chain tier -- fewest
+    observations, weakest key -- an equal share.
+
+    The assertion is the shape of the disagreement, not its size: the two
+    differ on level, so quoting one without naming it is a real ambiguity, and
+    they agree on ordering, which is why #176 is a documentation issue rather
+    than a finding that changes a conclusion.
+    """
+    from roamwise.evaluation.comparative_analysis import (
+        RESULTS_CSV, summarize, tier_equal_weighting)
+
+    df = pd.read_csv(RESULTS_CSV)
+    headline = summarize(df).mean_normalized_recall
+    tier_equal = tier_equal_weighting(df).set_index("config").normalized_recall_tier_equal
+
+    assert tier_equal["fusion"] < headline["fusion"], \
+        "the grid tier is the easy one, so dropping its weight should lower the level"
+    assert list(headline.sort_values(ascending=False).index) == \
+        list(tier_equal.sort_values(ascending=False).index), \
+        "the two weightings order the configs differently -- #176 is no longer cosmetic"

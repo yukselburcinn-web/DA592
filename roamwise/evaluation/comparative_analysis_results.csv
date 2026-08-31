@@ -1,193 +1,205 @@
 query_id,tier,dependence,destination_id,archetype,query,category,near_transport,gold_size,top_k,chain_anchor,chain_enabled,invalid_chain_rate,config,recall_at_k,normalized_recall,archetype_precision,structural_grounding_rate,n_candidate_pois,n_stops_day1,km_per_stop_day1,retrieval_ms
-0,handwritten,subset,BER,Culture Enthusiast,landmarks within walking distance of a transport hub,landmark,True,44,8,,,,fusion,0.1590909090909091,0.875,1.0,1.0,8,6,0.59,16.09
-0,handwritten,subset,BER,Culture Enthusiast,landmarks within walking distance of a transport hub,landmark,True,44,8,,,,hybrid,0.13636363636363635,0.75,0.875,1.0,8,6,0.81,7.13
+0,handwritten,subset,BER,Culture Enthusiast,landmarks within walking distance of a transport hub,landmark,True,44,8,,,,fusion,0.1590909090909091,0.875,1.0,1.0,8,6,0.59,24.48
+0,handwritten,subset,BER,Culture Enthusiast,landmarks within walking distance of a transport hub,landmark,True,44,8,,,,hybrid,0.13636363636363635,0.75,0.875,1.0,8,6,0.81,7.22
 0,handwritten,subset,BER,Culture Enthusiast,landmarks within walking distance of a transport hub,landmark,True,44,8,,,,standard,0.0,0.0,0.75,0.0,8,7,0.58,0.0
-1,handwritten,subset,PAR,Culture Enthusiast,museums close to a train station or airport,museum,True,37,8,,,,fusion,0.16216216216216217,0.75,1.0,1.0,8,5,1.1,13.02
-1,handwritten,subset,PAR,Culture Enthusiast,museums close to a train station or airport,museum,True,37,8,,,,hybrid,0.05405405405405406,0.25,0.625,1.0,8,5,0.69,7.33
+1,handwritten,subset,PAR,Culture Enthusiast,museums close to a train station or airport,museum,True,37,8,,,,fusion,0.16216216216216217,0.75,1.0,1.0,8,5,1.1,79.72
+1,handwritten,subset,PAR,Culture Enthusiast,museums close to a train station or airport,museum,True,37,8,,,,hybrid,0.05405405405405406,0.25,0.625,1.0,8,5,0.69,8.61
 1,handwritten,subset,PAR,Culture Enthusiast,museums close to a train station or airport,museum,True,37,8,,,,standard,0.0,0.0,0.75,0.0,8,5,0.96,0.0
-2,handwritten,subset,BER,Culture Enthusiast,museums near a transport hub for history lovers,museum,True,35,8,,,,fusion,0.08571428571428572,0.375,1.0,1.0,8,6,0.54,11.0
-2,handwritten,subset,BER,Culture Enthusiast,museums near a transport hub for history lovers,museum,True,35,8,,,,hybrid,0.05714285714285714,0.25,1.0,1.0,8,6,0.76,9.63
+2,handwritten,subset,BER,Culture Enthusiast,museums near a transport hub for history lovers,museum,True,35,8,,,,fusion,0.08571428571428572,0.375,1.0,1.0,8,6,0.54,13.57
+2,handwritten,subset,BER,Culture Enthusiast,museums near a transport hub for history lovers,museum,True,35,8,,,,hybrid,0.05714285714285714,0.25,1.0,1.0,8,6,0.76,10.1
 2,handwritten,subset,BER,Culture Enthusiast,museums near a transport hub for history lovers,museum,True,35,8,,,,standard,0.0,0.0,0.75,0.0,8,7,0.58,0.0
-3,handwritten,superset,PAR,Nightlife Seeker,nightlife spots this traveler would enjoy,nightlife,False,15,8,,,,fusion,0.4,0.75,1.0,1.0,8,5,1.1,85.88
-3,handwritten,superset,PAR,Nightlife Seeker,nightlife spots this traveler would enjoy,nightlife,False,15,8,,,,hybrid,0.26666666666666666,0.5,1.0,1.0,8,5,1.1,10.2
+3,handwritten,superset,PAR,Nightlife Seeker,nightlife spots this traveler would enjoy,nightlife,False,15,8,,,,fusion,0.4,0.75,1.0,1.0,8,5,1.1,21.59
+3,handwritten,superset,PAR,Nightlife Seeker,nightlife spots this traveler would enjoy,nightlife,False,15,8,,,,hybrid,0.26666666666666666,0.5,1.0,1.0,8,5,1.1,9.72
 3,handwritten,superset,PAR,Nightlife Seeker,nightlife spots this traveler would enjoy,nightlife,False,15,8,,,,standard,0.0,0.0,0.125,0.0,8,5,0.96,0.0
-4,handwritten,subset,BER,Nature & Adventure,parks and nature spots near transport,nature,True,9,8,,,,fusion,0.3333333333333333,0.375,1.0,1.0,8,6,0.65,25.23
-4,handwritten,subset,BER,Nature & Adventure,parks and nature spots near transport,nature,True,9,8,,,,hybrid,0.1111111111111111,0.125,0.75,1.0,8,6,1.25,9.75
+4,handwritten,subset,BER,Nature & Adventure,parks and nature spots near transport,nature,True,9,8,,,,fusion,0.3333333333333333,0.375,1.0,1.0,8,6,0.65,24.58
+4,handwritten,subset,BER,Nature & Adventure,parks and nature spots near transport,nature,True,9,8,,,,hybrid,0.1111111111111111,0.125,0.75,1.0,8,6,1.25,10.78
 4,handwritten,subset,BER,Nature & Adventure,parks and nature spots near transport,nature,True,9,8,,,,standard,0.0,0.0,0.375,0.0,8,7,0.58,0.0
-5,handwritten,subset,PAR,Budget Backpacker,cheap nightlife near the train station,nightlife,True,11,8,,,,fusion,0.09090909090909091,0.125,1.0,1.0,8,5,1.1,16.25
-5,handwritten,subset,PAR,Budget Backpacker,cheap nightlife near the train station,nightlife,True,11,8,,,,hybrid,0.09090909090909091,0.125,0.875,1.0,8,5,1.1,9.91
+5,handwritten,subset,PAR,Budget Backpacker,cheap nightlife near the train station,nightlife,True,11,8,,,,fusion,0.09090909090909091,0.125,1.0,1.0,8,5,1.1,16.44
+5,handwritten,subset,PAR,Budget Backpacker,cheap nightlife near the train station,nightlife,True,11,8,,,,hybrid,0.09090909090909091,0.125,0.875,1.0,8,5,1.1,10.82
 5,handwritten,subset,PAR,Budget Backpacker,cheap nightlife near the train station,nightlife,True,11,8,,,,standard,0.0,0.0,0.25,0.0,8,5,0.96,0.0
-6,handwritten,subset,BER,Luxury Traveler,upscale shopping close to transport hubs,shopping,True,7,8,,,,fusion,0.8571428571428571,0.8571,1.0,1.0,8,6,0.7,13.35
-6,handwritten,subset,BER,Luxury Traveler,upscale shopping close to transport hubs,shopping,True,7,8,,,,hybrid,0.7142857142857143,0.7143,1.0,1.0,8,6,1.26,9.77
+6,handwritten,subset,BER,Luxury Traveler,upscale shopping close to transport hubs,shopping,True,7,8,,,,fusion,0.8571428571428571,0.8571,1.0,1.0,8,6,0.7,13.1
+6,handwritten,subset,BER,Luxury Traveler,upscale shopping close to transport hubs,shopping,True,7,8,,,,hybrid,0.7142857142857143,0.7143,1.0,1.0,8,6,1.26,10.19
 6,handwritten,subset,BER,Luxury Traveler,upscale shopping close to transport hubs,shopping,True,7,8,,,,standard,0.0,0.0,0.375,0.0,8,7,0.58,0.0
-7,handwritten,subset,PAR,Beach & Relax,relaxing green spaces and waterside walks reachable from the airport,nature,True,17,8,,,,fusion,0.35294117647058826,0.75,0.875,1.0,8,5,1.1,24.31
-7,handwritten,subset,PAR,Beach & Relax,relaxing green spaces and waterside walks reachable from the airport,nature,True,17,8,,,,hybrid,0.17647058823529413,0.375,0.5,1.0,8,5,1.1,12.62
+7,handwritten,subset,PAR,Beach & Relax,relaxing green spaces and waterside walks reachable from the airport,nature,True,17,8,,,,fusion,0.35294117647058826,0.75,0.875,1.0,8,5,1.1,24.68
+7,handwritten,subset,PAR,Beach & Relax,relaxing green spaces and waterside walks reachable from the airport,nature,True,17,8,,,,hybrid,0.17647058823529413,0.375,0.5,1.0,8,5,1.1,12.32
 7,handwritten,subset,PAR,Beach & Relax,relaxing green spaces and waterside walks reachable from the airport,nature,True,17,8,,,,standard,0.0,0.0,0.125,0.0,8,5,0.96,0.0
-8,handwritten,independent,PAR,Culture Enthusiast,suitable places for the first day after a morning arrival,museum+landmark+history+culture,True,85,8,,,,fusion,0.03529411764705882,0.375,1.0,1.0,7,5,0.69,22.33
-8,handwritten,independent,PAR,Culture Enthusiast,suitable places for the first day after a morning arrival,museum+landmark+history+culture,True,85,8,,,,hybrid,0.011764705882352941,0.125,0.286,1.0,7,5,1.1,11.32
+8,handwritten,independent,PAR,Culture Enthusiast,suitable places for the first day after a morning arrival,museum+landmark+history+culture,True,85,8,,,,fusion,0.03529411764705882,0.375,1.0,1.0,7,5,0.69,28.4
+8,handwritten,independent,PAR,Culture Enthusiast,suitable places for the first day after a morning arrival,museum+landmark+history+culture,True,85,8,,,,hybrid,0.011764705882352941,0.125,0.286,1.0,7,5,1.1,13.09
 8,handwritten,independent,PAR,Culture Enthusiast,suitable places for the first day after a morning arrival,museum+landmark+history+culture,True,85,8,,,,standard,0.0,0.0,0.75,0.0,8,5,0.96,0.0
-9,handwritten,superset,BER,Culture Enthusiast,my elderly parents want to see historical monuments but cannot handle steep hills or long walks from the subway.,history+landmark,True,58,8,,,,fusion,0.05172413793103448,0.375,1.0,1.0,8,6,0.54,16.38
-9,handwritten,superset,BER,Culture Enthusiast,my elderly parents want to see historical monuments but cannot handle steep hills or long walks from the subway.,history+landmark,True,58,8,,,,hybrid,0.017241379310344827,0.125,0.625,1.0,8,5,1.35,9.34
+9,handwritten,superset,BER,Culture Enthusiast,my elderly parents want to see historical monuments but cannot handle steep hills or long walks from the subway.,history+landmark,True,58,8,,,,fusion,0.05172413793103448,0.375,1.0,1.0,8,6,0.54,17.01
+9,handwritten,superset,BER,Culture Enthusiast,my elderly parents want to see historical monuments but cannot handle steep hills or long walks from the subway.,history+landmark,True,58,8,,,,hybrid,0.017241379310344827,0.125,0.625,1.0,8,5,1.35,9.4
 9,handwritten,superset,BER,Culture Enthusiast,my elderly parents want to see historical monuments but cannot handle steep hills or long walks from the subway.,history+landmark,True,58,8,,,,standard,0.0,0.0,0.75,0.0,8,7,0.58,0.0
-10,handwritten,superset,PAR,Nightlife Seeker,traveling on a tight budget and want to experience local nightlife that is safely accessible via late-night public transit.,nightlife,True,11,8,,,,fusion,0.45454545454545453,0.625,1.0,1.0,8,5,1.1,21.33
-10,handwritten,superset,PAR,Nightlife Seeker,traveling on a tight budget and want to experience local nightlife that is safely accessible via late-night public transit.,nightlife,True,11,8,,,,hybrid,0.18181818181818182,0.25,0.625,1.0,8,6,0.98,9.41
+10,handwritten,superset,PAR,Nightlife Seeker,traveling on a tight budget and want to experience local nightlife that is safely accessible via late-night public transit.,nightlife,True,11,8,,,,fusion,0.45454545454545453,0.625,1.0,1.0,8,5,1.1,20.45
+10,handwritten,superset,PAR,Nightlife Seeker,traveling on a tight budget and want to experience local nightlife that is safely accessible via late-night public transit.,nightlife,True,11,8,,,,hybrid,0.18181818181818182,0.25,0.625,1.0,8,6,0.98,9.3
 10,handwritten,superset,PAR,Nightlife Seeker,traveling on a tight budget and want to experience local nightlife that is safely accessible via late-night public transit.,nightlife,True,11,8,,,,standard,0.0,0.0,0.125,0.0,8,5,0.96,0.0
-11,handwritten,superset,BER,Luxury Traveler,we want to do a full day of luxury shopping and fine dining without needing to hail a taxi between locations.,shopping+food,True,8,8,,,,fusion,0.375,0.375,1.0,1.0,8,6,0.87,16.55
-11,handwritten,superset,BER,Luxury Traveler,we want to do a full day of luxury shopping and fine dining without needing to hail a taxi between locations.,shopping+food,True,8,8,,,,hybrid,0.25,0.25,0.714,1.0,7,6,1.33,9.4
+11,handwritten,superset,BER,Luxury Traveler,we want to do a full day of luxury shopping and fine dining without needing to hail a taxi between locations.,shopping+food,True,8,8,,,,fusion,0.375,0.375,1.0,1.0,8,6,0.87,21.07
+11,handwritten,superset,BER,Luxury Traveler,we want to do a full day of luxury shopping and fine dining without needing to hail a taxi between locations.,shopping+food,True,8,8,,,,hybrid,0.25,0.25,0.714,1.0,7,6,1.33,9.32
 11,handwritten,superset,BER,Luxury Traveler,we want to do a full day of luxury shopping and fine dining without needing to hail a taxi between locations.,shopping+food,True,8,8,,,,standard,0.0,0.0,0.375,0.0,8,7,0.58,0.0
-12,handwritten,independent,PAR,Nature & Adventure,are there any quiet natural escapes in the city that are directly connected to the main train lines?,nature,True,17,8,,,,fusion,0.11764705882352941,0.25,1.0,1.0,8,5,1.11,19.45
-12,handwritten,independent,PAR,Nature & Adventure,are there any quiet natural escapes in the city that are directly connected to the main train lines?,nature,True,17,8,,,,hybrid,0.058823529411764705,0.125,0.375,1.0,8,6,0.64,8.96
+12,handwritten,independent,PAR,Nature & Adventure,are there any quiet natural escapes in the city that are directly connected to the main train lines?,nature,True,17,8,,,,fusion,0.11764705882352941,0.25,1.0,1.0,8,5,1.11,22.24
+12,handwritten,independent,PAR,Nature & Adventure,are there any quiet natural escapes in the city that are directly connected to the main train lines?,nature,True,17,8,,,,hybrid,0.058823529411764705,0.125,0.375,1.0,8,6,0.64,9.29
 12,handwritten,independent,PAR,Nature & Adventure,are there any quiet natural escapes in the city that are directly connected to the main train lines?,nature,True,17,8,,,,standard,0.0,0.0,0.25,0.0,8,5,0.96,0.0
-13,handwritten,independent,BER,Culture Enthusiast,where should we head for a relaxed evening out right after spending the entire afternoon at the main art gallery?,nightlife+food,False,12,8,,,,fusion,0.0,0.0,1.0,1.0,8,5,0.63,17.55
-13,handwritten,independent,BER,Culture Enthusiast,where should we head for a relaxed evening out right after spending the entire afternoon at the main art gallery?,nightlife+food,False,12,8,,,,hybrid,0.08333333333333333,0.125,0.714,1.0,7,5,1.35,9.7
+13,handwritten,independent,BER,Culture Enthusiast,where should we head for a relaxed evening out right after spending the entire afternoon at the main art gallery?,nightlife+food,False,12,8,,,,fusion,0.0,0.0,1.0,1.0,8,5,0.63,17.97
+13,handwritten,independent,BER,Culture Enthusiast,where should we head for a relaxed evening out right after spending the entire afternoon at the main art gallery?,nightlife+food,False,12,8,,,,hybrid,0.08333333333333333,0.125,0.714,1.0,7,5,1.35,9.53
 13,handwritten,independent,BER,Culture Enthusiast,where should we head for a relaxed evening out right after spending the entire afternoon at the main art gallery?,nightlife+food,False,12,8,,,,standard,0.0,0.0,0.75,0.0,8,7,0.58,0.0
-14,handwritten,superset,PAR,Budget Backpacker,"we have a short layover in the city, what is the most iconic landmark we can realistically visit and still catch our flight?",landmark,True,22,8,,,,fusion,0.22727272727272727,0.625,0.0,1.0,8,6,0.88,21.9
-14,handwritten,superset,PAR,Budget Backpacker,"we have a short layover in the city, what is the most iconic landmark we can realistically visit and still catch our flight?",landmark,True,22,8,,,,hybrid,0.09090909090909091,0.25,0.375,1.0,8,6,0.96,9.44
+14,handwritten,superset,PAR,Budget Backpacker,"we have a short layover in the city, what is the most iconic landmark we can realistically visit and still catch our flight?",landmark,True,22,8,,,,fusion,0.22727272727272727,0.625,0.0,1.0,8,6,0.88,20.3
+14,handwritten,superset,PAR,Budget Backpacker,"we have a short layover in the city, what is the most iconic landmark we can realistically visit and still catch our flight?",landmark,True,22,8,,,,hybrid,0.09090909090909091,0.25,0.375,1.0,8,6,0.96,10.57
 14,handwritten,superset,PAR,Budget Backpacker,"we have a short layover in the city, what is the most iconic landmark we can realistically visit and still catch our flight?",landmark,True,22,8,,,,standard,0.0,0.0,0.25,0.0,8,5,0.96,0.0
-15,handwritten,independent,BER,Culture Enthusiast,which neighborhoods offer the best mix of ancient architecture and modern cafes within a compact walking area?,history+landmark+food,False,65,8,,,,fusion,0.046153846153846156,0.375,1.0,1.0,8,6,0.54,16.54
-15,handwritten,independent,BER,Culture Enthusiast,which neighborhoods offer the best mix of ancient architecture and modern cafes within a compact walking area?,history+landmark+food,False,65,8,,,,hybrid,0.015384615384615385,0.125,0.5,1.0,8,5,1.35,9.14
+15,handwritten,independent,BER,Culture Enthusiast,which neighborhoods offer the best mix of ancient architecture and modern cafes within a compact walking area?,history+landmark+food,False,65,8,,,,fusion,0.046153846153846156,0.375,1.0,1.0,8,6,0.54,17.36
+15,handwritten,independent,BER,Culture Enthusiast,which neighborhoods offer the best mix of ancient architecture and modern cafes within a compact walking area?,history+landmark+food,False,65,8,,,,hybrid,0.015384615384615385,0.125,0.5,1.0,8,5,1.35,9.42
 15,handwritten,independent,BER,Culture Enthusiast,which neighborhoods offer the best mix of ancient architecture and modern cafes within a compact walking area?,history+landmark+food,False,65,8,,,,standard,0.0,0.0,0.75,0.0,8,7,0.58,0.0
-16,handwritten,superset,PAR,Culture Enthusiast,"if we start our morning at the central square, what is a logical path to hit a museum and a local market before lunch?",museum+shopping,False,59,8,,,,fusion,0.03389830508474576,0.25,1.0,1.0,7,5,0.96,20.17
-16,handwritten,superset,PAR,Culture Enthusiast,"if we start our morning at the central square, what is a logical path to hit a museum and a local market before lunch?",museum+shopping,False,59,8,,,,hybrid,0.0,0.0,0.143,1.0,7,6,0.99,9.51
+16,handwritten,superset,PAR,Culture Enthusiast,"if we start our morning at the central square, what is a logical path to hit a museum and a local market before lunch?",museum+shopping,False,59,8,,,,fusion,0.03389830508474576,0.25,1.0,1.0,7,5,0.96,20.24
+16,handwritten,superset,PAR,Culture Enthusiast,"if we start our morning at the central square, what is a logical path to hit a museum and a local market before lunch?",museum+shopping,False,59,8,,,,hybrid,0.0,0.0,0.143,1.0,7,6,0.99,9.7
 16,handwritten,superset,PAR,Culture Enthusiast,"if we start our morning at the central square, what is a logical path to hit a museum and a local market before lunch?",museum+shopping,False,59,8,,,,standard,0.0,0.0,0.75,0.0,8,5,0.96,0.0
-17,handwritten,independent,BER,Beach & Relax,somewhere calm by the water to spend a slow afternoon,nature,False,16,8,,,,fusion,0.1875,0.375,1.0,1.0,8,6,0.7,14.54
-17,handwritten,independent,BER,Beach & Relax,somewhere calm by the water to spend a slow afternoon,nature,False,16,8,,,,hybrid,0.0,0.0,0.25,1.0,8,6,1.23,10.97
+17,handwritten,independent,BER,Beach & Relax,somewhere calm by the water to spend a slow afternoon,nature,False,16,8,,,,fusion,0.1875,0.375,1.0,1.0,8,6,0.7,15.13
+17,handwritten,independent,BER,Beach & Relax,somewhere calm by the water to spend a slow afternoon,nature,False,16,8,,,,hybrid,0.0,0.0,0.25,1.0,8,6,1.23,11.1
 17,handwritten,independent,BER,Beach & Relax,somewhere calm by the water to spend a slow afternoon,nature,False,16,8,,,,standard,0.0,0.0,0.125,0.0,8,7,0.58,0.0
-18,handwritten,independent,PAR,Culture Enthusiast,we have one rainy afternoon and want to see the city's most famous art collection,museum,False,47,8,,,,fusion,0.06382978723404255,0.375,1.0,1.0,8,5,0.96,20.71
-18,handwritten,independent,PAR,Culture Enthusiast,we have one rainy afternoon and want to see the city's most famous art collection,museum,False,47,8,,,,hybrid,0.06382978723404255,0.375,0.375,1.0,8,5,1.1,9.18
+18,handwritten,independent,PAR,Culture Enthusiast,we have one rainy afternoon and want to see the city's most famous art collection,museum,False,47,8,,,,fusion,0.06382978723404255,0.375,1.0,1.0,8,5,0.96,20.47
+18,handwritten,independent,PAR,Culture Enthusiast,we have one rainy afternoon and want to see the city's most famous art collection,museum,False,47,8,,,,hybrid,0.06382978723404255,0.375,0.375,1.0,8,5,1.1,9.42
 18,handwritten,independent,PAR,Culture Enthusiast,we have one rainy afternoon and want to see the city's most famous art collection,museum,False,47,8,,,,standard,0.0,0.0,0.75,0.0,8,5,0.96,0.0
-19,handwritten,independent,PAR,Culture Enthusiast,we would like to hear an organ recital beneath a vaulted ceiling,religion,False,33,8,,,,fusion,0.030303030303030304,0.125,1.0,1.0,8,5,0.95,19.15
-19,handwritten,independent,PAR,Culture Enthusiast,we would like to hear an organ recital beneath a vaulted ceiling,religion,False,33,8,,,,hybrid,0.0,0.0,0.125,1.0,8,6,1.24,12.56
+19,handwritten,independent,PAR,Culture Enthusiast,we would like to hear an organ recital beneath a vaulted ceiling,religion,False,33,8,,,,fusion,0.030303030303030304,0.125,1.0,1.0,8,5,0.95,19.27
+19,handwritten,independent,PAR,Culture Enthusiast,we would like to hear an organ recital beneath a vaulted ceiling,religion,False,33,8,,,,hybrid,0.0,0.0,0.125,1.0,8,6,1.24,13.02
 19,handwritten,independent,PAR,Culture Enthusiast,we would like to hear an organ recital beneath a vaulted ceiling,religion,False,33,8,,,,standard,0.0,0.0,0.75,0.0,8,5,0.96,0.0
-20,handwritten,independent,BER,Nightlife Seeker,where does this city stay awake until sunrise?,nightlife,False,9,8,,,,fusion,0.4444444444444444,0.5,1.0,1.0,8,5,0.84,20.14
-20,handwritten,independent,BER,Nightlife Seeker,where does this city stay awake until sunrise?,nightlife,False,9,8,,,,hybrid,0.0,0.0,0.857,1.0,7,6,1.39,10.3
+20,handwritten,independent,BER,Nightlife Seeker,where does this city stay awake until sunrise?,nightlife,False,9,8,,,,fusion,0.4444444444444444,0.5,1.0,1.0,8,5,0.84,20.52
+20,handwritten,independent,BER,Nightlife Seeker,where does this city stay awake until sunrise?,nightlife,False,9,8,,,,hybrid,0.0,0.0,0.857,1.0,7,6,1.39,10.93
 20,handwritten,independent,BER,Nightlife Seeker,where does this city stay awake until sunrise?,nightlife,False,9,8,,,,standard,0.0,0.0,0.125,0.0,8,7,0.58,0.0
-21,handwritten,independent,PAR,Luxury Traveler,my partner would like to bring home something from a famous Parisian department store,shopping,False,12,8,,,,fusion,0.3333333333333333,0.5,1.0,1.0,8,6,1.05,19.86
-21,handwritten,independent,PAR,Luxury Traveler,my partner would like to bring home something from a famous Parisian department store,shopping,False,12,8,,,,hybrid,0.3333333333333333,0.5,1.0,1.0,8,6,0.79,8.92
+21,handwritten,independent,PAR,Luxury Traveler,my partner would like to bring home something from a famous Parisian department store,shopping,False,12,8,,,,fusion,0.3333333333333333,0.5,1.0,1.0,8,6,1.05,20.33
+21,handwritten,independent,PAR,Luxury Traveler,my partner would like to bring home something from a famous Parisian department store,shopping,False,12,8,,,,hybrid,0.3333333333333333,0.5,1.0,1.0,8,6,0.79,8.93
 21,handwritten,independent,PAR,Luxury Traveler,my partner would like to bring home something from a famous Parisian department store,shopping,False,12,8,,,,standard,0.0,0.0,0.5,0.0,8,5,0.96,0.0
-22,handwritten,independent,BER,Family Traveler,somewhere the children can run around outdoors for an afternoon,nature,False,16,8,,,,fusion,0.125,0.25,1.0,1.0,7,5,0.63,14.77
-22,handwritten,independent,BER,Family Traveler,somewhere the children can run around outdoors for an afternoon,nature,False,16,8,,,,hybrid,0.0,0.0,0.286,1.0,7,6,1.2,11.52
+22,handwritten,independent,BER,Family Traveler,somewhere the children can run around outdoors for an afternoon,nature,False,16,8,,,,fusion,0.125,0.25,1.0,1.0,7,5,0.63,14.13
+22,handwritten,independent,BER,Family Traveler,somewhere the children can run around outdoors for an afternoon,nature,False,16,8,,,,hybrid,0.0,0.0,0.286,1.0,7,6,1.2,11.55
 22,handwritten,independent,BER,Family Traveler,somewhere the children can run around outdoors for an afternoon,nature,False,16,8,,,,standard,0.0,0.0,0.5,0.0,8,7,0.58,0.0
-23,handwritten,independent,BER,Nature & Adventure,we want to understand what daily life was like here before the wall came down,history,False,15,8,,,,fusion,0.13333333333333333,0.25,0.875,1.0,8,6,0.67,18.73
-23,handwritten,independent,BER,Nature & Adventure,we want to understand what daily life was like here before the wall came down,history,False,15,8,,,,hybrid,0.13333333333333333,0.25,0.429,1.0,7,6,1.21,9.43
+23,handwritten,independent,BER,Nature & Adventure,we want to understand what daily life was like here before the wall came down,history,False,15,8,,,,fusion,0.13333333333333333,0.25,0.875,1.0,8,6,0.67,17.15
+23,handwritten,independent,BER,Nature & Adventure,we want to understand what daily life was like here before the wall came down,history,False,15,8,,,,hybrid,0.13333333333333333,0.25,0.429,1.0,7,6,1.21,8.93
 23,handwritten,independent,BER,Nature & Adventure,we want to understand what daily life was like here before the wall came down,history,False,15,8,,,,standard,0.0,0.0,0.375,0.0,8,7,0.58,0.0
-24,grid,subset,PAR,Culture Enthusiast,museums within easy reach of a transport hub,museum,True,37,8,,,,fusion,0.16216216216216217,0.75,1.0,1.0,8,5,1.1,16.98
-24,grid,subset,PAR,Culture Enthusiast,museums within easy reach of a transport hub,museum,True,37,8,,,,hybrid,0.08108108108108109,0.375,0.875,1.0,8,5,0.83,10.42
+24,grid,subset,PAR,Culture Enthusiast,museums within easy reach of a transport hub,museum,True,37,8,,,,fusion,0.16216216216216217,0.75,1.0,1.0,8,5,1.1,17.7
+24,grid,subset,PAR,Culture Enthusiast,museums within easy reach of a transport hub,museum,True,37,8,,,,hybrid,0.08108108108108109,0.375,0.875,1.0,8,5,0.83,10.39
 24,grid,subset,PAR,Culture Enthusiast,museums within easy reach of a transport hub,museum,True,37,8,,,,standard,0.0,0.0,0.75,0.0,8,5,0.96,0.0
-25,grid,subset,PAR,Family Traveler,landmarks within easy reach of a transport hub,landmark,True,22,8,,,,fusion,0.13636363636363635,0.375,1.0,1.0,8,6,1.01,16.28
-25,grid,subset,PAR,Family Traveler,landmarks within easy reach of a transport hub,landmark,True,22,8,,,,hybrid,0.13636363636363635,0.375,0.875,1.0,8,6,0.97,10.32
+25,grid,subset,PAR,Family Traveler,landmarks within easy reach of a transport hub,landmark,True,22,8,,,,fusion,0.13636363636363635,0.375,1.0,1.0,8,6,1.01,16.78
+25,grid,subset,PAR,Family Traveler,landmarks within easy reach of a transport hub,landmark,True,22,8,,,,hybrid,0.13636363636363635,0.375,0.875,1.0,8,6,0.97,9.82
 25,grid,subset,PAR,Family Traveler,landmarks within easy reach of a transport hub,landmark,True,22,8,,,,standard,0.0,0.0,0.625,0.0,8,5,0.96,0.0
-26,grid,superset,PAR,Culture Enthusiast,the best history sites to visit in this city,history,False,13,8,,,,fusion,0.46153846153846156,0.75,1.0,1.0,8,6,0.6,17.54
-26,grid,superset,PAR,Culture Enthusiast,the best history sites to visit in this city,history,False,13,8,,,,hybrid,0.07692307692307693,0.125,0.75,1.0,8,6,0.62,10.83
+26,grid,superset,PAR,Culture Enthusiast,the best history sites to visit in this city,history,False,13,8,,,,fusion,0.46153846153846156,0.75,1.0,1.0,8,6,0.6,16.7
+26,grid,superset,PAR,Culture Enthusiast,the best history sites to visit in this city,history,False,13,8,,,,hybrid,0.07692307692307693,0.125,0.75,1.0,8,6,0.62,10.6
 26,grid,superset,PAR,Culture Enthusiast,the best history sites to visit in this city,history,False,13,8,,,,standard,0.0,0.0,0.75,0.0,8,5,0.96,0.0
-27,grid,superset,PAR,Nature & Adventure,the best nature spots to visit in this city,nature,False,21,8,,,,fusion,0.14285714285714285,0.375,1.0,1.0,8,5,1.11,16.93
-27,grid,superset,PAR,Nature & Adventure,the best nature spots to visit in this city,nature,False,21,8,,,,hybrid,0.09523809523809523,0.25,0.625,1.0,8,6,0.92,10.51
+27,grid,superset,PAR,Nature & Adventure,the best nature spots to visit in this city,nature,False,21,8,,,,fusion,0.14285714285714285,0.375,1.0,1.0,8,5,1.11,17.32
+27,grid,superset,PAR,Nature & Adventure,the best nature spots to visit in this city,nature,False,21,8,,,,hybrid,0.09523809523809523,0.25,0.625,1.0,8,6,0.92,10.76
 27,grid,superset,PAR,Nature & Adventure,the best nature spots to visit in this city,nature,False,21,8,,,,standard,0.0,0.0,0.25,0.0,8,5,0.96,0.0
-28,grid,superset,PAR,Budget Backpacker,the best nightlife venues to visit in this city,nightlife,False,15,8,,,,fusion,0.4,0.75,1.0,1.0,8,5,1.1,17.32
-28,grid,superset,PAR,Budget Backpacker,the best nightlife venues to visit in this city,nightlife,False,15,8,,,,hybrid,0.06666666666666667,0.125,0.875,1.0,8,6,0.97,11.18
+28,grid,superset,PAR,Budget Backpacker,the best nightlife venues to visit in this city,nightlife,False,15,8,,,,fusion,0.4,0.75,1.0,1.0,8,5,1.1,17.85
+28,grid,superset,PAR,Budget Backpacker,the best nightlife venues to visit in this city,nightlife,False,15,8,,,,hybrid,0.06666666666666667,0.125,0.875,1.0,8,6,0.97,11.02
 28,grid,superset,PAR,Budget Backpacker,the best nightlife venues to visit in this city,nightlife,False,15,8,,,,standard,0.0,0.0,0.25,0.0,8,5,0.96,0.0
-29,grid,subset,PAR,Luxury Traveler,shopping within easy reach of a transport hub,shopping,True,7,8,,,,fusion,0.5714285714285714,0.5714,1.0,1.0,8,6,0.64,16.52
-29,grid,subset,PAR,Luxury Traveler,shopping within easy reach of a transport hub,shopping,True,7,8,,,,hybrid,0.5714285714285714,0.5714,1.0,1.0,8,6,0.82,10.18
+29,grid,subset,PAR,Luxury Traveler,shopping within easy reach of a transport hub,shopping,True,7,8,,,,fusion,0.5714285714285714,0.5714,1.0,1.0,8,6,0.64,16.4
+29,grid,subset,PAR,Luxury Traveler,shopping within easy reach of a transport hub,shopping,True,7,8,,,,hybrid,0.5714285714285714,0.5714,1.0,1.0,8,6,0.82,10.42
 29,grid,subset,PAR,Luxury Traveler,shopping within easy reach of a transport hub,shopping,True,7,8,,,,standard,0.0,0.0,0.5,0.0,8,5,0.96,0.0
-30,grid,subset,PAR,Budget Backpacker,food markets and restaurants within easy reach of a transport hub,food,True,24,8,,,,fusion,0.041666666666666664,0.125,1.0,1.0,8,6,0.73,23.9
-30,grid,subset,PAR,Budget Backpacker,food markets and restaurants within easy reach of a transport hub,food,True,24,8,,,,hybrid,0.041666666666666664,0.125,1.0,1.0,8,5,1.1,12.19
+30,grid,subset,PAR,Budget Backpacker,food markets and restaurants within easy reach of a transport hub,food,True,24,8,,,,fusion,0.041666666666666664,0.125,1.0,1.0,8,6,0.73,23.96
+30,grid,subset,PAR,Budget Backpacker,food markets and restaurants within easy reach of a transport hub,food,True,24,8,,,,hybrid,0.041666666666666664,0.125,1.0,1.0,8,5,1.1,12.7
 30,grid,subset,PAR,Budget Backpacker,food markets and restaurants within easy reach of a transport hub,food,True,24,8,,,,standard,0.0,0.0,0.25,0.0,8,5,0.96,0.0
-31,grid,superset,PAR,Budget Backpacker,the best culture venues to visit in this city,culture,False,22,8,,,,fusion,0.22727272727272727,0.625,1.0,1.0,8,5,1.1,17.09
-31,grid,superset,PAR,Budget Backpacker,the best culture venues to visit in this city,culture,False,22,8,,,,hybrid,0.0,0.0,0.75,1.0,8,6,0.97,10.68
+31,grid,superset,PAR,Budget Backpacker,the best culture venues to visit in this city,culture,False,22,8,,,,fusion,0.22727272727272727,0.625,1.0,1.0,8,5,1.1,17.04
+31,grid,superset,PAR,Budget Backpacker,the best culture venues to visit in this city,culture,False,22,8,,,,hybrid,0.0,0.0,0.75,1.0,8,6,0.97,11.16
 31,grid,superset,PAR,Budget Backpacker,the best culture venues to visit in this city,culture,False,22,8,,,,standard,0.0,0.0,0.25,0.0,8,5,0.96,0.0
-32,grid,superset,PAR,Culture Enthusiast,the best places of worship to visit in this city,religion,False,33,8,,,,fusion,0.24242424242424243,1.0,1.0,1.0,8,7,0.5,17.89
-32,grid,superset,PAR,Culture Enthusiast,the best places of worship to visit in this city,religion,False,33,8,,,,hybrid,0.06060606060606061,0.25,0.75,1.0,8,7,0.52,11.53
+32,grid,superset,PAR,Culture Enthusiast,the best places of worship to visit in this city,religion,False,33,8,,,,fusion,0.24242424242424243,1.0,1.0,1.0,8,7,0.5,18.07
+32,grid,superset,PAR,Culture Enthusiast,the best places of worship to visit in this city,religion,False,33,8,,,,hybrid,0.06060606060606061,0.25,0.75,1.0,8,7,0.52,11.7
 32,grid,superset,PAR,Culture Enthusiast,the best places of worship to visit in this city,religion,False,33,8,,,,standard,0.0,0.0,0.75,0.0,8,5,0.96,0.0
-33,grid,superset,PAR,Culture Enthusiast,the best museums to visit in this city,museum,False,47,8,,,,fusion,0.14893617021276595,0.875,1.0,1.0,8,5,0.69,16.5
-33,grid,superset,PAR,Culture Enthusiast,the best museums to visit in this city,museum,False,47,8,,,,hybrid,0.10638297872340426,0.625,0.75,1.0,8,6,0.92,10.57
+33,grid,superset,PAR,Culture Enthusiast,the best museums to visit in this city,museum,False,47,8,,,,fusion,0.14893617021276595,0.875,1.0,1.0,8,5,0.69,74.57
+33,grid,superset,PAR,Culture Enthusiast,the best museums to visit in this city,museum,False,47,8,,,,hybrid,0.10638297872340426,0.625,0.75,1.0,8,6,0.92,10.33
 33,grid,superset,PAR,Culture Enthusiast,the best museums to visit in this city,museum,False,47,8,,,,standard,0.0,0.0,0.75,0.0,8,5,0.96,0.0
-34,grid,superset,PAR,Family Traveler,the best landmarks to visit in this city,landmark,False,32,8,,,,fusion,0.21875,0.875,1.0,1.0,8,6,0.88,72.57
-34,grid,superset,PAR,Family Traveler,the best landmarks to visit in this city,landmark,False,32,8,,,,hybrid,0.0625,0.25,0.875,1.0,8,6,0.52,10.55
+34,grid,superset,PAR,Family Traveler,the best landmarks to visit in this city,landmark,False,32,8,,,,fusion,0.21875,0.875,1.0,1.0,8,6,0.88,16.82
+34,grid,superset,PAR,Family Traveler,the best landmarks to visit in this city,landmark,False,32,8,,,,hybrid,0.0625,0.25,0.875,1.0,8,6,0.52,10.63
 34,grid,superset,PAR,Family Traveler,the best landmarks to visit in this city,landmark,False,32,8,,,,standard,0.0,0.0,0.625,0.0,8,5,0.96,0.0
-35,grid,subset,PAR,Nature & Adventure,history sites within easy reach of a transport hub,history,True,9,8,,,,fusion,0.2222222222222222,0.25,1.0,1.0,8,7,0.72,17.0
-35,grid,subset,PAR,Nature & Adventure,history sites within easy reach of a transport hub,history,True,9,8,,,,hybrid,0.0,0.0,0.0,1.0,8,6,0.95,10.79
+35,grid,subset,PAR,Nature & Adventure,history sites within easy reach of a transport hub,history,True,9,8,,,,fusion,0.2222222222222222,0.25,1.0,1.0,8,7,0.72,17.14
+35,grid,subset,PAR,Nature & Adventure,history sites within easy reach of a transport hub,history,True,9,8,,,,hybrid,0.0,0.0,0.0,1.0,8,6,0.95,12.11
 35,grid,subset,PAR,Nature & Adventure,history sites within easy reach of a transport hub,history,True,9,8,,,,standard,0.0,0.0,0.25,0.0,8,5,0.96,0.0
-36,grid,subset,PAR,Beach & Relax,nature spots within easy reach of a transport hub,nature,True,17,8,,,,fusion,0.35294117647058826,0.75,1.0,1.0,8,5,1.1,17.06
-36,grid,subset,PAR,Beach & Relax,nature spots within easy reach of a transport hub,nature,True,17,8,,,,hybrid,0.058823529411764705,0.125,0.75,1.0,8,6,0.74,11.13
+36,grid,subset,PAR,Beach & Relax,nature spots within easy reach of a transport hub,nature,True,17,8,,,,fusion,0.35294117647058826,0.75,1.0,1.0,8,5,1.1,17.1
+36,grid,subset,PAR,Beach & Relax,nature spots within easy reach of a transport hub,nature,True,17,8,,,,hybrid,0.058823529411764705,0.125,0.75,1.0,8,6,0.74,10.77
 36,grid,subset,PAR,Beach & Relax,nature spots within easy reach of a transport hub,nature,True,17,8,,,,standard,0.0,0.0,0.125,0.0,8,5,0.96,0.0
-37,grid,subset,PAR,Nightlife Seeker,nightlife venues within easy reach of a transport hub,nightlife,True,11,8,,,,fusion,0.2727272727272727,0.375,1.0,1.0,8,5,1.1,18.07
-37,grid,subset,PAR,Nightlife Seeker,nightlife venues within easy reach of a transport hub,nightlife,True,11,8,,,,hybrid,0.2727272727272727,0.375,1.0,1.0,8,5,1.1,11.25
+37,grid,subset,PAR,Nightlife Seeker,nightlife venues within easy reach of a transport hub,nightlife,True,11,8,,,,fusion,0.2727272727272727,0.375,1.0,1.0,8,5,1.1,17.82
+37,grid,subset,PAR,Nightlife Seeker,nightlife venues within easy reach of a transport hub,nightlife,True,11,8,,,,hybrid,0.2727272727272727,0.375,1.0,1.0,8,5,1.1,11.35
 37,grid,subset,PAR,Nightlife Seeker,nightlife venues within easy reach of a transport hub,nightlife,True,11,8,,,,standard,0.0,0.0,0.125,0.0,8,5,0.96,0.0
-38,grid,superset,PAR,Budget Backpacker,the best shopping to visit in this city,shopping,False,12,8,,,,fusion,0.5,0.75,1.0,1.0,8,6,0.92,15.71
-38,grid,superset,PAR,Budget Backpacker,the best shopping to visit in this city,shopping,False,12,8,,,,hybrid,0.4166666666666667,0.625,0.875,1.0,8,6,0.92,9.73
+38,grid,superset,PAR,Budget Backpacker,the best shopping to visit in this city,shopping,False,12,8,,,,fusion,0.5,0.75,1.0,1.0,8,6,0.92,16.17
+38,grid,superset,PAR,Budget Backpacker,the best shopping to visit in this city,shopping,False,12,8,,,,hybrid,0.4166666666666667,0.625,0.875,1.0,8,6,0.92,10.21
 38,grid,superset,PAR,Budget Backpacker,the best shopping to visit in this city,shopping,False,12,8,,,,standard,0.0,0.0,0.25,0.0,8,5,0.96,0.0
-39,grid,superset,PAR,Beach & Relax,the best food markets and restaurants to visit in this city,food,False,26,8,,,,fusion,0.15384615384615385,0.5,1.0,1.0,8,6,0.92,18.33
-39,grid,superset,PAR,Beach & Relax,the best food markets and restaurants to visit in this city,food,False,26,8,,,,hybrid,0.11538461538461539,0.375,0.625,1.0,8,6,0.92,11.48
+39,grid,superset,PAR,Beach & Relax,the best food markets and restaurants to visit in this city,food,False,26,8,,,,fusion,0.15384615384615385,0.5,1.0,1.0,8,6,0.92,18.28
+39,grid,superset,PAR,Beach & Relax,the best food markets and restaurants to visit in this city,food,False,26,8,,,,hybrid,0.11538461538461539,0.375,0.625,1.0,8,6,0.92,11.63
 39,grid,superset,PAR,Beach & Relax,the best food markets and restaurants to visit in this city,food,False,26,8,,,,standard,0.0,0.0,0.125,0.0,8,5,0.96,0.0
-40,grid,subset,PAR,Luxury Traveler,culture venues within easy reach of a transport hub,culture,True,17,8,,,,fusion,0.23529411764705882,0.5,1.0,1.0,8,5,1.1,17.48
-40,grid,subset,PAR,Luxury Traveler,culture venues within easy reach of a transport hub,culture,True,17,8,,,,hybrid,0.0,0.0,0.5,1.0,8,5,1.1,10.92
+40,grid,subset,PAR,Luxury Traveler,culture venues within easy reach of a transport hub,culture,True,17,8,,,,fusion,0.23529411764705882,0.5,1.0,1.0,8,5,1.1,17.18
+40,grid,subset,PAR,Luxury Traveler,culture venues within easy reach of a transport hub,culture,True,17,8,,,,hybrid,0.0,0.0,0.5,1.0,8,5,1.1,10.52
 40,grid,subset,PAR,Luxury Traveler,culture venues within easy reach of a transport hub,culture,True,17,8,,,,standard,0.0,0.0,0.5,0.0,8,5,0.96,0.0
-41,grid,subset,PAR,Culture Enthusiast,places of worship within easy reach of a transport hub,religion,True,27,8,,,,fusion,0.18518518518518517,0.625,1.0,1.0,8,7,0.85,17.76
-41,grid,subset,PAR,Culture Enthusiast,places of worship within easy reach of a transport hub,religion,True,27,8,,,,hybrid,0.037037037037037035,0.125,0.375,1.0,8,6,1.12,11.52
+41,grid,subset,PAR,Culture Enthusiast,places of worship within easy reach of a transport hub,religion,True,27,8,,,,fusion,0.18518518518518517,0.625,1.0,1.0,8,7,0.85,17.23
+41,grid,subset,PAR,Culture Enthusiast,places of worship within easy reach of a transport hub,religion,True,27,8,,,,hybrid,0.037037037037037035,0.125,0.375,1.0,8,6,1.12,11.47
 41,grid,subset,PAR,Culture Enthusiast,places of worship within easy reach of a transport hub,religion,True,27,8,,,,standard,0.0,0.0,0.75,0.0,8,5,0.96,0.0
-42,grid,subset,BER,Family Traveler,museums within easy reach of a transport hub,museum,True,35,8,,,,fusion,0.2,0.875,1.0,1.0,8,5,1.35,13.58
-42,grid,subset,BER,Family Traveler,museums within easy reach of a transport hub,museum,True,35,8,,,,hybrid,0.11428571428571428,0.5,1.0,1.0,8,6,1.24,10.3
+42,grid,subset,BER,Family Traveler,museums within easy reach of a transport hub,museum,True,35,8,,,,fusion,0.2,0.875,1.0,1.0,8,5,1.35,14.7
+42,grid,subset,BER,Family Traveler,museums within easy reach of a transport hub,museum,True,35,8,,,,hybrid,0.11428571428571428,0.5,1.0,1.0,8,6,1.24,10.26
 42,grid,subset,BER,Family Traveler,museums within easy reach of a transport hub,museum,True,35,8,,,,standard,0.0,0.0,0.5,0.0,8,7,0.58,0.0
-43,grid,superset,BER,Luxury Traveler,the best landmarks to visit in this city,landmark,False,47,8,,,,fusion,0.1702127659574468,1.0,1.0,1.0,8,6,1.39,13.81
-43,grid,superset,BER,Luxury Traveler,the best landmarks to visit in this city,landmark,False,47,8,,,,hybrid,0.1276595744680851,0.75,0.875,1.0,8,6,1.26,10.17
+43,grid,superset,BER,Luxury Traveler,the best landmarks to visit in this city,landmark,False,47,8,,,,fusion,0.1702127659574468,1.0,1.0,1.0,8,6,1.39,12.88
+43,grid,superset,BER,Luxury Traveler,the best landmarks to visit in this city,landmark,False,47,8,,,,hybrid,0.1276595744680851,0.75,0.875,1.0,8,6,1.26,10.47
 43,grid,superset,BER,Luxury Traveler,the best landmarks to visit in this city,landmark,False,47,8,,,,standard,0.0,0.0,0.375,0.0,8,7,0.58,0.0
-44,grid,superset,BER,Nature & Adventure,the best history sites to visit in this city,history,False,15,8,,,,fusion,0.26666666666666666,0.5,0.625,1.0,8,7,0.58,14.14
-44,grid,superset,BER,Nature & Adventure,the best history sites to visit in this city,history,False,15,8,,,,hybrid,0.0,0.0,0.125,1.0,8,5,0.84,11.11
+44,grid,superset,BER,Nature & Adventure,the best history sites to visit in this city,history,False,15,8,,,,fusion,0.26666666666666666,0.5,0.625,1.0,8,7,0.58,13.91
+44,grid,superset,BER,Nature & Adventure,the best history sites to visit in this city,history,False,15,8,,,,hybrid,0.0,0.0,0.125,1.0,8,5,0.84,11.84
 44,grid,superset,BER,Nature & Adventure,the best history sites to visit in this city,history,False,15,8,,,,standard,0.0,0.0,0.375,0.0,8,7,0.58,0.0
-45,grid,superset,BER,Beach & Relax,the best nature spots to visit in this city,nature,False,16,8,,,,fusion,0.4375,0.875,1.0,1.0,8,5,1.35,13.69
-45,grid,superset,BER,Beach & Relax,the best nature spots to visit in this city,nature,False,16,8,,,,hybrid,0.1875,0.375,0.75,1.0,8,6,0.65,10.67
+45,grid,superset,BER,Beach & Relax,the best nature spots to visit in this city,nature,False,16,8,,,,fusion,0.4375,0.875,1.0,1.0,8,5,1.35,14.35
+45,grid,superset,BER,Beach & Relax,the best nature spots to visit in this city,nature,False,16,8,,,,hybrid,0.1875,0.375,0.75,1.0,8,6,0.65,11.23
 45,grid,superset,BER,Beach & Relax,the best nature spots to visit in this city,nature,False,16,8,,,,standard,0.0,0.0,0.125,0.0,8,7,0.58,0.0
-46,grid,subset,BER,Nightlife Seeker,nightlife venues within easy reach of a transport hub,nightlife,True,8,8,,,,fusion,0.25,0.25,1.0,1.0,8,5,1.35,14.79
-46,grid,subset,BER,Nightlife Seeker,nightlife venues within easy reach of a transport hub,nightlife,True,8,8,,,,hybrid,0.25,0.25,0.75,1.0,8,6,1.26,11.29
+46,grid,subset,BER,Nightlife Seeker,nightlife venues within easy reach of a transport hub,nightlife,True,8,8,,,,fusion,0.25,0.25,1.0,1.0,8,5,1.35,14.62
+46,grid,subset,BER,Nightlife Seeker,nightlife venues within easy reach of a transport hub,nightlife,True,8,8,,,,hybrid,0.25,0.25,0.75,1.0,8,6,1.26,11.65
 46,grid,subset,BER,Nightlife Seeker,nightlife venues within easy reach of a transport hub,nightlife,True,8,8,,,,standard,0.0,0.0,0.125,0.0,8,7,0.58,0.0
-47,grid,subset,BER,Budget Backpacker,shopping within easy reach of a transport hub,shopping,True,7,8,,,,fusion,1.0,1.0,1.0,1.0,8,6,1.2,13.55
-47,grid,subset,BER,Budget Backpacker,shopping within easy reach of a transport hub,shopping,True,7,8,,,,hybrid,0.7142857142857143,0.7143,0.75,1.0,8,6,1.26,10.37
+47,grid,subset,BER,Budget Backpacker,shopping within easy reach of a transport hub,shopping,True,7,8,,,,fusion,1.0,1.0,1.0,1.0,8,6,1.2,13.89
+47,grid,subset,BER,Budget Backpacker,shopping within easy reach of a transport hub,shopping,True,7,8,,,,hybrid,0.7142857142857143,0.7143,0.75,1.0,8,6,1.26,10.38
 47,grid,subset,BER,Budget Backpacker,shopping within easy reach of a transport hub,shopping,True,7,8,,,,standard,0.0,0.0,0.25,0.0,8,7,0.58,0.0
-48,grid,superset,BER,Culture Enthusiast,the best culture venues to visit in this city,culture,False,30,8,,,,fusion,0.2,0.75,1.0,1.0,8,6,0.73,13.95
-48,grid,superset,BER,Culture Enthusiast,the best culture venues to visit in this city,culture,False,30,8,,,,hybrid,0.03333333333333333,0.125,0.429,1.0,7,5,1.35,10.86
+48,grid,superset,BER,Culture Enthusiast,the best culture venues to visit in this city,culture,False,30,8,,,,fusion,0.2,0.75,1.0,1.0,8,6,0.73,14.24
+48,grid,superset,BER,Culture Enthusiast,the best culture venues to visit in this city,culture,False,30,8,,,,hybrid,0.03333333333333333,0.125,0.429,1.0,7,5,1.35,10.74
 48,grid,superset,BER,Culture Enthusiast,the best culture venues to visit in this city,culture,False,30,8,,,,standard,0.0,0.0,0.75,0.0,8,7,0.58,0.0
-49,grid,superset,BER,Culture Enthusiast,the best places of worship to visit in this city,religion,False,18,8,,,,fusion,0.2777777777777778,0.625,1.0,1.0,8,8,0.65,14.72
-49,grid,superset,BER,Culture Enthusiast,the best places of worship to visit in this city,religion,False,18,8,,,,hybrid,0.2777777777777778,0.625,1.0,1.0,8,8,0.94,11.76
+49,grid,superset,BER,Culture Enthusiast,the best places of worship to visit in this city,religion,False,18,8,,,,fusion,0.2777777777777778,0.625,1.0,1.0,8,8,0.65,15.61
+49,grid,superset,BER,Culture Enthusiast,the best places of worship to visit in this city,religion,False,18,8,,,,hybrid,0.2777777777777778,0.625,1.0,1.0,8,8,0.94,12.62
 49,grid,superset,BER,Culture Enthusiast,the best places of worship to visit in this city,religion,False,18,8,,,,standard,0.0,0.0,0.75,0.0,8,7,0.58,0.0
-50,grid,superset,BER,Family Traveler,the best museums to visit in this city,museum,False,40,8,,,,fusion,0.175,0.875,1.0,1.0,8,5,0.63,13.81
-50,grid,superset,BER,Family Traveler,the best museums to visit in this city,museum,False,40,8,,,,hybrid,0.1,0.5,1.0,1.0,8,5,1.35,10.02
+50,grid,superset,BER,Family Traveler,the best museums to visit in this city,museum,False,40,8,,,,fusion,0.175,0.875,1.0,1.0,8,5,0.63,13.48
+50,grid,superset,BER,Family Traveler,the best museums to visit in this city,museum,False,40,8,,,,hybrid,0.1,0.5,1.0,1.0,8,5,1.35,10.11
 50,grid,superset,BER,Family Traveler,the best museums to visit in this city,museum,False,40,8,,,,standard,0.0,0.0,0.5,0.0,8,7,0.58,0.0
-51,grid,subset,BER,Luxury Traveler,landmarks within easy reach of a transport hub,landmark,True,44,8,,,,fusion,0.13636363636363635,0.75,1.0,1.0,8,6,1.26,14.34
-51,grid,subset,BER,Luxury Traveler,landmarks within easy reach of a transport hub,landmark,True,44,8,,,,hybrid,0.1590909090909091,0.875,1.0,1.0,8,6,0.81,10.41
+51,grid,subset,BER,Luxury Traveler,landmarks within easy reach of a transport hub,landmark,True,44,8,,,,fusion,0.13636363636363635,0.75,1.0,1.0,8,6,1.26,14.35
+51,grid,subset,BER,Luxury Traveler,landmarks within easy reach of a transport hub,landmark,True,44,8,,,,hybrid,0.1590909090909091,0.875,1.0,1.0,8,6,0.81,10.51
 51,grid,subset,BER,Luxury Traveler,landmarks within easy reach of a transport hub,landmark,True,44,8,,,,standard,0.0,0.0,0.375,0.0,8,7,0.58,0.0
-52,grid,subset,BER,Culture Enthusiast,history sites within easy reach of a transport hub,history,True,14,8,,,,fusion,0.2857142857142857,0.5,1.0,1.0,8,6,0.63,14.19
-52,grid,subset,BER,Culture Enthusiast,history sites within easy reach of a transport hub,history,True,14,8,,,,hybrid,0.0,0.0,1.0,1.0,8,6,0.65,10.42
+52,grid,subset,BER,Culture Enthusiast,history sites within easy reach of a transport hub,history,True,14,8,,,,fusion,0.2857142857142857,0.5,1.0,1.0,8,6,0.63,15.01
+52,grid,subset,BER,Culture Enthusiast,history sites within easy reach of a transport hub,history,True,14,8,,,,hybrid,0.0,0.0,1.0,1.0,8,6,0.65,10.94
 52,grid,subset,BER,Culture Enthusiast,history sites within easy reach of a transport hub,history,True,14,8,,,,standard,0.0,0.0,0.75,0.0,8,7,0.58,0.0
-53,grid,subset,BER,Budget Backpacker,nature spots within easy reach of a transport hub,nature,True,9,8,,,,fusion,0.2222222222222222,0.25,0.875,1.0,8,6,1.26,14.32
-53,grid,subset,BER,Budget Backpacker,nature spots within easy reach of a transport hub,nature,True,9,8,,,,hybrid,0.0,0.0,0.375,1.0,8,6,1.26,11.1
+53,grid,subset,BER,Budget Backpacker,nature spots within easy reach of a transport hub,nature,True,9,8,,,,fusion,0.2222222222222222,0.25,0.875,1.0,8,6,1.26,14.85
+53,grid,subset,BER,Budget Backpacker,nature spots within easy reach of a transport hub,nature,True,9,8,,,,hybrid,0.0,0.0,0.375,1.0,8,6,1.26,11.23
 53,grid,subset,BER,Budget Backpacker,nature spots within easy reach of a transport hub,nature,True,9,8,,,,standard,0.0,0.0,0.25,0.0,8,7,0.58,0.0
-54,grid,superset,BER,Budget Backpacker,the best nightlife venues to visit in this city,nightlife,False,9,8,,,,fusion,0.4444444444444444,0.5,1.0,1.0,8,5,1.35,14.94
-54,grid,superset,BER,Budget Backpacker,the best nightlife venues to visit in this city,nightlife,False,9,8,,,,hybrid,0.1111111111111111,0.125,0.857,1.0,7,5,1.35,11.32
+54,grid,superset,BER,Budget Backpacker,the best nightlife venues to visit in this city,nightlife,False,9,8,,,,fusion,0.4444444444444444,0.5,1.0,1.0,8,5,1.35,14.44
+54,grid,superset,BER,Budget Backpacker,the best nightlife venues to visit in this city,nightlife,False,9,8,,,,hybrid,0.1111111111111111,0.125,0.857,1.0,7,5,1.35,11.39
 54,grid,superset,BER,Budget Backpacker,the best nightlife venues to visit in this city,nightlife,False,9,8,,,,standard,0.0,0.0,0.25,0.0,8,7,0.58,0.0
-55,grid,superset,BER,Luxury Traveler,the best shopping to visit in this city,shopping,False,10,8,,,,fusion,0.6,0.75,1.0,1.0,8,6,1.2,13.74
-55,grid,superset,BER,Luxury Traveler,the best shopping to visit in this city,shopping,False,10,8,,,,hybrid,0.7,0.875,1.0,1.0,8,6,1.2,10.73
+55,grid,superset,BER,Luxury Traveler,the best shopping to visit in this city,shopping,False,10,8,,,,fusion,0.6,0.75,1.0,1.0,8,6,1.2,13.85
+55,grid,superset,BER,Luxury Traveler,the best shopping to visit in this city,shopping,False,10,8,,,,hybrid,0.7,0.875,1.0,1.0,8,6,1.2,10.32
 55,grid,superset,BER,Luxury Traveler,the best shopping to visit in this city,shopping,False,10,8,,,,standard,0.0,0.0,0.375,0.0,8,7,0.58,0.0
-56,grid,subset,BER,Nightlife Seeker,culture venues within easy reach of a transport hub,culture,True,28,8,,,,fusion,0.25,0.875,1.0,1.0,8,6,0.54,13.76
-56,grid,subset,BER,Nightlife Seeker,culture venues within easy reach of a transport hub,culture,True,28,8,,,,hybrid,0.07142857142857142,0.25,0.75,1.0,8,6,1.26,10.6
+56,grid,subset,BER,Nightlife Seeker,culture venues within easy reach of a transport hub,culture,True,28,8,,,,fusion,0.25,0.875,1.0,1.0,8,6,0.54,14.59
+56,grid,subset,BER,Nightlife Seeker,culture venues within easy reach of a transport hub,culture,True,28,8,,,,hybrid,0.07142857142857142,0.25,0.75,1.0,8,6,1.26,10.84
 56,grid,subset,BER,Nightlife Seeker,culture venues within easy reach of a transport hub,culture,True,28,8,,,,standard,0.0,0.0,0.125,0.0,8,7,0.58,0.0
-57,grid,subset,BER,Culture Enthusiast,places of worship within easy reach of a transport hub,religion,True,16,8,,,,fusion,0.3125,0.625,1.0,1.0,8,8,0.57,14.92
-57,grid,subset,BER,Culture Enthusiast,places of worship within easy reach of a transport hub,religion,True,16,8,,,,hybrid,0.0625,0.125,0.625,1.0,8,6,1.26,11.58
+57,grid,subset,BER,Culture Enthusiast,places of worship within easy reach of a transport hub,religion,True,16,8,,,,fusion,0.3125,0.625,1.0,1.0,8,8,0.57,14.27
+57,grid,subset,BER,Culture Enthusiast,places of worship within easy reach of a transport hub,religion,True,16,8,,,,hybrid,0.0625,0.125,0.625,1.0,8,6,1.26,11.39
 57,grid,subset,BER,Culture Enthusiast,places of worship within easy reach of a transport hub,religion,True,16,8,,,,standard,0.0,0.0,0.75,0.0,8,7,0.58,0.0
-58,chain,traversal,PAR,Beach & Relax,we are staying in the middle of Paris -- what can we see in an afternoon and still get somewhere else that is open afterwards?,,False,66,8,PAR,True,0.821,fusion,0.06060606060606061,0.5,1.0,1.0,8,6,0.92,17.7
-58,chain,traversal,PAR,Beach & Relax,we are staying in the middle of Paris -- what can we see in an afternoon and still get somewhere else that is open afterwards?,,False,66,8,PAR,True,0.821,hybrid,0.0,0.0,0.125,1.0,8,5,1.1,9.47
+58,chain,traversal,PAR,Beach & Relax,we are staying in the middle of Paris -- what can we see in an afternoon and still get somewhere else that is open afterwards?,,False,66,8,PAR,True,0.821,fusion,0.06060606060606061,0.5,1.0,1.0,8,6,0.92,17.75
+58,chain,traversal,PAR,Beach & Relax,we are staying in the middle of Paris -- what can we see in an afternoon and still get somewhere else that is open afterwards?,,False,66,8,PAR,True,0.821,hybrid,0.0,0.0,0.125,1.0,8,5,1.1,9.93
 58,chain,traversal,PAR,Beach & Relax,we are staying in the middle of Paris -- what can we see in an afternoon and still get somewhere else that is open afterwards?,,False,66,8,PAR,True,0.821,standard,0.0,0.0,0.125,0.0,8,5,0.96,0.0
-59,chain,traversal,PAR,Budget Backpacker,we arrive at Paris Gare du Nord in the morning -- what can we do first and what is still open by the time we finish?,,False,37,8,TR005,True,0.814,fusion,0.08108108108108109,0.375,0.75,1.0,8,5,1.11,18.9
-59,chain,traversal,PAR,Budget Backpacker,we arrive at Paris Gare du Nord in the morning -- what can we do first and what is still open by the time we finish?,,False,37,8,TR005,True,0.814,hybrid,0.02702702702702703,0.125,0.286,1.0,7,6,0.94,9.95
+59,chain,traversal,PAR,Budget Backpacker,we arrive at Paris Gare du Nord in the morning -- what can we do first and what is still open by the time we finish?,,False,37,8,TR005,True,0.814,fusion,0.08108108108108109,0.375,0.75,1.0,8,5,1.11,20.69
+59,chain,traversal,PAR,Budget Backpacker,we arrive at Paris Gare du Nord in the morning -- what can we do first and what is still open by the time we finish?,,False,37,8,TR005,True,0.814,hybrid,0.02702702702702703,0.125,0.286,1.0,7,6,0.94,10.08
 59,chain,traversal,PAR,Budget Backpacker,we arrive at Paris Gare du Nord in the morning -- what can we do first and what is still open by the time we finish?,,False,37,8,TR005,True,0.814,standard,0.0,0.0,0.25,0.0,8,5,0.96,0.0
-60,chain,traversal,PAR,Culture Enthusiast,we arrive at Gare de Lyon in the morning -- what can we do first and what is still open by the time we finish?,,False,40,8,TR006,True,0.867,fusion,0.075,0.375,1.0,1.0,8,6,1.78,19.61
-60,chain,traversal,PAR,Culture Enthusiast,we arrive at Gare de Lyon in the morning -- what can we do first and what is still open by the time we finish?,,False,40,8,TR006,True,0.867,hybrid,0.0,0.0,0.714,1.0,7,6,0.94,9.83
+60,chain,traversal,PAR,Culture Enthusiast,we arrive at Gare de Lyon in the morning -- what can we do first and what is still open by the time we finish?,,False,40,8,TR006,True,0.867,fusion,0.075,0.375,1.0,1.0,8,6,1.78,19.43
+60,chain,traversal,PAR,Culture Enthusiast,we arrive at Gare de Lyon in the morning -- what can we do first and what is still open by the time we finish?,,False,40,8,TR006,True,0.867,hybrid,0.0,0.0,0.714,1.0,7,6,0.94,9.84
 60,chain,traversal,PAR,Culture Enthusiast,we arrive at Gare de Lyon in the morning -- what can we do first and what is still open by the time we finish?,,False,40,8,TR006,True,0.867,standard,0.0,0.0,0.75,0.0,8,5,0.96,0.0
-61,chain,traversal,BER,Family Traveler,we are staying in the middle of Berlin -- what can we see in an afternoon and still get somewhere else that is open afterwards?,,False,31,8,BER,True,0.76,fusion,0.06451612903225806,0.25,1.0,1.0,8,5,0.63,14.1
-61,chain,traversal,BER,Family Traveler,we are staying in the middle of Berlin -- what can we see in an afternoon and still get somewhere else that is open afterwards?,,False,31,8,BER,True,0.76,hybrid,0.0,0.0,0.375,1.0,8,5,1.35,9.92
-61,chain,traversal,BER,Family Traveler,we are staying in the middle of Berlin -- what can we see in an afternoon and still get somewhere else that is open afterwards?,,False,31,8,BER,True,0.76,standard,0.0,0.0,0.5,0.0,8,7,0.58,0.0
-62,chain,traversal,BER,Luxury Traveler,we arrive at Berlin Hauptbahnhof (tief) in the morning -- what can we do first and what is still open by the time we finish?,,False,32,8,TR013,True,0.78,fusion,0.0625,0.25,1.0,1.0,8,5,0.63,18.75
-62,chain,traversal,BER,Luxury Traveler,we arrive at Berlin Hauptbahnhof (tief) in the morning -- what can we do first and what is still open by the time we finish?,,False,32,8,TR013,True,0.78,hybrid,0.0,0.0,1.0,1.0,7,6,0.87,10.54
-62,chain,traversal,BER,Luxury Traveler,we arrive at Berlin Hauptbahnhof (tief) in the morning -- what can we do first and what is still open by the time we finish?,,False,32,8,TR013,True,0.78,standard,0.0,0.0,0.375,0.0,8,7,0.58,0.0
-63,chain,traversal,BER,Nature & Adventure,we arrive at Berlin Zoologischer Garten in the morning -- what can we do first and what is still open by the time we finish?,,False,14,8,TR014,True,0.571,fusion,0.14285714285714285,0.25,0.875,1.0,8,6,0.66,15.3
-63,chain,traversal,BER,Nature & Adventure,we arrive at Berlin Zoologischer Garten in the morning -- what can we do first and what is still open by the time we finish?,,False,14,8,TR014,True,0.571,hybrid,0.07142857142857142,0.125,0.286,1.0,7,5,1.35,10.09
-63,chain,traversal,BER,Nature & Adventure,we arrive at Berlin Zoologischer Garten in the morning -- what can we do first and what is still open by the time we finish?,,False,14,8,TR014,True,0.571,standard,0.0,0.0,0.375,0.0,8,7,0.58,0.0
+61,chain,traversal,PAR,Family Traveler,we arrive at Gare Montparnasse in the morning -- what can we do first and what is still open by the time we finish?,,False,14,8,TR007,True,0.838,fusion,0.21428571428571427,0.375,1.0,1.0,8,5,1.11,78.43
+61,chain,traversal,PAR,Family Traveler,we arrive at Gare Montparnasse in the morning -- what can we do first and what is still open by the time we finish?,,False,14,8,TR007,True,0.838,hybrid,0.14285714285714285,0.25,0.857,1.0,7,5,1.1,10.15
+61,chain,traversal,PAR,Family Traveler,we arrive at Gare Montparnasse in the morning -- what can we do first and what is still open by the time we finish?,,False,14,8,TR007,True,0.838,standard,0.0,0.0,0.625,0.0,8,5,0.96,0.0
+62,chain,traversal,PAR,Luxury Traveler,we arrive at Paris Gare de l'Est in the morning -- what can we do first and what is still open by the time we finish?,,False,44,8,TR008,True,0.835,fusion,0.09090909090909091,0.5,1.0,1.0,8,6,0.89,21.08
+62,chain,traversal,PAR,Luxury Traveler,we arrive at Paris Gare de l'Est in the morning -- what can we do first and what is still open by the time we finish?,,False,44,8,TR008,True,0.835,hybrid,0.022727272727272728,0.125,0.714,1.0,7,5,1.1,10.2
+62,chain,traversal,PAR,Luxury Traveler,we arrive at Paris Gare de l'Est in the morning -- what can we do first and what is still open by the time we finish?,,False,44,8,TR008,True,0.835,standard,0.0,0.0,0.5,0.0,8,5,0.96,0.0
+63,chain,traversal,BER,Nature & Adventure,we are staying in the middle of Berlin -- what can we see in an afternoon and still get somewhere else that is open afterwards?,,False,31,8,BER,True,0.76,fusion,0.03225806451612903,0.125,1.0,1.0,8,7,0.58,13.76
+63,chain,traversal,BER,Nature & Adventure,we are staying in the middle of Berlin -- what can we see in an afternoon and still get somewhere else that is open afterwards?,,False,31,8,BER,True,0.76,hybrid,0.0,0.0,0.125,1.0,8,5,1.35,9.86
+63,chain,traversal,BER,Nature & Adventure,we are staying in the middle of Berlin -- what can we see in an afternoon and still get somewhere else that is open afterwards?,,False,31,8,BER,True,0.76,standard,0.0,0.0,0.375,0.0,8,7,0.58,0.0
+64,chain,traversal,BER,Nightlife Seeker,we arrive at Berlin Hauptbahnhof (tief) in the morning -- what can we do first and what is still open by the time we finish?,,False,32,8,TR013,True,0.78,fusion,0.0,0.0,0.875,1.0,8,5,0.84,19.2
+64,chain,traversal,BER,Nightlife Seeker,we arrive at Berlin Hauptbahnhof (tief) in the morning -- what can we do first and what is still open by the time we finish?,,False,32,8,TR013,True,0.78,hybrid,0.0,0.0,0.286,1.0,7,6,0.87,11.69
+64,chain,traversal,BER,Nightlife Seeker,we arrive at Berlin Hauptbahnhof (tief) in the morning -- what can we do first and what is still open by the time we finish?,,False,32,8,TR013,True,0.78,standard,0.0,0.0,0.125,0.0,8,7,0.58,0.0
+65,chain,traversal,BER,Beach & Relax,we arrive at Berlin Zoologischer Garten in the morning -- what can we do first and what is still open by the time we finish?,,False,14,8,TR014,True,0.571,fusion,0.07142857142857142,0.125,0.875,1.0,8,6,0.7,17.01
+65,chain,traversal,BER,Beach & Relax,we arrive at Berlin Zoologischer Garten in the morning -- what can we do first and what is still open by the time we finish?,,False,14,8,TR014,True,0.571,hybrid,0.07142857142857142,0.125,0.571,1.0,7,5,1.35,10.44
+65,chain,traversal,BER,Beach & Relax,we arrive at Berlin Zoologischer Garten in the morning -- what can we do first and what is still open by the time we finish?,,False,14,8,TR014,True,0.571,standard,0.0,0.0,0.125,0.0,8,7,0.58,0.0
+66,chain,traversal,BER,Budget Backpacker,we arrive at Ostbahnhof in the morning -- what can we do first and what is still open by the time we finish?,,False,14,8,TR015,True,0.826,fusion,0.0,0.0,1.0,1.0,8,5,0.84,12.66
+66,chain,traversal,BER,Budget Backpacker,we arrive at Ostbahnhof in the morning -- what can we do first and what is still open by the time we finish?,,False,14,8,TR015,True,0.826,hybrid,0.0,0.0,0.286,1.0,7,6,1.46,9.72
+66,chain,traversal,BER,Budget Backpacker,we arrive at Ostbahnhof in the morning -- what can we do first and what is still open by the time we finish?,,False,14,8,TR015,True,0.826,standard,0.0,0.0,0.25,0.0,8,7,0.58,0.0
+67,chain,traversal,BER,Culture Enthusiast,we arrive at Berlin Friedrichstraße in the morning -- what can we do first and what is still open by the time we finish?,,False,41,8,TR016,True,0.772,fusion,0.0975609756097561,0.5,1.0,1.0,8,7,0.54,15.36
+67,chain,traversal,BER,Culture Enthusiast,we arrive at Berlin Friedrichstraße in the morning -- what can we do first and what is still open by the time we finish?,,False,41,8,TR016,True,0.772,hybrid,0.0,0.0,1.0,1.0,7,6,0.68,9.52
+67,chain,traversal,BER,Culture Enthusiast,we arrive at Berlin Friedrichstraße in the morning -- what can we do first and what is still open by the time we finish?,,False,41,8,TR016,True,0.772,standard,0.0,0.0,0.75,0.0,8,7,0.58,0.0

@@ -1,0 +1,31 @@
+facet,value,config,normalized_recall,recall_at_k,archetype_precision,n
+tier,chain,fusion,0.2875,0.0723,0.95,10
+tier,chain,hybrid,0.0625,0.0264,0.4964,10
+tier,chain,standard,0.0,0.0,0.3875,10
+tier,grid,fusion,0.6418,0.2913,0.9853,34
+tier,grid,hybrid,0.3172,0.1502,0.7511,34
+tier,grid,standard,0.0,0.0,0.4265,34
+tier,handwritten,fusion,0.4368,0.2125,0.9479,24
+tier,handwritten,hybrid,0.2329,0.1186,0.596,24
+tier,handwritten,standard,0.0,0.0,0.474,24
+archetype,Beach & Relax,fusion,0.5536,0.231,0.9643,7
+archetype,Beach & Relax,hybrid,0.1964,0.0871,0.5101,7
+archetype,Beach & Relax,standard,0.0,0.0,0.125,7
+archetype,Budget Backpacker,fusion,0.4659,0.2941,0.875,11
+archetype,Budget Backpacker,hybrid,0.2013,0.1417,0.664,11
+archetype,Budget Backpacker,standard,0.0,0.0,0.25,11
+archetype,Culture Enthusiast,fusion,0.5357,0.1484,1.0,21
+archetype,Culture Enthusiast,hybrid,0.2143,0.0559,0.6446,21
+archetype,Culture Enthusiast,standard,0.0,0.0,0.75,21
+archetype,Family Traveler,fusion,0.6042,0.1782,1.0,6
+archetype,Family Traveler,hybrid,0.3125,0.0927,0.8155,6
+archetype,Family Traveler,standard,0.0,0.0,0.5625,6
+archetype,Luxury Traveler,fusion,0.6448,0.3744,1.0,9
+archetype,Luxury Traveler,hybrid,0.5179,0.3198,0.867,9
+archetype,Luxury Traveler,standard,0.0,0.0,0.4306,9
+archetype,Nature & Adventure,fusion,0.3036,0.1783,0.9286,7
+archetype,Nature & Adventure,hybrid,0.1071,0.0569,0.347,7
+archetype,Nature & Adventure,standard,0.0,0.0,0.3214,7
+archetype,Nightlife Seeker,fusion,0.4821,0.296,0.9821,7
+archetype,Nightlife Seeker,hybrid,0.2321,0.1489,0.7526,7
+archetype,Nightlife Seeker,standard,0.0,0.0,0.125,7

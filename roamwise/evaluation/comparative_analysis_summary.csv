@@ -1,4 +1,4 @@
 config,mean_recall_at_k,mean_normalized_recall,mean_archetype_precision,mean_structural_grounding_rate,mean_km_per_stop,mean_retrieval_ms
-fusion,0.242,0.536,0.967,1.0,0.905,18.856
-hybrid,0.126,0.26,0.666,1.0,1.043,10.371
-standard,0.0,0.0,0.441,0.0,0.776,0.0
+fusion,0.231,0.517,0.967,1.0,0.905,20.129
+hybrid,0.121,0.25,0.659,1.0,1.046,10.562
+standard,0.0,0.0,0.438,0.0,0.776,0.0
