@@ -716,3 +716,96 @@ def test_the_committed_comparison_was_measured_on_the_queries_the_code_keeps():
         f"kod bugun {len(TEST_QUERIES)} sorgu uretiyor -- "
         f"`python -m roamwise.evaluation.comparative_analysis` ile yeniden kostur")
     assert committed.gold_size.min() >= 5
+
+
+# --- issue #177: are the relations between the named places true? ---
+
+def test_a_travel_duration_is_told_apart_from_a_visit_duration():
+    """#173 put three kinds of minutes in the prompt -- the leg, the wait and
+    the visit -- and the model repeats all three. Only the first is a claim
+    about geography, and an extractor that cannot tell them apart reports the
+    day's total walking time as an invented leg.
+
+    The last case is a regression: the disqualifying words used to be searched
+    in a fixed 60-character window, which reaches past the end of the sentence
+    into the next paragraph's "This route totals ...", and a correct
+    four-minute leg claim was dropped because of a "total" belonging to
+    another sentence.
+    """
+    from roamwise.evaluation.geographic_validation import extract_claims
+
+    kinds = lambda t: [(c["kind"], c["value"]) for c in extract_claims(t)]
+
+    assert ("duration", 4.0) in kinds("A 4-minute walk brings you to the gate.")
+    assert ("duration", 7.0) in kinds("The bunker is reached in seven minutes.")
+    assert ("distance", 1.7) in kinds("A 1.7 km walk brings you there.")
+    assert kinds("With a visit duration of 60 minutes, you will see it all.") == []
+    assert kinds("The itinerary includes a scheduled 85-minute wait.") == []
+    assert kinds("This route totals 7 hours and 55 minutes of walking.") == []
+
+    both = kinds("Only a four-minute walk away, this monument is next.\n\n"
+                 "This route totals 7 hours and 55 minutes of walking.")
+    assert both == [("duration", 4.0)], both
+
+
+def test_a_claim_that_cannot_be_placed_on_a_leg_is_not_scored():
+    """#175's lesson, one measurement over: a thing that cannot be graded must
+    not be given a score. A narrative can assert a hop without saying between
+    which two stops, and attaching it to the nearest guess would turn this
+    file's uncertainty into the model's error."""
+    from roamwise.evaluation.geographic_validation import extract_claims, resolve_leg
+
+    stops = ["Reichstag", "Brandenburg Gate"]
+    floating = extract_claims("Everything here is a 10-minute walk from everything else.")[0]
+    assert resolve_leg(floating, "Everything here is a 10-minute walk.", stops) == (None, "unresolved")
+
+    text = "**Reichstag** opens the day.\n\n**Brandenburg Gate** is a 4-minute walk away."
+    placed = extract_claims(text)[0]
+    assert resolve_leg(placed, text, stops) == (1, "heading")
+
+    # A claim inside the first stop's paragraph has no leg before it.
+    first = extract_claims("**Reichstag** is a 6-minute walk from the station.")[0]
+    assert resolve_leg(first, "**Reichstag** is a 6-minute walk from the station.",
+                       stops)[0] is None
+
+
+def test_the_vague_threshold_is_the_walkable_distance_the_repo_already_committed():
+    """"A short stroll" needs a number before it can be graded, and inventing
+    one would make the metric arguable. It is taken from
+    `travel_modes.HYBRID_WALK_THRESHOLD_KM`, which the repo already documents
+    as the distance past which a traveler stops walking by choice -- so if that
+    judgement is ever retuned, this metric follows it instead of disagreeing
+    with the router about what "walkable" means."""
+    from roamwise.evaluation.geographic_validation import grade
+    from roamwise.optimization.travel_modes import HYBRID_WALK_THRESHOLD_KM
+
+    vague = {"kind": "vague", "value": None, "at": 0, "phrase": "a short stroll"}
+    inside = grade(vague, None, (HYBRID_WALK_THRESHOLD_KM - 0.1, 12.0))
+    outside = grade(vague, None, (HYBRID_WALK_THRESHOLD_KM + 0.1, 20.0))
+
+    assert inside["vs_street"] is True and outside["vs_street"] is False
+    # Graded on the ground truth only: the prompt's own leg is the estimate
+    # under suspicion, so it cannot also be the yardstick.
+    assert inside["vs_prompt"] is None
+
+
+def test_the_geographic_validation_spends_no_quota():
+    """#177's own acceptance criterion. The module scores generations that were
+    already paid for, so it must reach the cache and nothing else -- a call
+    slipped in here would spend a full set of generations every time someone
+    re-derived the table, which is exactly the cost #132 built the cache to
+    avoid.
+
+    Asserted on the source rather than by running it: the run needs a TOPTW
+    solve per query and does not belong in the suite, and the property is a
+    static one -- this module names no way of generating."""
+    import inspect
+
+    from roamwise.evaluation import geographic_validation
+
+    source = inspect.getsource(geographic_validation)
+    for forbidden in ("generate(", "complete(", "complete_verbose(", "require_real_model"):
+        assert forbidden not in source, (
+            f"{forbidden} in geographic_validation.py -- this measurement must read the "
+            f"committed cache, not produce new generations")
+    assert "load_cache" in source
