@@ -8,6 +8,7 @@ has already fixed sys.path and called st.set_page_config by the time this
 executes. Run the app with: streamlit run roamwise/app.py
 """
 import datetime
+import importlib.util
 import math
 from pathlib import Path
 
@@ -131,12 +132,69 @@ def _fit_view(lats: list[float], lons: list[float]) -> tuple[float, float, float
 RETRIEVAL_CONFIG = "fusion"
 
 
+# The proposal calls orchestration its "core focus", and the project answers it
+# twice: `agents/orchestrator.py` is a hand-rolled state machine and
+# `agents/orchestrator_langgraph.py` is the same six nodes on LangGraph. Until
+# #129 only the first was reachable from the app -- so the half the proposal
+# names by example was visible to someone reading the code and to nobody else,
+# and its steps had drifted (#76) precisely because nothing ever ran it.
+#
+# This is a sidebar control where the retrieval-architecture radio was taken
+# out of the sidebar (#42), and the difference is what makes both right. That
+# one asked the traveler a question only the evaluation can answer, and its
+# answer never changes. This one changes nothing about the plan -- both paths
+# call the same agents and return the same itinerary -- so there is no wrong
+# choice to make, and being able to run either is what lets anyone check that
+# claim instead of taking §3.4.1's word for it.
+#
+# The keys are the orchestrators' own `ORCHESTRATOR_ID`s, which are also what
+# they log, so the picker and the System logs screen cannot disagree about
+# which path ran.
+_ENGINE_LABELS = {RoamWiseOrchestrator.ORCHESTRATOR_ID: "Custom state machine",
+                  "langgraph": "LangGraph"}
+_DEFAULT_ENGINE = RoamWiseOrchestrator.ORCHESTRATOR_ID
+
+
+def _langgraph_installed() -> bool:
+    """Whether the optional extra is importable.
+
+    `find_spec`, not a try/except import: this runs on every rerun and the
+    answer decides what the sidebar offers, while importing the module builds
+    nothing and costs the langchain-core import tree. A clean install has no
+    `langgraph` at all and must still open the app -- which is why nothing at
+    module scope imports it (#129).
+    """
+    return importlib.util.find_spec("langgraph") is not None
+
+
+def _orchestrator_options() -> dict:
+    """The engines this installation can actually run, in _ENGINE_LABELS order."""
+    return {key: label for key, label in _ENGINE_LABELS.items()
+            if key != "langgraph" or _langgraph_installed()}
+
+
+def _build_orchestrator(config: str, engine: str):
+    """Kept out of the cached wrapper below so the dispatch can be tested
+    without going through Streamlit's cache, which needs a script run."""
+    if engine == "langgraph":
+        # Imported here rather than at module scope for the reason in
+        # `_langgraph_installed`: the app opens without the extra installed.
+        from roamwise.agents.orchestrator_langgraph import RoamWiseLangGraphOrchestrator
+        return RoamWiseLangGraphOrchestrator(retrieval_config=config)
+    return RoamWiseOrchestrator(retrieval_config=config)
+
+
 @st.cache_resource(show_spinner="Loading RoamWise engine...")
-def get_orchestrator(config: str):
+def get_orchestrator(config: str, engine: str = _DEFAULT_ENGINE):
+    # `engine` is a parameter and not a session-state lookup inside the body
+    # because st.cache_resource keys on the arguments: read the picker in here
+    # and switching it would hand back the orchestrator built for the other
+    # one, silently planning the trip on the path the user just left (#129).
+    #
     # Without an explicit show_spinner message, Streamlit's default caching
     # spinner shows the raw call signature ("Running get_orchestrator(...)."),
     # which is an implementation detail, not something a user needs to see.
-    return RoamWiseOrchestrator(retrieval_config=config)
+    return _build_orchestrator(config, engine)
 
 
 _MODE_LABELS = {"walking": "On foot", "driving": "By car",
@@ -454,6 +512,23 @@ with st.sidebar:
     # that question.
     use_real_routing = True
 
+    st.header("Agentic orchestration")
+    _engine_options = _orchestrator_options()
+    engine = st.radio(
+        "Which orchestrator runs the plan?",
+        list(_engine_options), format_func=_engine_options.get,
+        help="The five agent steps are implemented twice -- as a hand-rolled state "
+             "machine and on LangGraph -- and both call the same agents, so the plan "
+             "does not depend on which one runs. The System logs screen names the one "
+             "that did.",
+    )
+    if "langgraph" not in _engine_options:
+        # Absent rather than broken, and said so: LangGraph is an optional
+        # extra, and a missing option with no explanation reads as a feature
+        # that was removed (#129).
+        st.caption("The LangGraph path is not installed here — add it with "
+                   "`pip install -r roamwise/requirements-langgraph.txt`")
+
     run = st.button("Plan my trip", type="primary", width='stretch')
 
 preferences = {"budget": budget, "culture": culture, "nature": nature,
@@ -464,16 +539,19 @@ preferences = {"budget": budget, "culture": culture, "nature": nature,
 # traveler has since dragged to 5 would describe the itinerary wrongly.
 # `use_real_routing` was here until #160 removed its control: a setting that
 # cannot change can never differ from the plan on screen, so watching it only
-# invited the list to drift out of step with the sidebar.
-_SHOWN_SETTINGS = ("n_days", "daily_hours", "auto_start", "travel_mode")
+# invited the list to drift out of step with the sidebar. `engine` is here for
+# the opposite reason -- it can change, and a plan built by one orchestrator
+# with the picker now on the other should say so rather than look current
+# (#129).
+_SHOWN_SETTINGS = ("n_days", "daily_hours", "auto_start", "travel_mode", "engine")
 
 if run:
-    orch = get_orchestrator(RETRIEVAL_CONFIG)
+    orch = get_orchestrator(RETRIEVAL_CONFIG, engine)
     with st.spinner("Agents at work: segmenting traveler, forecasting demand, retrieving grounded context, routing..."):
         try:
             st.session_state["plan_settings"] = {
                 "n_days": n_days, "daily_hours": daily_hours, "auto_start": auto_start,
-                "travel_mode": travel_mode,
+                "travel_mode": travel_mode, "engine": engine,
             }
             st.session_state["plan"] = orch.plan_trip(
                 preferences, destination_id=destination_id, n_days=n_days,
@@ -507,16 +585,22 @@ if st.session_state.get("plan_error"):
 # the itinerary away and made the traveler press the button again, which on a
 # hosted model is two more API calls and on the local one another eight minutes.
 if st.session_state.get("plan"):
-    orch = get_orchestrator(RETRIEVAL_CONFIG)
     result = st.session_state["plan"]
 
     # Everything below describes the plan, so it reads the settings the plan
     # was made with, not whatever the sidebar says now.
     _shown = st.session_state["plan_settings"]
     _live = {"n_days": n_days, "daily_hours": daily_hours, "auto_start": auto_start,
-             "travel_mode": travel_mode}
-    n_days, daily_hours, auto_start, travel_mode = (
+             "travel_mode": travel_mode, "engine": engine}
+    n_days, daily_hours, auto_start, travel_mode, engine = (
         _shown[name] for name in _SHOWN_SETTINGS)
+
+    # And that includes which orchestrator: this one is read for the city name
+    # and for the narrator's identity, both of which belong to the plan on
+    # screen. Asking for the picker's current engine instead would also build
+    # a second orchestrator -- a cache miss, and a few seconds -- to answer a
+    # question about a plan it did not make.
+    orch = get_orchestrator(RETRIEVAL_CONFIG, engine)
 
     if _live != _shown:
         st.info("Your settings have changed since this plan was made. "
@@ -524,6 +608,11 @@ if st.session_state.get("plan"):
 
     city_name = orch.destinations.set_index("destination_id").loc[result["destination_id"], "city"]
     st.success(f"Plan ready: **{city_name}** for a **{result['archetype']}**")
+    # Named where the plan is, in the same register as "Written by:" below.
+    # Which orchestrator ran is otherwise only visible on the System logs
+    # screen, and this is the claim worth being able to see: the picker moved,
+    # the plan did not (#129).
+    st.caption(f"Orchestrated by: {_ENGINE_LABELS[engine]}")
 
     tab1, tab2, tab3 = st.tabs(["\U0001f4cd Itinerary", "\U0001f4c8 Demand forecast", "\U0001f50e Retrieved context"])
 
@@ -774,7 +863,7 @@ if st.session_state.get("plan"):
         # System logs screen. A run that fell back to the template produces
         # text that reads like an answer but is the prompt echoed back, and
         # nothing on this page used to distinguish the two (issue #133).
-        llm = get_orchestrator(RETRIEVAL_CONFIG).llm
+        llm = orch.llm
         missing = fallback_reason(llm)
         if missing:
             st.error(

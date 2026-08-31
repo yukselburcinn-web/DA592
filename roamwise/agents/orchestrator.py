@@ -118,6 +118,13 @@ def synthesis_prompt(archetype: str, city: str, destination_id: str,
 
 
 class RoamWiseOrchestrator:
+    # What this path calls itself on the System logs screen, and the key the
+    # sidebar's orchestrator picker hands back to the factory (#129). It lives
+    # on the class rather than in a table the UI maintains by hand, because a
+    # table is one more thing that can fall out of step with the two files --
+    # which is the failure #76 already cost us once.
+    ORCHESTRATOR_ID = "custom"
+
     def __init__(self, llm: LLMClient = None, retrieval_config: str = "fusion"):
         self.llm = llm or get_default_llm_client()
         self.graph = GraphIndex()
@@ -176,6 +183,10 @@ class RoamWiseOrchestrator:
         state: dict = {"preferences": preferences, "n_days": n_days}
 
         log.info("Planning a %d-day trip", n_days, extra={"roamwise_fields": {
+            # First field on the first record of a run: the operator screen
+            # shows two orchestrators now, and the steps below are deliberately
+            # named the same on both, so this is what tells them apart (#129).
+            "orchestrator": self.ORCHESTRATOR_ID,
             "destination": destination_id or "auto",
             "travel_month": travel_month or "flexible",
             "travel_mode": travel_mode,

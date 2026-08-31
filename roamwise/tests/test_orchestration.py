@@ -15,6 +15,7 @@ import sys
 import pytest
 
 from pathlib import Path
+from roamwise import app_logging
 from roamwise.agents.orchestrator import RoamWiseOrchestrator
 from roamwise.agents.router_agent import RouterAgent
 from roamwise.knowledge_graph.build_graph import GraphIndex
@@ -427,6 +428,69 @@ def test_a_start_date_also_reaches_the_forecaster_on_the_langgraph_path():
         prefs, destination_id=MAIN_CITY, n_days=1, start_date=MONDAY)
 
     assert plan["forecast"]["target_month"] == f"{MONDAY.year:04d}-{MONDAY.month:02d}"
+
+
+def _logged_steps(orch, preferences, **kwargs):
+    """What `orch.plan_trip` writes to the System logs screen, in order.
+
+    Each entry is (step name, sorted field keys). The keys matter as much as
+    the names: the screen shows them in its Details column, so a step logged
+    under the right name carrying nothing is the same hole one level down.
+    Values are deliberately not compared -- `duration_ms` differs by
+    definition, and `orchestrator` is the one field that has to differ.
+
+    Filtered to the orchestrator modules themselves: the agents below them are
+    shared by both paths, so their records cannot diverge and would only add
+    noise to a failure message.
+    """
+    app_logging.clear()
+    orch.plan_trip(preferences, n_days=1, **kwargs)
+    return [(r["message"], sorted(r["fields"]))
+            for r in app_logging.records()
+            if r["logger"].startswith("roamwise.agents.orchestrator")]
+
+
+@pytest.mark.slow
+def test_both_orchestrators_log_the_same_steps():
+    """Issue #129, and the same lesson as #76 one layer out: the two paths are
+    read on one System logs screen, so a step this one names differently -- or
+    does not log at all -- is a hole in the operator view rather than a
+    cosmetic difference.
+
+    `orchestrator_langgraph.py` logged nothing whatsoever until #129: seven
+    `log_step` calls on one path, zero on the other. Nobody noticed while the
+    only caller was this test suite, and selecting it from the sidebar would
+    have emptied the screen the app's operator tab exists to fill.
+
+    Both branches of the conditional edge are checked, and the pinned one is
+    the point: the LangGraph node that logs "Destination selection" is exactly
+    the node a pinned city skips, so that branch has to log from the edge. The
+    sidebar always pins a city, which makes it the branch every demo takes."""
+    pytest.importorskip("langgraph")
+    from roamwise.agents.orchestrator_langgraph import RoamWiseLangGraphOrchestrator
+
+    prefs = {"budget": 0.5, "culture": 0.9, "nature": 0.3,
+             "nightlife": 0.2, "relax": 0.4, "adventure": 0.3}
+    custom, graph = RoamWiseOrchestrator(), RoamWiseLangGraphOrchestrator()
+
+    for pinned in (MAIN_CITY, None):
+        custom_steps = _logged_steps(custom, prefs, destination_id=pinned)
+        graph_steps = _logged_steps(graph, prefs, destination_id=pinned)
+
+        # Names first: it is the readable half of the failure, and the half a
+        # reader of the screen would notice.
+        assert [name for name, _ in graph_steps] == [name for name, _ in custom_steps], \
+            f"the two orchestrators log different steps (destination_id={pinned!r})"
+        assert graph_steps == custom_steps, \
+            f"the same steps carry different fields (destination_id={pinned!r})"
+        # A plan that logged nothing would satisfy the equalities above.
+        assert len(custom_steps) == 7, custom_steps
+
+    # And the one field that must differ, or the screen could not say which
+    # path produced the steps above.
+    assert [r["fields"]["orchestrator"] for r in app_logging.records()
+            if "orchestrator" in r["fields"]] == [RoamWiseLangGraphOrchestrator.ORCHESTRATOR_ID]
+    assert RoamWiseOrchestrator.ORCHESTRATOR_ID != RoamWiseLangGraphOrchestrator.ORCHESTRATOR_ID
 
 
 def test_local_llm_is_opt_in_and_falls_back_safely(monkeypatch):
