@@ -624,35 +624,82 @@ query_id,config,destination_id,tier,kind,phrase,claimed,target,stated,street_km,
 60,hybrid,PAR,chain,vague,stroll,,,,,,first_stop,,,
 60,hybrid,PAR,chain,vague,stroll,,,,,,first_stop,,,
 60,standard,PAR,chain,distance,1.3 km,1.3,,,,,first_stop,True,,
-61,fusion,BER,chain,duration,1-minute,1.0,,,,,first_stop,True,,
-61,fusion,BER,chain,duration,11-minute,11.0,Brandenburg Gate,11.456670961992524,1.0893685817718506,14.524914423624674,nearest_mention,True,True,False
-61,hybrid,BER,chain,distance,1.9‑km,1.9,,,,,first_stop,True,,
-61,hybrid,BER,chain,distance,0.3‑km,0.3,Reichstag,1.8651294747943354,2.124300956726074,28.324012756347656,nearest_mention,True,False,False
-61,hybrid,BER,chain,distance,0.9‑km,0.9,F. W. Borchardt,0.8592503221494393,1.0893685817718506,14.524914423624674,nearest_mention,True,True,True
-61,hybrid,BER,chain,distance,3.6 km,3.6,F. W. Borchardt,0.8592503221494393,1.0893685817718506,14.524914423624674,nearest_mention,True,False,False
-61,hybrid,BER,chain,vague,stroll,,F. W. Borchardt,0.8592503221494393,1.0893685817718506,14.524914423624674,nearest_mention,,,True
-61,standard,BER,chain,duration,4-minute,4.0,,,,,first_stop,True,,
-61,standard,BER,chain,duration,2-minute,2.0,Espresso House,5.51959040386727,0.5753620862960815,7.671494483947755,heading,True,False,False
-61,standard,BER,chain,duration,23-minute,23.0,Reichstag,22.569090895745976,2.000922679901123,26.678969065348305,heading,True,True,True
-61,standard,BER,chain,duration,4-minute,4.0,Brandenburg Gate,3.7600649703652618,0.31473132967948914,4.196417729059855,heading,True,True,True
-61,standard,BER,chain,duration,9-minute,9.0,Führerbunker,6.549340810412954,0.6662390232086182,8.883186976114908,heading,True,False,True
-61,standard,BER,chain,vague,stroll,,Espresso House,0.4139692802900453,0.5753620862960815,7.671494483947755,heading,,,True
-62,fusion,BER,chain,vague,stroll,,Pergamon Museum,0.05270175370894097,0.2183208465576172,2.910944620768229,heading,,,True
-62,fusion,BER,chain,vague,stroll,,F. W. Borchardt,1.0405827237499,1.2725290060043335,16.967053413391113,heading,,,False
-62,hybrid,BER,chain,duration,7‑minute,7.0,,,,,first_stop,True,,
-62,hybrid,BER,chain,duration,7‑minute,7.0,,,,,first_stop,True,,
-62,hybrid,BER,chain,duration,25‑minute,25.0,Reichstag,25.162689273167963,2.2480244636535645,29.97365951538086,heading,True,True,True
-62,hybrid,BER,chain,duration,4‑minute,4.0,Brandenburg Gate,3.7600649703652618,0.31473132967948914,4.196417729059855,heading,True,True,True
-62,hybrid,BER,chain,duration,11‑minute,11.0,Potsdamer Platz,10.935060517073303,0.9047896862030029,12.063862482706705,heading,True,True,True
-62,hybrid,BER,chain,duration,15‑minute,15.0,F. W. Borchardt,15.493403700372177,1.4531100988388062,19.37480131785075,heading,True,True,False
-62,hybrid,BER,chain,distance,1.9 km,1.9,Reichstag,1.8872016954875972,2.2480244636535645,29.97365951538086,heading,True,True,True
-62,hybrid,BER,chain,distance,0.3 km,0.3,Brandenburg Gate,0.2820048727773946,0.31473132967948914,4.196417729059855,heading,True,True,True
-62,hybrid,BER,chain,distance,0.8 km,0.8,Potsdamer Platz,0.8201295387804978,0.9047896862030029,12.063862482706705,heading,True,True,True
-62,hybrid,BER,chain,vague,stroll,,,,,,first_stop,,,
-62,hybrid,BER,chain,vague,steps away,,Reichstag,1.8872016954875972,2.2480244636535645,29.97365951538086,heading,,,False
-62,standard,BER,chain,duration,six minutes,6.0,,,,,first_stop,True,,
-62,standard,BER,chain,duration,seven-minute,7.0,Führerbunker,6.549340810412954,0.6662390232086182,8.883186976114908,nearest_mention,True,True,False
-62,standard,BER,chain,vague,stroll,,,,,,first_stop,,,
-63,fusion,BER,chain,vague,stroll,,,,,,first_stop,,,
+61,fusion,PAR,chain,duration,11-minute,11.0,Louvre Museum,11.044667716620676,1.2388075590133667,16.517434120178223,heading,True,True,False
+61,fusion,PAR,chain,duration,26-minute,26.0,Montmartre,25.6698105727627,2.3985140323638916,31.98018709818522,heading,True,True,True
+61,fusion,PAR,chain,vague,short walk,,Les Deux Magots,1.2290540755615438,1.4578704833984375,19.438273111979168,heading,,,False
+61,fusion,PAR,chain,vague,stroll,,Louvre Museum,0.8283500787465506,1.2388075590133667,16.517434120178223,heading,,,False
+61,hybrid,PAR,chain,distance,1.4km,1.4,,,,,first_stop,True,,
+61,hybrid,PAR,chain,distance,0.8km,0.8,Louvre Museum,1.362917091019865,1.8189308643341064,24.252411524454754,heading,True,False,False
+61,hybrid,PAR,chain,distance,2.8km,2.8,Café de Flore,0.040679297289676834,0.09182935953140259,1.2243914604187012,heading,True,False,False
+61,hybrid,PAR,chain,vague,short walk,,,,,,unresolved,,,
+61,hybrid,PAR,chain,vague,stroll,,,,,,first_stop,,,
+61,standard,PAR,chain,duration,11-minute,11.0,Café de Flore,0.5423906305290245,0.09182935953140259,1.2243914604187012,nearest_mention,True,False,False
+61,standard,PAR,chain,distance,1.3-kilometer,1.3,,,,,first_stop,True,,
+61,standard,PAR,chain,vague,stroll,,,,,,first_stop,,,
+62,fusion,PAR,chain,duration,7-minute,7.0,La Samaritaine,6.926164012552681,0.7452974319458008,9.937299092610676,heading,True,True,False
+62,fusion,PAR,chain,duration,6-minute,6.0,Café Procope,5.69030970606826,0.5181572437286377,6.908763249715169,heading,True,True,True
+62,fusion,PAR,chain,distance,5.33km,5.33,,,,,unresolved,False,,
+62,fusion,PAR,chain,vague,stroll,,La Samaritaine,0.5194623009414511,0.7452974319458008,9.937299092610676,heading,,,True
+62,hybrid,PAR,chain,duration,6-minute,6.0,,,,,first_stop,True,,
+62,hybrid,PAR,chain,duration,1 minute,1.0,Les Deux Magots,11.044667716620676,1.2388075590133667,16.517434120178223,heading,True,False,False
+62,hybrid,PAR,chain,duration,38-minute,38.0,Café de Flore,0.5423906305290245,0.09182935953140259,1.2243914604187012,nearest_mention,True,False,False
+62,hybrid,PAR,chain,vague,stroll,,,,,,first_stop,,,
+62,hybrid,PAR,chain,vague,stroll,,Les Deux Magots,0.8283500787465506,1.2388075590133667,16.517434120178223,heading,,,False
+62,standard,PAR,chain,vague,stroll,,Notre-Dame de Paris,1.417475291669548,1.7000677585601807,22.667570114135742,heading,,,False
+63,fusion,BER,chain,vague,stroll,,,,,,unresolved,,,
 63,hybrid,BER,chain,vague,short walk,,Reichstag,1.8651294747943354,2.124300956726074,28.324012756347656,nearest_mention,,,False
 63,standard,BER,chain,vague,stroll,,,,,,unresolved,,,
+64,hybrid,BER,chain,duration,4-minute,4.0,Reichstag,25.162689273167963,2.2480244636535645,29.97365951538086,nearest_mention,True,False,False
+64,hybrid,BER,chain,duration,11-minute,11.0,Brandenburg Gate,3.7600649703652618,0.31473132967948914,4.196417729059855,nearest_mention,True,False,False
+64,hybrid,BER,chain,duration,15-minute,15.0,Potsdamer Platz,10.935060517073303,0.9047896862030029,12.063862482706705,nearest_mention,True,False,False
+64,hybrid,BER,chain,vague,stroll,,,,,,first_stop,,,
+64,standard,BER,chain,duration,6‑minute,6.0,Espresso House,5.51959040386727,0.5753620862960815,7.671494483947755,heading,True,True,False
+64,standard,BER,chain,duration,2‑minute,2.0,Berlin Cathedral,2.3937003445443623,0.3403190076351166,4.537586768468221,heading,True,True,False
+64,standard,BER,chain,duration,4‑minute,4.0,Brandenburg Gate,3.7600649703652618,0.31473132967948914,4.196417729059855,heading,True,True,True
+64,standard,BER,chain,distance,1.7 km,1.7,Reichstag,1.6926818171809481,2.000922679901123,26.678969065348305,heading,True,True,True
+64,standard,BER,chain,distance,0.3 km,0.3,Brandenburg Gate,0.2820048727773946,0.31473132967948914,4.196417729059855,heading,True,True,True
+64,standard,BER,chain,distance,0.5 km,0.5,Führerbunker,0.4912005607809715,0.6662390232086182,8.883186976114908,heading,True,True,False
+64,standard,BER,chain,distance,0.7 km,0.7,F. W. Borchardt,0.6575233036383852,0.8040401339530945,10.720535119374594,heading,True,True,True
+64,standard,BER,chain,vague,short walk,,Espresso House,0.4139692802900453,0.5753620862960815,7.671494483947755,heading,,,True
+65,fusion,BER,chain,duration,nine-minute,9.0,,,,,first_stop,True,,
+65,fusion,BER,chain,duration,18-minute,18.0,,,,,first_stop,True,,
+65,fusion,BER,chain,duration,four-minute,4.0,Brandenburg Gate,3.7600649703652618,0.31473132967948914,4.196417729059855,heading,True,True,True
+65,fusion,BER,chain,duration,eleven-minute,11.0,Brandenburg Gate,3.7600649703652618,0.31473132967948914,4.196417729059855,heading,True,False,False
+65,fusion,BER,chain,duration,ten-minute,10.0,F. W. Borchardt,11.456670961992524,1.0893685817718506,14.524914423624674,heading,True,True,False
+65,fusion,BER,chain,duration,four-minute,4.0,Lustgarten,10.031112571932297,1.0522565841674805,14.03008778889974,heading,True,False,False
+65,fusion,BER,chain,vague,stroll,,,,,,first_stop,,,
+65,fusion,BER,chain,vague,stroll,,Lustgarten,0.7523334428949222,1.0522565841674805,14.03008778889974,heading,,,True
+65,hybrid,BER,chain,duration,25‑minute,25.0,Reichstag,24.868392997257807,2.124300956726074,28.324012756347656,nearest_mention,True,True,True
+65,hybrid,BER,chain,duration,4‑minute,4.0,Reichstag,24.868392997257807,2.124300956726074,28.324012756347656,nearest_mention,True,False,False
+65,hybrid,BER,chain,duration,11‑minute,11.0,F. W. Borchardt,11.456670961992524,1.0893685817718506,14.524914423624674,nearest_mention,True,True,False
+65,hybrid,BER,chain,duration,49‑minute,49.0,F. W. Borchardt,11.456670961992524,1.0893685817718506,14.524914423624674,nearest_mention,True,False,False
+65,hybrid,BER,chain,vague,stroll,,Reichstag,1.8651294747943354,2.124300956726074,28.324012756347656,nearest_mention,,,False
+65,standard,BER,chain,vague,stroll,,,,,,first_stop,,,
+66,fusion,BER,chain,duration,4‑minute,4.0,Reichstag,18.018223135887492,1.6130050420761108,21.506733894348145,nearest_mention,True,False,False
+66,fusion,BER,chain,duration,11‑minute,11.0,Brandenburg Gate,3.7600649703652618,0.31473132967948914,4.196417729059855,nearest_mention,True,False,False
+66,fusion,BER,chain,duration,14‑minute,14.0,Brandenburg Gate,3.7600649703652618,0.31473132967948914,4.196417729059855,nearest_mention,True,False,False
+66,fusion,BER,chain,vague,stroll,,Reichstag,1.351366735191562,1.6130050420761108,21.506733894348145,nearest_mention,,,False
+66,hybrid,BER,chain,duration,23‑minute,23.0,Reichstag,23.02664513847271,2.502161979675293,33.362159729003906,heading,True,True,False
+66,hybrid,BER,chain,distance,8.8 km,8.8,,,,,unresolved,False,,
+66,hybrid,BER,chain,vague,stroll,,Brandenburg Gate,0.2820048727773946,0.31473132967948914,4.196417729059855,heading,,,True
+66,standard,BER,chain,duration,23‑minute,23.0,Berlin Cathedral,2.3937003445443623,0.3403190076351166,4.537586768468221,heading,True,False,False
+66,standard,BER,chain,duration,4‑minute,4.0,Brandenburg Gate,3.7600649703652618,0.31473132967948914,4.196417729059855,heading,True,True,True
+66,standard,BER,chain,duration,7‑minute,7.0,Brandenburg Gate,3.7600649703652618,0.31473132967948914,4.196417729059855,heading,True,False,False
+66,standard,BER,chain,duration,9‑minute,9.0,F. W. Borchardt,8.766977381845136,0.8040401339530945,10.720535119374594,heading,True,True,True
+66,standard,BER,chain,vague,stroll,,,,,,first_stop,,,
+67,fusion,BER,chain,duration,4‑minute,4.0,,,,,first_stop,True,,
+67,fusion,BER,chain,duration,15‑minute,15.0,Berlin-Friedrichstraße railway station,15.067159871455889,1.5481882095336914,20.64250946044922,heading,True,True,False
+67,fusion,BER,chain,duration,10‑minute,10.0,Berlin-Friedrichstraße railway station,15.067159871455889,1.5481882095336914,20.64250946044922,heading,True,False,False
+67,fusion,BER,chain,duration,4‑minute,4.0,Brandenburg Gate,3.7600649703652618,0.31473132967948914,4.196417729059855,heading,True,True,True
+67,fusion,BER,chain,duration,7‑minute,7.0,Führerbunker,6.549340810412954,0.6662390232086182,8.883186976114908,heading,True,True,False
+67,fusion,BER,chain,duration,9‑minute,9.0,F. W. Borchardt,8.766977381845136,0.8040401339530945,10.720535119374594,heading,True,True,True
+67,fusion,BER,chain,distance,57m,57.0,F. W. Borchardt,0.6575233036383852,0.8040401339530945,10.720535119374594,nearest_mention,False,False,False
+67,fusion,BER,chain,vague,stroll,,,,,,first_stop,,,
+67,hybrid,BER,chain,duration,15-minute,15.0,Berlin-Friedrichstraße railway station,15.248159910364866,1.6061216592788696,21.414955457051597,heading,True,True,False
+67,hybrid,BER,chain,duration,4-minute,4.0,Reichstag,10.08152936567581,0.9568849802017212,12.758466402689617,heading,True,False,False
+67,standard,BER,chain,duration,two minutes,2.0,Berlin Cathedral,2.3937003445443623,0.3403190076351166,4.537586768468221,heading,True,True,False
+67,standard,BER,chain,duration,23 minutes,23.0,Reichstag,22.569090895745976,2.000922679901123,26.678969065348305,heading,True,True,True
+67,standard,BER,chain,duration,seven minutes,7.0,Führerbunker,6.549340810412954,0.6662390232086182,8.883186976114908,heading,True,True,False
+67,standard,BER,chain,duration,nine‑minute,9.0,F. W. Borchardt,8.766977381845136,0.8040401339530945,10.720535119374594,heading,True,True,True
+67,standard,BER,chain,distance,1.7‑km,1.7,Reichstag,1.6926818171809481,2.000922679901123,26.678969065348305,heading,True,True,True
+67,standard,BER,chain,vague,stroll,,Espresso House,0.4139692802900453,0.5753620862960815,7.671494483947755,heading,,,True
