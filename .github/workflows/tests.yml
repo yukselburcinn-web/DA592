@@ -57,7 +57,7 @@ jobs:
       # agents, the solver. A pull request that leaves all four alone cannot
       # break them, so it runs the fast subset and gets its answer in a
       # fraction of the time. Anything else -- and every push to main -- runs
-      # all 161. Nothing reaches the default branch without the full suite.
+      # all 235. Nothing reaches the default branch without the full suite.
       - name: Decide which tests this change needs
         id: scope
         run: |
