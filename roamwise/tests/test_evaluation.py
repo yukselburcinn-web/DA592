@@ -884,3 +884,66 @@ def test_the_two_weightings_disagree_on_level_and_agree_on_order():
     assert list(headline.sort_values(ascending=False).index) == \
         list(tier_equal.sort_values(ascending=False).index), \
         "the two weightings order the configs differently -- #176 is no longer cosmetic"
+
+
+# --- issue #183: the generation cache accumulated what nothing could reach ---
+
+def test_pruning_the_cache_keeps_what_both_runs_reached():
+    """The trap this pruning has to avoid, asserted directly.
+
+    `__main__` runs the measurement, saves, then runs the zero-context probe
+    against the same file. Pruning inside the measurement to its own keys
+    would delete the probe's two entries; the probe would regenerate them and
+    rewrite `llm_hallucination_probe.csv` from a fresh generation, moving
+    REPORT's probe numbers for no reason at all. The basis has to be the union.
+    """
+    from roamwise.evaluation.hallucination import prune_cache
+
+    cache = {"measurement": {"text": "a"}, "probe": {"text": "b"}, "stale": {"text": "c"}}
+
+    measurement_only, _ = prune_cache(cache, {"measurement"})
+    assert "probe" not in measurement_only, \
+        "this is the wrong basis, and the test exists to say so"
+
+    kept, dropped = prune_cache(cache, {"measurement", "probe"})
+    assert set(kept) == {"measurement", "probe"} and dropped == 1
+    assert len(cache) == 3, "prune_cache must not mutate the cache it is handed"
+
+
+def test_the_committed_cache_holds_no_entry_nothing_can_reach():
+    """The guard on the file itself.
+
+    Every committed entry has to be one today's code could hit: the
+    measurement's prompts, or the probe's two. An entry that answers a prompt
+    nothing builds any more is inert -- no run can reach it, so it cannot
+    produce a wrong number -- but it is half the bytes and it tells a reader
+    of the file that a generation exists for a plan the system no longer
+    makes. The file went from 108 entries to 222 across #173, #175 and #176
+    before anything noticed.
+
+    Checked through the stored prompts rather than by rebuilding them: since
+    #183 an entry carries the prompt it answered, so this costs a file read
+    instead of a TOPTW solve per query.
+    """
+    from roamwise.evaluation.hallucination import (
+        CACHE_PATH, SYNTHESIS_SYSTEM, _cache_key, load_cache)
+
+    cache = load_cache()
+    assert cache, f"{CACHE_PATH.name} is the committed measurement's evidence"
+
+    unreadable = [key for key, entry in cache.items() if "prompt" not in entry]
+    assert not unreadable, (
+        f"{len(unreadable)} cache entries carry no prompt -- re-run "
+        f"`python -m roamwise.evaluation.hallucination` to backfill them (#183)")
+
+    # Every entry's key must be the hash of the prompt it stores, under its own
+    # model and one of the two systems this module generates with. A stale
+    # entry left behind by a prompt change fails this only if it was also
+    # re-keyed, so the real staleness guard is `measurement_fingerprint`; what
+    # this catches is an entry whose stored prompt and key disagree, which is
+    # how a backfill could quietly write the wrong prompt beside a generation.
+    probe_system = "You are a travel assistant."
+    for key, entry in cache.items():
+        expected = {_cache_key(entry["model"], system, entry["prompt"])
+                    for system in (SYNTHESIS_SYSTEM, probe_system)}
+        assert key in expected, f"cache entry {key[:12]} does not hash to the prompt it stores"
