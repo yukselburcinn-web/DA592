@@ -160,7 +160,7 @@ Each of these cost someone a debugging session.
     (#128's two "the code lies about itself" findings — the unrunnable `backend="neo4j"`
     branches and the "zoning + 2-opt" router label — were fixed in #145. Both are gone.)
 
-17. **`@pytest.mark.slow` is not a hint, it decides what CI runs.** 45 of the 235 tests carry
+17. **`@pytest.mark.slow` is not a hint, it decides what CI runs.** 46 of the 241 tests carry
     it: the ones that run a full trip plan, a multi-day TOPTW solve, a retriever build, or the
     comparative analysis. A pull request that touches nothing under `knowledge_graph/`,
     `retrieval/`, `agents/` or `optimization/` runs `-m "not slow"`; everything else, and
