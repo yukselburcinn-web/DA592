@@ -67,6 +67,7 @@ committed CSV reproducible by someone who does not want to spend their own
 quota re-deriving it.
 """
 import hashlib
+import inspect
 import json
 import re
 from pathlib import Path
@@ -312,8 +313,34 @@ def _forecast_line(forecaster, destination_id: str, travel_month: str = None) ->
     return FORECAST_TEMPLATE.format(month=fc["target_month"], level=fc["crowding_level"])
 
 
-def query_set_fingerprint() -> str:
-    """A hash of the query set the committed CSVs were measured on.
+def prompt_sources() -> list[str]:
+    """The text and the code that turn a query into the narrator's prompt.
+
+    Hashed by `measurement_fingerprint()` as *source*, not as generated
+    prompts: generating them for real means a TOPTW solve per query and would
+    make the guard too slow to be a test, while `inspect.getsource` is
+    immediate and just as deterministic.
+
+    `_facts` is listed with the module-level helpers it composes a stop line
+    from, because #173 moved half of that line's content into `_leg_clause`
+    and a guard that watched only `_facts` would have stopped watching it.
+
+    What this does *not* cover: everything that decides which stops the
+    itinerary holds -- scoring, the solver, retrieval. Those change the prompt
+    too, and a change to any of them still leaves the committed numbers stale
+    with nothing firing. This covers the layer that turns a fixed itinerary
+    into fixed text, which is the layer that changes without leaving a trace
+    anywhere else in the repo.
+    """
+    from roamwise.agents.router_agent import RouterAgent, _clock, _leg_clause, _minutes, _summarize
+    return [SYNTHESIS_SYSTEM] + [
+        inspect.getsource(obj) for obj in
+        (synthesis_prompt, RouterAgent._facts, _leg_clause, _minutes, _clock, _summarize)]
+
+
+def measurement_fingerprint() -> str:
+    """A hash of everything the committed CSVs were measured on: the query set
+    and the prompt those queries are turned into.
 
     Written into the summary and asserted by a test, because this measurement
     is the one number in the repo that CI cannot re-derive: it needs a key and
@@ -326,11 +353,24 @@ def query_set_fingerprint() -> str:
     It covers what changes the prompt -- the question, the city, the archetype
     and the tier -- and deliberately not the gold set, which grades retrieval
     and has no effect on what the narrator is shown.
+
+    It covers the prompt *text* as well since #173, and that half was added
+    because #173 is what it would have missed: that issue rewrote `_facts()`
+    and left TEST_QUERIES alone, so the query-set half of this hash would not
+    have moved and the guard would have gone green over numbers measured on a
+    prompt that no longer existed. It was called `query_set_fingerprint()`
+    until then, and the summary column was `query_set`.
+
+    A comment edit inside those functions fires it too, and that costs
+    nothing: if the prompt really did not change, the generation cache keys
+    are unchanged, the re-run reports `0 generation(s), N served from cache`
+    and only refreshes the hash. A false alarm is worth zero calls; a missed
+    staleness is a wrong number in REPORT.md.
     """
     from roamwise.evaluation.comparative_analysis import TEST_QUERIES
     material = "\n".join(
-        f"{q.destination_id}|{q.archetype}|{q.tier}|{q.chain_anchor}|{q.text}"
-        for q in TEST_QUERIES)
+        [f"{q.destination_id}|{q.archetype}|{q.tier}|{q.chain_anchor}|{q.text}"
+         for q in TEST_QUERIES] + prompt_sources())
     return hashlib.sha1(material.encode()).hexdigest()[:12]
 
 
@@ -425,7 +465,7 @@ def run_hallucination_measurement(top_k: int = 8, llm=None) -> tuple:
     summary["geographical_hallucination_rate"] = (summary.wrong_city / summary.places_named).round(4)
     summary["ungrounded_mention_rate"] = (summary.unshown_same_city / summary.places_named).round(4)
     summary["model"] = describe_client(llm)
-    summary["query_set"] = query_set_fingerprint()
+    summary["fingerprint"] = measurement_fingerprint()
     print(f"{calls} generation(s), {hits} served from cache")
     return out, summary.reset_index()
 
