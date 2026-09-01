@@ -234,3 +234,26 @@ def test_every_place_that_states_the_slow_count_states_the_same_number():
         "pytest.ini": _int(PYTEST_INI, r"analysis\. (\d+) of the", "pytest.ini slow"),
     }
     assert len(set(slow.values())) == 1, f"the slow-test count is quoted inconsistently: {slow}"
+
+
+def test_claude_md_still_describes_backlogs_size_and_scope():
+    """CLAUDE.md tells a reader not to open BACKLOG.md, and says how big it is.
+
+    That size was 81 KB against a 93 KB file when the cleanup pass measured it,
+    and the file has since been synced to 112 KB. The tolerance is 5 KB: an
+    ordinary edit should not turn this red, a migration should. The issue count
+    is exact -- it comes from `gh issue list --state all`, and if it moves the
+    sentence promising a full sync is no longer true.
+    """
+    backlog = REPO / "BACKLOG.md"
+    stated_kb = _int(CLAUDE_MD, r"it is (\d+) KB", "CLAUDE.md BACKLOG size")
+    actual_kb = backlog.stat().st_size / 1024
+    assert abs(stated_kb - actual_kb) <= 5, (
+        f"CLAUDE.md says BACKLOG.md is {stated_kb} KB; it is {actual_kb:.0f} KB")
+
+    stated_issues = _int(CLAUDE_MD, r"all\n(\d+) issues, none open", "CLAUDE.md issue count")
+    headings = re.findall(r"^### .*$", backlog.read_text(encoding="utf-8"), re.M)
+    covered = {n for h in headings for n in re.findall(r"#(\d+)", h)}
+    assert len(covered) == stated_issues, (
+        f"CLAUDE.md claims {stated_issues} issues are written up; BACKLOG.md has sections for "
+        f"{len(covered)}. Re-sync it, or say it lags again.")

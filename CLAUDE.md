@@ -50,8 +50,10 @@ roamwise/
 | Known limitations and deliberate trade-offs | `REPORT.md` §5 — read before proposing architecture changes |
 | How to run and rebuild things | `README.md` |
 
-`BACKLOG.md` is a synced index that lags GitHub, and it is 81 KB. Don't read it whole and
-don't cite it as current; query `gh` instead.
+`BACKLOG.md` is an **archive**, and it is 112 KB. It was synced to GitHub on 2026-09-01 — all
+87 issues, none open — and it will lag again the moment one is filed. Don't read it whole and
+don't cite it as current; query `gh` instead. What it is good for is the Turkish write-up of
+*why* each closed issue closed the way it did, which GitHub holds only as scattered comments.
 
 ## Reading rules
 
@@ -166,11 +168,11 @@ Each of these cost someone a debugging session.
     (#128's two "the code lies about itself" findings — the unrunnable `backend="neo4j"`
     branches and the "zoning + 2-opt" router label — were fixed in #145. Both are gone.)
 
-17. **`@pytest.mark.slow` is not a hint, it decides what CI runs.** 46 of the 259 tests carry
+17. **`@pytest.mark.slow` is not a hint, it decides what CI runs.** 46 of the 260 tests carry
     it: the ones that run a full trip plan, a multi-day TOPTW solve, a retriever build, or the
     comparative analysis. A pull request that touches nothing under `knowledge_graph/`,
     `retrieval/`, `agents/` or `optimization/` runs `-m "not slow"`; everything else, and
-    every push to `main`, runs all 259 (#148). Re-derive both counts rather than trusting
+    every push to `main`, runs all 260 (#148). Re-derive both counts rather than trusting
     these two — `pytest tests/ -q --collect-only` and `-m slow --collect-only` — because they
     are the numbers that go stale first (#185). Two consequences: **add the marker when you
     add a test that plans a trip** — an unmarked heavy test silently lengthens every PR — and
