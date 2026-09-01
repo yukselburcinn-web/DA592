@@ -344,10 +344,6 @@ def route_geometry(points: list[dict], use_real_routing: bool, travel_mode=DEFAU
     return [(leg, True) for leg in drawn]
 
 
-def _route_length(route: list[dict], distance_fn) -> float:
-    return sum(distance_fn(route[i], route[i + 1]) for i in range(len(route) - 1))
-
-
 def _nearest_neighbor(pois: list[dict], distance_fn, start: dict = None) -> list[dict]:
     remaining = pois[:]
     route = []
@@ -425,9 +421,17 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
     wait-for-opening + visit time), plus total distance/time, a per-stop
     schedule, and which distance source was actually used.
 
-    travel_mode ("walking"/"driving"/"hybrid") sets how a leg is costed, so
-    the same set of stops yields a fuller day when the traveler is driving
-    than when they are on foot.
+    travel_mode ("walking"/"driving"/"transit"/"hybrid") sets how a leg is
+    costed, so the same set of stops yields a fuller day when the traveler is
+    driving than when they are on foot.
+
+    Nothing on the planning path calls this any more: since #72 a trip is one
+    TOPTW model that decides selection, day assignment and ordering together,
+    and this function decides only the last of those for one day. It is kept
+    deliberately, and requirements.txt says so from the other end -- it is the
+    single-day distance/opening-hours primitive, and `tests/test_opening_hours.py`
+    exercises the #70 weekday resolver through it without paying for a solve.
+    Read a call to it as a test of that primitive, not as how a trip is built.
 
     `day_date` is the calendar date this day falls on, and it is what makes
     opening hours mean anything: without it a POI's hours can only be read as
@@ -522,23 +526,3 @@ def optimize_day_route(pois: list[dict], start_hub: dict = None, daily_minutes_b
         "schedule": schedule,
         "used_real_routing": used_real_routing,
     }
-
-
-def _demo_city():
-    import pandas as pd
-    from pathlib import Path as _P
-    d = _P(__file__).resolve().parents[1] / "data" / "destinations.csv"
-    return pd.read_csv(d).destination_id.iloc[0]
-
-
-if __name__ == "__main__":
-    # One day over a city's whole catalogue, to see the primitive on its own.
-    # For a real trip use: python -m roamwise.optimization.toptw
-    from roamwise.knowledge_graph.build_graph import GraphIndex
-
-    idx = GraphIndex()
-    day = optimize_day_route(idx.city_pois(_demo_city())[:40], daily_minutes_budget=600)
-    print(f"{len(day['route'])} stops, {day['distance_km']}km, "
-          f"{day['active_minutes']}min busy of {day['total_minutes']}min out")
-    for poi, slot in zip(day["route"], day["schedule"]):
-        print(f"  {int(slot['arrival']):02d}:{int(slot['arrival'] % 1 * 60):02d}  {poi['name']}")

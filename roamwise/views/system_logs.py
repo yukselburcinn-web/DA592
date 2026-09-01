@@ -493,20 +493,6 @@ def _retrieval_ceiling_ratio(results_df, config: str = "fusion"):
     return rows.recall_at_k.mean() / ceilings.mean()
 
 
-def _normalized_recall(results_df) -> pd.Series:
-    """Per-row recall as a share of what that row could attain.
-
-    The second metric #49 left uncovered: mean recall reads as if 1.0 were
-    reachable, and on this query set the mean ceiling is about half that, so a
-    reader comparing 0.26 against 1.0 concludes the retriever is much worse
-    than it is. Computed per query and then averaged rather than as a ratio of
-    means, because the queries differ enormously in key size (1 to 85) and a
-    ratio of means lets the largest keys speak for the set.
-    """
-    ceilings = results_df.apply(_attainable_recall, axis=1)
-    return results_df.recall_at_k / ceilings
-
-
 @st.cache_data(show_spinner=False)
 def _load_ceiling():
     """None when there is nothing to show, including a measurement predating
