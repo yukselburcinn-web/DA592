@@ -154,8 +154,12 @@ class RoamWiseOrchestrator:
         Left as None it now comes from the archetype (router_agent.DAY_START_HOURS):
         a 09:00 default gave a Nightlife Seeker nine hours with nothing
         schedulable in them, and a day holding one bar (issue #61).
-        travel_mode: "walking", "driving" or "hybrid" -- how legs between stops are
-        costed, which decides how much of a day's budget travel consumes.
+        travel_mode: "walking", "driving", "transit" or "hybrid" -- how legs
+        between stops are costed, which decides how much of a day's budget
+        travel consumes. `transit` is offered only where a city ships a solved
+        GTFS matrix (`street_network.available_cities("transit")`); this
+        docstring named three modes until the sidebar had offered four for a
+        while, which is the shape of drift a docstring cannot notice.
         use_real_routing: use real street-network distances/times instead of the
         haversine + flat-speed estimate. Computed from OpenStreetMap data
         committed to this repo (issue #32), so it needs no network; it falls

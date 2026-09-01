@@ -517,7 +517,7 @@ with st.sidebar:
     engine = st.radio(
         "Which orchestrator runs the plan?",
         list(_engine_options), format_func=_engine_options.get,
-        help="The five agent steps are implemented twice -- as a hand-rolled state "
+        help="The six agent steps are implemented twice -- as a hand-rolled state "
              "machine and on LangGraph -- and both call the same agents, so the plan "
              "does not depend on which one runs. The System logs screen names the one "
              "that did.",

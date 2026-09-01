@@ -60,7 +60,8 @@ Some committed files are large enough to be worth avoiding whole:
 - `tests/` is one file per subject since #150 — `test_graph.py`, `test_models.py`,
   `test_retrieval.py`, `test_routing.py`, `test_opening_hours.py`, `test_orchestration.py`,
   `test_evaluation.py`, `test_maps.py`, `test_transit.py`, `test_arrival.py`,
-  `test_crowding.py`, `test_llm.py`. Read the one you need instead of all of them, and run it
+  `test_crowding.py`, `test_llm.py`, `test_views.py`, `test_docs.py`. Read the one you need
+  instead of all of them, and run it
   on its own: `pytest tests/test_opening_hours.py`. The catalogue-derived constants
   (`CITY_CODES`, `MAIN_CITY`, `needs_full_city`, …) live in `tests/helpers.py`; a new test
   file imports them from there rather than re-deriving them.

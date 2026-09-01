@@ -5,7 +5,7 @@ Issue: the proposal names LangGraph ("e.g., LangGraph or similar multi-agent
 systems") as the orchestration framework. `orchestrator.py` deliberately used
 a hand-rolled state machine instead (see its module docstring) to keep the
 project dependency-light. This module is the other side of that trade-off:
-the *same* five-node flow, reimplemented on `langgraph.graph.StateGraph`, so
+the *same* six-node flow, reimplemented on `langgraph.graph.StateGraph`, so
 the two can be compared directly rather than argued about in the abstract.
 
 Design notes:
