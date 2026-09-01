@@ -74,6 +74,11 @@ Some committed files are large enough to be worth avoiding whole:
   `test_evaluation.py` (the comparative analysis had been folded into
   `test_orchestration.py`, putting the measurement work and the orchestrator work in one).
   Put a new test where its subject lives, not where a related one happens to sit.
+
+  `test_docs.py` is the one file whose subject is not a `roamwise/` subpackage: it checks the
+  figures `README.md`, `REPORT.md`, this file, `pytest.ini` and the CI workflow quote against
+  the CSVs those figures are copied from. It belongs to whoever edits the prose, which is
+  everyone — so when a change moves a number, that file fails and names the sentence.
 - `data/poi.csv`, `data/crowding.csv`, `evaluation/*_results.csv` — use `head`, `wc -l`, or
   pandas. Never `cat` them.
 - `data/knowledge_graph.gml` and `data/street_network/*.npz` are blocked by a `Read` deny
@@ -161,11 +166,11 @@ Each of these cost someone a debugging session.
     (#128's two "the code lies about itself" findings — the unrunnable `backend="neo4j"`
     branches and the "zoning + 2-opt" router label — were fixed in #145. Both are gone.)
 
-17. **`@pytest.mark.slow` is not a hint, it decides what CI runs.** 46 of the 241 tests carry
+17. **`@pytest.mark.slow` is not a hint, it decides what CI runs.** 46 of the 259 tests carry
     it: the ones that run a full trip plan, a multi-day TOPTW solve, a retriever build, or the
     comparative analysis. A pull request that touches nothing under `knowledge_graph/`,
     `retrieval/`, `agents/` or `optimization/` runs `-m "not slow"`; everything else, and
-    every push to `main`, runs all 235 (#148). Re-derive both counts rather than trusting
+    every push to `main`, runs all 259 (#148). Re-derive both counts rather than trusting
     these two — `pytest tests/ -q --collect-only` and `-m slow --collect-only` — because they
     are the numbers that go stale first (#185). Two consequences: **add the marker when you
     add a test that plans a trip** — an unmarked heavy test silently lengthens every PR — and
