@@ -36,7 +36,7 @@
       "name": "roamwise-local-llm",
       "runtimeExecutable": "env",
       "runtimeArgs": [
-        "ROAMWISE_LOCAL_LLM=1",
+        "ROAMWISE_LLM=local",
         "HF_HUB_OFFLINE=1",
         "venv/bin/streamlit",
         "run",

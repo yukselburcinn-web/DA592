@@ -29,22 +29,40 @@ altyapı işi) — bu durumlarda not düşüldü, etiketler GitHub'da düzeltile
 
 ---
 
-## Durum özeti (2026-08-29)
+## Durum özeti (2026-09-01)
 
 | Alan | Açık | Kapalı |
 |---|---|---|
-| A — Veri & Modeller | 1 (#124) | 11 (#1, #2, #3, #27, #30, #33, #65, #70, #71, #79, #92) |
-| B — Retrieval & Bilgi Grafiği | 2 (#123, #126) | 12 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85, #113, #128) |
-| C — Ajanlar, Orkestrasyon & UI | 6 (#7, #122, #129, #130, #131, #132) | 27 (#8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #76, #77, #78, #80, #81, #83, #94, #109, #125, #133) |
-| D — Altyapı | 1 (#136) | 7 (#11, #12, #26, #31, #32, #93, #101) |
+| A — Veri & Modeller | 0 | 16 (#1, #2, #3, #27, #30, #33, #65, #70, #71, #79, #92, #124, #161, #175, #176, #183) |
+| B — Retrieval & Bilgi Grafiği | 0 | 16 (#4, #5, #6, #42, #46, #48, #49, #50, #63, #85, #113, #123, #126, #128, #143, #144) |
+| C — Ajanlar, Orkestrasyon & UI | 0 | 41 (#7, #8, #9, #10, #19, #20, #21, #22, #23, #29, #41, #54, #56, #57, #59, #61, #67, #72, #76, #77, #78, #80, #81, #83, #94, #109, #122, #125, #129, #130, #131, #132, #133, #155, #157, #159, #160, #162, #163, #173, #177) |
+| D — Altyapı | 0 | 14 (#11, #12, #26, #31, #32, #93, #101, #128'in devri #145, #136, #148, #150, #153, #164, #185) |
 
-İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Açık kalan işlerin hepsi ilk
-listede yoktu; uygulama canlı test edilirken ya da kod incelenirken çıkan bulgular.
-
-Toplam 67 issue: **10 açık, 57 kapalı.** Sayılar ve durumlar 2026-08-29 itibarıyla
+Toplam 87 issue: **0 açık, 87 kapalı.** Sayılar 2026-09-01 itibarıyla
 `gh issue list --state all` ile doğrulandı ve her issue'nun aşağıda kendi bölümü var.
 
-**Bu güncellemede ne değişti (2026-08-29):** Backlog on bir issue geride kalmıştı — #122-#133
+Üçü aksiyon alınmadan kapandı (`not planned`) ve bu tabloda kapalı sayılıyor: **#27** (kapsamı
+#65 ve #71 devraldı), **#128** (erken açılmıştı; bulgularını #145 çözdü), **#131** (Berk'in
+makinesinde lokal LLM doğrulaması — Apple Silicon gerektirdiği için yapılamadı, #7'nin NVIDIA
+yolu aynı boşluğu kapattı).
+
+İlk 12 maddelik listenin tamamı kapalı — proje ilk backlog'u bitirdi. Sonradan açılan işlerin
+hepsi uygulama canlı test edilirken ya da kod incelenirken çıktı.
+
+**Bu güncellemede ne değişti (2026-09-01):** Dosya on dokuz issue geride kalmıştı — #143'ten
+#185'e kadar olan aralığın hiçbirinin bölümü yoktu — ve tablo "10 açık" diyordu, oysa o on
+issue'nun hepsi kapanmıştı. Bu, dosyanın kendisini kaynak sanan birine yanlış bir "ne kaldı"
+tablosu gösteriyordu; asıl mesele de buydu, bayat olması değil. Bir depo temizliği denetimi
+bunu tespit etti ve tam senkron yapıldı. Eksik on dokuz bölüm yazıldı, on başlık 🔓 → ✅
+çevrildi, alan tablosu `gh` çıktısından yeniden türetildi ve "öncelik sırası" bölümü açık iş
+kalmadığı için kaldırıldı.
+
+**Bu dosya bir arşivdir.** Kaynak-doğru GitHub Issues; CLAUDE.md zaten "bunu okuma, `gh` sor"
+diyor. Burada tutulmasının tek sebebi, kapanmış her işin *neden* öyle kapandığını tek yerde
+tarif eden Türkçe bir kayıt olması — tez teslimi için bu kayıt işe yarıyor, günlük çalışma için
+yaramıyor.
+
+**Önceki güncellemede (2026-08-29):** Backlog on bir issue geride kalmıştı — #122-#133
 aralığı hiç yazılmamıştı ve tablo "1 açık" diyordu. Hepsi eklendi. İki kapanış: **#125** (anlatı
 son güne kadar sürüyor, kesildiyse söylüyor — PR #127) ve **#133** (lokal LLM opt-in'i tutmazsa
 sessizce template'e düşmüyor, duyuruyor — PR #135). **#128** kapandı ama *çözülmedi*: "erken
@@ -314,7 +332,7 @@ Regresyon testi: `test_every_airport_hub_stands_where_the_footway_network_can_pl
 REPORT §5 güncellendi. Testler: 123 geçti, 1 atlandı.
 [#92](https://github.com/yukselburcinn-web/DA592/issues/92) — ilişkili: #32
 
-### #124. Kişiselleştirmenin iki ayağı da uydurma ankete dayanıyor — 🔓 Açık
+### #124. Kişiselleştirmenin iki ayağı da uydurma ankete dayanıyor — ✅ Kapalı
 *(enhancement, `area:data`, `priority:medium`)* `user_survey.csv` 420 satırlık **sentetik** veri;
 `data/generate_data.py` üretiyor ve depo o betiği kendi docstring'ine göre sırf bunun için tutuyor.
 Buna doğrudan dayanan iki şey var ve ikisi de kişiselleştirmenin merkezinde:
@@ -325,7 +343,48 @@ karar veriyor). Yani hem "hangi POI ne kadar isteniyor" hem de "bu gezgin kim" s
 uydurma. İşin ilk adımı ankete duyarlılık ölçmek: sonuçlar ankete ne kadar bağlı, önce o.
 [#124](https://github.com/yukselburcinn-web/DA592/issues/124) — ilişkili: #1, #79
 
+**Kapanış (PR #179):** ölçüldü ve sonuç ikiye ayrıldı. Anketi yeniden çekmek hiçbir planı değiştirmiyor (14 gezide durak örtüşmesi %100, üç tohum boyunca), yani sentetik anket *itineraryler* için bilimsel bir risk değil. Ama bağımlılığın tamamı segmenter'da: NNLS tercih matrisini tanınmayacak kadar bozmak planlanan durakların %99,4'ünü yerinde bırakıyor. Yani raporun kişiselleştirme mekanizması diye sunduğu matris plan seviyesinde neredeyse dekoratif — REPORT §5'e bu düzeltmeyle yazıldı.
+
 ---
+
+### #161. Demand forecast geçmişi "önümüzdeki 12 ay" diye gösteriyor — ✅ Kapalı
+*(bug, `area:data`, `priority:high` — PR #167)* Ölçüldü (2026-08-30): Berlin'in grafikte
+"next 12 months" diye çizilen on iki ayının **on ikisi de geçmişte** (2025-01 → 2025-12), Paris'in
+sekizi. Sebep `forecast_city`'nin ufku **serinin bittiği yerden** sayması; iki şehrin serisi aynı
+yerde bitmediği için (BER 2024-12, PAR 2025-12) iki şehir iki farklı "gelecek" gösteriyordu.
+Kozmetik değil: aynı tahmin gezinin kalabalık etiketini belirliyor. Dönüşüm `forecast_window()`'a
+taşındı, hem grafik hem ajan oraya bakıyor, başlık pencereden üretiliyor ve sekme her şehrin son
+gerçek gözleminden ne kadar ileriye ekstrapole edildiğini yazıyor.
+[#161](https://github.com/yukselburcinn-web/DA592/issues/161) — ilişkili: #3, #27
+
+### #175. Cevap anahtarı tek POI'ye düşen sorgular puanlanıyor: eleme eşiği truthiness — ✅ Kapalı
+*(bug, `area:data`, `priority:medium` — PR #180)* Izgara hücrelerini eleyen satır bir *truthiness*
+kontrolüydü, yani eşik sıfır: `gold=1` olan bir hücre puanlanabilir sayılıyor, oysa `recall@8`'in
+tek elemanlı bir anahtara karşı alabileceği tek iki değer 0,0 ve 1,0 — sorgu yazı-tura atıyor,
+tablo sonucu retrieval başarısızlığı diye okuyor. Üç sorgu bu durumdaydı, üçü de BER/food.
+`MIN_GOLD = 5` üç katmana birden uygulanıyor, elenenler sessizce düşürülmek yerine
+`UNDERCOVERED_QUERIES` olarak yayımlanıyor ve hücre başına kapsama `gold_coverage.csv`'ye yazılıyor.
+4-7 eşikleri ayırt edilemiyor (aynı üçünü eliyorlar), yani sayı metriğin çözünürlüğünden geliyor.
+[#175](https://github.com/yukselburcinn-web/DA592/issues/175) — ilişkili: #48, #49, #50, #132, #176
+
+### #176. Query setinin tasarım ağırlıkları yazılı değil; chain tier 6 sorguyla ölçülüyor — ✅ Kapalı
+*(enhancement, `area:data`, `priority:low` — PR #182)* Hata bildirimi değil, karar issue'su. Setin
+kendi değişmezlerinin sağladığı şeyler değil, **sessiz kaldığı** üç şey ölçüldü: başlık sayısı
+adet-ağırlıklı (kolay `grid` katmanı setin yarısından fazlası), chain tier 6 sorguyla underpowered,
+ve tier ağırlıklandırmasının hangi olduğu hiç yazılmamış. Sonuç: chain 6 → **10** sorguya çıktı
+(kuralın kendi %15 tavanı içinde kalarak) ve bununla arketip kesinliği o katmanda da ayrıştı
+(p = 0,063 → **0,0039**). Adet ağırlıklandırması korundu, ama eşit tier ağırlığının ne vereceği
+(Fusion 0,455) REPORT §3.5'e yazıldı — tercih artık ölçülmüş ve yazılı.
+[#176](https://github.com/yukselburcinn-web/DA592/issues/176) — ilişkili: #48, #50, #126, #175
+
+### #183. Üretim cache'i ölü kayıt biriktiriyor ve REPORT onu bayat sayılarla tarif ediyor — ✅ Kapalı
+*(`area:data` — PR #184)* `hallucination_generations.json` 222 kayıt / 395 KB'a çıkmıştı; bugün
+canlı olan 111 (109 farklı prompt + zero-context probe'un 2 kaydı), kalan yarısı ölü. Cache anahtarı
+`sha1(model, system, prompt)` olduğu için prompt'a dokunan her issue (#173, #175, #176) bir set
+ekledi ve hiçbiri silmedi — kayıtlar yanlış değil, *erişilemez*. Dosya budandı ve her kayıt artık
+cevapladığı prompt'u da taşıyor, yani bir okuyucu hangi anlatının hangi planı tarif ettiğini
+görebiliyor.
+[#183](https://github.com/yukselburcinn-web/DA592/issues/183) — ilişkili: #132, #173, #177
 
 ## Alan B — Retrieval & Bilgi Grafiği
 
@@ -410,7 +469,7 @@ gösterilmesi ve nDCG/MAP geçişi de yapılmadı. Normalize edilecekse toplula�
 oranların ortalaması (%56.6) ile ortalamaların oranı (%49) aynı şey değil, REPORT ikincisini kullanıyor.
 [#49](https://github.com/yukselburcinn-web/DA592/issues/49) — ilişkili: #46, #48, #85, #77 (açık)
 
-### #123. Kategori ifadelerinin korpus denetimi: `landmark` ve `museum` da BM25'e görünmez — 🔓 Açık
+### #123. Kategori ifadelerinin korpus denetimi: `landmark` ve `museum` da BM25'e görünmez — ✅ Kapalı
 *(enhancement, `area:retrieval`, `priority:low`)* #113 `religion` için bir ilke kurdu: sorgu ifadesi
 korpusun gerçekten kullandığı kelimeyi taşımalı, çünkü tokenizer kök almıyor. Aynı denetim bütün
 `CATEGORY_PHRASE` girdilerine uygulandığında iki tanesinin daha aynı durumda olduğu çıktı: 654 POI
@@ -419,7 +478,9 @@ belgesi üzerinde `landmarks` yalnızca **2**, `museums` **17** belgede geçiyor
 görünmez. #113'ün düzeltmesinin genelleştirilmesi.
 [#123](https://github.com/yukselburcinn-web/DA592/issues/123) — ilişkili: #113, #63
 
-### #126. Graph-RAG kenar yürümüyor: ulaşım ilişkisini gerçek transit verisine bağla — 🔓 Açık
+**Kapanış (PR #141):** ifadeler ve kota üsteli birlikte süpürüldü ve gönderildi. Kabul kriterlerinden biri sağlanamadı — havuz sabit `top_k`'da sıfır toplamlı, yani bir kategorinin kazandığını bir başkası kaybediyor — ve o kısıtın kendisi #143 olarak ayrıldı.
+
+### #126. Graph-RAG kenar yürümüyor: ulaşım ilişkisini gerçek transit verisine bağla — ✅ Kapalı
 *(enhancement, `area:retrieval`, `priority:high`)* Proposal'ın Motivation bölümünün tamamı tek bir
 iddiaya dayanıyor: bağımsız belge muamelesi gören bir retrieval bu ilişki ağını yakalayamaz,
 dolayısıyla Graph-RAG kritik bir mimari bileşen. Şu an grafiğin kenarları o iddiayı taşımıyor.
@@ -428,6 +489,8 @@ uyumlu zincir sorgusu ekleniyor. **Grafiğin şemasını değiştirdiği için i
 `data/knowledge_graph.gml` yeniden üretilmezse teslim artefaktı bayatlar (#128'in 4. maddesi), ve
 `build_graph.shared_graph` önbelleği (#136) gözden geçirilmeli.
 [#126](https://github.com/yukselburcinn-web/DA592/issues/126) — ilişkili: #128, #136, #5
+
+**Kapanış (PR #134, #138, #139, #140, #142 — beş faz):** `SERVES` ve `REACHABLE` artık GTFS'ten çözülmüş yolculuk sürelerini taşıyor, `arrival_hub_id` retrieval katmanına ulaşıyor, saat uyumlu zincir bayrak arkasında gönderildi ve 12/15/18 saatlik ızgara hiçbir gerilemel göstermeyince bayrak açıldı. "Paris'te bir ulaşım hub'ına yakın müzeler" 6 cevaptan 36'ya çıktı. Eşiğin ikinci bacağı #144'te yeniden ölçüldü ve 10 dakikada kaldı.
 
 ### #128. Kod kendisi hakkında yanlış şey söylüyor — 🔒 Kapalı (çözülmeden, ertelendi)
 *(bug, documentation, `area:retrieval`, `priority:medium`)* Üç bulgu, tek sınıf: kod ve commit'li
@@ -450,11 +513,33 @@ kapandıktan sonra geriye kalan tek bir güncel issue'da toplanacak.
 
 ---
 
+### #143. Retrieval havuzu sıfır toplamlı: tek kota üsteli üç gezi uzunluğuna hizmet edemiyor — ✅ Kapalı
+*(enhancement, `area:retrieval`, `priority:medium` — PR #168)* #123'ün sağlayamadığı kriterin
+sebebi tek bir ayarın kötü seçilmesi değildi: havuz sabit `top_k`'da katiyen sıfır toplamlı, yani
+bir kategoriyi kazandırmak bir başkasını kaybettiriyor. Üsteli üç gezi uzunluğu boyunca süpürüldü
+(`quota_topk_sweep.py`) ve plana ulaşıp ulaşmadığı ayrıca ölçüldü (`quota_plan_impact.py`).
+Sonuç: tek bir üstel üçüne birden hizmet etmiyor ve değer sabit bırakıldı — ölçülmüş bir "hayır",
+tahmin edilmiş bir "evet"ten iyi.
+[#143](https://github.com/yukselburcinn-web/DA592/issues/143) — ilişkili: #113, #123, #63
+
+### #144. REACHABLE eşiği ölçüldü ama seçilmedi: 15 dakika savunulabilir görünüyordu — ✅ Kapalı
+*(enhancement, `area:retrieval`, `priority:low` — PR #171)* #126 Faz 5'in taraması 10 dakikayı
+gönderdi ama tablo 15'i de savunulabilir gösteriyordu (kesinlik pratikte sabit, recall %28 daha
+yüksek). Eksik olan şuydu: zincir füzyona dördüncü sıralı liste olarak giriyor, yani büyütmek
+taşıdığı ağırlık ne olursa olsun füzyonlanmış ilk 8'i oynatıyor. Eşik ve ağırlık **birlikte**
+süpürüldü. Üç ölçüm aynı yere çıktı: 10 dakikada her ağırlık KN-2'nin 2-4 bandını koruyor,
+15'te hiçbiri korumuyor; Paris katalog payı %28,3 → %36,1; ve chain tier recall kazanırken tam da
+var olma sebebini kaybediyor (marj 8,0× → 6,0×), çünkü o katmanın cevap anahtarı zaten
+traversal'ın kendisi. **10 kaldı.**
+[#144](https://github.com/yukselburcinn-web/DA592/issues/144) — ilişkili: #126, #63, #48
+
 ## Alan C — Ajanlar, Orkestrasyon & UI
 
-### #7. Gerçek LLM entegrasyonunu uçtan uca test et — 🔓 Açık
+### #7. Gerçek LLM entegrasyonunu uçtan uca test et — ✅ Kapalı
 `AnthropicLLMClient` kodda var ama canlı API anahtarıyla hiç test edilmedi; hallucination
 probe sonucu REPORT.md'ye eklenmedi. [#7](https://github.com/yukselburcinn-web/DA592/issues/7)
+
+**Kapanış (PR #152, #154):** NVIDIA'nın OpenAI uyumlu ucu eklendi ve gerçek LLM yolu uçtan uca çalıştırıldı — #132'nin 109 üretimi bu yoldan geldi. İşin asıl kalıcı parçası harcamanın yetkilendirilmesi: bir anahtarın ortamda olması artık yetmiyor, motoru `ROAMWISE_LLM` adlandırıyor, ve `tests/conftest.py` üç değişkeni de her testte temizliyor (#153, ölçüldü: düz bir `pytest tests/` 42 canlı çağrı yapıyordu).
 
 ### #8. Rota optimizasyonunu gerçek yol ağıyla geliştir — ✅ Kapalı
 Haversine → gerçek yol ağı (opt-in `use_real_routing`), açılış saatleri de itinerary'ye
@@ -923,7 +1008,7 @@ bütçe gezi uzunluğuyla ölçekleniyor, ve üst sınıra çarpan bir üretim a
 döndürülmüyor — bildiriliyor ve operatörün görebileceği bir uyarı logluyor.
 [#125](https://github.com/yukselburcinn-web/DA592/issues/125) — ilişkili: #56, #57, #133, #132
 
-### #122. Eyfel Kulesi hiçbir Paris planına girmiyor: çözücü için her durak aynı değerde — 🔓 Açık
+### #122. Eyfel Kulesi hiçbir Paris planına girmiyor: çözücü için her durak aynı değerde — ✅ Kapalı
 *(bug, `area:agents`, `priority:high`)* Ölçüldü: şehir başına en bilinen 12 POI'nin 7 arketip
 gezisinin kaçında **planda** olduğu (3 gün, 12 saat, `top_k=72`). Eiffel Tower **0/7**, Berlin Wall
 **0/7**, Musée d'Orsay 0/7, Reichstag 0/7, Sacré-Cœur 0/7, Panthéon 0/7. Her iki şehrin en ünlü
@@ -932,7 +1017,9 @@ değerde, dolayısıyla ünlü olan ile olmayan arasında seçim yapacak bir sin
 planında Eyfel Kulesi'nin olmaması savunulabilir değil.
 [#122](https://github.com/yukselburcinn-web/DA592/issues/122) — ilişkili: #72, #63, #79
 
-### #129. LangGraph orkestratörü uygulamadan erişilemiyor — 🔓 Açık
+**Kapanış (PR #147):** iki yarısı da düzeltildi. Çözücüye bir durağın daha değerli olduğunu söyleyecek bir yol yoktu — artık öne çıkan POI'nin düşürme cezası düz fiyatın katı — ve simge yapı çoğu zaman aday bile olmuyordu: `RouterAgent._with_iconic` şehrin en bilinen üç yerini çalışma setine ekliyor. 22/168'den **80/168**'e; garantili 42 yuvanın 41'i dolu. Bedeli km/durak: +%21, REPORT §5'te yazılı.
+
+### #129. LangGraph orkestratörü uygulamadan erişilemiyor — ✅ Kapalı
 *(enhancement, `area:ui`, `priority:medium`)* Proposal orkestrasyonu "Core Focus" diye adlandırıyor
 ve proje istenenden fazlasını yaptı: aynı beş düğümlü akış iki kez yazıldı — elle yazılmış durum
 makinesi (`agents/orchestrator.py`) ve `langgraph.graph.StateGraph` üzerinde
@@ -941,7 +1028,9 @@ makinesi (`agents/orchestrator.py`) ve `langgraph.graph.StateGraph` üzerinde
 uygulamadan erişilemiyor — sadece testlerde çalışıyor.
 [#129](https://github.com/yukselburcinn-web/DA592/issues/129) — ilişkili: #9, #76, #133
 
-### #130 / #131. Lokal LLM kurulumu ve doğrulaması (Burçin / Berk) — 🔓 Açık
+**Kapanış (PR #187):** sidebar'da *Agentic orchestration* seçici var, varsayılan değişmedi, seçim `st.cache_resource` anahtarının parçası ve opsiyonel ek kurulu değilse seçenek kurulum komutuyla birlikte yokluğunu söylüyor. Bağlarken ikinci bir ayrışma çıktı: `orchestrator_langgraph.py` hiç log basmıyordu, yani LangGraph seçildiğinde operatör ekranı boş kalacaktı. İki yol artık aynı yedi adımı aynı adlarla basıyor.
+
+### #130 / #131. Lokal LLM kurulumu ve doğrulaması (Burçin / Berk) — ✅ Kapalı
 *(`area:agents`, `priority:high` — kişi başına bir issue)* LLM tarafında **hiçbir API kullanmama**
 kararı alındı: narration tamamen lokal ve açık ağırlıklı modelle çalışacak (#54, Qwen3-4B-Instruct,
 Apache-2.0, MLX üzerinden). Üçümüz de Apple Silicon kullandığımız için yol herkese açık, ama
@@ -951,7 +1040,9 @@ lokal client kurulamazsa hatayı yutuyordu, yani çalışmadığında çalışı
 [#130](https://github.com/yukselburcinn-web/DA592/issues/130) ·
 [#131](https://github.com/yukselburcinn-web/DA592/issues/131) — ilişkili: #54, #133, #132
 
-### #132. Halüsinasyon oranı proposal'ın istediği gibi ölçülmüyor — 🔓 Açık
+**Kapanış:** #130 tamamlandı (Burçin, MLX yolu kendi makinesinde doğrulandı — §3.4.2'nin ölçümleri oradan). #131 `not planned` kapatıldı: yol yalnızca Apple Silicon'da çalışıyor ve Berk'in makinesi karşılamıyor; aynı boşluğu #7'nin NVIDIA yolu anahtarsız olmasa da herkes için kapattı.
+
+### #132. Halüsinasyon oranı proposal'ın istediği gibi ölçülmüyor — ✅ Kapalı
 *(`area:agents`, `priority:high`)* Proposal §5 üç metrik istiyor: **coğrafi halüsinasyon oranı**,
 multi-hop çözüm doğruluğu, itinerary tutarlılığı. İkisi ölçülüyor, halüsinasyon oranı ölçülmüyor.
 Elimizdeki `grounded_entity_rate` yapı gereği 1.0: `comparative_analysis.py` onu
@@ -961,6 +1052,8 @@ aynen döndürdüğü için, sessizce template'e düşmüş bir ölçümde anlat
 yerlerden oluşur ve halüsinasyon oranı tam olarak 0.0 çıkar — mükemmel görünen, tamamen geçersiz
 bir manşet rakam.
 [#132](https://github.com/yukselburcinn-web/DA592/issues/132) — ilişkili: #133, #7, #46, #50
+
+**Kapanış (PR #174):** `evaluation/hallucination.py`. 68 sorgu × 3 mimari, 109 üretim, `nvidia/nemotron-3.5-lightning-30b-a3b`. Coğrafi halüsinasyon oranı üç kolda da **0,0** — ve REPORT bunun göründüğünden zayıf bir sonuç olduğunu ayrıca yazıyor, çünkü prompt üç kolda da yapıca temellendirilmiş. `grounded_entity_rate` adı da bu issue'da düzeltildi: yapısal temellendirme bir halüsinasyon ölçümü değil ve adı öyle okunuyordu. Üretimler commit'li bir cache'te, yani CSV kimsenin kotası harcanmadan yeniden türetilebiliyor.
 
 ### #133. Lokal LLM kurulamazsa sessizce template'e düşüyor — ✅ Kapalı
 *(bug, `area:agents`, `priority:high` — PR #135)* `ROAMWISE_LOCAL_LLM=1` verilmiş olmasına rağmen
@@ -973,6 +1066,80 @@ kasıtlı varsayılan. İki davranış testiyle korunuyor.
 [#133](https://github.com/yukselburcinn-web/DA592/issues/133) — ilişkili: #54, #132, #130, #131, #125
 
 ---
+
+### #155. `use_container_width` kaldırılma tarihini geçti — ✅ Kapalı
+*(`priority:medium` — PR #156)* Streamlit'in uyarısı her açılışta düşüyordu ve tarih geçmişti; şu an
+yalnızca uyarı vermesinin sebebi `requirements.txt`'in streamlit'i 1.61.1'e sabitlemesi — yani bizi
+pin koruyordu, kod değil, ve pin yükseltildiği gün iki ekran da açılmayacaktı. Jüri kendi ortamında
+güncel bir Streamlit ile açabilir. 17 çağrı `width='stretch'` / `width='content'`'e çevrildi;
+tek koşumdaki 168 uyarı satırı da gitti.
+[#155](https://github.com/yukselburcinn-web/DA592/issues/155) — ilişkili: #12, #101
+
+### #157. Results sekmesinin ilk cümlesi iki şehirlik veriyi "8 cities" diye tanıtıyor — ✅ Kapalı
+*(`priority:medium` — PR #158)* Mimari seçimini gerekçelendiren ekranın **ilk cümlesi** sekiz şehir
+iddia ediyordu; veride iki şehir var. Sorgu sayısı veriden türetildiği için doğru kalmış, şehir ve
+arketip sayısı elle yazıldığı için bayatlamıştı — ve doğru yarısı yanlış yarısını gizlemişti.
+CLAUDE.md gotcha #10'un kuralı ekrana da uygulandı: sayılar katalogdan türetiliyor, yazılmıyor.
+[#157](https://github.com/yukselburcinn-web/DA592/issues/157) — ilişkili: #41, #42, #101
+
+### #159. Seçilen ulaşım modunun sonucu itinerary'de hiç yazmıyor — ✅ Kapalı
+*(enhancement, `area:ui`, `priority:high` — PR #166)* Sidebar dört mod sunuyor ve seçim planı
+gerçekten değiştiriyor, ama gezgin duraklar arası ne kadar yürüyeceğini, ne kadar süreceğini,
+hibritte hangi bacağın yürüme olduğunu hiçbir yerde göremiyordu — elinde yalnızca haritadaki
+çizgiler vardı. Yeni veri gerekmedi: süre günün kendi programından, mesafe `_build_distance_functions`'dan
+zaten çıkıyordu. Her durak artık nasıl ulaşıldığını yazıyor. Bunun beklenmedik bir yan etkisi
+#173'te ölçüldü: anlatıya gerçek bacak süresi verilince uydurma yürüyüş süreleri de düştü.
+[#159](https://github.com/yukselburcinn-web/DA592/issues/159) — ilişkili: #19, #94, #173
+
+### #160. "Use real street routing" kutusunu kaldır — ✅ Kapalı
+*(enhancement, `area:ui`, `priority:medium` — PR #169)* Kutu gezgine cevaplayamayacağı bir soru
+soruyordu: şehri için commit'li bir sokak ağı olup olmadığını bilmiyor, kapattığında ne
+kaybettiğini de bilmiyor. Zaten bir yetenek anahtarı değildi — fallback `street_network`'ün kendi
+docstring'inde yazılı ve sessizce doğru çalışıyor, harita da #94'ten beri düz çizgiyi kesikli
+gösteriyor. Yani kutu yalnızca **gerçek veriyi bilerek kapatma** anahtarıydı, ve kapalıyken harita
+ile bildirilen mesafe birbiriyle çelişiyordu. Kontrol kaldırıldı, `plan_trip()`'in parametresi
+kaldı — ölçüm scriptleri REPORT'un belgelediği düz-çizgi koşulunu onunla tutuyor.
+[#160](https://github.com/yukselburcinn-web/DA592/issues/160) — ilişkili: #32, #94, #93
+
+### #162. Harita gün lejantı yalnızca noktaları kaldırıyor, çizgi kalıyor — ✅ Kapalı
+*(bug, `area:ui`, `priority:medium` — PR #172)* *Burçin'in bulgusu.* Her gün için iki ayrı trace
+ekleniyor ve yalnızca noktalar lejantta; Plotly lejant tıklamasıyla yalnızca lejanttaki trace'i
+gizlediği için tek bir günü izlemek isteyen kullanıcı diğer günlerin çizgilerini üstünde
+görmeye devam ediyordu. İki trace olması bilinçliydi (tek trace olsaydı rotanın her köşesine
+numaralı daire konurdu), o yüzden çözüm birleştirmek değil trace'leri aynı lejant grubuna
+bağlamak oldu. Başlangıç ve bitiş de artık işaretli.
+[#162](https://github.com/yukselburcinn-web/DA592/issues/162) — ilişkili: #21, #83, #94
+
+### #163. İki tercih kaydırıcısının etiketi ne ölçtüğünü söylemiyor — ✅ Kapalı
+*(enhancement, `area:ui`, `priority:low` — PR #170)* "Everyday or upmarket" bir soru değil iki
+sıfattı; "Relaxed pace" ise yön belirsizdi ve daha kötüsü **yanlış cinsten** okunuyordu — kodda
+`relax` diğer dördüyle aynı cinsten bir *ilgi* değeri, bir tempo ayarı değil. Diğer dördü
+"… interest" kalıbını kullanırken bu ikisi kullanmadığı için aynı cinsten olduklarına dair
+görsel ipucu da yoktu. Beşi de aynı kalıba getirildi.
+[#163](https://github.com/yukselburcinn-web/DA592/issues/163) — ilişkili: #23, #79, #124
+
+### #173. Anlatı yürüyüş sürelerini uyduruyor: 280 m için "64 dakikalık yürüyüş" — ✅ Kapalı
+*(bug, `area:agents`, `priority:medium` — PR #178)* Modelin suçu değil: `_facts()` ona varış
+saatlerinden başka bir şey vermiyordu, o da iki saatin farkını yol süresi sanıyordu — oysa aradaki
+fark gezme + yol. Reichstag → Brandenburg Kapısı 0,28 km yani ~4 dakika, anlatı 64 dedi: **16×**.
+#132'nin metrikleri bunu göremiyordu, çünkü geçen her yer gerçek, doğru şehirde ve prompt'taydı —
+yer adlarını puanlayan bir ölçümün, o yerler arasında kurulan ilişkiye kör olması. Olgu bloğu artık
+her bacağın süresini, mesafesini ve modunu yazıyor. Ölçüldü: 359 süre iddiasının 351'i (%97,8)
+prompt'ta yazılı bir bacağa dakikasına kadar eşit. Beklenmeyen yan etki: dayanaksız anma oranı üç
+kolda da yarıdan fazla düştü. Genel doğrulama #177'ye ayrıldı.
+[#173](https://github.com/yukselburcinn-web/DA592/issues/173) — ilişkili: #132, #56, #159, #177
+
+### #177. Coğrafi kısıt doğrulaması: anlatının mesafe/süre iddialarını sokak ağına karşı doğrula — ✅ Kapalı
+*(enhancement, `area:agents`, `priority:medium` — PR #181)* #132 **hangi yerlerin** geçtiğini
+ölçüyor; bu issue **o yerler arasında kurulan ilişkinin** doğru olup olmadığını ölçüyor, ve mevcut
+orana eklenen bir terim olarak değil üçüncü bir metrik olarak — paydalar farklı (yer adı vs iddia).
+`evaluation/geographic_validation.py` commit'li üretimleri puanlıyor, model çağırmıyor. İki bulgu:
+sayısal iddiaların %96-100'ü prompt'un söylediği bir bacağa eşit (yani model sayı uydurmuyor), ama
+**belirsiz** ifadeler ("kısa bir yürüyüş") ilk kez üç mimariyi ayırıyor — Hybrid böyle tarif ettiği
+bacakların %65'ini 1,2 km eşiğinin üstünde çağırıyor, Fusion %48. Ayrıca dürüst bir itiraf:
+ölçüm koşumu `use_real_routing=False` ile planlıyor, yani sayısal sütun çoğunlukla ürünü değil
+ölçüm düzeneğini ölçüyor — REPORT §3.5'te yazılı.
+[#177](https://github.com/yukselburcinn-web/DA592/issues/177) — ilişkili: #132, #173, #32
 
 ## Alan D — Altyapı
 
@@ -1202,7 +1369,7 @@ zorunlu hale gelen kısım yapıldı — §3.1 artık `pipeline/build_catalogue.
 sayılarını anlatıyor (654 satır), aşılmış `fetch_real_pois.py`'ye atıf değil.
 [#101](https://github.com/yukselburcinn-web/DA592/issues/101) — ilişkili: `fed173e`, #80 (kapalı), #33, #77, #71 (kapalı)
 
-### #136. CI 17 dakikaya çıktı ve her oturum 55k token'lık keşifle başlıyor — 🔓 Açık
+### #136. CI 17 dakikaya çıktı ve her oturum 55k token'lık keşifle başlıyor — ✅ Kapalı
 *(enhancement, `area:infra`, `priority:high`)* CI 7 günde 3,4 dakikadan 17 dakikaya çıktı ve süre
 test **sayısından** gelmiyor: 142 testin 110'u toplam ~100 saniye sürüyor, kalan 32 test 943 saniye
 (%90). Son çalışmanın 17d53s'inin 16d00s'i (%89) tek başına test adımı; kurulum sorun değil.
@@ -1222,21 +1389,61 @@ kuralları. Kapsam dışı ve sonraki issue'lara: `@pytest.mark.slow` ile katman
 bölünmesi, `pytest-xdist`.
 [#136](https://github.com/yukselburcinn-web/DA592/issues/136) — ilişkili: #11, #128, #126
 
+**Kapanış (PR #137):** CI aynı kurulumu 19 kez yapmayı bıraktı, test adımı 16 dakikadan ~8-9 dakikaya indi, ve depoya nereden başlanacağı CLAUDE.md'ye yazıldı. Kapsam dışı bırakılan iki madde ayrı issue oldu ve ikisi de kapandı: süiti katmanlamak #148, `test_pipeline.py`'yi bölmek #150.
+
 ---
 
-## Öncelik sırası (2026-08-29 itibarıyla açık işler)
+### #148. Süiti katmanla: 161 testin 22'si süreyi domine ediyor — ✅ Kapalı
+*(enhancement, `area:infra`, `priority:medium` — PR #149)* #136'nın kapsam dışı bıraktığı ilk
+madde. Kazanılan süre yeni testlerle geri dolmaya başlamıştı (142 → 161 test) ve ağırlık dar bir
+kümedeydi: tam gezi planlayan, çok günlü TOPTW çözen, retriever kuran ya da karşılaştırmalı
+analizi çalıştıran testler. `@pytest.mark.slow` eklendi; `knowledge_graph/`, `retrieval/`,
+`agents/` ve `optimization/` altına dokunmayan bir PR hızlı altkümeyi koşuyor, geri kalan her şey
+ve `main`'e giden her push tam süiti koşuyor.
+[#148](https://github.com/yukselburcinn-web/DA592/issues/148) — ilişkili: #136, #150, #164
 
-| Öncelik | Issue | Neden |
-|---|---|---|
-| 1 | #133 → #132 | #133 kapandı ve #132'nin önkoşuluydu. Halüsinasyon oranı proposal'ın üç metriğinden ölçülmeyen tek maddesi; sessiz fallback düzeltilmeden ölçüm başlatılmamalı |
-| 2 | #130, #131 | Herkesin lokal LLM'i kendi makinesinde doğrulaması. #132'nin ölçümü buna bağlı ve kişi başına iş |
-| 3 | #122 | `priority:high` bug. Bir Paris planında Eyfel Kulesi'nin olmaması savunulabilir değil; ölçülmüş ve 0/7 |
-| 4 | #126 | `priority:high`. Proposal'ın Motivation bölümünün dayandığı iddiayı grafiğin kenarları şu an taşımıyor. Şema değiştirdiği için #128 ve #136'yı da etkiliyor |
-| 5 | #7 | `priority:high`, final rapor için gerçek LLM sonucu eksik. #130/#131 ile birlikte değerlendirilmeli — API'siz karar alındığı için kapsamı yeniden okunmalı |
-| 6 | #136 | CI 17 dakika; üçümüzün de her PR'da ödediği bedel. Kapsamı dar ve ölçülmüş |
-| 7 | #129 | Proposal'ın "core focus"u uygulamadan erişilemiyor — tez savunmasında gösterilebilir olması gerekir |
-| 8 | #124 | Kişiselleştirmenin temeli sentetik ankette; ilk adım duyarlılık ölçmek, sonuç ona göre |
-| 9 | #123 | `priority:low`. #113'ün düzeltmesinin genelleştirilmesi, dar ve iyi tanımlı |
+### #150. `test_pipeline.py` 3.289 satır ve üç kişi aynı dosyada: konularına böl — ✅ Kapalı
+*(enhancement, `area:infra`, `priority:medium` — PR #151)* Tek dosya, 151 test fonksiyonu, ~34 bin
+token. İki kişi aynı anda test eklediğinde çakışma dosyanın neresine dokunduklarıyla değil
+**dosyanın kendisiyle** ilgili hale geliyordu. Ayrıca açılış saatleri üzerinde çalışırken yalnızca
+o testleri koşmanın bir yolu yoktu. Konu başına bir dosyaya bölündü. Bölüm bir kez daha düzeltildi:
+#164, `models` testlerini `test_retrieval.py`'den ayırdı.
+[#150](https://github.com/yukselburcinn-web/DA592/issues/150) — ilişkili: #136, #148, #164
 
-**Ayrıca:** #128 kapalı ama çözülmedi. #126 ve LLM işleri kapandıktan sonra kalanları (Neo4j
-dalları, router log etiketi, `knowledge_graph.gml`'in rolü) tek bir güncel issue'da toplanacak.
+### #153. `ROAMWISE_LLM` export edilmişken `pytest` kotayı harcıyor — ✅ Kapalı
+*(bug, `area:infra`, `priority:high` — PR #154)* #152'nin `conftest.py`'si `ANTHROPIC_API_KEY` ve
+`ROAMWISE_LOCAL_LLM`'i temizliyordu ama harcamayı **yetkilendiren** değişkeni, `ROAMWISE_LLM`'i,
+temizlemiyordu — ve `.env.example`'ın kendi kurulum talimatı (`set -a; source .env; set +a`) onu
+tam olarak kabuğa export ediyor, kurulumu yapan kişinin bir sonraki adımı da genelde
+`pytest tests/` oluyor. Üçü de temizleniyor artık; koruma sözleşme değil yapı.
+[#153](https://github.com/yukselburcinn-web/DA592/issues/153) — ilişkili: #7, #54, #133
+
+### #164. `test_retrieval.py` hem forecasting hem retrieval tutuyor: models testlerini ayır — ✅ Kapalı
+*(`area:infra`, `priority:high` — PR #165)* #150 süiti bölerken "models" ayrı bir dosya yapılmamış,
+`test_retrieval.py`'ye katılmıştı. Somut maliyeti şuydu: üç kişilik paralel çalışma issue'ları
+dosya sahipliğine göre ayırıyor, ve ayrım kaynak dosyalarda temizken testlerde değildi — retrieval
+ayarı (#123, #143, #144) ile forecasting işi (#161) aynı dosyaya giriyordu. `test_models.py` ve
+`test_evaluation.py` bu yüzden var. Kural CLAUDE.md'ye yazıldı: **bir test dosyası bir `roamwise/`
+alt paketine karşılık gelir**, ve paralel çalışmayı ayakta tutan şey bu.
+[#164](https://github.com/yukselburcinn-web/DA592/issues/164) — ilişkili: #150, #148, #161
+
+### #185. Rapor kendi kodu hakkında beş yanlış sayı veriyor; §5'te iki ölçülmemiş sınırlama eksik — ✅ Kapalı
+*(`documentation` — PR #186)* Teslimat tablosunun graf satırı #126 öncesini anlatıyordu (681 düğüm
+/ 95.845 kenar; gerçek 688 / 17.600), ve dört sayı daha kodla uyuşmuyordu. §4 ise artık var olmayan
+iki arayüz öğesini anlatıyordu. Hepsi `.md` ve bir YAML yorumu olduğu için — `tests.yml`
+`paths-ignore: ['**.md']` taşıyor — markdown-only bir PR CI koşturmuyor, yani bu sınıf hata
+hiçbir zaman kırmızıya dönmüyor. Ayrıca ölçülmüş ama hiçbir yerde yazılmayan iki sınırlama §5'e
+eklendi. Bu issue aynı sınıfın tekrar ettiğini gösterdi ve doğrudan bir sonraki temizlik turunu
+doğurdu: sayıları veriye karşı sınayan `tests/test_docs.py`.
+[#185](https://github.com/yukselburcinn-web/DA592/issues/185) — ilişkili: #128, #145, #101, #157
+
+## Öncelik sırası — artık yok (2026-09-01)
+
+Bu bölüm 2026-08-29 itibarıyla dokuz açık işi sıralıyordu. Bugün açık iş yok, dolayısıyla sıra
+da yok. Sıralamanın kendisi tarihsel olarak ilginç: dokuz maddenin dokuzu da kapandı ve hiçbiri
+listedeki sırayla kapanmadı — #133 → #132 zinciri tuttu, ama #129 (7. sıra) en son kapananlardan
+biri oldu çünkü #126'nın şemayı değiştirmesini bekliyordu, ve #136 (6. sıra) iki yeni issue
+doğurarak (#148, #150) kendinden önce kapandı.
+
+Yeni bir iş için sıra tutulacaksa yeri burası değil: doğrudan GitHub'da issue açın ve etiketleyin.
+Bu dosya bir arşiv; `gh issue list` canlı olan.

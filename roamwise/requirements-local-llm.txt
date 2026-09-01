@@ -5,10 +5,16 @@
 # on Apple Silicon (it's built on Apple's own MLX array framework, with no
 # equivalent runtime elsewhere), and even there it triggers a multi-gigabyte
 # model download to the user's Hugging Face cache on first use -- neither of
-# which the rest of this project assumes. Install this, then set
-# ROAMWISE_LOCAL_LLM=1, to opt in.
+# which the rest of this project assumes. Install this, then name the engine
+# with ROAMWISE_LLM, to opt in.
+#
+# This file used to teach ROAMWISE_LOCAL_LLM=1, the variable #54 shipped with.
+# Issue #7 made ROAMWISE_LLM the one switch that authorises a non-template
+# engine, because a second hosted provider arrived and one flag per engine
+# does not compose. The old variable is still honoured (llm_client.
+# requested_engine) so nobody's working setup breaks; it is not the way in.
 #
 #   pip install -r requirements-local-llm.txt
-#   export ROAMWISE_LOCAL_LLM=1
+#   export ROAMWISE_LLM=local
 
 mlx-lm==0.31.3

@@ -9,7 +9,9 @@ numpy==2.2.6
 ortools==9.15.6755
 # OSM's opening_hours grammar, which the catalogue carries verbatim (#70).
 # A hand-rolled regex kept only the first HH:MM-HH:MM and dropped the day of
-# the week with it; this parses 99.4% of the catalogue's 4,404 distinct tags.
+# the week with it; this parses 295 of the catalogue's 299 distinct tags
+# (98.7%), carried by 392 of its 654 rows. The figure quoted here was from a
+# catalogue two migrations ago -- re-derive it rather than trusting it.
 opening-hours-py==2.1.4
 pandas==2.3.3
 plotly==6.9.0

@@ -50,8 +50,10 @@ roamwise/
 | Known limitations and deliberate trade-offs | `REPORT.md` §5 — read before proposing architecture changes |
 | How to run and rebuild things | `README.md` |
 
-`BACKLOG.md` is a synced index that lags GitHub, and it is 81 KB. Don't read it whole and
-don't cite it as current; query `gh` instead.
+`BACKLOG.md` is an **archive**, and it is 112 KB. It was synced to GitHub on 2026-09-01 — all
+87 issues, none open — and it will lag again the moment one is filed. Don't read it whole and
+don't cite it as current; query `gh` instead. What it is good for is the Turkish write-up of
+*why* each closed issue closed the way it did, which GitHub holds only as scattered comments.
 
 ## Reading rules
 
@@ -60,7 +62,8 @@ Some committed files are large enough to be worth avoiding whole:
 - `tests/` is one file per subject since #150 — `test_graph.py`, `test_models.py`,
   `test_retrieval.py`, `test_routing.py`, `test_opening_hours.py`, `test_orchestration.py`,
   `test_evaluation.py`, `test_maps.py`, `test_transit.py`, `test_arrival.py`,
-  `test_crowding.py`, `test_llm.py`. Read the one you need instead of all of them, and run it
+  `test_crowding.py`, `test_llm.py`, `test_views.py`, `test_docs.py`. Read the one you need
+  instead of all of them, and run it
   on its own: `pytest tests/test_opening_hours.py`. The catalogue-derived constants
   (`CITY_CODES`, `MAIN_CITY`, `needs_full_city`, …) live in `tests/helpers.py`; a new test
   file imports them from there rather than re-deriving them.
@@ -73,6 +76,11 @@ Some committed files are large enough to be worth avoiding whole:
   `test_evaluation.py` (the comparative analysis had been folded into
   `test_orchestration.py`, putting the measurement work and the orchestrator work in one).
   Put a new test where its subject lives, not where a related one happens to sit.
+
+  `test_docs.py` is the one file whose subject is not a `roamwise/` subpackage: it checks the
+  figures `README.md`, `REPORT.md`, this file, `pytest.ini` and the CI workflow quote against
+  the CSVs those figures are copied from. It belongs to whoever edits the prose, which is
+  everyone — so when a change moves a number, that file fails and names the sentence.
 - `data/poi.csv`, `data/crowding.csv`, `evaluation/*_results.csv` — use `head`, `wc -l`, or
   pandas. Never `cat` them.
 - `data/knowledge_graph.gml` and `data/street_network/*.npz` are blocked by a `Read` deny
@@ -160,11 +168,11 @@ Each of these cost someone a debugging session.
     (#128's two "the code lies about itself" findings — the unrunnable `backend="neo4j"`
     branches and the "zoning + 2-opt" router label — were fixed in #145. Both are gone.)
 
-17. **`@pytest.mark.slow` is not a hint, it decides what CI runs.** 46 of the 241 tests carry
+17. **`@pytest.mark.slow` is not a hint, it decides what CI runs.** 46 of the 260 tests carry
     it: the ones that run a full trip plan, a multi-day TOPTW solve, a retriever build, or the
     comparative analysis. A pull request that touches nothing under `knowledge_graph/`,
     `retrieval/`, `agents/` or `optimization/` runs `-m "not slow"`; everything else, and
-    every push to `main`, runs all 235 (#148). Re-derive both counts rather than trusting
+    every push to `main`, runs all 260 (#148). Re-derive both counts rather than trusting
     these two — `pytest tests/ -q --collect-only` and `-m slow --collect-only` — because they
     are the numbers that go stale first (#185). Two consequences: **add the marker when you
     add a test that plans a trip** — an unmarked heavy test silently lengthens every PR — and
