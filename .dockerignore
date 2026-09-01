@@ -5,4 +5,14 @@ __pycache__/
 .git/
 .DS_Store
 *.pdf
-roamwise/evaluation/*.csv
+
+# roamwise/evaluation/*.csv was excluded here, and it should not have been.
+# Three of those files are read by the running app, not just by the scripts
+# that write them: views/system_logs.py imports evaluation/comparative_analysis
+# at module level, and that module reads retrieval_gold.csv while it is being
+# imported (RECOMMENDED_POIS) -- so in an image without it the System logs
+# screen does not render an empty Results tab, it raises FileNotFoundError on
+# import. The tab itself then reads comparative_analysis_results.csv and
+# toptw_ceiling.csv. The whole directory is 536 KB against the 49 MB of
+# catalogue and street networks the image already carries, so excluding it
+# bought about 1% of the data payload and cost the operator screen. It ships.
